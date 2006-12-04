@@ -26,6 +26,7 @@ const Int_t maxNumberOfHistoSingleObjectTabs = 20;
 const Int_t maxNumberOfGraphSingleObjectTabs = 20;
 const Int_t maxNumberOfTabSingleObjects = 20;
 const Int_t maxNumberOfTabObjectDisplays = 20;
+const Int_t maxNumberOfTabObjectDisplayObjectTypes = 20;
 const Int_t maxNumberOfMenus = 20;
 const Int_t maxNumberOfMenuItems = 100;
 const Int_t maxNumberOfThreadFunctions = 10;
@@ -344,6 +345,9 @@ protected:
    Int_t       **tabObjectDisplayObjectIndex;
    Int_t       **tabObjectDisplayTaskHierarchyNumber;
    ROMEStrArray  tabObjectDisplaySupportedObjects;
+   Int_t       **tabObjectDisplayObjectTypeIndex;
+   Int_t        *numOfTabObjectDisplayObjectTypes;
+   ROMEString  **tabObjectDisplayObjectType;
 
 // tree
    Int_t         numOfTree;

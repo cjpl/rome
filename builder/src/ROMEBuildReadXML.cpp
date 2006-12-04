@@ -338,6 +338,9 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabObjectDisplayTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayObjectIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayTaskHierarchyNumber = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayObjectTypeIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   numOfTabObjectDisplayObjectTypes = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabObjectDisplayObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplayObjectTypes));
 
    // tree
    numOfBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
@@ -2026,6 +2029,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    numOfSteerFields[currentNumberOfTabs+numOfTask+1][0] = 0;
    numOfSteerChildren[currentNumberOfTabs+numOfTask+1][0] = 0;
    numOfTabObjectDisplays[currentNumberOfTabs] = 0;
+   numOfTabObjectDisplayObjectTypes[currentNumberOfTabs] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2451,6 +2455,21 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         cout << "Maximal number of object displays reached : " << maxNumberOfTabObjectDisplays << " !" << endl;
                         cout << "Terminating program." << endl;
                         return kFALSE;
+                     }
+                     for (i=0;i<numOfTabObjectDisplays[currentNumberOfTabs];i++) {
+                        found = false;
+                        for (j=0;j<numOfTabObjectDisplayObjectTypes[currentNumberOfTabs];j++) {
+                           if (tabObjectDisplayType[currentNumberOfTabs][i]==tabObjectDisplayObjectType[currentNumberOfTabs][j]) {
+                              found = true;
+                              tabObjectDisplayObjectTypeIndex[currentNumberOfTabs][i] = j;
+                              break;
+                           }
+                        }
+                        if (!found) {
+                           tabObjectDisplayObjectType[currentNumberOfTabs][numOfTabObjectDisplayObjectTypes[currentNumberOfTabs]] = tabObjectDisplayType[currentNumberOfTabs][i];
+                           tabObjectDisplayObjectTypeIndex[currentNumberOfTabs][i] = numOfTabObjectDisplayObjectTypes[currentNumberOfTabs];
+                           numOfTabObjectDisplayObjectTypes[currentNumberOfTabs]++;
+                        }
                      }
                      break;
                   }
