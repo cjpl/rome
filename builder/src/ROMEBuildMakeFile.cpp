@@ -79,7 +79,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEGraph.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEHorizontalFrame.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMECompositeFrame.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMELabel.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
@@ -151,7 +151,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
       romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEHorizontalFrame.h");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMECompositeFrame.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMELabel.h");
       romeLinkDefSuffix->Add("");
@@ -309,7 +309,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/XMLToFormWindow.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToFormFrame.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToFormElement.cpp");
-      romeSources->Add("$(ROMESYS)/src/ROMEHorizontalFrame.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMECompositeFrame.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMELabel.cpp");
    }
    if (this->orca)

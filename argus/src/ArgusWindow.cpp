@@ -30,6 +30,7 @@
 #include "ArgusTab.h"
 #include "ArgusAnalyzerController.h"
 #include "ArgusTextDialog.h"
+#include "ROMECompositeFrame.h"
 #include "ROMEAnalyzer.h"
 
 ClassImp(ArgusWindow)
@@ -111,6 +112,10 @@ Bool_t ArgusWindow::Start()
    fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
+
+   // Create info frame
+//   fInfoFrame = new ROMECompositeFrame(this,100,0,kRaisedFrame | kVerticalFrame | kHorizontalFrame);
+//   this->AddFrame(fInfoFrame,new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0,0,0,0));
 
    // Create tab widget
    fTab = new TGTab(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));

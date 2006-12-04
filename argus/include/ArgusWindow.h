@@ -33,6 +33,7 @@
 class TGTab;
 class TObjArray;
 class TGHProgressBar;
+class ROMECompositeFrame;
 
 class ArgusWindow : public TGMainFrame 
 {
@@ -44,6 +45,7 @@ protected:
    Bool_t                   fStatusBarSwitch;  //! status bar switch
    TGHProgressBar          *fProgress;      //! 
    Int_t                    fUpdateFrequency;  //! update frequency
+   ROMECompositeFrame     *fInfoFrame;        //! info frame
    TGMenuBar               *fMenuBar;          //! menu bar
    TGPopupMenu             *fMenuFile;         //! file menu
    TGPopupMenu             *fMenuNetFolder;    //! file menu, net folder
