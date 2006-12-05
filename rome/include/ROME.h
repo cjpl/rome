@@ -32,9 +32,13 @@
 // This macro can be used for debugging like,
 //  void test(int i)
 //  {
-//     if(i != 3) dbg("i=%d", i);
+//     if(i != 3) dbgprintf("i=%d", i);
 //  }
-#define dbg(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__func__),printf(" "__VA_ARGS__))
+#if defined( R__VISUAL_CPLUSPLUS )
+#   define dbgprintf(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__FUNCTION__),printf(" "__VA_ARGS__))
+#else
+#   define dbgprintf(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__func__),printf(" "__VA_ARGS__))
+#endif
 
 #endif   // ROME_H
 
