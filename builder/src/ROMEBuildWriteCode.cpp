@@ -2747,9 +2747,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       if (tabObjectDisplay[iTab]) {
-         for (i=0;i<numOfTabObjectDisplayObjectTypes[iTab];i++) {
-            buffer.AppendFormatted("#include <%s.h>\n",tabObjectDisplayObjectType[iTab][i].Data());
-         }
+         buffer.AppendFormatted("#include \"TGraphMT.h\"\n");
+         buffer.AppendFormatted("#include <TGraph2D.h>\n");
+         buffer.AppendFormatted("#include <TH1.h>\n");
+         buffer.AppendFormatted("#include <TH2.h>\n");
+         buffer.AppendFormatted("#include <TH3.h>\n");
+         buffer.AppendFormatted("#include <TProfile.h>\n");
+         buffer.AppendFormatted("#include <TProfile2D.h>\n");
          buffer.AppendFormatted("#include <TStyle.h>\n");
          buffer.AppendFormatted("#include <TLine.h>\n");
          if (readGlobalSteeringParameters)
