@@ -28,4 +28,13 @@
 #endif
 
 #define WarningSuppression(x) { if (x) { int warning_suppression; warning_suppression = 0; } }
+
+// This macro can be used for debugging like,
+//  void test(int i)
+//  {
+//     if(i != 3) dbg("i=%d", i);
+//  }
+#define dbg(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__func__),printf(" "__VA_ARGS__))
+
 #endif   // ROME_H
+
