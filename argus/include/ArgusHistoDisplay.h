@@ -95,7 +95,7 @@ protected:
    Int_t                fPadConfigChannel[kMaxNumberOfPads]; //! 
 
 public:
-   ArgusHistoDisplay();
+   ArgusHistoDisplay(ArgusWindow* window);
    virtual ~ArgusHistoDisplay();
 
    void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
@@ -114,6 +114,8 @@ public:
    void   SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
    Bool_t IsPadConfigActive() { return fPadConfigActive; };
 
+   virtual void RegisterObjects() = 0;
+   virtual void UnRegisterObjects() = 0;
 
 protected:
    void BaseInit();

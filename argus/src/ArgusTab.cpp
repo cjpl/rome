@@ -25,12 +25,14 @@
 
 ClassImp(ArgusTab)
 
-ArgusTab::ArgusTab():TGCompositeFrame(NULL,1,1) {
+ArgusTab::ArgusTab(ArgusWindow* window):TGCompositeFrame(NULL,1,1) {
+   fWindow  = window;
    fTabActive  = kFALSE;
    fBusy = false;
    fWatchAll.Reset();
    fWatchUser.Reset();
    fWatchUserEvent.Reset();
+   fRegisteringActive = true;
 }
 
 void ArgusTab::ArgusInit() {
@@ -72,21 +74,23 @@ Bool_t ArgusTab::RequestEvent() {
 }
 
 // Time methods
-void ArgusTab::ShowTimeStatistics()
+const char* ArgusTab::GetTimeStatisticsString(ROMEString& string)
 {
+   string = "";
    if (fTabActive) {
       int i;
       ROMEString name;
       int nchars;
       nchars = 0;
-      ROMEPrint::Print(" Tab ");
+      string = " Tab ";
       nchars = 5;
       name = this->GetName();
-      ROMEPrint::Print(name.Data());
+      string += name.Data();
       for (i=0;i<30-name.Length()-5;i++)
-         ROMEPrint::Print(".");
-      ROMEPrint::Print(" : %s  %s  %s\n", GetTimeOfAll(), GetTimeOfUser(), GetTimeOfUserEvents());
+         string += ".";
+      string.AppendFormatted(" : %s  %s  %s\n", GetTimeOfAll(), GetTimeOfUser(), GetTimeOfUserEvents());
    }
+   return string;
 }
 
 const char* ArgusTab::GetTimeOfAll()

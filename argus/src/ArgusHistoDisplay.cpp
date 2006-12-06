@@ -55,7 +55,7 @@
 
 ClassImp(ArgusHistoDisplay)
 
-ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
+ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
 {
    Int_t i,j;
    for (i=0;i<kMaxNumberOfPadsX;i++) {
@@ -326,24 +326,24 @@ void ArgusHistoDisplay::BaseTabSelected()
    // Create menu
 
    fMenuDisplay = new TGPopupMenu(fClient->GetRoot());
-   fMenuDisplay->Associate(gROME->GetWindow());
+   fMenuDisplay->Associate(fWindow);
    fMenuView = new TGPopupMenu(fClient->GetRoot());
-   fMenuView->Associate(gROME->GetWindow());
+   fMenuView->Associate(fWindow);
    fMenuViewDivide = new TGPopupMenu(fClient->GetRoot());
-   fMenuViewDivide->Associate(gROME->GetWindow());
+   fMenuViewDivide->Associate(fWindow);
    fMenuViewSelect = new TGPopupMenu(fClient->GetRoot());
-   fMenuViewSelect->Associate(gROME->GetWindow());
+   fMenuViewSelect->Associate(fWindow);
    for (i=0;i<10;i++) {
       fMenuView100[i] = new TGPopupMenu(fClient->GetRoot());
-      fMenuView100[i]->Associate(gROME->GetWindow());
+      fMenuView100[i]->Associate(fWindow);
       for (j=0;j<10;j++) {
          fMenuView10[i][j] = new TGPopupMenu(fClient->GetRoot());
-         fMenuView10[i][j]->Associate(gROME->GetWindow());
+         fMenuView10[i][j]->Associate(fWindow);
       }
    }
    for (i=0;i<kMaxNumberOfPadsX;i++) {
       fMenuViewDivideColumn[i] = new TGPopupMenu(fClient->GetRoot());
-      fMenuViewDivideColumn[i]->Associate(gROME->GetWindow());
+      fMenuViewDivideColumn[i]->Associate(fWindow);
       for (j=0;j<kMaxNumberOfPadsY;j++) {
          str.SetFormatted("%dx%d",i+1,j+1);
          fMenuViewDivideColumn[i]->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW[i][j]);
@@ -371,8 +371,8 @@ void ArgusHistoDisplay::BaseTabSelected()
    fMenuView->AddEntry("Reset", M_ARGUS_DISPLAY_VIEW_RESET);
    fMenuView->AddEntry("Pad Configuration", M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
 
-   gROME->GetWindow()->GetMenuBar()->AddPopup("Display", fMenuDisplay, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   gROME->GetWindow()->GetMenuBar()->AddPopup("View", fMenuView, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   fWindow->GetMenuBar()->AddPopup("Display", fMenuDisplay, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   fWindow->GetMenuBar()->AddPopup("View", fMenuView, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
 
    for (i=0;i<kMaxNumberOfPadsX;i++) {
       for (j=0;j<kMaxNumberOfPadsY;j++) {
@@ -396,16 +396,16 @@ void ArgusHistoDisplay::BaseTabUnSelected()
    Int_t i;
    ROMEString str;
 
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("Display");
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("View");
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("Divide");
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("0-19");
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("20-39");
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("40-59");
-   delete gROME->GetWindow()->GetMenuBar()->RemovePopup("60-79");
+   delete fWindow->GetMenuBar()->RemovePopup("Display");
+   delete fWindow->GetMenuBar()->RemovePopup("View");
+   delete fWindow->GetMenuBar()->RemovePopup("Divide");
+   delete fWindow->GetMenuBar()->RemovePopup("0-19");
+   delete fWindow->GetMenuBar()->RemovePopup("20-39");
+   delete fWindow->GetMenuBar()->RemovePopup("40-59");
+   delete fWindow->GetMenuBar()->RemovePopup("60-79");
    for (i=0;i<kMaxNumberOfPadsX;i++) {
       str.SetFormatted("%dx.",i+1);
-      delete gROME->GetWindow()->GetMenuBar()->RemovePopup(str.Data());
+      delete fWindow->GetMenuBar()->RemovePopup(str.Data());
    }
 }
 
