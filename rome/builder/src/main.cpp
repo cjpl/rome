@@ -36,12 +36,12 @@ int main(int argc, char *argv[])
    char* romesys = getenv("ROMESYS");
    if (romesys==NULL) {
       cout << "Please set the environment variable ROMESYS to the ROME root-directory." << endl;
-      return 0;
+      return 1;
    }
    char* rootsys = getenv("ROOTSYS");
    if (rootsys==NULL) {
       cout << "Please set the environment variable ROOTSYS to the ROOT root-directory." << endl;
-      return 0;
+      return 1;
    }
 
    gROOT->SetBatch();
@@ -53,13 +53,13 @@ int main(int argc, char *argv[])
    ROMEString xmlFile = "";
 
    if (!romeb->ReadCommandLineParameters(argc,argv))
-      return 0;
+      return 1;
 
    if (!romeb->CheckFileAndPath())
-      return 0;
+      return 1;
 
    if (!romeb->StartBuilder())
-      return 0;
+      return 1;
 
    bool noLink = romeb->GetNoLink();
    bool makeOutput = romeb->GetMakeOutput();
