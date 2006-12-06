@@ -276,13 +276,14 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
+         ROMEString str;
          ROMEPrint::Print("run times :                           All      User Methods   User Events\n");
          ROMEPrint::Print("-----------                      ------------  ------------  ------------\n");
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");
          if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())
-            gROME->GetWindow()->ShowTimeStatistics();
+            ROMEPrint::Print(gROME->GetWindow()->GetTimeStatisticsString(str));
          ROMEPrint::Print("\n");
       }
    }

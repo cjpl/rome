@@ -17,6 +17,7 @@
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif
+#include <TArrayI.h>
 #include <TGMenu.h>
 #include <TGStatusBar.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -25,6 +26,7 @@
 
 #include "ROME.h"
 #include "ROMEString.h"
+#include "ROMEStrArray.h"
 #include "ROMENetFolder.h"
 #include "ROMEStopwatch.h"
 #include "ArgusAnalyzerController.h"
@@ -38,41 +40,58 @@ class ROMECompositeFrame;
 class ArgusWindow : public TGMainFrame 
 {
 protected:
-   Bool_t                   fArgusActive;      //! active flag
-   ROMEStopwatch            fWatchAll;         //! Records time used by window
-   ROMEString               fTimeAllString;    //! Elapsed Time of all in a readable format
-   TGStatusBar             *fStatusBar;        //! status bar
-   Bool_t                   fStatusBarSwitch;  //! status bar switch
-   TGHProgressBar          *fProgress;      //! 
-   Int_t                    fUpdateFrequency;  //! update frequency
-   ROMECompositeFrame     *fInfoFrame;        //! info frame
-   TGMenuBar               *fMenuBar;          //! menu bar
-   TGPopupMenu             *fMenuFile;         //! file menu
-   TGPopupMenu             *fMenuNetFolder;    //! file menu, net folder
-   TGTab                   *fTab;              //! tabs
-   Int_t                    fCurrentTabID;     //! ID number of top tab
-   TObjArray               *fTabObjects;       //! Handle to Tab Objects
-   Bool_t                   fControllerActive; //!
-   ArgusAnalyzerController *fController;       //!
-   ROMENetFolder           *fControllerNetFolder;//!
-   Float_t                  fWindowScale;      //! Window scale
+   Int_t                    fWindowId;             //! Window id
+   TObjArray               *fSubWindows;           //! Handles to sub windows
+   TArrayI                 *fSubWindowRunning;     //! Flags running sub windows
+   ROMEStrArray            *fSubWindowTimeString;  //! Run time of sub window
+   Bool_t                   fTabWindow;            //! Flags Monitor with Tabs
+   ROMEStopwatch            fWatchAll;             //! Records time used by window
+   ROMEString               fTimeAllString;        //! Elapsed Time of all in a readable format
+   Bool_t                   fArgusActive;          //! active flag
+   TGStatusBar             *fStatusBar;            //! status bar
+   Bool_t                   fStatusBarSwitch;      //! status bar switch
+   TGHProgressBar          *fProgress;             //! 
+   ROMECompositeFrame      *fInfoFrame;            //! info frame
+   TGMenuBar               *fMenuBar;              //! menu bar
+   TGPopupMenu             *fMenuFile;             //! file menu
+   TGPopupMenu             *fMenuNetFolder;        //! file menu, net folder
+   TGTab                   *fTab;                  //! tabs
+   ROMECompositeFrame      *fMainFrame;            //! main frame
+   Int_t                    fCurrentTabID;         //! ID number of top tab
+   TObjArray               *fTabObjects;           //! Handle to Tab Objects
+   Bool_t                   fControllerActive;     //!
+   ArgusAnalyzerController *fController;           //!
+   ROMENetFolder           *fControllerNetFolder;  //!
+   Float_t                  fWindowScale;          //! Window scale
    Bool_t                   fRequestEventHandling; //! Event handling request flag
-   Long64_t                 fCurrentEvent;     //! Currently displayed event
-   Long64_t                 fCurrentRun;       //! Currently displayed run
+   Long64_t                 fCurrentEvent;         //! Currently displayed event
+   Long64_t                 fCurrentRun;           //! Currently displayed run
 
    enum CommandIdentifiers{
+      M_FILE_NEW_WINDOW,
       M_FILE_CONTROLLER,
       M_FILE_EXIT
    };
       
 public:
    ArgusWindow(); 
-   ArgusWindow(const TGWindow* p);
+   ArgusWindow(const TGWindow* p,Bool_t tabWindow=kTRUE);
    virtual ~ArgusWindow();
+
    Bool_t          Start();
    virtual Bool_t  CreateTabs() = 0;
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
-   void            ShowTimeStatistics();
+   const char* GetTimeStatisticsString(ROMEString& string);
+
+   // Sub Windows
+   int  GetWindowId() { return fWindowId; };
+   void SetWindowId(int id) { fWindowId = id; };
+
+   Bool_t IsSubWindowRunningAt(Int_t i);
+   void   SetSubWindowRunningAt(Int_t i,Bool_t running);
+
+   const char* GetSubWindowTimeStringAt(Int_t i);
+   void        SetSubWindowTimeStringAt(Int_t i,const char* timeString);
 
    // Analyzer Controller
    ArgusAnalyzerController   *GetAnalyzerController() { return fController; }
@@ -110,6 +129,7 @@ public:
    Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
    // Active. This might be dangerouse because it overload TGFrame::IsActive
    Bool_t          IsActive() const { return fArgusActive; }
+   Int_t           GetActiveTabObjectIndex();
 
    // Event Handler
    virtual void    TriggerEventHandler() = 0;
@@ -121,7 +141,7 @@ public:
    void            SetCurrentRun(Long64_t run) { fCurrentRun = run; };
 
 protected:
-   void            InitArgus();
+   void            InitArgus(Bool_t tabWindow);
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window
 };

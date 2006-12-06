@@ -36,23 +36,24 @@
 ClassImp(ArgusWindow)
 ArgusWindow::ArgusWindow()
 {
-   InitArgus();
+   InitArgus(true);
 }
 
-ArgusWindow::ArgusWindow(const TGWindow* p) : TGMainFrame(p, 1, 1)
+ArgusWindow::ArgusWindow(const TGWindow* p,Bool_t tabWindow) : TGMainFrame(p, 1, 1)
 {
-   InitArgus();
+   InitArgus(tabWindow);
 }
 
-void ArgusWindow::InitArgus()
+void ArgusWindow::InitArgus(Bool_t tabWindow)
 {
+   fWindowId = -1;
+   fTabWindow = tabWindow;
    fRequestEventHandling = false;
    fArgusActive = false;
    fWindowScale = 1;
    fStatusBarSwitch = true;
    fControllerActive = false;
    fControllerNetFolder = NULL;
-   fUpdateFrequency = 0;
 
    fStatusBar = 0;
    fMenuBar = 0;
@@ -63,6 +64,10 @@ void ArgusWindow::InitArgus()
    fController = 0;
    fControllerNetFolder = 0;
    fProgress = 0;
+
+   fSubWindows = new TObjArray(0);
+   fSubWindowRunning = new TArrayI();
+   fSubWindowTimeString = new ROMEStrArray();
 
    fWatchAll.Reset();
 }
@@ -77,6 +82,8 @@ ArgusWindow::~ArgusWindow()
    SafeDelete(fTab);
    SafeDelete(fTabObjects);
    SafeDelete(fProgress);
+   SafeDelete(fSubWindowRunning);
+   SafeDelete(fSubWindowTimeString);
 #endif
 //   SafeDelete(fController); // fController can be deleted by clicking closed box.
 }
@@ -104,6 +111,9 @@ Bool_t ArgusWindow::Start()
    fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
    fMenuFile = new TGPopupMenu (fClient->GetRoot());
    fMenuFile->Associate(this);
+   if (fTabWindow) {
+      fMenuFile->AddEntry("New Window", M_FILE_NEW_WINDOW);
+   }
    if (AddMenuNetFolder(fMenuNetFolder))
       fMenuFile->AddPopup("&Connect NetFolder", fMenuNetFolder);
    fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
@@ -114,11 +124,20 @@ Bool_t ArgusWindow::Start()
    AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
 
    // Create info frame
+   if (fTabWindow) {
 //   fInfoFrame = new ROMECompositeFrame(this,100,0,kRaisedFrame | kVerticalFrame | kHorizontalFrame);
 //   this->AddFrame(fInfoFrame,new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0,0,0,0));
+   }
 
    // Create tab widget
-   fTab = new TGTab(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));
+   if (fTabWindow) {
+      fTab = new TGTab(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));
+      AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+   }
+   else {
+      fMainFrame = new ROMECompositeFrame(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));
+      AddFrame(fMainFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+   }
 
    ROMEPrint::Debug("Creating Tabs\n");
    if (!CreateTabs()) {
@@ -127,10 +146,6 @@ Bool_t ArgusWindow::Start()
    }
    ROMEPrint::Debug("Tabs Created\n");
 
-   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
-   ROMEString name;
-   name.SetFormatted("ARGUS - %s", gROME->GetProgramName());
-   SetWindowName(name.Data());
    MapSubwindows();
    Resize(GetDefaultSize());
    gSystem->Sleep(500);
@@ -164,6 +179,15 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
    Error("GetTabObject", "%s was not found.", tabName);
    return 0;
 }
+Int_t ArgusWindow::GetActiveTabObjectIndex()
+{
+   for (int i=0;i<fTabObjects->GetEntries();i++) {
+      if (((ArgusTab*)fTabObjects->At(i))->IsTabActive())
+         return i;
+   }
+   Error("GetActiveTabObjectIndex", "no tab active.");
+   return -1;
+}
 
 void ArgusWindow::SetControllerNetFolder(const char* folderName)
 {
@@ -172,15 +196,27 @@ void ArgusWindow::SetControllerNetFolder(const char* folderName)
    fControllerNetFolder = gROME->GetNetFolder(folderName);
 }
 
-// Time methods
-void ArgusWindow::ShowTimeStatistics()
+const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
 {
    int i;
    ROMEString str;
-   ROMEPrint::Print("window........................ : %s\n", fWatchAll.GetRealTimeString(str));
+   if (fTabWindow)
+      string.SetFormatted("main window................... : %s\n", fWatchAll.GetRealTimeString(str));
+   else
+      string.SetFormatted("sub window %3d................ : %s\n", fWindowId, fWatchAll.GetRealTimeString(str));
    for (i=0;i<fTabObjects->GetEntriesFast();i++) {
-      ((ArgusTab*)fTabObjects->At(i))->ShowTimeStatistics();
+      ((ArgusTab*)fTabObjects->At(i))->GetTimeStatisticsString(str);
+      string.AppendFormatted(str.Data());
    }
+   for (i=0;i<fSubWindows->GetEntriesFast();i++) {
+      if (IsSubWindowRunningAt(i)) {
+         string.AppendFormatted(((ArgusWindow*)fSubWindows->At(i))->GetTimeStatisticsString(str));
+      }
+      else {
+         string.AppendFormatted(GetSubWindowTimeStringAt(i));
+      }
+   }
+   return string.Data();
 }
 
 void ArgusWindow::RequestEventHandling() 
@@ -197,18 +233,41 @@ void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sl
    // mode 2 : finish
 
    fProgress->SetPosition((float)(fProgress->GetMax()*progress));
-   gROME->GetWindow()->GetStatusBar()->SetText(text);
+   fStatusBar->SetText(text);
 
    if (mode==0) {
-      gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(TColor::RGB2Pixel(255,150,150));
-//      gROME->GetWindow()->GetStatusBar()->Layout();
+      fStatusBar->GetBarPart(0)->SetBackgroundColor(TColor::RGB2Pixel(255,150,150));
+//      fStatusBar->Layout();
       fProgress->Reset();
    }
    if (mode==2) {
-      gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(GetDefaultFrameBackground());
+      fStatusBar->GetBarPart(0)->SetBackgroundColor(GetDefaultFrameBackground());
    }
    gSystem->ProcessEvents();
    gSystem->Sleep(sleepingTime);
    return;
 }
 
+Bool_t ArgusWindow::IsSubWindowRunningAt(Int_t i) 
+{ 
+   return fSubWindowRunning->At(i)!=0; 
+}
+void ArgusWindow::SetSubWindowRunningAt(Int_t i,Bool_t running) 
+{
+   if (fSubWindowRunning->GetSize()<=i) {
+      if (fSubWindowRunning->GetSize()*2>i)
+         fSubWindowRunning->Set(fSubWindowRunning->GetSize()*2);
+      else
+         fSubWindowRunning->Set(i+1);
+   }
+   fSubWindowRunning->AddAt((Int_t)running,i); 
+}
+
+const char* ArgusWindow::GetSubWindowTimeStringAt(Int_t i) 
+{ 
+   return fSubWindowTimeString->At(i).Data(); 
+}
+void ArgusWindow::SetSubWindowTimeStringAt(Int_t i,const char* timeString) 
+{ 
+   fSubWindowTimeString->AddAt(timeString,i); 
+}
