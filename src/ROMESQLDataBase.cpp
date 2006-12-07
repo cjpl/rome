@@ -39,8 +39,9 @@ ClassImp(ROMESQLDataBase)
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = NULL;
    Int_t i;
-   for (i = 0; i < kNumberOfReadCache; i++)
+   for (i = 0; i < kNumberOfReadCache; i++) {
       fPathCache[i] = 0;
+   }
    fCurrentCache = 0;
    fLastRunNumber = 0;
    fLastEventNumber = 0;
@@ -50,6 +51,10 @@ ROMESQLDataBase::ROMESQLDataBase() {
 
 ROMESQLDataBase::~ROMESQLDataBase() {
    SafeDelete(fSQL);
+   Int_t i;
+   for (i = 0; i < kNumberOfReadCache; i++) {
+      SafeDelete(fPathCache[i]);
+   }
 }
 
 void ROMESQLDataBase:: ResetPhrase() {
