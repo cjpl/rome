@@ -45,20 +45,28 @@ TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 ifeq ($(ROMEDEBUG), yes)
   CFLAGS =
   CXXFLAGS =
+  LDFLAGS =
 endif
 ifeq ($(ROMEOPTIMIZE), yes)
   CFLAGS =
   CXXFLAGS =
+  LDFLAGS =
 endif
 
 ifeq ($(ROMEDEBUG), yes)
   CFLAGS += -g
   CXXFLAGS += -g
+  LDFLAGS += -g
 endif
 ifeq ($(ROMEOPTIMIZE), yes)
   CFLAGS += -O
   CXXFLAGS += -O
+  LDFLAGS += -O
 endif
+
+CFLAGS += ROMECFLAGS
+CXXFLAGS += ROMECXXFLAGS
+LDFLAGS += ROMELDFLAGS
 
 ifeq ($(ROMEPIC), pic)
 ROMEPICOPT = -fpic
@@ -223,13 +231,13 @@ obj:
 dict: $(DICTIONARIES)
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(CXXLD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
-	$(CXXLD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
+	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
-	$(CXXLD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
+	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
 
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
