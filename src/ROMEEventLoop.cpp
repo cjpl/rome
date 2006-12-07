@@ -81,6 +81,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fNetFolderServerUpdateThread = 0;
    fProgressDelta = 10000;
    fUpdateWindowLastEvent = 0;
+   fWindowFirstDraw = kFALSE;
 }
 
 ROMEEventLoop::~ROMEEventLoop()
