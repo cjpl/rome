@@ -3937,8 +3937,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TObjArray.h>\n");
