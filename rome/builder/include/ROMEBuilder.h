@@ -558,7 +558,9 @@ private:
    void    WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
    void    WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int_t type);
    void    WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder);
+   void    WriteFolderSetterInclude(ROMEString &buffer,Int_t numFolder);
    void    WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder);
+   void    WriteFolderSetterSource(ROMEString &buffer,Int_t numFolder);
    Bool_t  WriteTaskCpp();
    Bool_t  WriteBaseTaskCpp();
    Bool_t  WriteTaskH();
