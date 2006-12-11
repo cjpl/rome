@@ -1,49 +1,92 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:36:22 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:\rome\romeConfig.xsd">
   <ProgramConfiguration>
+    <!-- The program mode. Must be one of the following : 0 : analyzer; 1 : monitor; 2 : analyzer and monitor; 3 : monitor connected to an analyzer. (required) -->
     <ProgramMode>0</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
-      <AnalyzingMode>offline</AnalyzingMode>
+      <!-- Description of the modes in which the framework can run. -->
+      <!-- Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline -->
+      <AnalyzingMode>online</AnalyzingMode>
+      <!-- Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none. -->
       <DAQSystem>midas</DAQSystem>
     </Modes>
+
     <Offline>
+      <!-- Description of the offline specific configuration. -->
+      <!-- The run numbers of runs, which have to be analyzed. The following syntax must be used : 1,3-5,7,9-12. All runs must be specified in the 'MainConfiguration' even if they are overriden by a 'RunConfiguration'. (required for offline) -->
       <RunNumbers>1</RunNumbers>
-      <EventNumbers/>
-      <InputFileNames/>
+      <!-- The event numbers, which have to be analyzed. Use the same syntax as for the run numbers. (optional) -->
+      <EventNumbers></EventNumbers>
+      <!-- The input file names containing the runs, which have to be analyzed. If no input file is specified the DAQ systems will work with a run number based file IO. All files must be specified in the 'MainConfiguration' even if they are overriden by a 'RunConfiguration'. (optional) -->
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <!-- Description of the online specific configuration. -->
+      <!-- The name of the host of the online experiment. (required) -->
+      <Host></Host>
+      <!-- The name of the online experiment. (required) -->
+      <Experiment></Experiment>
+      <!-- The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional) -->
       <AnalyzerName>OtherMIDAnalyzer</AnalyzerName>
     </Online>
+
     <Paths>
+      <!-- Description of the file paths the framework is using. -->
+      <!-- The path of all input files. (required) -->
       <InputFilePath>./</InputFilePath>
+      <!-- The path of all output files. (optional) -->
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
     <Common>
+      <!-- Describes the framework specifications, which are common for analyzer and monitors. -->
       <Settings>
+        <!-- Description of the common settings of the framework. -->
+        <!-- Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal. -->
         <VerboseLevel>normal</VerboseLevel>
+        <!-- Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1. -->
         <ConfigCommentLevel>5</ConfigCommentLevel>
+        <!-- If true, the program doesn't start a root session at the end. Default is false. -->
         <QuitMode>false</QuitMode>
+        <!-- Program shows a splash screen, when starting up. Default is true. -->
         <ShowSplashScreen>false</ShowSplashScreen>
+        <!-- Configuration file can be modified in a GUI at start up. -->
         <GraphicalConfigEdit>true</GraphicalConfigEdit>
+        <!-- Flag if configuration XML file is overwritten by program. When this is true, program does not overwrite configuration file. -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
+        <!-- Description of the socket server. External programs can access the objects inside the framework over a root socket interface. -->
+        <!-- The socket server is per default not available. This flag activates it. Default is false. -->
         <Active>false</Active>
+        <!-- The number of the port for the socket server. Default is 9090. -->
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases>
+
         <DataBase>
+          <!-- Describes a data base, to which the framework should be connected. -->
+          <!-- The name of the data base connection. (required) -->
           <Name>odb</Name>
+          <!-- The connection string to initialize the database. For xml: "path;databasename". For sql: "mysql://username:password@servername:portnumber/databasename". For text: "your/database/directory". (required) -->
           <Connection>odb</Connection>
+          <!-- The type of the data base. (required) -->
           <Type>odb</Type>
+          <!-- If this is true the database gets read at each event. The '#' in the path means then event number. Default is false. (optional) -->
           <EventBased>false</EventBased>
         </DataBase>
       </DataBases>
+
       <GlobalSteeringParameters>
         <SteeringParameterField>
           <SPName>TestValue</SPName>
@@ -51,20 +94,33 @@
         </SteeringParameterField>
       </GlobalSteeringParameters>
     </Common>
+
     <Analyzer>
+      <!-- Describes the framework specifications, which are used for an analyzer. -->
       <HistogramRead>
+        <!-- Description of the histogram/graph reading. -->
+        <!-- Read flag. (required) -->
         <Read>false</Read>
+        <!-- Run number of the required histogram/graph file. (required) -->
         <RunNumber>0</RunNumber>
       </HistogramRead>
+
       <Macros>
-        <BeginOfRun/>
-        <BeginOfEvent/>
-        <EndOfEvent/>
-        <EndOfRun/>
+        <!-- Description of macros. -->
+        <!-- Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional) -->
+        <BeginOfRun></BeginOfRun>
+        <!-- Macro file name which is executed at the begin of event. It is executed before Tasks::Event. (optional) -->
+        <BeginOfEvent></BeginOfEvent>
+        <!-- Macro file name which is executed at the end of event. It is executed after Tasks::Event. (optional) -->
+        <EndOfEvent></EndOfEvent>
+        <!-- Macro file name which is executed at the end of run. It is executed after Tasks::EndOfRun. (optional) -->
+        <EndOfRun></EndOfRun>
       </Macros>
+
       <Tasks>
         <Task>
           <TaskName>PrintValues</TaskName>
+          <!-- Inactive tasks are not executed by the framework. Default is true. -->
           <Active>true</Active>
           <SteeringParameterField>
             <SPName>TaskTestValue</SPName>
@@ -73,28 +129,50 @@
         </Task>
       </Tasks>
     </Analyzer>
-    <Monitor/>
+
+    <Monitor>
+      <!-- Describes the framework specifications, which are used for a monitor. -->
+      <SocketClient>
+        <!-- Description of the socket client connection to the ROME analyzer. This section is needed if the program mode is 3. -->
+        <!-- Host which runs the ROME analyzer. -->
+        <Host>localhost</Host>
+        <!-- Port number for the socket connection. -->
+        <Port>9090</Port>
+      </SocketClient>
+    </Monitor>
+
     <Midas>
-      <Comment>ÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝtaBase</Comment>
-      <Comment>ÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝÝ</Comment>
+      <!-- Describes the midas dependent part of the framework. -->
+      <!-- When it is true, framework does byte swapping when reading MIDAS files. Default is false. -->
       <MidasByteSwap>false</MidasByteSwap>
       <Event>
+        <!-- Description of a midas event. -->
         <EventName>Trigger</EventName>
+        <!-- If true, this event type will be analyzed. Default is false. -->
         <Active>true</Active>
         <Bank>
+          <!-- Description of a midas bank. -->
           <BankName>ADC0</BankName>
+          <!-- If true, this bank will be analyzed. Default is false. -->
           <Active>true</Active>
         </Bank>
         <Bank>
+          <!-- Description of a midas bank. -->
           <BankName>TDC0</BankName>
+          <!-- If true, this bank will be analyzed. Default is false. -->
           <Active>true</Active>
         </Bank>
       </Event>
+
       <Event>
+        <!-- Description of a midas event. -->
         <EventName>Scaler</EventName>
+        <!-- If true, this event type will be analyzed. Default is false. -->
         <Active>true</Active>
         <Bank>
+          <!-- Description of a midas bank. -->
           <BankName>SCLR</BankName>
+          <!-- If true, this bank will be analyzed. Default is false. -->
           <Active>true</Active>
         </Bank>
       </Event>

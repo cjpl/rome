@@ -25,9 +25,9 @@
 			<Field>
 				<FieldName>RunNumber</FieldName>
 				<FieldType>Int_t</FieldType>
-				<FieldComment>Runinfo/Run Number</FieldComment>
+				<FieldComment>Runinfo/Run number</FieldComment>
 				<DataBaseName>odb</DataBaseName>
-				<DataBasePath>"Runinfo/Run Number"</DataBasePath>
+				<DataBasePath>"Runinfo/Run number"</DataBasePath>
 			</Field>
 			<Field>
 				<FieldName>StartTime</FieldName>
