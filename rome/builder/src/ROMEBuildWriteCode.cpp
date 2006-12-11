@@ -11733,7 +11733,7 @@ void ROMEBuilder::WriteFolderSetterSource(ROMEString &buffer,Int_t numFolder)
       else {
          buffer.AppendFormatted("void %sAnalyzer::Set%ss(TClonesArray* pointer) { \n",shortCut.Data(),folderName[numFolder].Data());
 
-         buffer.AppendFormatted("   SafeDelete(f%sFolders)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   SafeDelete(f%sFolders);\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   f%sFolders = pointer;\n",folderName[numFolder].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
