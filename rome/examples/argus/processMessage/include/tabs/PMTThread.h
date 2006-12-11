@@ -17,6 +17,8 @@
 #include <TGButton.h>
 #include <TGLayout.h>
 
+class PMWindow;
+
 class PMTThread : public PMTThread_Base
 {
 protected:
@@ -24,7 +26,7 @@ protected:
    TGTextButton*      fButton;
 
 public:
-   PMTThread():PMTThread_Base()
+   PMTThread(PMWindow *window):PMTThread_Base(window)
    {
       fHorz       = 0;
       fButton     = 0;

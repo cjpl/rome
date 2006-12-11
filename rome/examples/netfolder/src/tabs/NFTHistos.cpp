@@ -56,6 +56,10 @@ void NFTHistos::Init()
    histo2->Draw();
 }
 
+void NFTHistos::EndInit()
+{
+}
+
 void NFTHistos::EventHandler()
 {
    histo2->Reset();

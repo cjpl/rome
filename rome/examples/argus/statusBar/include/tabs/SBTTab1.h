@@ -16,13 +16,15 @@
 #include "include/generated/SBTTab1_Base.h"
 #include <TG3DLine.h>
 
+class SBWindow;
+
 class SBTTab1 : public SBTTab1_Base
 {
 protected:
    TGHorizontal3DLine *fLine;
 
 public:
-   SBTTab1():SBTTab1_Base()
+   SBTTab1(SBWindow *window):SBTTab1_Base(window)
    {
    }
 

@@ -19,6 +19,8 @@
 #include <TGLayout.h>
 #include <TLatex.h>
 
+class HWFrench;
+
 class HWTFrench : public HWTFrench_Base
 {
 protected:
@@ -27,7 +29,7 @@ protected:
    TLatex              *fText;
 
 public:
-   HWTFrench():HWTFrench_Base()
+   HWTFrench(HWWindow *window):HWTFrench_Base(window)
    {
       fVert   = 0;
       fCanvas = 0;

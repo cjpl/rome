@@ -2805,6 +2805,19 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             index = taskHierarchyParentIndex[index];
          }
       }
+      for (i=0;i<tabSingleObjectIndexMax[iTab];i++) {
+         for (j=0;j<numOfTabSingleObjects[iTab];j++) {
+            if (tabSingleObjectIndex[iTab][j]==i) {
+               index = tabSingleObjectTaskHierarchyIndex[iTab][j];
+               while (index!=-1 && !taskListed[taskHierarchyClassIndex[index]]) {
+                  taskListed[taskHierarchyClassIndex[index]] = true;
+                  buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskHierarchyName[index].Data());
+                  index = taskHierarchyParentIndex[index];
+               }
+            }
+         }
+      }
+
       tabFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       fileStream = new fstream(tabFile.Data(),ios::in);
       fileBuffer.Resize(0);
@@ -3668,7 +3681,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       buffer.AppendFormatted("protected:\n");
 
       // Fields
-      buffer.AppendFormatted("   %sWindow *fWindow;\n",shortCut.Data());
+      buffer.AppendFormatted("   %sWindow *fWindow;   // ! Window handle\n",shortCut.Data());
       buffer.AppendFormatted("\n");
       if (numOfSteering[iTab+numOfTask+1] > 0) {
          WriteSteeringClass(buffer, 0, iTab+numOfTask+1, 1);

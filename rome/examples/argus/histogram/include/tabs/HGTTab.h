@@ -21,6 +21,8 @@
 #include "TCanvas.h"
 #include "TGFrame.h"
 
+class HGWindow;
+
 class HGTTab : public HGTTab_Base
 {
 protected:
@@ -33,7 +35,7 @@ protected:
    };
 
 public:
-   HGTTab():HGTTab_Base()
+   HGTTab(HGWindow *window):HGTTab_Base(window)
    {
       fVert    = 0;
       fCanvas  = 0;

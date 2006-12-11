@@ -17,6 +17,8 @@
 #include <TGButton.h>
 #include <TGLayout.h>
 
+class PMWindow;
+
 class PMTMixed : public PMTMixed_Base
 {
 protected:
@@ -25,7 +27,7 @@ protected:
    TGTextButton*      fButton2;
 
 public:
-   PMTMixed():PMTMixed_Base()
+   PMTMixed(PMWindow *window):PMTMixed_Base(window)
    {
       fHorz       = 0;
       fButton1    = 0;

@@ -17,6 +17,8 @@
 #include <TGButton.h>
 #include <TGLayout.h>
 
+class TTWindow;
+
 class TTTTab2 : public TTTTab2_Base
 {
 protected:
@@ -33,7 +35,7 @@ protected:
    };
 
 public:
-   TTTTab2():TTTTab2_Base()
+   TTTTab2(TTWindow *window):TTTTab2_Base(window)
    {
       fHorz       = 0;
       fBStart_2_1 = 0;

@@ -30,7 +30,7 @@ protected:
    };
 
 public:
-   FLTTab1():FLTTab1_Base()
+   FLTTab1(FLWindow *window):FLTTab1_Base(window)
    {
       fTextRun = 0;
       fTextEvent = 0;
