@@ -1,51 +1,83 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:36:34 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ProgramMode>0</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
     </Modes>
+
     <Offline>
       <RunNumbers>1-2</RunNumbers>
       <EventNumbers>1-1000</EventNumbers>
-      <InputFileNames/>
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <Host></Host>
+      <Experiment></Experiment>
+      <AnalyzerName>MRAnalyzer</AnalyzerName>
     </Online>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
     <Common>
       <Settings>
-        <BatchMode>false</BatchMode>
+        <VerboseLevel>normal</VerboseLevel>
+        <ConfigCommentLevel>1</ConfigCommentLevel>
+        <QuitMode>false</QuitMode>
         <ShowSplashScreen>false</ShowSplashScreen>
+        <GraphicalConfigEdit>true</GraphicalConfigEdit>
+        <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases/>
     </Common>
+
     <Analyzer>
+      <HistogramRead>
+        <Read>false</Read>
+        <RunNumber>0</RunNumber>
+      </HistogramRead>
+
+      <Macros>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
+      </Macros>
+
       <Tasks>
         <Task>
           <TaskName>FillHisto</TaskName>
           <Active>true</Active>
           <Histogram>
             <HistName>MyHisto</HistName>
-            <HistAccumulate>true</HistAccumulate>
           </Histogram>
         </Task>
       </Tasks>
     </Analyzer>
-    <Monitor/>
-    <Midas/>
+
+    <Monitor>
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+    </Monitor>
   </MainConfiguration>
 </Configuration>

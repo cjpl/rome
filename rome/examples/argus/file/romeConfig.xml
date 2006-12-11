@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:46:48 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ProgramMode>1</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>user</DAQSystem>
     </Modes>
+
     <Offline>
       <RunNumbers>1</RunNumbers>
-      <EventNumbers/>
-      <InputFileNames/>
+      <EventNumbers></EventNumbers>
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <Host></Host>
+      <Experiment></Experiment>
+      <AnalyzerName>FLmonitor</AnalyzerName>
     </Online>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
     <Common>
       <Settings>
-        <BatchMode>false</BatchMode>
+        <VerboseLevel>normal</VerboseLevel>
+        <ConfigCommentLevel>1</ConfigCommentLevel>
         <QuitMode>false</QuitMode>
         <ShowSplashScreen>true</ShowSplashScreen>
         <GraphicalConfigEdit>false</GraphicalConfigEdit>
+        <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases/>
+
       <Trees>
         <Accumulate>false</Accumulate>
         <Tree>
@@ -43,7 +57,8 @@
           <Fill>false</Fill>
           <CompressionLevel>0</CompressionLevel>
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
-          <TreeOutputFileName/>
+          <TreeOutputFileName></TreeOutputFileName>
+          <SaveConfiguration>false</SaveConfiguration>
           <Branch>
             <BranchName>test</BranchName>
             <Active>true</Active>
@@ -51,7 +66,21 @@
         </Tree>
       </Trees>
     </Common>
-    <Analyzer/>
+
+    <Analyzer>
+      <HistogramRead>
+        <Read>false</Read>
+        <RunNumber>0</RunNumber>
+      </HistogramRead>
+
+      <Macros>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
+      </Macros>
+    </Analyzer>
+
     <Monitor>
       <Display>
         <WindowScale>1.0</WindowScale>
@@ -59,13 +88,15 @@
         <UpdateFrequency>0</UpdateFrequency>
         <AnalyzerController>
           <Active>false</Active>
-          <NetFolderName/>
+          <NetFolderName></NetFolderName>
         </AnalyzerController>
       </Display>
+
       <SocketClient>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketClient>
+
       <Tabs>
         <Tab>
           <TabName>Tab1</TabName>
@@ -73,9 +104,5 @@
         </Tab>
       </Tabs>
     </Monitor>
-    <Histograms>
-      <Read>false</Read>
-      <RunNumber>0</RunNumber>
-    </Histograms>
   </MainConfiguration>
 </Configuration>

@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:35:51 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ProgramMode>2</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
     </Modes>
+
     <Offline>
       <RunNumbers>1</RunNumbers>
       <EventNumbers>1-400000</EventNumbers>
-      <InputFileNames/>
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <Host></Host>
+      <Experiment></Experiment>
       <AnalyzerName>HGUIExample</AnalyzerName>
     </Online>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
     <Common>
       <Settings>
         <VerboseLevel>normal</VerboseLevel>
@@ -32,23 +40,28 @@
         <GraphicalConfigEdit>true</GraphicalConfigEdit>
         <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases/>
     </Common>
+
     <Analyzer>
       <HistogramRead>
         <Read>false</Read>
         <RunNumber>0</RunNumber>
       </HistogramRead>
+
       <Macros>
-        <BeginOfRun/>
-        <BeginOfEvent/>
-        <EndOfEvent/>
-        <EndOfRun/>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
       </Macros>
+
       <Tasks>
         <Task>
           <TaskName>FillHisto</TaskName>
@@ -56,12 +69,14 @@
           <Histogram>
             <HistName>MyHisto</HistName>
           </Histogram>
+
           <Histogram>
             <HistName>MyOtherHisto</HistName>
           </Histogram>
         </Task>
       </Tasks>
     </Analyzer>
+
     <Monitor>
       <Display>
         <WindowScale>1.0</WindowScale>
@@ -69,13 +84,15 @@
         <UpdateFrequency>100</UpdateFrequency>
         <AnalyzerController>
           <Active>false</Active>
-          <NetFolderName/>
+          <NetFolderName></NetFolderName>
         </AnalyzerController>
       </Display>
+
       <SocketClient>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketClient>
+
       <Tabs>
         <Tab>
           <TabName>GeneratedHisto</TabName>

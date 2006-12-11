@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:48:12 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ProgramMode>1</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
     </Modes>
+
     <Offline>
-      <RunNumbers/>
-      <EventNumbers/>
-      <InputFileNames/>
+      <RunNumbers></RunNumbers>
+      <EventNumbers></EventNumbers>
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <Host></Host>
+      <Experiment></Experiment>
       <AnalyzerName>TBmonitor</AnalyzerName>
     </Online>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
     <Common>
       <Settings>
         <VerboseLevel>normal</VerboseLevel>
@@ -32,30 +40,37 @@
         <GraphicalConfigEdit>false</GraphicalConfigEdit>
         <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases/>
+
       <GlobalSteeringParameters>
         <SteeringParameterField>
+          <!-- Switch for pedestal calculation -->
           <SPName>Piedi</SPName>
           <SPValue>false</SPValue>
         </SteeringParameterField>
       </GlobalSteeringParameters>
     </Common>
+
     <Analyzer>
       <HistogramRead>
         <Read>false</Read>
         <RunNumber>0</RunNumber>
       </HistogramRead>
+
       <Macros>
-        <BeginOfRun/>
-        <BeginOfEvent/>
-        <EndOfEvent/>
-        <EndOfRun/>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
       </Macros>
     </Analyzer>
+
     <Monitor>
       <Display>
         <WindowScale>1.0</WindowScale>
@@ -63,57 +78,70 @@
         <UpdateFrequency>0</UpdateFrequency>
         <AnalyzerController>
           <Active>false</Active>
-          <NetFolderName/>
+          <NetFolderName></NetFolderName>
         </AnalyzerController>
       </Display>
+
       <SocketClient>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketClient>
+
       <Tabs>
         <Tab>
           <TabName>Tab1</TabName>
           <Active>true</Active>
           <SteeringParameterField>
+            <!-- Color of text. -->
             <SPName>Color</SPName>
             <SPValue>1</SPValue>
           </SteeringParameterField>
+
           <Tab>
             <TabName>Tab1_1</TabName>
             <Active>true</Active>
             <SteeringParameterField>
+              <!-- Color of text. -->
               <SPName>Color</SPName>
               <SPValue>1</SPValue>
             </SteeringParameterField>
           </Tab>
+
           <Tab>
             <TabName>Tab1_2</TabName>
             <Active>true</Active>
             <SteeringParameterField>
+              <!-- Color of text. -->
               <SPName>Color</SPName>
               <SPValue>1</SPValue>
             </SteeringParameterField>
           </Tab>
         </Tab>
+
         <Tab>
           <TabName>Tab2</TabName>
           <Active>true</Active>
           <SteeringParameterField>
+            <!-- Color of text. -->
             <SPName>Color</SPName>
             <SPValue>1</SPValue>
           </SteeringParameterField>
+
           <Tab>
             <TabName>Tab2_1</TabName>
             <Active>true</Active>
             <SteeringParameterField>
+              <!-- Color of text. -->
               <SPName>Color</SPName>
               <SPValue>1</SPValue>
             </SteeringParameterField>
           </Tab>
+
           <Tab>
             <TabName>Tab2_2</TabName>
             <Active>true</Active>
             <SteeringParameterField>
+              <!-- Color of text. -->
               <SPName>Color</SPName>
               <SPValue>1</SPValue>
             </SteeringParameterField>
