@@ -6320,7 +6320,9 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 
    // Header
    buffer.AppendFormatted("\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"XMLToFormFrame.h\"\n");
    buffer.AppendFormatted("#include \"ROMEDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
