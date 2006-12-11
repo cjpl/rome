@@ -4235,12 +4235,13 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          ndb++;
    }
 
-   // Folder Getters
+   // Folder Getters and Setters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
       WriteFolderGetterSource(buffer,i);
+      WriteFolderSetterSource(buffer,i);
    }
    buffer.AppendFormatted("\n");
 
@@ -5298,12 +5299,13 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);\n",shortCut.Data());
    buffer.AppendFormatted("   virtual ~%sAnalyzer();\n",shortCut.Data());
 
-   // Folder Getters
+   // Folder Getters and Setters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
       WriteFolderGetterInclude(buffer,i);
+      WriteFolderSetterInclude(buffer,i);
    }
    buffer.AppendFormatted("\n");
 
@@ -11617,6 +11619,21 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
    }
 }
 
+void ROMEBuilder::WriteFolderSetterInclude(ROMEString &buffer,Int_t numFolder)
+{
+   if (folderSupport[numFolder])
+      return;
+   ROMEString format;
+   if (numOfValue[numFolder] > 0) {
+      if (folderArray[numFolder]=="1") {
+         buffer.AppendFormatted("   void Set%s(%s%s* pointer);\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+      }
+      else {
+         buffer.AppendFormatted("   void Set%ss(TClonesArray* pointer);\n",folderName[numFolder].Data());
+      }
+   }
+}
+
 void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
@@ -11695,6 +11712,32 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
       buffer.AppendFormatted("      GetSocketClientNetFolder()->UnRegisterObject(\"%s%s\");\n",shortCut.Data(),folderName[numFolder].Data());
       buffer.AppendFormatted("   return false;\n");
       buffer.AppendFormatted("}\n");
+   }
+}
+
+void ROMEBuilder::WriteFolderSetterSource(ROMEString &buffer,Int_t numFolder)
+{
+   if (folderSupport[numFolder])
+      return;
+   ROMEString format;
+   if (numOfValue[numFolder] > 0) {
+      if (folderArray[numFolder]=="1") {
+         buffer.AppendFormatted("void %sAnalyzer::Set%s(%s%s* pointer) {\n",shortCut.Data(),folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+
+         buffer.AppendFormatted("   SafeDelete(f%sFolder);\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   f%sFolder = pointer;\n",folderName[numFolder].Data());
+
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+      }
+      else {
+         buffer.AppendFormatted("void %sAnalyzer::Set%ss(TClonesArray* pointer) { \n",shortCut.Data(),folderName[numFolder].Data());
+
+         buffer.AppendFormatted("   SafeDelete(f%sFolders)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   f%sFolders = pointer;\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+      }
    }
 }
 
