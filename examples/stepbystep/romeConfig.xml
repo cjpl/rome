@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:37:59 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ProgramMode>0</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
     </Modes>
+
     <Offline>
       <RunNumbers>1</RunNumbers>
       <EventNumbers>1-100</EventNumbers>
-      <InputFileNames/>
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <Host></Host>
+      <Experiment></Experiment>
       <AnalyzerName>SBSAnalyzer</AnalyzerName>
     </Online>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./data/</OutputFilePath>
     </Paths>
+
     <Common>
       <Settings>
         <VerboseLevel>normal</VerboseLevel>
@@ -32,11 +40,14 @@
         <GraphicalConfigEdit>true</GraphicalConfigEdit>
         <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases/>
+
       <Trees>
         <Accumulate>false</Accumulate>
         <Tree>
@@ -46,7 +57,7 @@
           <Fill>true</Fill>
           <CompressionLevel>0</CompressionLevel>
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
-          <TreeOutputFileName/>
+          <TreeOutputFileName></TreeOutputFileName>
           <SaveConfiguration>false</SaveConfiguration>
           <Branch>
             <BranchName>PMTDataBranch</BranchName>
@@ -54,6 +65,7 @@
           </Branch>
         </Tree>
       </Trees>
+
       <GlobalSteeringParameters>
         <SteeringParameterField>
           <SPName>OutputOnOff</SPName>
@@ -61,17 +73,20 @@
         </SteeringParameterField>
       </GlobalSteeringParameters>
     </Common>
+
     <Analyzer>
       <HistogramRead>
         <Read>false</Read>
         <RunNumber>0</RunNumber>
       </HistogramRead>
+
       <Macros>
-        <BeginOfRun/>
-        <BeginOfEvent/>
-        <EndOfEvent/>
-        <EndOfRun/>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
       </Macros>
+
       <Tasks>
         <Task>
           <TaskName>PrintADCValues</TaskName>
@@ -79,6 +94,12 @@
         </Task>
       </Tasks>
     </Analyzer>
-    <Monitor/>
+
+    <Monitor>
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+    </Monitor>
   </MainConfiguration>
 </Configuration>

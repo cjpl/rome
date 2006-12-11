@@ -1,41 +1,68 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Nov 24 09:47:26 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="romeConfig.xsd">
   <ProgramConfiguration>
     <ProgramMode>1</ProgramMode>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
     </Modes>
+
     <Offline>
-      <RunNumbers/>
-      <EventNumbers/>
-      <InputFileNames/>
+      <RunNumbers></RunNumbers>
+      <EventNumbers></EventNumbers>
+      <InputFileNames></InputFileNames>
     </Offline>
+
     <Online>
-      <Host/>
-      <Experiment/>
+      <Host></Host>
+      <Experiment></Experiment>
+      <AnalyzerName>HGmonitor</AnalyzerName>
     </Online>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
     <Common>
       <Settings>
-        <BatchMode>false</BatchMode>
+        <VerboseLevel>normal</VerboseLevel>
+        <ConfigCommentLevel>1</ConfigCommentLevel>
         <QuitMode>false</QuitMode>
         <ShowSplashScreen>true</ShowSplashScreen>
         <GraphicalConfigEdit>false</GraphicalConfigEdit>
+        <PreserveConfig>false</PreserveConfig>
       </Settings>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
+
       <DataBases/>
     </Common>
-    <Analyzer/>
+
+    <Analyzer>
+      <HistogramRead>
+        <Read>false</Read>
+        <RunNumber>0</RunNumber>
+      </HistogramRead>
+
+      <Macros>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
+      </Macros>
+    </Analyzer>
+
     <Monitor>
       <Display>
         <WindowScale>1.0</WindowScale>
@@ -43,13 +70,24 @@
         <UpdateFrequency>0</UpdateFrequency>
         <AnalyzerController>
           <Active>false</Active>
-          <NetFolderName/>
+          <NetFolderName></NetFolderName>
         </AnalyzerController>
       </Display>
+
       <SocketClient>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketClient>
+
+      <NetFolder>
+        <NetFolderName>mynetfolder</NetFolderName>
+        <Active>false</Active>
+        <Reconnect>true</Reconnect>
+        <Root>9090</Root>
+        <Host>0</Host>
+        <Port>localhost</Port>
+      </NetFolder>
+
       <Tabs>
         <Tab>
           <TabName>Tab</TabName>
@@ -57,17 +95,5 @@
         </Tab>
       </Tabs>
     </Monitor>
-    <Histograms>
-      <Read>false</Read>
-      <RunNumber>0</RunNumber>
-    </Histograms>
-    <NetFolder>
-      <NetFolderName>mynetfolder</NetFolderName>
-      <Active>true</Active>
-      <Reconnect>true</Reconnect>
-      <Root>HG</Root>
-      <Host>localhost</Host>
-      <Port>9090</Port>
-    </NetFolder>
   </MainConfiguration>
 </Configuration>
