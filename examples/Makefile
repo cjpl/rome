@@ -183,41 +183,66 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 check : $(ROMEProjects) $(ARGUSProjects)
 
 	cd multirun; ./mranalyzer.exe -i romeConfig.xml -q
+
 	cd dbexample; \
 	cp sqlDataBase/RDBDataBase.sqlite3 .; \
 	./rdbframework.exe -i sqlite3Config.xml -q -r 1; \
 	mv -f RDBDataBase.sqlite3 sqlDataBase/; \
+
 	cd taskhierarchy; ./thexample.exe -i romeConfig.xml -q -e 0-9999 -r 1
+
 	cd netfolder; ./nfexample.exe -i singleProcessConfig.xml -q -e 0-99
+
 	cd stepbystep;	./sbsanalyzer.exe -i romeConfig.xml -q
+
 	cd tree_write_read; ./twrsample.exe -i writeTreeConfig.xml -q
 	cd tree_write_read; ./twrsample.exe -i writeTreeWithFileName.xml -q
 	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q
 	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q
+
 	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q
-#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q
-#	cd histoGUI; ./hguiexample.exe -i histoReadConfig.xml -q
+
+#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q & \
+#	./hguiexample.exe -i histoReadConfig.xml -q
+
 	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q
+
 	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q
-	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q
-	cd runheader; ./runhanalyzer.exe -i readConfig.xml -q
+
+	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b & \
+	./runhanalyzer.exe -i readConfig.xml -q
+
 	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q
+
 #	cd midas; ./midanalyzer.exe -i romeConfig.xml -q
+
 	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1
+
 	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1
+
 	cd macros; ./mcranalyzer.exe -i romeConfig.xml -q
+
 	cd argus/file; ./flmonitor.exe -i romeConfig.xml -q -e 0-99
+
 	cd argus/timer; ./ttmonitor.exe -i romeConfig.xml -q
+
 	cd argus/processMessage; ./pmmonitor.exe -i romeConfig.xml -q
+
 	cd argus/menu; ./tmmonitor.exe -i romeConfig.xml -q
+
 	cd argus/thread; ./ttmonitor.exe -i romeConfig.xml -q
+
 	cd argus/statusBar; ./sbmonitor.exe -i argusConfig.xml -q
+
 	cd argus/tabs;	./tbmonitor.exe -i romeConfig.xml -q
+
 	cd argus/helloWorld; ./hwmonitor.exe -i romeConfig.xml -q
-	cd argus/histogram/romeproject; ./hgframework.exe -i romeConfig.xml -q
-	cd argus/histogram; ./hgmonitor.exe -i argusConfig.xml  -q
-	cd argus/folders/romeproject; ./foframework.exe -i romeConfig.xml -q -r 1
-	cd argus/folders; ./fomonitor.exe -i argusConfig.xml -q
+
+	cd argus/histogram/romeproject; ./hgframework.exe -i romeConfig.xml -q & \
+	cd ..; ./hgmonitor.exe -i argusConfig.xml  -q
+
+	cd argus/folders/romeproject; ./foframework.exe -i romeConfig.xml -q -r 1 & \
+	cd ..; ./fomonitor.exe -i argusConfig.xml -q
 
 clean :
 	find $(ROMESYS)/examples -name "*.o" -exec rm {} \;
