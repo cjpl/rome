@@ -1200,11 +1200,11 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
    }
    if (!haveDict) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
-      buffer.AppendFormatted("objects += obj/%sUserDict%s\n",shortCut.Data(),kObjectSuffix);
+      buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
       buffer.AppendFormatted("endif\n");
    }
    else{
-      buffer.AppendFormatted("objects += obj/%sUserDict%s\n",shortCut.Data(),kObjectSuffix);
+      buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
    }
 #else
    buffer.AppendFormatted("objects = $(objects) obj/%sUserDict%s\n",shortCut.Data(),kObjectSuffix);
