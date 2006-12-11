@@ -15,12 +15,14 @@
 
 #include "include/generated/SBTTab2_Base.h"
 
+class SBWindow;
+
 class SBTTab2 : public SBTTab2_Base
 {
 protected:
 
 public:
-   SBTTab2():SBTTab2_Base()
+   SBTTab2(SBWindow *window):SBTTab2_Base(window)
    {
    }
 

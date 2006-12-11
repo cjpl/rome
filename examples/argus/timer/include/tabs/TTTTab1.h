@@ -21,6 +21,8 @@
 #include <TLatex.h>
 #include <TTimer.h>
 
+class TTWiondow;
+
 class TTTTab1 : public TTTTab1_Base
 {
 protected:
@@ -42,7 +44,7 @@ protected:
    };
 
 public:
-   TTTTab1():TTTTab1_Base()
+   TTTTab1(TTWindow *window):TTTTab1_Base(window)
    {
       fVert   = 0;
       fHorz   = 0;

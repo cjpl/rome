@@ -19,6 +19,8 @@
 #include <TGLayout.h>
 #include <TLatex.h>
 
+class HWWindow;
+
 class HWTItalian : public HWTItalian_Base
 {
 protected:
@@ -27,7 +29,7 @@ protected:
    TLatex              *fText;
 
 public:
-   HWTItalian():HWTItalian_Base()
+   HWTItalian(HWWindow *window):HWTItalian_Base(window)
    {
       fVert   = 0;
       fCanvas = 0;

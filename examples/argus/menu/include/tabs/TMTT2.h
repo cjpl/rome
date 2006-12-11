@@ -19,6 +19,8 @@
 #include <TGLayout.h>
 #include <TLatex.h>
 
+class TMWindow;
+
 class TMTT2 : public TMTT2_Base
 {
 protected:
@@ -27,7 +29,7 @@ protected:
    TLatex              *fText;
 
 public:
-   TMTT2():TMTT2_Base()
+   TMTT2(TMWindow *window):TMTT2_Base(window)
    {
       fVert   = 0;
       fCanvas = 0;

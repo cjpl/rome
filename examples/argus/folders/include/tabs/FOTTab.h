@@ -17,13 +17,15 @@
 #include "romeproject/include/generated/FORunInfo.h"
 #include "romeproject/include/generated/FOPMTData.h"
 
+class FOWindow;
+
 class FOTTab : public FOTTab_Base
 {
 protected:
    FORunInfo*   fRunInfo;
    TClonesArray* fPMTDatas;
 public:
-   FOTTab():FOTTab_Base()
+   FOTTab(FOWindow *window):FOTTab_Base(window)
    {
    }
 

@@ -11,9 +11,12 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "include/generated/NFTHistos_Base.h"
 #include <TH1.h>
 #include <TRootEmbeddedCanvas.h>
+#include "generated/NFTHistos_Base.h"
+
+class NFWindow;
+
 
 class NFTHistos : public NFTHistos_Base
 {
@@ -22,15 +25,16 @@ protected:
    TRootEmbeddedCanvas *fCanvas;
 
 public:
-   NFTHistos():NFTHistos_Base()
+   NFTHistos(NFWindow* window):NFTHistos_Base(window)
    {
    }
 
-   ~NFTHistos()
+   virtual ~NFTHistos()
    {
    }
 
    void Init();
+   void EndInit();
    void MenuClicked(TGPopupMenu *menu,Long_t param);
    void TabSelected();
    void TabUnSelected();

@@ -17,6 +17,8 @@
 #include <TGButton.h>
 #include <TGLayout.h>
 
+class PMWindow;
+
 class PMTNoThread : public PMTNoThread_Base
 {
 protected:
@@ -24,7 +26,7 @@ protected:
    TGTextButton*      fButton;
 
 public:
-   PMTNoThread():PMTNoThread_Base()
+   PMTNoThread(PMWindow *window):PMTNoThread_Base(window)
    {
       fHorz       = 0;
       fButton     = 0;
