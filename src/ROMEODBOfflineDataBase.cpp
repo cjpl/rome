@@ -36,9 +36,32 @@ Bool_t ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
 Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
 {
    ROMEString value;
+   ROMEString path = dataBasePath;
+   ROMEString tmp;
+   ROMEString odbPath;
    if (!xml->isPathOpen())
-      return false;
-   xml->GetPathValue(dataBasePath,value);
+      return true;
+   path += "/";
+   odbPath = "odb/";
+   int ind = path.First('/');
+   while (ind!=-1) {
+      tmp = path(0,ind);
+      if (ind+1<path.Length())
+         path = path(ind+1,path.Length());
+      else
+         path = "";
+      ind = path.First('/');
+      if (ind==-1) {
+         if (tmp.Length()>0)
+            odbPath.AppendFormatted("key[@name=\"%s\"]/",tmp.Data());
+      }
+      else {
+         if (tmp.Length()>0)
+            odbPath.AppendFormatted("dir[@name=\"%s\"]/",tmp.Data());
+      }
+   }
+   odbPath = odbPath(0,odbPath.Length()-1);
+   xml->GetPathValue(odbPath.Data(),value);
    values->SetAt(value.Data(),0,0);
    return true;
 }
