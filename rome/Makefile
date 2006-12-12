@@ -7,32 +7,40 @@
 #
 #####################################################################
 
-# Switch for creating librome.a
-#  If yes, ROME classes are packed in librome.a and linked to each projects
-#  instead of compiling in each projects.
-#  When you changed this key, you need to do "make clean"
+### Switch for creating librome.a
+###  If yes, ROME classes are packed in librome.a and linked to each projects
+###  instead of compiling in each projects.
+###  When you changed this key, you need to do "make clean"
 # LIBROME = yes
 
-# Add -g compile option when compiling librome.a and romebuilder
+### Add -g compile option when compiling librome.a
 # ROMEDEBUG = yes
 
-# Add -O compile option when compiling librome.a and romebuilder
+### Add -O compile option when compiling librome.a
 # ROMEOPTIMIZE = yes
 
-# PIC(position-independent code) option. Default is PIC.
-# Valid values are 'PIC', 'pic' or 'no'.
-# 'PIC' : use -fPIC option during compile.
-# 'pic' : use -fpic option during compile.
-# 'no'  : not use -fPIC or -pfic.
-# -fPIC or -fpic is necessary when you make dynamic link library.
-# -fpic is slightly faster than -fPIC, but all operating system don't support.
-# For details, please read man page of gcc.
+### Compile option for romebuilder
+# ROMEBLD_FLAGS = -g -O
+
+### PIC(position-independent code) option. Default is PIC.
+### Valid values are 'PIC', 'pic' or 'no'.
+### 'PIC' : use -fPIC option during compile.
+### 'pic' : use -fpic option during compile.
+### 'no'  : not use -fPIC or -pfic.
+### -fPIC or -fpic is necessary when you make dynamic link library.
+### -fpic is slightly faster than -fPIC, but all operating system don't support.
+### For details, please read man page of gcc.
 # ROMEPIC = no
 
-# Compiler
+### Compiler
 CXX   ?= g++
 CC    ?= gcc
 CXXLD ?= $(CXX)
+
+### Additional flags
+# ROMECFLAGS = -W -Wall -pipe
+# ROMECXXFLAGS = -W -Wall -pipe
+# ROMELDFLAGS = -W -Wall -pipe
 
 #####################################################################
 # Nothing needs to be modified after this line 
@@ -43,25 +51,10 @@ TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
 # reset when ROMEDEBUG or ROMEOPTIMIZE is yes
 ifeq ($(ROMEDEBUG), yes)
-  CFLAGS =
-  CXXFLAGS =
-  LDFLAGS =
+  ROMELIB_FLAGS += -g
 endif
 ifeq ($(ROMEOPTIMIZE), yes)
-  CFLAGS =
-  CXXFLAGS =
-  LDFLAGS =
-endif
-
-ifeq ($(ROMEDEBUG), yes)
-  CFLAGS += -g
-  CXXFLAGS += -g
-  LDFLAGS += -g
-endif
-ifeq ($(ROMEOPTIMIZE), yes)
-  CFLAGS += -O
-  CXXFLAGS += -O
-  LDFLAGS += -O
+  ROMELIB_FLAGS += -O
 endif
 
 CFLAGS += $(ROMECFLAGS)
@@ -231,7 +224,7 @@ obj:
 dict: $(DICTIONARIES)
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXXLD) $(LDFLAGS) $(ROMEBLD_FLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
 	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
@@ -259,25 +252,25 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(CC) $(CFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CC) $(CFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
 	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) -O0 -MMD -MP -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
-	$(CXX) $(CXXFLAGS)  $(ROMEPICDEF) -O0 $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMEBLD_FLAGS) $(ROMEPICDEF) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 clean:
 	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) obj/*.d\
