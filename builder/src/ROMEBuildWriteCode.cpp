@@ -2741,7 +2741,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
    ROMEString str2;
    ROMEString tabFile;
    fstream *fileStream;
-   Bool_t taskNeeded = false;
 
    if (makeOutput)
       cout << "\n   Output Cpp-Files:" << endl;

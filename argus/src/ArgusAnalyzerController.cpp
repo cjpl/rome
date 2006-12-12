@@ -63,10 +63,10 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    TImage *playImage = TImage::Create();
    TImage *stopImage = TImage::Create();
    TImage *nextImage = TImage::Create();
-   previousImage->SetImageBuffer(previous_xpm, TImage::kXpm);
-   playImage->SetImageBuffer(play_xpm, TImage::kXpm);
-   stopImage->SetImageBuffer(stop_xpm, TImage::kXpm);
-   nextImage->SetImageBuffer(next_xpm, TImage::kXpm);
+   previousImage->SetImageBuffer(const_cast<char**>(previous_xpm), TImage::kXpm);
+   playImage->SetImageBuffer(const_cast<char**>(play_xpm), TImage::kXpm);
+   stopImage->SetImageBuffer(const_cast<char**>(stop_xpm), TImage::kXpm);
+   nextImage->SetImageBuffer(const_cast<char**>(next_xpm), TImage::kXpm);
 
    fPreviousButton = new TGPictureButton(fHorizontalFrame[0],
                                          gClient->GetPicturePool()->GetPicture("previous", previousImage->GetPixmap(), previousImage->GetMask()), B_Previous);
