@@ -509,6 +509,10 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
                fCurrentPosition++;
             }
          }
+         if (pevent->event_id == EVENTID_EOR) {
+            this->SetEndOfRun();
+            return fCurrentPosition;
+         }
          // check input
          if (readError || pevent->event_id < 0) {
             if (readError && n > 0) ROMEPrint::Warning("Unexpected end of file\n");
