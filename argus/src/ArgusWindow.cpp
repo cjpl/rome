@@ -64,6 +64,8 @@ void ArgusWindow::InitArgus(Bool_t tabWindow)
    fController = 0;
    fControllerNetFolder = 0;
    fProgress = 0;
+   fCurrentEvent = -1;
+   fCurrentRun = -1;
 
    fSubWindows = new TObjArray(0);
    fSubWindowRunning = new TArrayI();
