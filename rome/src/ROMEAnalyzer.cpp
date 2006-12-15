@@ -149,7 +149,6 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fProgramName = "rome";
    fOnlineHost = "";
    fOnlineExperiment = "";
-   fOnlineAnalyzerName = "";
    fOnlineMemoryBuffer = "SYSTEM";
    fSocketServerPortNumber = 9090;
    fSocketServerActive = false;
