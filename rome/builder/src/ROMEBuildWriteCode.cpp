@@ -7353,6 +7353,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOnlineAnalyzerName(##.Data());");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineAnalyzerName(##.Data());");
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineAnalyzerName();");
+      // Memory Buffer
+      subGroup->AddParameter(new ROMEConfigParameter("MemoryBuffer"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+      subGroup->GetLastParameter()->AddSetLine("if (##.Length())");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOnlineMemoryBuffer(##.Data());");
+      subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineMemoryBuffer();");
    }
 
    // Paths
