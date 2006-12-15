@@ -189,6 +189,7 @@ protected:
    ROMEString     fOnlineHost;                   //! Name of the Online Host
    ROMEString     fOnlineExperiment;             //! Name of the Online Experiment
    ROMEString     fOnlineAnalyzerName;           //! The name of the analyzer in the midas environment
+   ROMEString     fOnlineMemoryBuffer;           //! The name of the midas memory buffer
 
    // Socket Server
    Bool_t         fSocketServerActive;           //! Socket active
@@ -490,10 +491,12 @@ public:
    const char     *GetOnlineHost() { return fOnlineHost.Data(); }
    const char     *GetOnlineExperiment() { return fOnlineExperiment.Data(); }
    const char     *GetOnlineAnalyzerName() { return fOnlineAnalyzerName.Data(); }
+   const char     *GetOnlineMemoryBuffer() { return fOnlineMemoryBuffer.Data(); }
 
    void            SetOnlineHost(const char *host) { fOnlineHost = host; }
    void            SetOnlineExperiment(const char *experiment) { fOnlineExperiment = experiment; }
    void            SetOnlineAnalyzerName(const char *analyzerName) { fOnlineAnalyzerName = analyzerName; }
+   void            SetOnlineMemoryBuffer(const char *memoryBufferName) { fOnlineMemoryBuffer = memoryBufferName; }
 
    // Socket Server
    Int_t           GetSocketServerPortNumber() { return fSocketServerPortNumber; }
