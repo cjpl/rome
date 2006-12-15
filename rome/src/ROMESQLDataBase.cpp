@@ -575,7 +575,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
       ROMEPrint::Warning("Warning: %s.%s was not found. Default value will be used.\n"
                          , path->GetTableNameAt(path->GetNumberOfTables()-1), path->GetFieldName());
       fSQL->FreeResult();
-      return true;
+      return !fTreatWarningAsError;
    }
 
    const Int_t orderIndex[3] = {path->GetOrderIndexAt(0), path->GetOrderIndexAt(1), path->GetOrderIndexAt(2)};
