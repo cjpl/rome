@@ -36,6 +36,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Experiment></Experiment>
       <!-- The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional) -->
       <AnalyzerName>THHExample</AnalyzerName>
+      <MemoryBuffer>SYSTEM</MemoryBuffer>
     </Online>
 
     <Paths>

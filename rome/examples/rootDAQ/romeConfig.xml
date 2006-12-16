@@ -24,6 +24,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Host></Host>
       <Experiment></Experiment>
       <AnalyzerName>RDAQAnalyzer</AnalyzerName>
+      <MemoryBuffer>SYSTEM</MemoryBuffer>
     </Online>
 
     <Paths>
