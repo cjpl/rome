@@ -49,6 +49,10 @@ INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
+ROOT_MAJOR := $(shell root-config --version 2>&1 | cut -d'.' -f1)
+ROOT_MINOR := $(shell root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
+ROOT_PATCH := $(shell root-config --version 2>&1 | cut -d'/' -f2)
+
 # reset when ROMEDEBUG or ROMEOPTIMIZE is yes
 ifeq ($(ROMEDEBUG), yes)
   ROMELIB_FLAGS += -g
@@ -81,6 +85,20 @@ ifeq ($(LIBROME), yes)
   DICTIONARIES += ROMELibDict.h
 else
   LIBROMEFILE =
+endif
+
+NEED_TARRAYL64 = no
+ifeq ($(ROOT_MAJOR), 5)
+ifeq ($(shell expr $(ROOT_MINOR) \< 14), 1)
+NEED_TARRAYL64 = yes
+endif
+endif
+ifeq ($(ROOT_MAJOR), 4)
+NEED_TARRAYL64 = yes
+endif
+
+ifeq ($(NEED_TARRAYL64), yes)
+INCLUDE += -Iinclude/array64
 endif
 
 -include Makefile.arch
@@ -143,7 +161,6 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMELabel.o \
               obj/ROMECompositeFrame.o \
               obj/ROMEHisto.o \
-              obj/TArrayL64.o \
               obj/TNetFolder.o \
               obj/TNetFolderServer.o \
               obj/XMLToForm.o \
@@ -158,6 +175,9 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/TGraphMT.o \
               obj/mxml.o \
               obj/strlcpy.o
+ifeq ($(NEED_TARRAYL64), yes)
+LibObjects += obj/TArrayL64.o
+endif
 
 LibDictHeaders := include/ROMEString.h \
                   include/ROMEStrArray.h \
@@ -200,13 +220,16 @@ LibDictHeaders := include/ROMEString.h \
                   include/XMLToFormElementSignal.h \
                   include/XMLToFormFrame.h \
                   include/XMLToFormWindow.h \
-                  include/TArrayL64.h \
                   include/TGraphMT.h \
                   argus/include/ArgusWindow.h \
                   argus/include/ArgusTextDialog.h \
                   argus/include/ArgusAnalyzerController.h \
                   argus/include/ArgusTab.h \
                   argus/include/ArgusHistoDisplay.h
+ifeq ($(NEED_TARRAYL64), yes)
+LibDictHeaders += include/array64/TArrayL64.h
+endif
+
 
 #
 # Compile and linking
@@ -256,6 +279,9 @@ obj/mxml.o: src/mxml.c include/mxml.h
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
 	$(CC) $(CFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
+
+obj/TArrayL64.o: src/TArrayL64.cpp include/array64/TArrayL64.h
+	$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
 	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) -O0 -MMD -MP -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<

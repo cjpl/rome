@@ -35,6 +35,9 @@ void ROMEBuilder::AddIncludeDirectories()
    includeDirectories->AddFormatted("$(ROOTSYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/argus/include/");
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
+   includeDirectories->AddFormatted("$(ROMESYS)/include/array64");
+#endif
    includeDirectories->AddFormatted("include/");
    includeDirectories->AddFormatted("./");
    includeDirectories->AddFormatted("include/generated");
@@ -107,7 +110,9 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMEXMLDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/strlcpy.h");
-   romeHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
+   romeHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
+#endif
    romeHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
@@ -185,8 +190,10 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
       romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
+      romeDictHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
       romeLinkDefSuffix->Add("");
+#endif
       romeDictHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
@@ -296,7 +303,9 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEXML.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEXMLDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETree.cpp");
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
       romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
+#endif
       romeSources->Add("$(ROMESYS)/src/TGraphMT.cpp");
       romeSources->Add("$(ROMESYS)/src/strlcpy.c");
       romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
