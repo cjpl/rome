@@ -84,6 +84,8 @@ protected:
    Int_t                fNumberOfPadsX;            //! 
    Int_t                fNumberOfPadsY;            //! 
 
+   Bool_t               fStatisticBoxFlag; //!
+
    TRootEmbeddedCanvas *fCanvas;                   //! 
    TPad                *fPad[kMaxNumberOfPads];    //! 
 
