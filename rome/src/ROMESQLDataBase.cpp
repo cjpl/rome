@@ -51,10 +51,6 @@ ROMESQLDataBase::ROMESQLDataBase() {
 
 ROMESQLDataBase::~ROMESQLDataBase() {
    SafeDelete(fSQL);
-   Int_t i;
-   for (i = 0; i < kNumberOfReadCache; i++) {
-      SafeDelete(fPathCache[i]);
-   }
 }
 
 void ROMESQLDataBase:: ResetPhrase() {
