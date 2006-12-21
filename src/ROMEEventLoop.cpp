@@ -1140,6 +1140,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
+               ROMEPrint::Warning("    (i.e. trees for reading and writing must be different.)\n");
             }
             if(romeTree->isSaveConfig())
                romeTree->SaveConfig(gROME->GetConfiguration()->GetConfigContent(), gROME->GetConfiguration()->GetConfigFileName());
