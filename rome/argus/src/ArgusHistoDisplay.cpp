@@ -77,6 +77,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
    fPadConfigActive = false;
 
    fNumberOfUserTGraph = 0;
+   fStatisticBoxFlag = kFALSE;
 
    fMenuBar = 0;
    fMenuDisplay = 0;
@@ -411,15 +412,16 @@ void ArgusHistoDisplay::BaseTabUnSelected()
 
 void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
 {
-   if (flag) {
+   if (flag && !fStatisticBoxFlag) {
       fStyle->SetStatW(0.1f);
       fStyle->SetOptStat(1110);
       fStyle->SetOptFit(73);
    }
-   else {
+   else if (fStatisticBoxFlag){
       fStyle->SetOptFit(0);
       fStyle->SetOptStat(0);
    }
+   fStatisticBoxFlag = flag;
 }
 
 void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
