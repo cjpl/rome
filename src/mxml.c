@@ -1462,8 +1462,8 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
    int ip;                      /* counter for entity value */
    char directoryname[FILENAME_MAX];
    char filename[FILENAME_MAX];
-   int entity_value_length;
-   int entity_name_length;
+   int entity_value_length[MXML_MAX_ENTITY];
+   int entity_name_length[MXML_MAX_ENTITY];
 
    for (ip = 0; ip < MXML_MAX_ENTITY; ip++)
       entity_value[ip] = NULL;
@@ -1835,12 +1835,12 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
    length = strlen(buffer);
    for (i = 0; i < nentity; i++) {
       p = buffer;
-      entity_value_length = strlen(entity_value[i]);
-      entity_name_length = strlen(entity_name[i]);
+      entity_value_length[i] = strlen(entity_value[i]);
+      entity_name_length[i] = strlen(entity_name[i]);
       while (1) {
          pv = strstr(p, entity_name[i]);
          if (pv) {
-            length += entity_value_length - entity_name_length;
+            length += entity_value_length[i] - entity_name_length[i];
             p = pv + 1;
          } else {
             break;
@@ -1866,12 +1866,10 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
       if (*p == '&') {
          /* found entity */
          for (j = 0; j < nentity; j++) {
-            entity_name_length = strlen(entity_name[j]);
-            entity_value_length = strlen(entity_value[j]);
-            if (strncmp(p, entity_name[j], entity_name_length) == 0) {
-               for (k = 0; k < (int) entity_value_length; k++)
+            if (strncmp(p, entity_name[j], entity_name_length[j]) == 0) {
+               for (k = 0; k < (int) entity_value_length[j]; k++)
                   *pv++ = entity_value[j][k];
-               p += entity_name_length;
+               p += entity_name_length[j];
                break;
             }
          }
