@@ -49,9 +49,9 @@ INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
-ROOT_MAJOR := $(shell root-config --version 2>&1 | cut -d'.' -f1)
-ROOT_MINOR := $(shell root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
-ROOT_PATCH := $(shell root-config --version 2>&1 | cut -d'/' -f2)
+ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
+ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
+ROOT_PATCH := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f2)
 
 # reset when ROMEDEBUG or ROMEOPTIMIZE is yes
 ifeq ($(ROMEDEBUG), yes)
