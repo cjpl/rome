@@ -96,3 +96,15 @@
   <Directory>/afs/psi.ch/user/s/sawada/rome</Directory>
   <LastCompile>Wed, 27 Dec 2006 08:04:45 +0000 (GMT) +706117000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>megofl02</Host>
+  <Directory>/misc/home/sawada/local/rome</Directory>
+  <LastCompile>Thu, 28 Dec 2006 10:08:19 +0000 (GMT) + 10880000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>megofl01</Host>
+  <Directory>/misc/home/sawada/local/rome</Directory>
+  <LastCompile>Thu, 28 Dec 2006 08:07:15 +0000 (GMT) +647416000 nsec</LastCompile>
+</Entry>

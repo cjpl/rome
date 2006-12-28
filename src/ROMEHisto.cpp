@@ -24,36 +24,42 @@ const char* ROMEHisto::GetTitle() const{
    else
       return fTitle;
 }
+
 const char* ROMEHisto::GetFolderTitle() {
    if (fFolderTitle.Length()==0)
       return fFolderTitleOrig;
    else
       return fFolderTitle;
 }
+
 const char* ROMEHisto::GetXLabel() {
    if (fXLabel.Length()==0)
       return fXLabelOrig;
    else
       return fXLabel;
 }
+
 const char* ROMEHisto::GetYLabel() {
    if (fYLabel.Length()==0)
       return fYLabelOrig;
    else
       return fYLabel;
 }
+
 const char* ROMEHisto::GetZLabel() {
    if (fZLabel.Length()==0)
       return fZLabelOrig;
    else
       return fZLabel;
 }
+
 int ROMEHisto::GetArraySize() {
    if (fArraySize.Length()==0)
       return fArraySizeOrig;
    else
       return strtol(fArraySize.Data(),&fCstop,10);
 }
+
 const char* ROMEHisto::GetArraySizeString(ROMEString &string) {
    if (fArraySize.Length()==0)
       string.SetFormatted("%d",fArraySizeOrig);
@@ -61,12 +67,14 @@ const char* ROMEHisto::GetArraySizeString(ROMEString &string) {
       string = fArraySize;
    return string.Data();
 }
+
 int ROMEHisto::GetArrayStartIndex() {
    if (fArrayStartIndex.Length()==0)
       return fArrayStartIndexOrig;
    else
       return strtol(fArrayStartIndex.Data(),&fCstop,10);
 }
+
 const char* ROMEHisto::GetArrayStartIndexString(ROMEString &string) {
    if (fArrayStartIndex.Length()==0)
       string.SetFormatted("%d",fArrayStartIndexOrig);
@@ -74,12 +82,14 @@ const char* ROMEHisto::GetArrayStartIndexString(ROMEString &string) {
       string = fArrayStartIndex;
    return string.Data();
 }
+
 int ROMEHisto::GetXNbins() {
    if (fXNbins.Length()==0)
       return fXNbinsOrig;
    else
       return strtol(fXNbins.Data(),&fCstop,10);
 }
+
 const char* ROMEHisto::GetXNbinsString(ROMEString &string) {
    if (fXNbins.Length()==0)
       string.SetFormatted("%d",fXNbinsOrig);
@@ -87,12 +97,14 @@ const char* ROMEHisto::GetXNbinsString(ROMEString &string) {
       string = fXNbins;
    return string.Data();
 }
+
 double ROMEHisto::GetXmin() {
    if (fXmin.Length()==0)
       return fXminOrig;
    else
       return strtod(fXmin.Data(),&fCstop);
 }
+
 const char* ROMEHisto::GetXminString(ROMEString &string) {
    if (fXmin.Length()==0)
       string.SetFormatted("%f",fXminOrig);
@@ -100,12 +112,14 @@ const char* ROMEHisto::GetXminString(ROMEString &string) {
       string = fXmin;
    return string.Data();
 }
+
 double ROMEHisto::GetXmax() {
    if (fXmax.Length()==0)
       return fXmaxOrig;
    else
       return strtod(fXmax.Data(),&fCstop);
 }
+
 const char* ROMEHisto::GetXmaxString(ROMEString &string) {
    if (fXmax.Length()==0)
       string.SetFormatted("%f",fXmaxOrig);
@@ -113,12 +127,14 @@ const char* ROMEHisto::GetXmaxString(ROMEString &string) {
       string = fXmax;
    return string.Data();
 }
+
 int ROMEHisto::GetYNbins() {
    if (fYNbins.Length()==0)
       return fYNbinsOrig;
    else
       return strtol(fYNbins.Data(),&fCstop,10);
 }
+
 const char* ROMEHisto::GetYNbinsString(ROMEString &string) {
    if (fYNbins.Length()==0)
       string.SetFormatted("%d",fYNbinsOrig);
@@ -126,12 +142,14 @@ const char* ROMEHisto::GetYNbinsString(ROMEString &string) {
       string = fYNbins;
    return string.Data();
 }
+
 double ROMEHisto::GetYmin() {
    if (fYmin.Length()==0)
       return fYminOrig;
    else
       return strtod(fYmin.Data(),&fCstop);
 }
+
 const char* ROMEHisto::GetYminString(ROMEString &string) {
    if (fYmin.Length()==0)
       string.SetFormatted("%f",fYminOrig);
@@ -139,12 +157,14 @@ const char* ROMEHisto::GetYminString(ROMEString &string) {
       string = fYmin;
    return string.Data();
 }
+
 double ROMEHisto::GetYmax() {
    if (fYmax.Length()==0)
       return fYmaxOrig;
    else
       return strtod(fYmax.Data(),&fCstop);
 }
+
 const char* ROMEHisto::GetYmaxString(ROMEString &string) {
    if (fYmax.Length()==0)
       string.SetFormatted("%f",fYmaxOrig);
@@ -152,12 +172,14 @@ const char* ROMEHisto::GetYmaxString(ROMEString &string) {
       string = fYmax;
    return string.Data();
 }
+
 int ROMEHisto::GetZNbins() {
    if (fZNbins.Length()==0)
       return fZNbinsOrig;
    else
       return strtol(fZNbins.Data(),&fCstop,10);
 }
+
 const char* ROMEHisto::GetZNbinsString(ROMEString &string) {
    if (fZNbins.Length()==0)
       string.SetFormatted("%d",fZNbinsOrig);
@@ -165,12 +187,14 @@ const char* ROMEHisto::GetZNbinsString(ROMEString &string) {
       string = fZNbins;
    return string.Data();
 }
+
 double ROMEHisto::GetZmin() {
    if (fZmin.Length()==0)
       return fZminOrig;
    else
       return strtod(fZmin.Data(),&fCstop);
 }
+
 const char* ROMEHisto::GetZminString(ROMEString &string) {
    if (fZmin.Length()==0)
       string.SetFormatted("%f",fZminOrig);
@@ -178,12 +202,14 @@ const char* ROMEHisto::GetZminString(ROMEString &string) {
       string = fZmin;
    return string.Data();
 }
+
 double ROMEHisto::GetZmax() {
    if (fZmax.Length()==0)
       return fZmaxOrig;
    else
       return strtod(fZmax.Data(),&fCstop);
 }
+
 const char* ROMEHisto::GetZmaxString(ROMEString &string) {
    if (fZmax.Length()==0)
       string.SetFormatted("%f",fZmaxOrig);
