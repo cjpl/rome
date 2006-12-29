@@ -2198,7 +2198,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
 
             // get histo folder
             if (!sameFolder&&!homeFolder) {
-               buffer.AppendFormatted("   TFolder *%sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   TFolder *%sFolder;;\n",histoFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
             }
             // create histos
             buffer.AppendFormatted("   histoName = \"%s\";\n",histoName[iTask][i].Data());
@@ -2345,7 +2346,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
 
             // get graph folder
             if (!sameFolder&&!homeFolder) {
-               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",folderTitle.Data());\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
             }
             // create graphs
             buffer.AppendFormatted("   graphName = \"%s\";\n",graphName[iTask][i].Data());
