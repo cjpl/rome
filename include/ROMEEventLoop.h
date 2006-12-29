@@ -102,8 +102,10 @@ public:
    ROMEEventLoop(const char *name,const char *title);
    void         ExecuteTask(Option_t *option="");
    void         BookHisto() {}
+   void         ReBookHisto() {}
    void         ResetHisto() {}
    void         BookGraph() {}
+   void         ReBookGraph() {}
    void         ResetGraph() {}
    void         Init() {}
    void         BeginOfRun() {}

@@ -48,8 +48,10 @@ protected:
    const char  *GetTimeOfAll();
 
    virtual void BookHisto() = 0;
+   virtual void ReBookHisto() = 0;
    virtual void ResetHisto() = 0;
    virtual void BookGraph() = 0;
+   virtual void ReBookGraph() = 0;
    virtual void ResetGraph() = 0;
    virtual void Init() = 0;
    virtual void BeginOfRun() = 0;

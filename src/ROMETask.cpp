@@ -66,10 +66,10 @@ void ROMETask::Exec(Option_t *option)
    }
    else if (!strncmp(option,"BeginOfRun",10)) {
       fCurrentEventMethod = "BeginOfRun";
-//      ResetHisto();
-//      ResetGraph();
-      BookHisto();
-      BookGraph();
+      ReBookHisto();
+      ReBookGraph();
+      ResetHisto();
+      ResetGraph();
       ROMEPrint::Debug("Executing %s::BeginOfRun\n", ClassName());
       fWatchUser.Start(false);
       BeginOfRun();
