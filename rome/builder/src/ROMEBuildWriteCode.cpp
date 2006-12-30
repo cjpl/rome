@@ -2085,6 +2085,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          }
          if (array) {
             buffer.AppendFormatted("   int j;\n");
+            buffer.AppendFormatted("   int arraySizeOld;\n");
             buffer.AppendFormatted("   ROMEString name;\n");
             buffer.AppendFormatted("   ROMEString title;\n");
          }
@@ -2208,11 +2209,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             }
             else {
                buffer.AppendFormatted("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
-               buffer.AppendFormatted("   if (arraySize > f%ss->GetEntries())\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   arraySizeOld = f%ss->GetEntries();\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   if (arraySize > arraySizeOld)\n");
                buffer.AppendFormatted("      f%ss->Expand(arraySize);\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   for (j=0;j<arraySize;j++) {\n");
-               buffer.AppendFormatted("      if (f%ss->At(j))\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("         continue;\n");
+               buffer.AppendFormatted("   for (j=arraySizeOld;j<arraySize;j++) {\n");
                buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
                buffer.AppendFormatted("      name.Insert(0,histoName.Data());\n");
                buffer.AppendFormatted("      title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
@@ -2227,12 +2227,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                   buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",i,histoType[iTask][i].Data());
                }
                buffer.AppendFormatted("      f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
-#if 0 // this part causes segmentation fault when folder is written in file at the end of run.
                if (!homeFolder)
                   buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
                else
                   buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",histoName[iTask][i].Data());
-#endif
                buffer.AppendFormatted("      hist%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
                buffer.AppendFormatted("      hist%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
                buffer.AppendFormatted("      hist%d->GetZaxis()->SetTitle(zLabel.Data());\n",i);
@@ -2251,6 +2249,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          }
          if (array) {
             buffer.AppendFormatted("   int j;\n");
+            buffer.AppendFormatted("   int arraySizeOld;\n");
             buffer.AppendFormatted("   ROMEString name;\n");
             buffer.AppendFormatted("   ROMEString title;\n");
          }
@@ -2356,9 +2355,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             }
             else {
                buffer.AppendFormatted("   %s *graph%d;\n",graphType[iTask][i].Data(),i);
-               buffer.AppendFormatted("   if (arraySize > f%ss->GetEntries())\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("   arraySizeOld = f%ss->GetEntries();\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("   if (arraySize > arraySizeOld)\n");
                buffer.AppendFormatted("      f%ss->Expand(arraySize);\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("   for (j=0;j<arraySize;j++) {\n");
+               buffer.AppendFormatted("   for (j=arraySizeOld;j<arraySize;j++) {\n");
                buffer.AppendFormatted("      if (f%ss->At(j))\n",graphName[iTask][i].Data());
                buffer.AppendFormatted("         continue;\n");
                buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
@@ -2368,12 +2368,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("      graph%d = new %s(1);\n",i,graphType[iTask][i].Data());
                buffer.AppendFormatted("      graph%d->SetNameTitle(\"%s\",\"%s\");\n",i,graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
                buffer.AppendFormatted("      f%ss->Add(graph%d);\n",graphName[iTask][i].Data(),i);
-#if 0 // this part causes segmentation fault when folder is written in file at the end of run.
                if (!homeFolder)
                   buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
                else
                   buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",graphName[iTask][i].Data());
-#endif
                buffer.AppendFormatted("      graph%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
                buffer.AppendFormatted("      graph%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
                buffer.AppendFormatted("   }\n");
