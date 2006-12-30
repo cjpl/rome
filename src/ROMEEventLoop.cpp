@@ -1115,6 +1115,21 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    // Write non accumulative output tree files
    ROMEPrint::Debug("Executing DAQ EndOfRun\n");
 
+   // Write Histos
+   ROMEString filename;
+   ROMEString runNumberString;
+   gROME->GetCurrentRunNumberString(runNumberString);
+
+   filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
+   fHistoFile = new TFile(filename.Data(),"RECREATE");
+   fHistoFile->cd();
+   TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
+   folder->Write();
+   fHistoFile->Write();
+   fHistoFile->Close();
+   SafeDelete(fHistoFile);
+
+   // Write trees
    ROMEString treename;
    ROMETree *romeTree;
    TTree *tree;
@@ -1161,17 +1176,6 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
       }
    }
    ROMEPrint::Print("\n");
-
-   // Write Histos
-   ROMEString filename;
-   ROMEString runNumberString;
-   gROME->GetCurrentRunNumberString(runNumberString);
-   filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
-   fHistoFile = new TFile(filename.Data(),"RECREATE");
-   TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
-   folder->Write();
-   fHistoFile->Close();
-   SafeDelete(fHistoFile);
 
    if (!gROME->GetActiveDAQ()->EndOfRunDAQ())
       return false;
