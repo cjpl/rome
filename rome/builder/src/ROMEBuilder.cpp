@@ -1418,9 +1418,13 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
       if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString"))
          return stringBuffer.SetFormatted("%s=%s",tmp.Data(),value);
       if (isFloatingType(oldType))
-         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%f\",%s)",tmp.Data(),value);
+         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%g\",%s)",tmp.Data(),value);
       else
-         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%d\",%s)",tmp.Data(),value);
+#if defined( R__VISUAL_CPLUSPLUS )
+         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%I64d\",static_cast<Long64_t>(%s))",tmp.Data(),value);
+#else
+         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%lld\",static_cast<Long64_t>(%s))",tmp.Data(),value);
+#endif
    }
    return stringBuffer;
 }
