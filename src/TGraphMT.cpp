@@ -5,7 +5,7 @@
 //
 //  TGraph class for multi-threaded programs.
 //
-//  $Id: TGraphMT.cpp 1312 2006-07-24 12:12:49Z schneebeli_m $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
