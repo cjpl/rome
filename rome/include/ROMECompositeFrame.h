@@ -1,7 +1,7 @@
 /********************************************************************
   ROMECompositeFrame.h, M. Schneebeli PSI
 
-  $Id: ROMECompositeFrame.h 1433 2006-10-10 17:11:13Z sawada $
+  $Id$
 
 ********************************************************************/
 #ifndef ROMECompositeFrame_H

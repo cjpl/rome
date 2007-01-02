@@ -5,7 +5,7 @@
 //                                                                      //
 //  The Base Class for all Graphs in ROME.
 //                                                                      //
-//  $Id: ROMEGraph.cpp 1433 2006-10-10 17:11:13Z sawada $
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include "ROMEGraph.h"

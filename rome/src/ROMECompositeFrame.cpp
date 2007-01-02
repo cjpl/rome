@@ -5,7 +5,7 @@
 //
 //  TGCompositeFrame costomized for ROME
 //
-//  $Id: ROMECompositeFrame.cpp 1433 2006-10-10 17:11:13Z sawada $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
