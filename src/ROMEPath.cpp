@@ -317,9 +317,9 @@ void ROMEPath::Print() {
    ROMEPrint::Print("   Field Name : %s\n", GetOrderFieldName());
    if (IsOrderArray()) {
       ROMEPrint::Print("\n   Array :\n");
-      ROMEPrint::Print("      start : %s\n", GetOrderIndexAt(0));
-      ROMEPrint::Print("      end   : %s\n", GetOrderIndexAt(1));
-      ROMEPrint::Print("      step  : %s\n", GetOrderIndexAt(2));
+      ROMEPrint::Print("      start : %d\n", GetOrderIndexAt(0));
+      ROMEPrint::Print("      end   : %d\n", GetOrderIndexAt(1));
+      ROMEPrint::Print("      step  : %d\n", GetOrderIndexAt(2));
       ROMEPrint::Print("\n");
    }
    ROMEPrint::Print("\nField :\n");
@@ -327,9 +327,9 @@ void ROMEPath::Print() {
    ROMEPrint::Print("      Constraint     : %s\n", GetFieldConstraints());
    if (IsFieldArray()) {
       ROMEPrint::Print("\n   Array :\n");
-      ROMEPrint::Print("      start : %s\n", GetFieldIndexAt(0));
-      ROMEPrint::Print("      end   : %s\n", GetFieldIndexAt(1));
-      ROMEPrint::Print("      step  : %s\n", GetFieldIndexAt(2));
+      ROMEPrint::Print("      start : %d\n", GetFieldIndexAt(0));
+      ROMEPrint::Print("      end   : %d\n", GetFieldIndexAt(1));
+      ROMEPrint::Print("      step  : %d\n", GetFieldIndexAt(2));
    }
 }
 

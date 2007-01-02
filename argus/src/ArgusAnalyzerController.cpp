@@ -338,7 +338,11 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                   if (fNetFolder) {
                      ROMEString str;
-                     str.SetFormatted("gAnalyzer->SetUserEventJ(%d);",fEventNumber + 1);
+#if defined( R__VISUAL_CPLUSPLUS )
+                     str.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);",fEventNumber + 1);
+#else
+                     str.SetFormatted("gAnalyzer->SetUserEventJ(%lld);",fEventNumber + 1);
+#endif
                      fNetFolder->ExecuteCommand(str.Data());
                   }
                }
