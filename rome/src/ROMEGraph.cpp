@@ -81,7 +81,7 @@ double ROMEGraph::GetXmin() {
 }
 const char* ROMEGraph::GetXminString(ROMEString &string) {
    if (fXmin.Length()==0)
-      string.SetFormatted("%d",fXminOrig);
+      string.SetFormatted("%g",fXminOrig);
    else
       string = fXmin;
    return string.Data();
@@ -94,7 +94,7 @@ double ROMEGraph::GetXmax() {
 }
 const char* ROMEGraph::GetXmaxString(ROMEString &string) {
    if (fXmax.Length()==0)
-      string.SetFormatted("%d",fXmaxOrig);
+      string.SetFormatted("%g",fXmaxOrig);
    else
       string = fXmax;
    return string.Data();
@@ -107,7 +107,7 @@ double ROMEGraph::GetYmin() {
 }
 const char* ROMEGraph::GetYminString(ROMEString &string) {
    if (fYmin.Length()==0)
-      string.SetFormatted("%d",fYminOrig);
+      string.SetFormatted("%g",fYminOrig);
    else
       string = fYmin;
    return string.Data();
@@ -120,7 +120,7 @@ double ROMEGraph::GetYmax() {
 }
 const char* ROMEGraph::GetYmaxString(ROMEString &string) {
    if (fYmax.Length()==0)
-      string.SetFormatted("%d",fYmaxOrig);
+      string.SetFormatted("%g",fYmaxOrig);
    else
       string = fYmax;
    return string.Data();
@@ -133,7 +133,7 @@ double ROMEGraph::GetZmin() {
 }
 const char* ROMEGraph::GetZminString(ROMEString &string) {
    if (fZmin.Length()==0)
-      string.SetFormatted("%d",fZminOrig);
+      string.SetFormatted("%g",fZminOrig);
    else
       string = fZmin;
    return string.Data();
@@ -146,7 +146,7 @@ double ROMEGraph::GetZmax() {
 }
 const char* ROMEGraph::GetZmaxString(ROMEString &string) {
    if (fZmax.Length()==0)
-      string.SetFormatted("%d",fZmaxOrig);
+      string.SetFormatted("%g",fZmaxOrig);
    else
       string = fZmax;
    return string.Data();

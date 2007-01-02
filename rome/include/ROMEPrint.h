@@ -10,6 +10,7 @@
 #include <RConfig.h>
 #include <Rtypes.h>
 #include <Varargs.h>
+#include "ROME.h"
 
 class ROMEPrint
 {
@@ -28,16 +29,16 @@ private:
 
 public:
    ROMEPrint(){}
-   virtual ~ROMEPrint(){}
+   virtual ~ROMEPrint() {}
 
    // Output
 #ifndef __MAKECINT__
-   static void  PrintAlways(const char *msgfmt, ...);
-   static void  Debug(const char *msgfmt, ...);
-   static void  Print(const char *msgfmt, ...);
-   static void  Info(const char *msgfmt, ...);
-   static void  Warning(const char *msgfmt, ...);
-   static void  Error(const char *msgfmt, ...);
+   static void  PrintAlways(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
+   static void  Debug(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
+   static void  Print(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
+   static void  Info(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
+   static void  Warning(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
+   static void  Error(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
 #endif
    static Int_t GetVerboseLevel() { return fgVerboseLevel; }
    static void  SetVerboseLevel(Int_t level = kNormal) { fgVerboseLevel = level; }

@@ -40,19 +40,19 @@ public:
 
    Int_t          GetNumberOfSetLines() { return fSetLines->GetEntriesFast(); }
    const char*    GetSetLineAt(Int_t i) { return fSetLines->At(i).Data(); }
-   void           AddSetLine(const char* line,...);
+   void           AddSetLine(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Int_t          GetNumberOfWriteLines() { return fWriteLines->GetEntriesFast(); }
    const char*    GetWriteLineAt(Int_t i) { return fWriteLines->At(i).Data(); }
-   void           AddWriteLine(const char* line,...);
+   void           AddWriteLine(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Int_t          GetNumberOfAdditionalWriteLines() { return fAdditionalWriteLines->GetEntriesFast(); }
    const char*    GetAdditionalWriteLineAt(Int_t i) { return fAdditionalWriteLines->At(i).Data(); }
-   void           AddAdditionalWriteLine(const char* line,...);
+   void           AddAdditionalWriteLine(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Int_t          GetNumberOfComboBoxEntries() { return fComboBoxEntries->GetEntriesFast(); }
    const char*    GetComboBoxEntryAt(Int_t i) { return fComboBoxEntries->At(i).Data(); }
-   void           AddComboBoxEntry(const char* line,...);
+   void           AddComboBoxEntry(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Bool_t         IsWriteLinesAlways() { return fWriteLinesAlways; }
    void           DontWriteLinesAlways() { fWriteLinesAlways = false; }

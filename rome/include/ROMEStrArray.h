@@ -9,6 +9,7 @@
 
 #include <TObjArray.h>
 #include <TString.h>
+#include "ROME.h"
 
 class ROMEStrArray : public TObject
 {
@@ -25,7 +26,7 @@ public:
    Int_t            GetLast() const;
    Bool_t           IsEmpty() const;
 
-   void             AddFormatted(const char* format,...);
+   void             AddFormatted(const char* format,...)  G_GNUC_PRINTF(2, 3);
 
    void             Add(TString &str);
    void             Add(const char* str);

@@ -9,6 +9,7 @@
 
 #include <TString.h>
 #include <Varargs.h>
+#include "ROME.h"
 
 class ROMEString : public TString
 {
@@ -22,9 +23,9 @@ public:
    virtual ~ROMEString() {}
 
 #ifndef __MAKECINT__
-   ROMEString&  AppendFormatted(const char* format=NULL,...);
-   ROMEString&  InsertFormatted(Ssiz_t position,const char* format=NULL,...);
-   ROMEString&  SetFormatted(const char* format=NULL,...);
+   ROMEString&  AppendFormatted(const char* format=NULL,...) G_GNUC_PRINTF(2, 3);
+   ROMEString&  InsertFormatted(Ssiz_t position,const char* format=NULL,...) G_GNUC_PRINTF(3, 4);
+   ROMEString&  SetFormatted(const char* format=NULL,...) G_GNUC_PRINTF(2, 3);
 #endif
    static char* Format(const char *format, va_list ap);
    static char* SlowFormat(const char *format, va_list ap, int hint);

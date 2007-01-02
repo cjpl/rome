@@ -27,6 +27,19 @@
 #   define SafeDeleteArray(p) { delete [] p; p = 0; }
 #endif
 
+#if defined(R__GNU) && !defined(__MAKECINT__)
+#   define G_GNUC_PRINTF( format_idx, arg_idx )                 \
+   __attribute__((format (printf, format_idx, arg_idx)))
+#   define G_GNUC_SCANF( format_idx, arg_idx )          \
+   __attribute__((format (scanf, format_idx, arg_idx)))
+#   define G_GNUC_FORMAT( arg_idx )             \
+   __attribute__((format_arg (arg_idx)))
+#else
+#   define G_GNUC_PRINTF( format_idx, arg_idx )
+#   define G_GNUC_SCANF( format_idx, arg_idx )
+#   define G_GNUC_FORMAT( arg_idx )
+#endif
+
 #define WarningSuppression(x) { if (x) { int warning_suppression; warning_suppression = 0; } }
 
 // This macro can be used for debugging like,

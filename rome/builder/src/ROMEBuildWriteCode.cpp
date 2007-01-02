@@ -2465,7 +2465,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          }
          for (i=0;i<numOfGraphs[iTask];i++) {
             if (graphArraySize[iTask][i]=="1") {
-               buffer.AppendFormatted("   f%s->Set(0);\n",graphName[iTask][i].Data(),graphName[iTask][i].Data());
+               buffer.AppendFormatted("   f%s->Set(0);\n",graphName[iTask][i].Data());
             }
             else {
                buffer.AppendFormatted("    nentry = f%ss->GetEntries();\n",graphName[iTask][i].Data());
@@ -8509,7 +8509,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
          subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetAccumulation(false);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->AddSetLine("else");
          subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetAccumulation(true);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
-         subSubGroup->GetLastParameter()->AddSetLine("");
+         subSubGroup->GetLastParameter()->AddSetLine(" ");
          subSubGroup->GetLastParameter()->AddWriteLine("if (((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->isAccumulation())",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
          subSubGroup->GetLastParameter()->AddWriteLine("else");
@@ -10110,7 +10110,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          buffer.AppendFormatted("     bb = (TBranchElement*)fROMETrees[%d]->GetTree()->FindBranch(\"Info\");\n",i);
          buffer.AppendFormatted("     bb->SetAddress(&fTreeInfo);\n");
       }
-      buffer.AppendFormatted("   }\n", i);
+      buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("}\n\n");
 
