@@ -8722,7 +8722,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
             subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(ii[%d]));",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          subSubGroup->GetLastParameter()->AddWriteLine("}");
          subSubGroup->GetLastParameter()->AddWriteLine("else {");
-         subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString.Resize(0);");
          subSubGroup->GetLastParameter()->AddWriteLine("}");
       }
       else {
@@ -8753,7 +8753,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
             subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%s());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
          subGroup->GetLastParameter()->AddWriteLine("}");
          subGroup->GetLastParameter()->AddWriteLine("else {");
-         subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"\");");
+         subGroup->GetLastParameter()->AddWriteLine("   writeString.Resize(0);");
          subGroup->GetLastParameter()->AddWriteLine("}");
       }
    }
@@ -11858,14 +11858,17 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[numFolder]) {
          buffer.AppendFormatted("      values->RemoveAll();\n");
          buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s_%sDBName())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("         name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
+         if (valueDBName[numFolder][j].Length())
+            buffer.AppendFormatted("         name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
+         else
+            buffer.AppendFormatted("         name.Resize(0);\n");
          buffer.AppendFormatted("      else\n");
          buffer.AppendFormatted("         name.SetFormatted(gAnalyzer->Get%s_%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s_%sDBPath(str))==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          if (valueDBPath[numFolder][j].Length())
             buffer.AppendFormatted("         path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
          else
-            buffer.AppendFormatted("         path.SetFormatted(\"\");\n");
+            buffer.AppendFormatted("         path.Resize(0);\n");
 
          buffer.AppendFormatted("      else\n");
          buffer.AppendFormatted("         path.SetFormatted(gAnalyzer->Get%s_%sDBPath(str)",folderName[numFolder].Data(),valueName[numFolder][j].Data());
