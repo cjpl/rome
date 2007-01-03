@@ -260,7 +260,7 @@ include/ROMEVersion.h: bin/updateVersionH.exe
 
 librome.a: $(LibObjects)
 	-$(RM) $@
-	$(AR) -cr $@ $^
+	$(AR) -rcs $@ $^
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
