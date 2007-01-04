@@ -75,6 +75,8 @@ Bool_t ROMESQLite3::StoreResult()
 {
    int i=0;
    int j=0;
+   int column_count;
+
    while(sqlite3_step(stmt) != SQLITE_DONE){
       switch (GetErrorCode()){
          case SQLITE_BUSY:
@@ -82,7 +84,8 @@ Bool_t ROMESQLite3::StoreResult()
             continue;
             break;
          case SQLITE_ROW:
-            for(i=0;i<sqlite3_column_count(stmt);i++)
+            column_count = sqlite3_column_count(stmt);
+            for(i=0; i < column_count; i++)
                result.SetAt((char*)sqlite3_column_text(stmt,i),i,j);
             j++;
             break;
