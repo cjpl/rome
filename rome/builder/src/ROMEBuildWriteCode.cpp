@@ -3688,9 +3688,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             }
             buffer.AppendFormatted("   }\n");
          }
-         buffer.AppendFormatted("   ArgusHistoDisplay::BaseMenuClicked(menu,param);\n");
       }
       buffer.AppendFormatted("   MenuClicked(menu,param);\n");
+      if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseMenuClicked(menu,param);\n");
+      }
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
