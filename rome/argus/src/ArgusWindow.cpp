@@ -15,7 +15,6 @@
 #pragma warning( disable : 4800 4244)
 #endif                          // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
-#include <TGMsgBox.h>
 #include <TGTab.h>
 #include <TGStatusBar.h>
 #include <TGProgressBar.h>

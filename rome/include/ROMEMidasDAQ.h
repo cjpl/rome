@@ -7,7 +7,6 @@
 #ifndef ROMEMidasDAQ_H
 #define ROMEMidasDAQ_H
 
-
 #include <zlib.h>
 #include <RConfig.h>
 #include <TArrayL.h>

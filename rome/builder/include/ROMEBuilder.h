@@ -163,6 +163,7 @@ protected:
    Bool_t       *folderNoResetModified;
    Bool_t        hasFolderUserCode;
    Bool_t        hasFolderGenerated;
+   Bool_t        hasSupportFolderGenerated;
 
    ROMEString  **valueName;
    ROMEString  **valueType;
@@ -486,6 +487,8 @@ protected:
    ROMEStrArray* generatedLinkDefSuffix;
    ROMEStrArray* generatedFolderDictHeaders;
    ROMEStrArray* generatedFolderLinkDefSuffix;
+   ROMEStrArray* generatedSupportFolderDictHeaders;
+   ROMEStrArray* generatedSupportFolderLinkDefSuffix;
    ROMEStrArray* generatedTaskDictHeaders;
    ROMEStrArray* generatedTaskLinkDefSuffix;
    ROMEStrArray* generatedTabDictHeaders;
@@ -633,6 +636,7 @@ private:
    void    AddGeneratedHeaders();
    void    AddGeneratedDictHeaders();
    void    AddGeneratedFolderDictHeaders();
+   void    AddGeneratedSupportFolderDictHeaders();
    void    AddGeneratedTaskDictHeaders();
    void    AddGeneratedTabDictHeaders();
    void    AddGeneratedSources();
