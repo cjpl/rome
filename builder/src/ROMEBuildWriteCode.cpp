@@ -2998,6 +2998,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
 Bool_t ROMEBuilder::WriteTabCpp()
 {
    ROMEString cppFile;
+   ROMEString genFile;
    ROMEString header;
    ROMEString buffer;
    Int_t i, j;
@@ -3014,11 +3015,52 @@ Bool_t ROMEBuilder::WriteTabCpp()
       if (!tabUsed[iTab])
          continue;
       header.Resize(0);
-      buffer.Resize(0);
       // File name
       cppFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
 
+      // Generated Includes
+      buffer.Resize(0);
+      genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+#if defined( R__VISUAL_CPLUSPLUS ) // This fixes errors in root includes on windows
+      buffer.AppendFormatted("#include <RConfig.h>\n");
+      buffer.AppendFormatted("#pragma warning( push )\n");
+      buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+      buffer.AppendFormatted("#include <TGTab.h>\n");
+      buffer.AppendFormatted("#include <TGeoManager.h>\n");
+      buffer.AppendFormatted("#include <Windows4Root.h>\n");
+      buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      bool folderIncludeFirst = true;
+      for (j=0;j<numOfFolder;j++) {
+         if (accessFolder(fileBuffer,j)) {
+            if (!folderUsed[j])
+               continue;
+            if (numOfValue[j] > 0 && !folderSupport[j]) {
+               if (folderUserCode[j])
+                  buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               else
+                  buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+            }
+         }
+      }
+      if (fileBuffer.Contains("GetWindow"))
+         buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+      if (fileBuffer.Contains("GetGSP"))
+         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+
+      for (j=0;j<daqNameArray->GetEntriesFast();j++) {
+         tmp.SetFormatted("Get%sDAQ",daqNameArray->At(j).Data());
+         if (fileBuffer.Contains(tmp))
+            buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
+      }
+
+      WriteFile(genFile.Data(), buffer.Data());
+
       // Description
+      buffer.Resize(0);
       WriteHeader(header, tabAuthor[iTab].Data(), kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = "Begin_Html\n\n";
@@ -3043,9 +3085,6 @@ Bool_t ROMEBuilder::WriteTabCpp()
       clsDescription.AppendFormatted("%s\n\n",tabKnownProblems[iTab].Data());
       clsDescription.AppendFormatted("<p>\n");
       clsDescription.AppendFormatted("End_Html\n\n");
-      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       // Thread
       if (numOfThreadFunctions[iTab] > 0) {
          clsDescription.AppendFormatted("\n\n");
@@ -3054,43 +3093,9 @@ Bool_t ROMEBuilder::WriteTabCpp()
             clsDescription.AppendFormatted("   %s\n", threadFunctionName[iTab][i].Data());
          }
       }
-#if defined( R__VISUAL_CPLUSPLUS ) // This fixes errors in root includes on windows
-      clsDescription.AppendFormatted("#include <RConfig.h>\n");
-      clsDescription.AppendFormatted("#pragma warning( push )\n");
-      clsDescription.AppendFormatted("#pragma warning( disable : 4800 )\n");
-      clsDescription.AppendFormatted("#include <TGTab.h>\n");
-      clsDescription.AppendFormatted("#include <TGeoManager.h>\n");
-      clsDescription.AppendFormatted("#include <Windows4Root.h>\n");
-      clsDescription.AppendFormatted("#pragma warning( pop )\n");
-#endif // R__VISUAL_CPLUSPLUS
-      bool folderIncludeFirst = true;
-      for (j=0;j<numOfFolder;j++) {
-         if (accessFolder(fileBuffer,j)) {
-            if (!folderUsed[j])
-               continue;
-            if (numOfValue[j] > 0 && !folderSupport[j]) {
-               if (folderIncludeFirst) {
-                  folderIncludeFirst = false;
-                  clsDescription.AppendFormatted("\n");
-                  clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
-               }
-               if (folderUserCode[j])
-                  clsDescription.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
-               else
-                  clsDescription.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
-            }
-         }
-      }
-      if (fileBuffer.Contains("GetWindow"))
-         clsDescription.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
-      if (fileBuffer.Contains("GetGSP"))
-         clsDescription.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
-
-      for (j=0;j<daqNameArray->GetEntriesFast();j++) {
-         tmp.SetFormatted("Get%sDAQ",daqNameArray->At(j).Data());
-         if (fileBuffer.Contains(tmp))
-            clsDescription.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
-      }
+      // Generated Includes
+      clsDescription.AppendFormatted("Generated header file containing necessary includes\n");
+      clsDescription.AppendFormatted("#include \"generated/%sT%sGeneratedIncludes.h\"\n\n", shortCut.Data(), tabName[iTab].Data());
 
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
