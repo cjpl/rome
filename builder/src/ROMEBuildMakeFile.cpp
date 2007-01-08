@@ -494,7 +494,7 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders()
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
-      if (numOfValue[i] > 0) {
+      if (numOfValue[i] > 0 && !folderSupport[i]) {
          if (folderUserCode[i]) {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
             generatedFolderLinkDefSuffix->Add("");
@@ -502,6 +502,27 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders()
         else {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
             generatedFolderLinkDefSuffix->Add("");
+         }
+      }
+   }
+}
+
+void ROMEBuilder::AddGeneratedSupportFolderDictHeaders()
+{
+   int i;
+   generatedSupportFolderDictHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
+   generatedSupportFolderLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfFolder,0));
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (numOfValue[i] > 0 && folderSupport[i]) {
+         if (folderUserCode[i]) {
+            generatedSupportFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+            generatedSupportFolderLinkDefSuffix->Add("");
+         }
+        else {
+            generatedSupportFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+            generatedSupportFolderLinkDefSuffix->Add("");
          }
       }
    }
@@ -568,6 +589,9 @@ void ROMEBuilder::AddGeneratedSources()
    }
    if (generatedFolderDictHeaders->GetEntriesFast()>0) {
       generatedSources->AddFormatted("dict/%sGeneratedFolderDict.cpp",shortCut.Data());
+   }
+   if (generatedSupportFolderDictHeaders->GetEntriesFast()>0) {
+      generatedSources->AddFormatted("dict/%sGeneratedSupportFolderDict.cpp",shortCut.Data());
    }
    if (generatedTaskDictHeaders->GetEntriesFast()>0) {
       generatedSources->AddFormatted("dict/%sGeneratedTaskDict.cpp",shortCut.Data());
@@ -1099,6 +1123,8 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted("%sGeneratedDictOpt       = $(NOOPT)\n",shortCut.Data());
    if (hasFolderGenerated)
       buffer.AppendFormatted("%sGeneratedFolderDictOpt = $(NOOPT)\n",shortCut.Data());
+   if (hasSupportFolderGenerated)
+      buffer.AppendFormatted("%sGeneratedSupportFolderDictOpt = $(NOOPT)\n",shortCut.Data());
    if (hasFolderUserCode)
       buffer.AppendFormatted("%sFolderDictOpt          = $(NOOPT)\n",shortCut.Data());
    if (numOfTask) {
@@ -1829,6 +1855,7 @@ void ROMEBuilder::WriteMakefile() {
    AddGeneratedHeaders();
    AddGeneratedDictHeaders();
    AddGeneratedFolderDictHeaders();
+   AddGeneratedSupportFolderDictHeaders();
    AddGeneratedTaskDictHeaders();
    AddGeneratedTabDictHeaders();
    AddFolderHeaders();
@@ -1881,6 +1908,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDictionaryList(buffer,"ARGUSDict",argusHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
+   WriteMakefileDictionaryList(buffer,shortCut+"GeneratedSupportFolderDict",generatedSupportFolderDictHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"GeneratedTaskDict",generatedTaskDictHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"GeneratedTabDict",generatedTabDictHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"FolderDict",folderHeaders);
@@ -1953,6 +1981,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedDictionary.d\n",shortCut.Data());
    if (hasFolderGenerated)
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedFolderDictionary.d\n",shortCut.Data());
+   if (hasSupportFolderGenerated)
+      buffer.AppendFormatted("dependfiles += obj/%sGeneratedSupportFolderDictionary.d\n",shortCut.Data());
    if (hasFolderUserCode)
       buffer.AppendFormatted("dependfiles += obj/%sFolderDictionary.d\n",shortCut.Data());
    if (numOfTask) {
@@ -2092,6 +2122,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"GeneratedSupportFolderDict",generatedSupportFolderDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedTaskDict",generatedTaskDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedTabDict",generatedTabDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"FolderDict",folderHeaders);

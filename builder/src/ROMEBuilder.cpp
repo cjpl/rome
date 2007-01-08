@@ -736,6 +736,8 @@ Bool_t ROMEBuilder::StartBuilder()
       }
       if (generatedFolderDictHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
+      if (generatedSupportFolderDictHeaders->GetEntriesFast()>0)
+         tempStr.AppendFormatted(" dict/%sGeneratedSupportFolderDict.cpp",shortCut.Data());
       if (folderHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sFolderDict.cpp",shortCut.Data());
       if (generatedTaskDictHeaders->GetEntriesFast()>0)
@@ -817,7 +819,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          midas = true;
          noLink = true;
          minRebuild = true;
-         sql = true;
+         sql = false;
          mysql = true;
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";

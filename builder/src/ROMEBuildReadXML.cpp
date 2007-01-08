@@ -588,6 +588,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   numOfFolder = -1;
                   hasFolderUserCode = false;
                   hasFolderGenerated = false;
+                  hasSupportFolderGenerated = false;
                   parent[0] = "GetMainFolder()";
                   // output
                   if (makeOutput) cout << "Folders:" << endl;
@@ -1001,7 +1002,10 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             folderUserCode[numOfFolder] = true;
       }
       else {
-         hasFolderGenerated = true;
+         if (folderSupport[numOfFolder])
+            hasSupportFolderGenerated = true;
+         else
+            hasFolderGenerated = true;
       }
       // folder version
       if (type == 1 && !strcmp((const char*)name,"FolderVersion")) {
