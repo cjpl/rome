@@ -12479,16 +12479,18 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       ROMEString steerPointer;
       ROMEString steerPath;
       buffer.AppendFormatted("void %sEventLoop::InitHotLinks() {\n",shortCut.Data());
-      for (i=0;i<numOfTaskHierarchy;i++) {
-         if (!taskUsed[taskHierarchyClassIndex[i]])
-            continue;
-         buffer.AppendFormatted("   gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->Active = gAnalyzer->GetTaskObjectAt(%d)->IsActive();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyObjectIndex[i]);
-         for (j=0;j<numOfSteering[i];j++) {
-            for (k=0;k<numOfSteerFields[i][j];k++) {
-               if (steerFieldHotLink[i][j][k]) {
-                  GetSteerPath(steerPath,i,j,k,"_");
-                  GetSteerPath(steerPointer,i,j,k,"()->Get");
-                  buffer.AppendFormatted("   gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+      if (numOfEvent > 0) {
+         for (i=0;i<numOfTaskHierarchy;i++) {
+            if (!taskUsed[taskHierarchyClassIndex[i]])
+               continue;
+            buffer.AppendFormatted("   gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->Active = gAnalyzer->GetTaskObjectAt(%d)->IsActive();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyObjectIndex[i]);
+            for (j=0;j<numOfSteering[i];j++) {
+               for (k=0;k<numOfSteerFields[i][j];k++) {
+                  if (steerFieldHotLink[i][j][k]) {
+                     GetSteerPath(steerPath,i,j,k,"_");
+                     GetSteerPath(steerPointer,i,j,k,"()->Get");
+                     buffer.AppendFormatted("   gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+                  }
                }
             }
          }
@@ -12497,22 +12499,24 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 
       // Update Hot Links
       buffer.AppendFormatted("void %sEventLoop::UpdateHotLinks() {\n",shortCut.Data());
-      for (i=0;i<numOfTaskHierarchy;i++) {
-         if (!taskUsed[taskHierarchyClassIndex[i]])
-            continue;
-         buffer.AppendFormatted("   if (gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->Active)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-         buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(true);\n",taskHierarchyObjectIndex[i]);
-         buffer.AppendFormatted("   else\n");
-         buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(false);\n",taskHierarchyObjectIndex[i]);
-         for (j=0;j<numOfSteering[i];j++) {
-            for (k=0;k<numOfSteerFields[i][j];k++) {
-               if (steerFieldHotLink[i][j][k]) {
-                  GetSteerPath(steerPath,i,j,k,"_");
-                  GetSteerPath(steerPointer,i,j,k,"()->Get");
-                  buffer.AppendFormatted("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s(",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
-                  buffer[buffer.Last('G')] = 'S';
-                  buffer.AppendFormatted("gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data());
-                  buffer.AppendFormatted(");\n");
+      if (numOfEvent > 0) {
+         for (i=0;i<numOfTaskHierarchy;i++) {
+            if (!taskUsed[taskHierarchyClassIndex[i]])
+               continue;
+            buffer.AppendFormatted("   if (gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->Active)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+            buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(true);\n",taskHierarchyObjectIndex[i]);
+            buffer.AppendFormatted("   else\n");
+            buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(false);\n",taskHierarchyObjectIndex[i]);
+            for (j=0;j<numOfSteering[i];j++) {
+               for (k=0;k<numOfSteerFields[i][j];k++) {
+                  if (steerFieldHotLink[i][j][k]) {
+                     GetSteerPath(steerPath,i,j,k,"_");
+                     GetSteerPath(steerPointer,i,j,k,"()->Get");
+                     buffer.AppendFormatted("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s(",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+                     buffer[buffer.Last('G')] = 'S';
+                     buffer.AppendFormatted("gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data());
+                     buffer.AppendFormatted(");\n");
+                  }
                }
             }
          }
