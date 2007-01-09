@@ -1601,7 +1601,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
    ROMEString clsName;
    ROMEString clsDescription;
    ROMEString fileBuffer;
-   ROMEString tmp;
+   ROMEString tmp, tmp2;
 
    int i,j;
    ROMEString format;
@@ -1724,8 +1724,9 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       if (fileBuffer.Contains("GetGSP"))
          clsDescription.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       for (j=0;j<daqNameArray->GetEntriesFast();j++) {
-         tmp.SetFormatted("Get%sDAQ",daqNameArray->At(j).Data());
-         if (fileBuffer.Contains(tmp))
+         tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
+         tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
+         if (fileBuffer.Contains(tmp) || fileBuffer.Contains(tmp2))
             clsDescription.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
       }
 
@@ -3023,7 +3024,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
    ROMEString clsName;
    ROMEString fileBuffer;
    ROMEString str;
-   ROMEString tmp;
+   ROMEString tmp, tmp2;
 
    if (makeOutput)
       cout << "\n   Output Cpp-Files:" << endl;
@@ -3068,8 +3069,9 @@ Bool_t ROMEBuilder::WriteTabCpp()
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
 
       for (j=0;j<daqNameArray->GetEntriesFast();j++) {
-         tmp.SetFormatted("Get%sDAQ",daqNameArray->At(j).Data());
-         if (fileBuffer.Contains(tmp))
+         tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
+         tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
+         if (fileBuffer.Contains(tmp) || fileBuffer.Contains(tmp2))
             buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
       }
 
