@@ -2344,7 +2344,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                if (histoType[iTask][i][2]==51) {
                   buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",i,histoType[iTask][i].Data());
                }
-               buffer.AppendFormatted("      f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
+               buffer.AppendFormatted("      f%ss->AddAt(hist%d,j);\n",histoName[iTask][i].Data(),i);
                if (!homeFolder)
                   buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
                else
@@ -2485,7 +2485,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("      title.Insert(0,graphTitle.Data());\n");
                buffer.AppendFormatted("      graph%d = new %s(1);\n",i,graphType[iTask][i].Data());
                buffer.AppendFormatted("      graph%d->SetNameTitle(\"%s\",\"%s\");\n",i,graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
-               buffer.AppendFormatted("      f%ss->Add(graph%d);\n",graphName[iTask][i].Data(),i);
+               buffer.AppendFormatted("      f%ss->AddAt(graph%d,j);\n",graphName[iTask][i].Data(),i);
                if (!homeFolder)
                   buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
                else
@@ -3020,6 +3020,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       // Generated Includes
       buffer.Resize(0);
+      WriteHeader(buffer, tabAuthor[iTab].Data(), kTRUE);
       genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
 #if defined( R__VISUAL_CPLUSPLUS ) // This fixes errors in root includes on windows
       buffer.AppendFormatted("#include <RConfig.h>\n");
@@ -3033,7 +3034,6 @@ Bool_t ROMEBuilder::WriteTabCpp()
       fstream *fileStream = new fstream(cppFile.Data(),ios::in);
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;
-      bool folderIncludeFirst = true;
       for (j=0;j<numOfFolder;j++) {
          if (accessFolder(fileBuffer,j)) {
             if (!folderUsed[j])
@@ -3057,7 +3057,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
             buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
       }
 
-      WriteFile(genFile.Data(), buffer.Data());
+      WriteFile(genFile.Data(), buffer.Data(),6);
 
       // Description
       buffer.Resize(0);
