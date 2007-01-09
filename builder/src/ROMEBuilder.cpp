@@ -1150,7 +1150,7 @@ Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace
 {
    // return true when backup file is created
    fstream *fileStream;
-   ROMEString fileBuffer;
+   ROMEString fileBuffer = "";
    bool backupCreated = false;
 
    if ((fileStream = new fstream(filename,ios::in))) {
