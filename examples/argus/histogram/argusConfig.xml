@@ -84,8 +84,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <NetFolderName>mynetfolder</NetFolderName>
         <Active>false</Active>
         <Reconnect>true</Reconnect>
-        <Root>0</Root>
-        <Host>9090</Host>
+        <Root>9090</Root>
+        <Host>0</Host>
         <Port>0</Port>
       </NetFolder>
 
