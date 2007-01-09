@@ -10033,7 +10033,6 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
       buffer.AppendFormatted("\n");
    }
 
-
    // Hot Links
    if (midas) {
       buffer.AppendFormatted("   // Hot Links\n");
@@ -12167,8 +12166,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
-   if (midas)
-      buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
@@ -12493,7 +12490,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                   if (steerFieldHotLink[i][j][k]) {
                      GetSteerPath(steerPath,i,j,k,"_");
                      GetSteerPath(steerPointer,i,j,k,"()->Get");
-                     buffer.AppendFormatted("      gAnalyzer->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+                     buffer.AppendFormatted("      gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
                   }
                }
             }
