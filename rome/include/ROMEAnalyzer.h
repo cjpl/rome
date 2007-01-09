@@ -278,6 +278,7 @@ public:
    // Active DAQ System
    const char     *GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); }
    ROMEDAQSystem  *GetActiveDAQ();
+   Bool_t          IsActiveDAQ(const char* daqName) { return strcmp(fActiveDAQ->GetName(),daqName) == 0; };
    Bool_t          isActiveDAQSet() { return fActiveDAQ!=NULL; }
    void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; }
 

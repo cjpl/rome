@@ -877,10 +877,10 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          affiliations.AddAtAndExpand("dch",0);
          affiliations.AddAtAndExpand("drs",1);
          flags.AddAtAndExpand("HAVE_DRS",0);
-         flags.AddAtAndExpand("HAVE_AFG3251",1);
-         flags.AddAtAndExpand("HAVE_VME",2);
-         flags.AddAtAndExpand("HAVE_MSCB",3);
-         flags.AddAtAndExpand("HAVE_USB",4);
+         flags.AddAtAndExpand("HAVE_VME",1);
+         flags.AddAtAndExpand("HAVE_AFG3251",2);
+//         flags.AddAtAndExpand("HAVE_MSCB",3);
+//         flags.AddAtAndExpand("HAVE_USB",4);
       }
       else if (!strcmp(argv[i],"-stepbystep")) {
          noLink = true;
@@ -966,8 +966,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
          minRebuild = true;
-         outDir = "C:/jan/test2/wi-rome-lightmem/";
-         xmlFile = "C:/jan/test2/wi-rome-lightmem/WIArgon.xml";
+         outDir = "C:/jan/romedoesno/dance-rome_MacBookPro/";
+         xmlFile = "C:/jan/romedoesno/dance-rome_MacBookPro/dance.xml";
       }
       else if (!strcmp(argv[i],"-gsptest")) {
          noLink = true;
