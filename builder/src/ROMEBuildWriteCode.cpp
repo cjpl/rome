@@ -37,6 +37,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
    ROMEString tmp;
    ROMEString format;
    Int_t iDm;
+   Bool_t needAnalyzerH;
+   Bool_t needGSPH;
 
    if (makeOutput) cout << "\n   Output CPP-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
@@ -96,8 +98,22 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
          }
       }
-      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+
+      needAnalyzerH = kFALSE;
+      needGSPH = kFALSE;
+      if (folderDataBase[iFold] && !folderSupport[iFold]) {
+         for (j=0;j<numOfValue[iFold];j++) {
+            if (!needAnalyzerH && valueDBPath[iFold][j].Contains("gAnalyzer"))
+               needAnalyzerH = kTRUE;
+            if (!needGSPH && valueDBPath[iFold][j].Contains("GetGSP"))
+               needGSPH = kTRUE;
+         }
+      }
+      if (needAnalyzerH)
+         buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+      if (needGSPH)
+         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+
       buffer.AppendFormatted("#include \"generated/%s.h\"\n",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
       buffer.AppendFormatted("\n");
@@ -4546,6 +4562,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             else {
                buffer.AppendFormatted("   f%sFolders = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFolders->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("   Set%sSize(1);\n",folderName[i].Data());
                buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFoldersStorage = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFoldersStorage->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
@@ -9460,11 +9477,11 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       if (hasHotLink) {
          buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
          buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
-         buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetGSPHotLinks(),sizeof(GSPHotLinks),0) != DB_SUCCESS) {\n");
+         buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetMidasDAQ()->GetGSPHotLinks(),sizeof(GSPHotLinks),0) != DB_SUCCESS) {\n");
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetGSPHotLinks(), sizeof(GSPHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n");
+         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetMidasDAQ()->GetGSPHotLinks(), sizeof(GSPHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n");
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
@@ -12148,6 +12165,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   if (midas)
+      buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
@@ -12467,7 +12486,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                if (steerFieldHotLink[i][j][k]) {
                   GetSteerPath(steerPath,i,j,k,"_");
                   GetSteerPath(steerPointer,i,j,k,"()->Get");
-                  buffer.AppendFormatted("   gAnalyzer->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+                  buffer.AppendFormatted("   gAnalyzer->GetMidasDAQ()->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
                }
             }
          }
