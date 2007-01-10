@@ -29,7 +29,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
    ROMEString header;
    ROMEString clsName;
    ROMEString clsDescription;
-   int i,j;
+   int i;
    ROMEString str;
    bool changeableFlagChanged;
    ROMEString relation;
@@ -37,8 +37,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
    ROMEString tmp;
    ROMEString format;
    Int_t iDm;
-   Bool_t needAnalyzerH;
-   Bool_t needGSPH;
 
    if (makeOutput) cout << "\n   Output CPP-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
@@ -98,21 +96,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
          }
       }
-
-      needAnalyzerH = kFALSE;
-      needGSPH = kFALSE;
-      if (folderDataBase[iFold] && !folderSupport[iFold]) {
-         for (j=0;j<numOfValue[iFold];j++) {
-            if (!needAnalyzerH && valueDBPath[iFold][j].Contains("gAnalyzer"))
-               needAnalyzerH = kTRUE;
-            if (!needGSPH && valueDBPath[iFold][j].Contains("GetGSP"))
-               needGSPH = kTRUE;
-         }
-      }
-      if (needAnalyzerH)
-         buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-      if (needGSPH)
-         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
 
       buffer.AppendFormatted("#include \"generated/%s.h\"\n",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
@@ -202,20 +185,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-      // Database Folder Configuration Parameter Fields
-      buffer.AppendFormatted("   // Database Folder Configuration Parameter Fields\n");
-      if (folderDataBase[iFold] && !folderSupport[iFold]) {
-         buffer.AppendFormatted("   Int_t i;\n");
-         for (j=0;j<numOfValue[iFold];j++) {
-            if ( valueDimension[iFold][j]>1 )
-               continue;
-            buffer.AppendFormatted("   f%sDBName = \"\";\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   f%sDBPath = \"\";\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   f%sDBCode = new TArrayI(%d);\n",valueName[iFold][j].Data(),maxNumberOfPathObjectInterpreterCodes);
-            buffer.AppendFormatted("   for (i=0;i<%d;i++)\n",maxNumberOfPathObjectInterpreterCodes);
-            buffer.AppendFormatted("      f%sDBCode->AddAt(-1,i);\n",valueName[iFold][j].Data());
-         }
-      }
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   fModified = false;\n");
       buffer.AppendFormatted("}\n");
@@ -231,14 +200,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             buffer.AppendFormatted("   SafeDelete(%s);\n",valueName[iFold][i].Data());
          else if (valueDimension[iFold][i]!=0 && valueArray[iFold][i][0]=="variable")
             buffer.AppendFormatted("   SafeDeleteArray(%s);\n",valueName[iFold][i].Data());
-      }
-      // Database Folder Configuration Parameter Fields
-      if (folderDataBase[iFold] && !folderSupport[iFold]) {
-         for (j=0;j<numOfValue[iFold];j++) {
-            if ( valueDimension[iFold][j]>1 )
-               continue;
-            buffer.AppendFormatted("   SafeDelete(f%sDBCode);\n",valueName[iFold][j].Data());
-         }
       }
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
@@ -782,56 +743,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
-      // Database Folder Configuration Parameters Getter
-      buffer.AppendFormatted("// Database Folder Configuration Parameters Getter\n");
-      if (folderDataBase[iFold] && !folderSupport[iFold]) {
-         for (j=0;j<numOfValue[iFold];j++) {
-            if (valueDimension[iFold][j]>1)
-               continue;
-            buffer.AppendFormatted("const char* %s::Get%sDBName() {\n",clsName.Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("   if (f%sDBName==\"\") {\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("      return \"%s\";\n",valueDBName[iFold][j].Data());
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return f%sDBName.Data();\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("}\n");
-            buffer.AppendFormatted("const char* %s::Get%sDBPath(ROMEString& path) {\n",clsName.Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("   if (f%sDBPath==\"\") {\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("      path.SetFormatted(%s);\n",valueDBPath[iFold][j].Data());
-            buffer.AppendFormatted("      return path.Data();\n");
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return f%sDBPath.Data();\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("}\n");
-            buffer.AppendFormatted("const char* %s::Get%sDBPathOriginal() {\n",clsName.Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("   if (f%sDBPath==\"\") {\n",valueName[iFold][j].Data());
-            str = valueDBPath[iFold][j];
-            str.ReplaceAll("\"","\\\"");
-            buffer.AppendFormatted("      return \"%s\";\n",str.Data());
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return f%sDBPath.Data();\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("}\n\n");
-            buffer.AppendFormatted("Int_t %s::Get%sDBNumberOfCode() { return f%sDBCode->GetSize(); }\n",clsName.Data(),valueName[iFold][j].Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("Int_t %s::Get%sDBCodeAt(Int_t i) { return f%sDBCode->At(i); }\n",clsName.Data(),valueName[iFold][j].Data(),valueName[iFold][j].Data());
-         }
-      }
-      buffer.AppendFormatted("\n");
-
-      // Database Folder Configuration Parameters Setter
-      buffer.AppendFormatted("   // Database Folder Configuration Parameters Setters\n");
-      if (folderDataBase[iFold] && !folderSupport[iFold]) {
-         for (j=0;j<numOfValue[iFold];j++) {
-            if (valueDimension[iFold][j]>1)
-               continue;
-            buffer.AppendFormatted("void %s::Set%sDBName(const char* name) { f%sDBName = name; }\n",clsName.Data(),valueName[iFold][j].Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("void %s::Set%sDBPath(const char* path) { f%sDBPath = path; }\n",clsName.Data(),valueName[iFold][j].Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("void %s::Set%sDBNumberOfCode(Int_t num) { f%sDBCode->Set(num); }\n",clsName.Data(),valueName[iFold][j].Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("void %s::Set%sDBCodeAt(Int_t i,Int_t code) { f%sDBCode->AddAt(code,i); }\n",clsName.Data(),valueName[iFold][j].Data(),valueName[iFold][j].Data());
-         }
-      }
-      buffer.AppendFormatted("\n");
-
       // BoundsOk
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueDimension[iFold][i]>0) {
@@ -1022,7 +933,6 @@ Bool_t ROMEBuilder::WriteFolderH()
 #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include <TObject.h>\n");
       buffer.AppendFormatted("#include <TClass.h>\n");
-      buffer.AppendFormatted("#include <TArrayI.h>\n");
       buffer.AppendFormatted("#include <TClonesArray.h>\n");
       for (i=0;i<numOfFolderInclude[iFold];i++) {
          if (folderLocalFlag[iFold][i]) {
@@ -1126,9 +1036,6 @@ Bool_t ROMEBuilder::WriteFolderH()
          for (j=0;j<numOfValue[iFold];j++) {
             if (valueDimension[iFold][j]>1)
                continue;
-            buffer.AppendFormatted("   ROMEString f%sDBName; //! Name of the database from which to read the field %s\n",valueName[iFold][j].Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("   ROMEString f%sDBPath; //! Database path to the value of the field %s\n",valueName[iFold][j].Data(),valueName[iFold][j].Data());
-            buffer.AppendFormatted("   TArrayI   *f%sDBCode; //! Object Interpreter codes for database path to the value of the field %s\n",valueName[iFold][j].Data(),valueName[iFold][j].Data());
          }
       }
       buffer.AppendFormatted("\n");
@@ -1435,11 +1342,6 @@ Bool_t ROMEBuilder::WriteFolderH()
          for (j=0;j<numOfValue[iFold];j++) {
             if (valueDimension[iFold][j]>1)
                continue;
-            buffer.AppendFormatted("   const char* Get%sDBName();\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   const char* Get%sDBPath(ROMEString& path);\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   const char* Get%sDBPathOriginal();\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   Int_t       Get%sDBNumberOfCode();\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   Int_t       Get%sDBCodeAt(Int_t i);\n",valueName[iFold][j].Data());
          }
       }
       buffer.AppendFormatted("\n");
@@ -1450,10 +1352,6 @@ Bool_t ROMEBuilder::WriteFolderH()
          for (j=0;j<numOfValue[iFold];j++) {
             if (valueDimension[iFold][j]>1)
                continue;
-            buffer.AppendFormatted("   void Set%sDBName(const char* name);\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   void Set%sDBPath(const char* path);\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   void Set%sDBNumberOfCode(Int_t num);\n",valueName[iFold][j].Data());
-            buffer.AppendFormatted("   void Set%sDBCodeAt(Int_t i,Int_t code);\n",valueName[iFold][j].Data());
          }
       }
       buffer.AppendFormatted("\n");
@@ -4416,6 +4314,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sNetFolderServer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
@@ -4578,6 +4477,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   // Task initialisation\n");
    buffer.AppendFormatted("   InitTasks();\n");
    buffer.AppendFormatted("\n");
+   // DBAccess
+   buffer.AppendFormatted("   fDBAccess = new %sDBAccess();\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
 
    // NetFolder
    buffer.AppendFormatted("   InitNetFolders(%d);\n", numOfNetFolder);
@@ -4646,14 +4548,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // End of Destructor
    buffer.AppendFormatted("}\n\n");
 
-   int ndb = 0;
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderUsed[i])
-         continue;
-      if (folderDataBase[i])
-         ndb++;
-   }
-
    // Folder Getters and Setters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
@@ -4693,38 +4587,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          buffer.AppendFormatted("\n");
       }
    }
-   buffer.AppendFormatted("\n");
-
-   // ReadSingleDataBaseFolders
-   buffer.AppendFormatted("Bool_t %sAnalyzer::ReadSingleDataBaseFolders() {\n",shortCut.Data());
-   if (ndb>0) {
-      for (i=0;i<numOfFolder;i++) {
-         if (!folderUsed[i])
-            continue;
-         if (folderDataBase[i] && folderArray[i]=="1" && !folderSupport[i]) {
-            buffer.AppendFormatted("   if (!Read%s())\n",folderName[i].Data());
-            buffer.AppendFormatted("      return false;\n");
-         }
-      }
-   }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
-
-   // ReadArrayDataBaseFolders
-   buffer.AppendFormatted("Bool_t %sAnalyzer::ReadArrayDataBaseFolders() {\n",shortCut.Data());
-   if (ndb>0) {
-      for (i=0;i<numOfFolder;i++) {
-         if (!folderUsed[i])
-            continue;
-         if (folderDataBase[i] && folderArray[i]!="1" && !folderSupport[i]) {
-            buffer.AppendFormatted("   if (!Read%s())\n",folderName[i].Data());
-            buffer.AppendFormatted("      return false;\n");
-         }
-      }
-   }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
    // GetDBPathWriteFlag
@@ -5250,6 +5112,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    for (i=0;i<daqNameArray->GetEntriesFast();i++) {
@@ -5267,77 +5130,48 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
-   // Read each folder
+   // Count number of databases
+   int ndb = 0;
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
-      if (folderDataBase[i] && !folderSupport[i]) {
-         buffer.AppendFormatted("Bool_t %sAnalyzer::Read%s() {\n",shortCut.Data(),folderName[i].Data());
-         WriteReadDataBaseFolder(buffer,i,folderArray[i]=="1" ? 1 : 2);
-         buffer.AppendFormatted("   return true;\n");
-         buffer.AppendFormatted("}\n\n");
-      }
+      if (folderDataBase[i])
+         ndb++;
    }
 
-/*   // WriteDataBaseFolders
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderUsed[i])
-         continue;
-      if (folderDataBase[i] && !folderSupport[i]) {
-         buffer.AppendFormatted("void %sAnalyzer::Write%sDataBase() {\n",shortCut.Data(),folderName[i].Data());
-         buffer.AppendFormatted("   int i,j;\n");
-         buffer.AppendFormatted("   ROMEString path;\n");
-         buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
-         buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-         for (j=0;j<numOfValue[i];j++) {
-            buffer.AppendFormatted("   values->RemoveAll();\n");
-            if (folderArray[i]=="1") {
-               if (valueArray[i][j]=="1") {
-                  buf = "buffer[0]";
-                  str.SetFormatted("f%sFolder->Get%s()",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("   values->SetAt(%s,0,0);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
-               }
-               else {
-                  buf = "buffer[0]";
-                  str.SetFormatted("f%sFolder->Get%sAt(j)",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("   for (j=0;j<%s;j++)\n",valueArray[i][j].Data());
-                  buffer.AppendFormatted("      values->SetAt(%s,0,j);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
-               }
-            }
-            else {
-               buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++)\n",folderName[i].Data());
-               if (valueArray[i][j]=="1") {
-                  buf = "buffer[0]";
-                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%s()",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      values->SetAt(%s,i,0);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
-               }
-               else {
-                  buf = "buffer[0]";
-                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%sAt(j)",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      for (j=0;j<%s;j++)\n",valueArray[i][j].Data());
-                  buffer.AppendFormatted("         values->SetAt(%s,i,j);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
-               }
-            }
-            buffer.AppendFormatted("   path.SetFormatted(Get%s_%sDBPath()",folderName[i].Data(),valueName[i][j].Data());
-            for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
-               buffer.AppendFormatted(",GetObjectInterpreterCharValue(Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[i].Data(),valueName[i][j].Data(),k,k,k);
-            buffer.AppendFormatted(");\n");
-            buffer.AppendFormatted("   if (!GetDataBase(Get%s_%sDBIndex())->Write(values,path,GetCurrentRunNumber())) {\n",folderName[i].Data(),valueName[i][j].Data());
-            buffer.AppendFormatted("      ROMEPrint::Error(\"Error in Folder '%s' Value '%s'.\\n\");\n",folderName[i].Data(),valueName[i][j].Data());
-            buffer.AppendFormatted("      delete values;\n");
-            buffer.AppendFormatted("      return;\n");
-            buffer.AppendFormatted("   }\n");
+   // ReadSingleDataBaseFolders
+   buffer.AppendFormatted("Bool_t %sAnalyzer::ReadSingleDataBaseFolders() {\n",shortCut.Data());
+   if (ndb>0) {
+      for (i=0;i<numOfFolder;i++) {
+         if (!folderUsed[i])
+            continue;
+         if (folderDataBase[i] && folderArray[i]=="1" && !folderSupport[i]) {
+            buffer.AppendFormatted("   if (!fDBAccess->Read%s())\n",folderName[i].Data());
+            buffer.AppendFormatted("      return false;\n");
          }
-         buffer.AppendFormatted("   values->RemoveAll();\n");
-         buffer.AppendFormatted("   delete values;\n");
-         buffer.AppendFormatted("}\n\n");
       }
    }
-*/
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
 
-   // Database Folder Field Getters
+   // ReadArrayDataBaseFolders
+   buffer.AppendFormatted("Bool_t %sAnalyzer::ReadArrayDataBaseFolders() {\n",shortCut.Data());
+   if (ndb>0) {
+      for (i=0;i<numOfFolder;i++) {
+         if (!folderUsed[i])
+            continue;
+         if (folderDataBase[i] && folderArray[i]!="1" && !folderSupport[i]) {
+            buffer.AppendFormatted("   if (!fDBAccess->Read%s())\n",folderName[i].Data());
+            buffer.AppendFormatted("      return false;\n");
+         }
+      }
+   }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
 
-   // Show Configuration
+   // ShowConfigurationFile
    buffer.AppendFormatted("Bool_t %sAnalyzer::ShowConfigurationFile()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   bool writeFlag;\n");
@@ -5539,6 +5373,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("class %sEventLoop;\n",shortCut.Data());
    buffer.AppendFormatted("class %sConfig;\n",shortCut.Data());
+   buffer.AppendFormatted("class %sDBAccess;\n",shortCut.Data());
    buffer.AppendFormatted("class %sConfigToForm;\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
@@ -5607,6 +5442,8 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    for (i=0;i<daqNameArray->GetEntriesFast();i++) {
       buffer.AppendFormatted("   %s%sDAQ* f%sDAQ; // Handle to the %s DAQ Class\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
    }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   %sDBAccess* fDBAccess; // Handle to the DBAccess Class\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
    // Methods
@@ -5690,18 +5527,13 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // Data Base
    buffer.AppendFormatted("   // DataBase Methodes\n");
-   // Read each folders
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderUsed[i])
-         continue;
-      if (folderDataBase[i] && !folderSupport[i])
-         buffer.AppendFormatted("   Bool_t Read%s();\n",folderName[i].Data());
-   }
    buffer.AppendFormatted("   Bool_t ReadSingleDataBaseFolders();\n");
    buffer.AppendFormatted("   Bool_t ReadArrayDataBaseFolders();\n");
-   buffer.AppendFormatted("\n");
    // GetDBPathWriteFlag
    buffer.AppendFormatted("   Bool_t GetDBPathWriteFlag(const char* path);\n");
+   buffer.AppendFormatted("\n");
+   // DBAccess
+   buffer.AppendFormatted("   %sDBAccess* GetDBAccess() { return fDBAccess; };\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
 /*   for (i=0;i<numOfFolder;i++) {
@@ -6440,6 +6272,293 @@ Bool_t ROMEBuilder::WriteWindowH()
    return kTRUE;
 }
 
+Bool_t ROMEBuilder::WriteDBAccessCpp()
+{
+   int i,j,num;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+   ROMEString str;
+
+   ROMEString clsDescription;
+   ROMEString clsName;
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sDBAccess.cpp", outDir.Data(), shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   clsName.SetFormatted("%sDBAccess", shortCut.Data());
+   clsDescription.SetFormatted("Handles the database access for the %s%s.", shortCut.Data(), mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   for (i=0;i<numOfFolder;i++) {
+      if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
+         buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n", shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("ClassImp(%sDBAccess)\n", shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("%sDBAccess::%sDBAccess() : TObject()\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t i,j,k;\n");
+   for (i=0;i<numOfFolder;i++) {
+      num = 0;
+      if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
+         for (j=0;j<numOfValue[i];j++) {
+            if ( valueDimension[i][j]>1 )
+               continue;
+            num++;
+         }
+      }
+      buffer.AppendFormatted("   fNumberOfValues[%d] = %d;\n",i,num);
+   }
+   buffer.AppendFormatted("   for (i=0;i<%d;i++) {\n",numOfFolder);
+   buffer.AppendFormatted("      fDBName[i] = new ROMEString[fNumberOfValues[i]];\n");
+   buffer.AppendFormatted("      fDBPath[i] = new ROMEString[fNumberOfValues[i]];\n");
+   buffer.AppendFormatted("      fDBCode[i] = new TArrayI*[fNumberOfValues[i]];\n");
+   buffer.AppendFormatted("      for (j=0;j<fNumberOfValues[i];j++) {\n");
+   buffer.AppendFormatted("         fDBName[i][j] = \"\";\n");
+   buffer.AppendFormatted("         fDBPath[i][j] = \"\";\n");
+   buffer.AppendFormatted("         fDBCode[i][j] = new TArrayI(%d);\n",maxNumberOfPathObjectInterpreterCodes);
+   buffer.AppendFormatted("         for (k=0;k<%d;k++)\n",maxNumberOfPathObjectInterpreterCodes);
+   buffer.AppendFormatted("            fDBCode[i][j]->AddAt(-1,k);\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("%sDBAccess::~%sDBAccess()\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t i,j;\n");
+   buffer.AppendFormatted("   for (i=0;i<%d;i++) {\n",numOfFolder);
+   buffer.AppendFormatted("      for (j=0;j<fNumberOfValues[i];j++) {\n");
+   buffer.AppendFormatted("         SafeDelete(fDBCode[i][j]);\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      SafeDelete(fDBName[i]);\n");
+   buffer.AppendFormatted("      SafeDelete(fDBPath[i]);\n");
+   buffer.AppendFormatted("      SafeDelete(fDBCode[i]);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("const char* %sDBAccess::GetDBNameAt(Int_t folderIndex,Int_t valueIndex) {\n",shortCut.Data());
+   buffer.AppendFormatted("   if (fDBName[folderIndex][valueIndex]==\"\") {\n");
+   buffer.AppendFormatted("      switch (folderIndex) {\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
+         buffer.AppendFormatted("         case %d:\n",i);
+         buffer.AppendFormatted("         {\n");
+         buffer.AppendFormatted("            switch (valueIndex) {\n");
+         for (j=0;j<numOfValue[i];j++) {
+            if (valueDimension[i][j]>1)
+               continue;
+            buffer.AppendFormatted("               case %d:\n",j);
+            buffer.AppendFormatted("                  return \"%s\";\n",valueDBName[i][j].Data());
+         }
+         buffer.AppendFormatted("               default:\n",i);
+         buffer.AppendFormatted("                  return \"\";\n");
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("         }\n");
+      }
+   }
+   buffer.AppendFormatted("         default:\n",i);
+   buffer.AppendFormatted("            return \"\";\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      return fDBName[folderIndex][valueIndex].Data();\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("const char* %sDBAccess::GetDBPathAt(Int_t folderIndex,Int_t valueIndex,ROMEString& path) {\n",shortCut.Data());
+   buffer.AppendFormatted("   if (fDBPath[folderIndex][valueIndex]==\"\") {\n");
+   buffer.AppendFormatted("      switch (folderIndex) {\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
+         buffer.AppendFormatted("         case %d:\n",i);
+         buffer.AppendFormatted("         {\n");
+         buffer.AppendFormatted("            switch (valueIndex) {\n");
+         for (j=0;j<numOfValue[i];j++) {
+            if (valueDimension[i][j]>1)
+               continue;
+            buffer.AppendFormatted("               case %d:\n",j);
+            buffer.AppendFormatted("                  path.SetFormatted(%s);\n",valueDBPath[i][j].Data());
+            buffer.AppendFormatted("                  return path.Data();\n");
+         }
+         buffer.AppendFormatted("               default:\n",i);
+         buffer.AppendFormatted("                  return \"\";\n");
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("         }\n");
+      }
+   }
+   buffer.AppendFormatted("         default:\n",i);
+   buffer.AppendFormatted("            return \"\";\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      return fDBPath[folderIndex][valueIndex].Data();\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("const char* %sDBAccess::GetDBPathOriginalAt(Int_t folderIndex,Int_t valueIndex) {\n",shortCut.Data());
+   buffer.AppendFormatted("   if (fDBPath[folderIndex][valueIndex]==\"\") {\n");
+   buffer.AppendFormatted("      switch (folderIndex) {\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
+         buffer.AppendFormatted("         case %d:\n",i);
+         buffer.AppendFormatted("         {\n");
+         buffer.AppendFormatted("            switch (valueIndex) {\n");
+         for (j=0;j<numOfValue[i];j++) {
+            if (valueDimension[i][j]>1)
+               continue;
+            buffer.AppendFormatted("               case %d:\n",j);
+            str = valueDBPath[i][j];
+            str.ReplaceAll("\"","\\\"");
+            buffer.AppendFormatted("                  return \"%s\";\n",str.Data());
+         }
+         buffer.AppendFormatted("               default:\n",i);
+         buffer.AppendFormatted("                  return \"\";\n");
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("         }\n");
+      }
+   }
+   buffer.AppendFormatted("         default:\n",i);
+   buffer.AppendFormatted("            return \"\";\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      return fDBPath[folderIndex][valueIndex].Data();\n");
+   buffer.AppendFormatted("}\n\n");
+   buffer.AppendFormatted("Int_t %sDBAccess::GetDBNumberOfCodeAt(Int_t folderIndex,Int_t valueIndex)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   return fDBCode[folderIndex][valueIndex]->GetSize();\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("Int_t %sDBAccess::GetDBCodeAt(Int_t folderIndex,Int_t valueIndex,Int_t i)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   return fDBCode[folderIndex][valueIndex]->At(i);\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("void %sDBAccess::SetDBNameAt(Int_t folderIndex,Int_t valueIndex,const char* name)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fDBName[folderIndex][valueIndex] = name;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("void %sDBAccess::SetDBPathAt(Int_t folderIndex,Int_t valueIndex,const char* path)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fDBPath[folderIndex][valueIndex] = path;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("void %sDBAccess::SetDBNumberOfCodeAt(Int_t folderIndex,Int_t valueIndex,Int_t num)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fDBCode[folderIndex][valueIndex]->Set(num);\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("void %sDBAccess::SetDBCodeAt(Int_t folderIndex,Int_t valueIndex,Int_t i,Int_t code)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fDBCode[folderIndex][valueIndex]->AddAt(code,i);\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // ReadDataBaseFolders
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && !folderSupport[i]) {
+         buffer.AppendFormatted("Bool_t %sDBAccess::Read%s() {\n",shortCut.Data(),folderName[i].Data());
+         WriteReadDataBaseFolder(buffer,i,folderArray[i]=="1" ? 1 : 2);
+         buffer.AppendFormatted("   return true;\n");
+         buffer.AppendFormatted("}\n\n");
+      }
+   }
+
+
+   // Write File
+   WriteFile(cppFile.Data(), buffer.Data(), 6);
+   return kTRUE;
+}
+
+Bool_t ROMEBuilder::WriteDBAccessH()
+{
+   int i;
+   ROMEString hFile;
+   ROMEString buffer;
+
+   ROMEString clsDescription;
+   ROMEString clsName;
+
+   // File name
+   hFile.SetFormatted("%sinclude/generated/%sDBAccess.h", outDir.Data(), shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   buffer.AppendFormatted("#ifndef %sDBACCESS_H\n", shortCut.Data());
+   buffer.AppendFormatted("#define %sDBACCESS_H\n\n", shortCut.Data());
+   clsName.SetFormatted("%sDBAccess", shortCut.Data());
+   clsDescription.SetFormatted("Handles the database access for the %s%s.", shortCut.Data(), mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   buffer.AppendFormatted("#include <TArrayI.h>\n");
+   buffer.AppendFormatted("#include <TObject.h>\n");
+   buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("\n");
+
+   // Class
+   buffer.AppendFormatted("class %sDBAccess : public TObject {  \n", shortCut.Data());
+
+   // Fields
+   buffer.AppendFormatted("private:\n");
+   buffer.AppendFormatted("   ROMEString *fDBName[%d];         //! Name of the database from which to read the field\n",numOfFolder);
+   buffer.AppendFormatted("   ROMEString *fDBPath[%d];         //! Database path to the value of the field\n",numOfFolder);
+   buffer.AppendFormatted("   TArrayI   **fDBCode[%d];         //! Object Interpreter codes for database path to the value of the field\n",numOfFolder);
+   buffer.AppendFormatted("   Int_t       fNumberOfValues[%d]; //! Number of values in folder\n",numOfFolder);
+
+   buffer.AppendFormatted("\n");
+
+   // Method
+   buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   %sDBAccess();\n", shortCut.Data());
+   buffer.AppendFormatted("   ~%sDBAccess();\n", shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   const char* GetDBNameAt(Int_t folderIndex,Int_t valueIndex);\n");
+   buffer.AppendFormatted("   const char* GetDBPathAt(Int_t folderIndex,Int_t valueIndex,ROMEString& path);\n");
+   buffer.AppendFormatted("   const char* GetDBPathOriginalAt(Int_t folderIndex,Int_t valueIndex);\n");
+   buffer.AppendFormatted("   Int_t       GetDBNumberOfCodeAt(Int_t folderIndex,Int_t valueIndex);\n");
+   buffer.AppendFormatted("   Int_t       GetDBCodeAt(Int_t folderIndex,Int_t valueIndex,Int_t i);\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   void SetDBNameAt(Int_t folderIndex,Int_t valueIndex,const char* name);\n");
+   buffer.AppendFormatted("   void SetDBPathAt(Int_t folderIndex,Int_t valueIndex,const char* path);\n");
+   buffer.AppendFormatted("   void SetDBNumberOfCodeAt(Int_t folderIndex,Int_t valueIndex,Int_t num);\n");
+   buffer.AppendFormatted("   void SetDBCodeAt(Int_t folderIndex,Int_t valueIndex,Int_t i,Int_t code);\n");
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && !folderSupport[i])
+         buffer.AppendFormatted("   Bool_t Read%s();\n",folderName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("   ClassDef(%sDBAccess,0)\n", shortCut.Data());
+   buffer.AppendFormatted("};\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#endif\n");
+
+   // Write File
+   WriteFile(hFile.Data(), buffer.Data(), 6);
+   return kTRUE;
+}
+
 Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
 {
    Int_t j,k;
@@ -6630,6 +6749,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
    for (i=0;i<daqNameArray->GetEntriesFast();i++) {
       if (daqNameArray->At(i) == "Midas")
          buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
@@ -7066,6 +7186,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted("#include \"databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
 
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
@@ -7895,15 +8016,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
                   // DataBaseName
                   subsubSubSubGroup->AddParameter(new ROMEConfigParameter("DataBaseName"));
                   subsubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Field");
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->Get%s()->Set%sDBName(##.Data());",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->Get%sAt(0)->Set%sDBName(##.Data());",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetDBAccess()->SetDBNameAt(%d,%d,##.Data());",i,j);
                   subsubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->Get%s()->Get%sDBName();",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->Get%sAt(0)->Get%sDBName();",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDBAccess()->GetDBNameAt(%d,%d);",i,j);
                   // DataBasePath
                   subsubSubSubGroup->AddParameter(new ROMEConfigParameter("DataBasePath"));
                   subsubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Field");
@@ -7911,17 +8026,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("ind = path.Last('\"');");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("if (ind==-1 || ind==path.Length()-1) {");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   subPath = path.ReplaceAll(\"\\\"\",\"\");");
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->Get%s()->Set%sDBPath(subPath.Data());",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->Get%sAt(0)->Set%sDBPath(subPath.Data());",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetDBAccess()->SetDBPathAt(%d,%d,subPath.Data());",i,j);
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("}");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("else {");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   subPath = path(1,ind-1);");
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->Get%s()->Set%sDBPath(subPath.Data());",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->Get%sAt(0)->Set%sDBPath(subPath.Data());",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetDBAccess()->SetDBPathAt(%d,%d,subPath.Data());",i,j);
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   path = path(ind+2,path.Length()-ind+2);");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   int num = path.CountChar(',')+1;");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   for (i=0;i<num;i++) {");
@@ -7930,23 +8039,14 @@ Bool_t ROMEBuilder::AddConfigParameters()
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("      else");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("         ind = path.Length();");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("      subPath = path(0,ind);");
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->Get%s()->Set%sDBCodeAt(i,gAnalyzer->GetObjectInterpreterCode(subPath.Data()));",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->Get%sAt(0)->Set%sDBCodeAt(i,gAnalyzer->GetObjectInterpreterCode(subPath.Data()));",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetDBAccess()->SetDBCodeAt(%d,%d,i,gAnalyzer->GetObjectInterpreterCode(subPath.Data()));",i,j);
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("      path = path(ind+1,path.Length()-ind+1);");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   }");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("}");
                   subsubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddWriteLine("str = gAnalyzer->Get%s()->Get%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddWriteLine("str = gAnalyzer->Get%sAt(0)->Get%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("str = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",i,j);
                   subsubSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetDBPathWriteFlag(str.Data()))");
-                  if (folderArray[i]=="1")
-                     subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->Get%s()->Get%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
-                  else
-                     subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->Get%sAt(0)->Get%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
+                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",i,j);
                   subsubSubSubGroup->GetLastParameter()->AddWriteLine("else");
                   subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"\";");
                }
@@ -11856,43 +11956,27 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
       }
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[numFolder]) {
          buffer.AppendFormatted("      values->RemoveAll();\n");
-         if (folderArray[numFolder]=="1")
-            buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s()->Get%sDBName())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         else
-            buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%sAt(0)->Get%sDBName())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("      if (fDBName[%d][%d].Length()==0)\n",numFolder,j);
          if (valueDBName[numFolder][j].Length())
             buffer.AppendFormatted("         name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
          else
             buffer.AppendFormatted("         name.Resize(0);\n");
          buffer.AppendFormatted("      else\n");
-         if (folderArray[numFolder]=="1") {
-            buffer.AppendFormatted("         name.SetFormatted(gAnalyzer->Get%s()->Get%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-            buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s()->Get%sDBPath(str))==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         }
-         else {
-            buffer.AppendFormatted("         name.SetFormatted(gAnalyzer->Get%sAt(0)->Get%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-            buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%sAt(0)->Get%sDBPath(str))==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         }
+         buffer.AppendFormatted("         name.SetFormatted(fDBName[%d][%d].Data());\n",numFolder,j);
+         buffer.AppendFormatted("      if (fDBPath[%d][%d].Length()==0)\n",numFolder,j);
          if (valueDBPath[numFolder][j].Length())
             buffer.AppendFormatted("         path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
          else
             buffer.AppendFormatted("         path.Resize(0);\n");
 
          buffer.AppendFormatted("      else\n");
-         if (folderArray[numFolder]=="1") {
-            buffer.AppendFormatted("         path.SetFormatted(gAnalyzer->Get%s()->Get%sDBPath(str)",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-            for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
-               buffer.AppendFormatted("\n            ,gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s()->Get%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
-         }
-         else {
-            buffer.AppendFormatted("         path.SetFormatted(gAnalyzer->Get%sAt(0)->Get%sDBPath(str)",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-            for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
-               buffer.AppendFormatted("\n            ,gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%sAt(0)->Get%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
-         }
+         buffer.AppendFormatted("         path.SetFormatted(fDBPath[%d][%d].Data()",numFolder,j);
+         for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
+            buffer.AppendFormatted("\n            ,gAnalyzer->GetObjectInterpreterCharValue(fDBCode[%d][%d]->At(%d),buffer[%d],buffer[%d]).Data()",numFolder,j,k,k,k);
          buffer.AppendFormatted(");\n");
-         buffer.AppendFormatted("      if (name.Length() && path.Length() && isDataBaseActive(name.Data())) {\n");
-         buffer.AppendFormatted("         ROMEPrint::Debug(\"Reading database %%s(type=%%s, path=%%s)\\n\",name.Data(),GetDataBase(name.Data())->GetType(),path.Data());\n");
-         buffer.AppendFormatted("         if (GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
+         buffer.AppendFormatted("      if (name.Length() && path.Length() && gAnalyzer->isDataBaseActive(name.Data())) {\n");
+         buffer.AppendFormatted("         ROMEPrint::Debug(\"Reading database %%s(type=%%s, path=%%s)\\n\",name.Data(),gAnalyzer->GetDataBase(name.Data())->GetType(),path.Data());\n");
+         buffer.AppendFormatted("         if (gAnalyzer->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
          buffer.AppendFormatted("            ROMEPrint::Debug(\"%s/%s was filled.\\n\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else {\n");
@@ -11900,7 +11984,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
          buffer.AppendFormatted("            return false;\n");
          buffer.AppendFormatted("         }\n");
          if (type==2) {
-            buffer.AppendFormatted("         nentry = f%sFolders->GetEntries();\n",folderName[numFolder].Data());
+            buffer.AppendFormatted("         nentry = gAnalyzer->Get%ss()->GetEntries();\n",folderName[numFolder].Data());
             buffer.AppendFormatted("         for (i=0;i<nentry;i++) {\n");
          }
          if (valueDimension[numFolder][j]==0) {
@@ -11908,14 +11992,14 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
             valueString.SetFormatted("values->At(%s,0).Data()",iValue.Data());
             setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),valueType[numFolder][j].Data(),1);
             if (type==1) {
-               buffer.AppendFormatted("%s            f%sFolder->Set%s((%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("%s            gAnalyzer->Get%s()->Set%s((%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
                buffer.AppendFormatted("%s         else\n",blank.Data());
-               buffer.AppendFormatted("%s            f%sFolder->Set%s(%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("%s            gAnalyzer->Get%s()->Set%s(%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
             else {
-               buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("               gAnalyzer->Get%sAt(i)->Set%s((%s)%s);\n",folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
                buffer.AppendFormatted("            else\n");
-               buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("               gAnalyzer->Get%sAt(i)->Set%s(%s);\n",folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
          }
          else if (valueDimension[numFolder][j]==1) {
@@ -11924,14 +12008,14 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
             valueString.SetFormatted("values->At(%s,j).Data()",iValue.Data());
             setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),TArray2StandardType(valueType[numFolder][j],tempBuffer),1);
             if (type==1) {
-               buffer.AppendFormatted("%s               f%sFolder->Set%sAt(j,(%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),TArray2StandardType(valueType[numFolder][j],tempBuffer),buf.Data());
+               buffer.AppendFormatted("%s               gAnalyzer->Get%s()->Set%sAt(j,(%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),TArray2StandardType(valueType[numFolder][j],tempBuffer),buf.Data());
                buffer.AppendFormatted("%s            else\n",blank.Data());
-               buffer.AppendFormatted("%s               f%sFolder->Set%sAt(j,%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("%s               gAnalyzer->Get%s()->Set%sAt(j,%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
             else {
-               buffer.AppendFormatted("                  ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),TArray2StandardType(valueType[numFolder][j],tempBuffer),buf.Data());
+               buffer.AppendFormatted("                  gAnalyzer->Get%sAt(i)->Set%sAt(j,(%s)%s);\n",folderName[numFolder].Data(),valueName[numFolder][j].Data(),TArray2StandardType(valueType[numFolder][j],tempBuffer),buf.Data());
                buffer.AppendFormatted("               else\n");
-               buffer.AppendFormatted("                  ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("                  gAnalyzer->Get%sAt(i)->Set%sAt(j,%s);\n",folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
             buffer.AppendFormatted("%s         }\n",blank.Data());
          }

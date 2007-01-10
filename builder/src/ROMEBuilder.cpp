@@ -683,6 +683,10 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteDBCpp()) return false;
    if (!WriteDBH()) return false;
    if (makeOutput)
+      cout << "\n\nDatabase Interface:" << endl;
+   if (!WriteDBAccessCpp()) return false;
+   if (!WriteDBAccessH()) return false;
+   if (makeOutput)
       cout << "\n\nFramework:" << endl;
    if (readGlobalSteeringParameters)
       if (!WriteSteering(numOfTask)) return false;
