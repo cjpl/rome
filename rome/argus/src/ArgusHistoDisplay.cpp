@@ -484,7 +484,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
 
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
-      if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
+      if (x1!=0 && TMath::Abs((1.1-x2)/1.1)>1e-6 && y1!=0 && TMath::Abs((1.1-y2)/1.1)>1e-6) {
          if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT")) {
             ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetXaxis()->SetRangeUser(x1,x2);
             ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetYaxis()->SetRangeUser(y1,y2);

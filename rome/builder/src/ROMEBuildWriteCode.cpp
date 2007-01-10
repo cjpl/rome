@@ -3291,7 +3291,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                      if (graphArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
                         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                         buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j);
-                        buffer.AppendFormatted("      f%sSingleObject%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,graphType[tabSingleObjectTaskIndex[iTab][i]][tabSingleObjectObjectIndex[iTab][i]].Data());
+                        buffer.AppendFormatted("      f%sSingleObject%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,graphType[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]].Data());
                         buffer.AppendFormatted("      *(f%sSingleObject%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                         buffer.AppendFormatted("      f%sSingleObject%d->GetXaxis()->SetLimits(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmin(),gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmax());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                         buffer.AppendFormatted("      f%sSingleObject%d->SetMinimum(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetYmin());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
@@ -3302,7 +3302,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                         for (k=tabSingleObjectArrayIndexStart[iTab][j];k<=tabSingleObjectArrayIndexEnd[iTab][j];k++) {
                            buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabSingleObjectArrayIndexStart[iTab][j]);
                            buffer.AppendFormatted("      f%sPad%d_%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j,k);
-                           buffer.AppendFormatted("      f%sSingleObject%d_%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,k,graphType[tabSingleObjectTaskIndex[iTab][i]][tabSingleObjectObjectIndex[iTab][i]].Data());
+                           buffer.AppendFormatted("      f%sSingleObject%d_%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,k,graphType[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]].Data());
                            buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
                            buffer.AppendFormatted("      f%sSingleObject%d_%d->GetXaxis()->SetLimits(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmin(),gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmax());\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                            buffer.AppendFormatted("      f%sSingleObject%d_%d->SetMinimum(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetYmin());\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
@@ -6300,7 +6300,8 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
          buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
       }
    }
-   buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
@@ -6518,10 +6519,10 @@ Bool_t ROMEBuilder::WriteDBAccessH()
 
    // Fields
    buffer.AppendFormatted("private:\n");
-   buffer.AppendFormatted("   ROMEString *fDBName[%d];         //! Name of the database from which to read the field\n",numOfFolder);
-   buffer.AppendFormatted("   ROMEString *fDBPath[%d];         //! Database path to the value of the field\n",numOfFolder);
-   buffer.AppendFormatted("   TArrayI   **fDBCode[%d];         //! Object Interpreter codes for database path to the value of the field\n",numOfFolder);
-   buffer.AppendFormatted("   Int_t       fNumberOfValues[%d]; //! Number of values in folder\n",numOfFolder);
+   buffer.AppendFormatted("   ROMEString *fDBName[%d];         //! Name of the database from which to read the field\n",TMath::Max(numOfFolder,1));
+   buffer.AppendFormatted("   ROMEString *fDBPath[%d];         //! Database path to the value of the field\n",TMath::Max(numOfFolder,1));
+   buffer.AppendFormatted("   TArrayI   **fDBCode[%d];         //! Object Interpreter codes for database path to the value of the field\n",TMath::Max(numOfFolder,1));
+   buffer.AppendFormatted("   Int_t       fNumberOfValues[%d]; //! Number of values in folder\n",TMath::Max(numOfFolder,1));
 
    buffer.AppendFormatted("\n");
 
@@ -11414,7 +11415,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("protected:\n");
    // Folder Fields
    buffer.AppendFormatted("   // Folder Fields\n");
-   buffer.AppendFormatted("   Bool_t fFolderActive[kMaxSocketClients][%d]; //! Flag if folder is active\n",numOfFolder);
+   buffer.AppendFormatted("   Bool_t fFolderActive[kMaxSocketClients][%d]; //! Flag if folder is active\n",TMath::Max(numOfFolder,1));
    buffer.AppendFormatted("   TObjArray* fFolder[kMaxSocketClients]; //! Handle to Folders\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
