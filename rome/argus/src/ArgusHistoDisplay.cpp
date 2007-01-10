@@ -417,7 +417,7 @@ void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
       fStyle->SetOptStat(1110);
       fStyle->SetOptFit(73);
    }
-   else if (fStatisticBoxFlag){
+   else if (!flag && fStatisticBoxFlag){
       fStyle->SetOptFit(0);
       fStyle->SetOptStat(0);
    }

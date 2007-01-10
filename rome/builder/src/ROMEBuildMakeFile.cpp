@@ -402,6 +402,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sDBAccess.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sNetFolderServer.h",shortCut.Data());
    if (readGlobalSteeringParameters)
       generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
@@ -459,6 +460,8 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    generatedDictHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sDBAccess.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
@@ -566,6 +569,7 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow2.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sDBAccess.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sNetFolderServer.cpp",shortCut.Data());
    if (numOfEvent>0)
       generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
