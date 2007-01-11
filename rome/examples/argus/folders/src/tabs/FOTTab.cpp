@@ -42,6 +42,7 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 #include "generated/FOAnalyzer.h"
+#include "generated/FODBAccess.h"
 #include "include/generated/FOWindow.h"
 #include "include/tabs/FOTTab.h"
 
@@ -57,25 +58,25 @@ void FOTTab::Init()
 // connection to ODB is not supported yet.
 #if 0
    gAnalyzer->ReadODB();
-   cout << gAnalyzer->GetODB()->GetRunNumber() << endl;
+   cout<<gAnalyzer->GetODB()->GetRunNumber()<<endl;
 #else
    gAnalyzer->GetODB()->SetRunNumber(0);
 #endif
 
    //ROMEDataBase
-   gAnalyzer->ReadROMEDataBase();
-   cout << "comment " << gAnalyzer->GetROMEDataBase()->Getcomment() << endl;
+   gAnalyzer->GetDBAccess()->ReadROMEDataBase();
+   cout<<"comment "<<gAnalyzer->GetROMEDataBase()->Getcomment()<<endl;
 
    //ROMEFolder
    if (gAnalyzer->GetNetFolder("mynetfolder")) {
       fRunInfo = (FORunInfo *) ((TFolder *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("RunInfo"))->FindObjectAny("FORunInfo");
-      cout << "run mode " << fRunInfo->GetName() << endl;
+      cout<<"run mode "<<fRunInfo->GetName()<<endl;
    }
 
    if (gAnalyzer->GetNetFolder("mynetfolder")) {
       fPMTDatas = (TClonesArray *) ((TFolder *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("PMTData"))->FindObjectAny("FOPMTData");
       for (int i = 0; i < fPMTDatas->GetEntries(); i++) {
-         cout << "PMT data-ADC " << i << " :" << ((FOPMTData *) (fPMTDatas->At(i)))->GetADC() << endl;
+         cout<<"PMT data-ADC "<<i<<" :"<<((FOPMTData *) (fPMTDatas->At(i)))->GetADC()<<endl;
       }
    }
 }
