@@ -424,7 +424,7 @@ void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
    fStatisticBoxFlag = flag;
 }
 
-void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
+void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
    Int_t i,k;
    Bool_t clear = true;

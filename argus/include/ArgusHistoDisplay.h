@@ -124,7 +124,7 @@ protected:
    void BaseMenuClicked(TGPopupMenu *menu,Long_t param);
    void BaseTabSelected();
    void BaseTabUnSelected();
-   void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);
+   void BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw);
    void SetStatisticBox(Bool_t flag);
    void Modified(Bool_t processEvents=true);
    void SetLimits(TGraphMT *g);
@@ -137,6 +137,7 @@ protected:
    virtual void BaseEventHandler() = 0;
    virtual void EventHandler() = 0;
    virtual void Display(Bool_t processEvents=true) = 0;
+   virtual void SetupPads(Int_t nx, Int_t ny, Bool_t redraw) = 0;
 
    ClassDef(ArgusHistoDisplay,0) // Base class of ARGUS histogram display
 };

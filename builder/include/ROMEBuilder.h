@@ -13,6 +13,7 @@
 #include "ROMEStrArray.h"
 #include "ROMEStr2DArray.h"
 
+class TArrayI;
 class ROMEConfigParameter;
 class ROMEConfigParameterGroup;
 
@@ -685,7 +686,8 @@ private:
    void    WriteHTMLDoku();
    void    WriteHTMLStyle(ROMEString &buffer);
    void    WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group);
-   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace = 0, const char* str1 = 0, const char* str2 = 0);
+   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace = 0, const char* str1 = 0, const char* str2 = 0,const char* condition = 0, bool replaceWhenFound = true);
+   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace, ROMEStrArray& arr1, ROMEStrArray& arr2,ROMEStrArray& condition,TArrayI &replaceWhenFound);
    void    WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite);
    void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark);
    Bool_t  BackUpFile(const char* filename);

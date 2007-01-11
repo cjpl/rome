@@ -17,6 +17,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 
 #include <Riostream.h>
+#include "TArrayI.h"
 #include "ROMEBuilder.h"
 #include "ROMEXML.h"
 #include "ROMEConfig.h"
@@ -2930,6 +2931,10 @@ Bool_t ROMEBuilder::WriteTabCpp()
    ROMEString fileBuffer;
    ROMEString str;
    ROMEString tmp, tmp2;
+   ROMEStrArray str1;
+   ROMEStrArray str2;
+   ROMEStrArray cond;
+   TArrayI equal;
 
    if (makeOutput)
       cout << "\n   Output Cpp-Files:" << endl;
@@ -3068,6 +3073,13 @@ Bool_t ROMEBuilder::WriteTabCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
+      if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("void %sT%s::Display()\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+      }
+
       // Thread
       for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("void %sT%s::%s()\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
@@ -3078,7 +3090,23 @@ Bool_t ROMEBuilder::WriteTabCpp()
       }
 
       // Write file
-      ReplaceHeader(cppFile.Data(), header.Data(), buffer.Data(), 6);
+      if (tabObjectDisplay[iTab]) {
+         str1.RemoveAll();
+         str2.RemoveAll();
+         cond.RemoveAll();
+         equal.Set(2);
+         str1.AddFormatted("ClassImp(%sT%s)",shortCut.Data(),tabName[iTab].Data());
+         str2.AddFormatted("ClassImp(%sT%s)\nvoid %sT%s::Display(bool processEvents)\n{\n   BaseDisplay(processEvents);\n}",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
+         cond.AddFormatted("%sT%s::Display(bool processEvents)",shortCut.Data(),tabName[iTab].Data());
+         equal.AddAt(0,0);
+         str1.AddFormatted("ClassImp(%sT%s)",shortCut.Data(),tabName[iTab].Data());
+         str2.AddFormatted("ClassImp(%sT%s)\nvoid %sT%s::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)\n{\n   BaseSetupPads(nx,ny,redraw);\n}",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
+         cond.AddFormatted("%sT%s::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)",shortCut.Data(),tabName[iTab].Data());
+         equal.AddAt(0,1);
+         ReplaceHeader(cppFile.Data(), header.Data(), buffer.Data(), 6,str1,str2,cond,equal);
+      }
+      else
+         ReplaceHeader(cppFile.Data(), header.Data(), buffer.Data(), 6);
    }
    return kTRUE;
 }
@@ -3517,7 +3545,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("\n");
 
       // Display
-      buffer.AppendFormatted("void %sT%s_Base::Display(bool processEvents) {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("void %sT%s_Base::BaseDisplay(bool processEvents) {\n", shortCut.Data(), tabName[iTab].Data());
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   int i,k,chn;\n");
          buffer.AppendFormatted("   ROMEString str;\n");
@@ -3845,6 +3873,10 @@ Bool_t ROMEBuilder::WriteTabH()
    ROMEString clsName;
    ROMEString clsDescription;
    ROMEString str;
+   ROMEStrArray str1;
+   ROMEStrArray str2;
+   ROMEStrArray cond;
+   TArrayI equal;
 
    Int_t i;
    if (makeOutput)
@@ -3856,75 +3888,90 @@ Bool_t ROMEBuilder::WriteTabH()
 
       // User H-File
       hFile.SetFormatted("%sinclude/tabs/%sT%s.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
-      if (gSystem->AccessPathName(hFile.Data(),kFileExists)) {
-         // Description
-         buffer.Resize(0);
-         WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
-         buffer.AppendFormatted("#ifndef %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("#define %sT%s_H\n\n", shortCut.Data(), tabName[iTab].Data());
-         clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
-         clsDescription = tabDescription[iTab].Data();
-         WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
-         buffer.AppendFormatted("\n\n");
+      // Description
+      buffer.Resize(0);
+      WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
+      buffer.AppendFormatted("#ifndef %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("#define %sT%s_H\n\n", shortCut.Data(), tabName[iTab].Data());
+      clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
+      clsDescription = tabDescription[iTab].Data();
+      WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
+      buffer.AppendFormatted("\n\n");
 
-         // Header
-         buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("class %sWindow;\n", shortCut.Data());
-         buffer.AppendFormatted("\n");
+      // Header
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("class %sWindow;\n", shortCut.Data());
+      buffer.AppendFormatted("\n");
 
-         // Class
-         buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("{\n");
-         buffer.AppendFormatted("protected:\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("public:\n");
+      // Class
+      buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("protected:\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("public:\n");
 
-         // Constructor
-         buffer.AppendFormatted("   %sT%s(%sWindow* window):%sT%s_Base(window)\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("   {\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   virtual ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("   {\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   void Init();\n");
-         buffer.AppendFormatted("   void EndInit();\n");
-         buffer.AppendFormatted("   void MenuClicked(TGPopupMenu *menu,Long_t param);\n");
-         buffer.AppendFormatted("   void TabSelected();\n");
-         buffer.AppendFormatted("   void TabUnSelected();\n");
-         buffer.AppendFormatted("   void EventHandler();\n");
+      // Constructor
+      buffer.AppendFormatted("   %sT%s(%sWindow* window):%sT%s_Base(window)\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   virtual ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   void Init();\n");
+      buffer.AppendFormatted("   void EndInit();\n");
+      buffer.AppendFormatted("   void MenuClicked(TGPopupMenu *menu,Long_t param);\n");
+      buffer.AppendFormatted("   void TabSelected();\n");
+      buffer.AppendFormatted("   void TabUnSelected();\n");
+      buffer.AppendFormatted("   void EventHandler();\n");
+      if (tabObjectDisplay[iTab])
+         buffer.AppendFormatted("   void Display();\n");
 
-         // Thread
-         for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
-            buffer.AppendFormatted("   void %s();\n", threadFunctionName[iTab][i].Data());
-         }
-         buffer.AppendFormatted("\n");
-
-         // Fields
-         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
-         if (tabShortDescription[iTab].Length())
-            buffer.AppendFormatted(" // %s", tabShortDescription[iTab].Data());
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("};\n\n");
-         buffer.AppendFormatted("#endif   // %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
-
-         // Write File
-         WriteFile(hFile.Data(), buffer.Data(), 6);
+      // Thread
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("   void %s();\n", threadFunctionName[iTab][i].Data());
       }
-      else {
-         // Check for deprecated constructor
-         fstream *fileStream = new fstream(hFile.Data(),ios::in);
-         fileBuffer.ReadFile(*fileStream);
-         delete fileStream;
-         str.SetFormatted(" %sT%s()",shortCut.Data(),tabName[iTab].Data());
-         if (fileBuffer.Contains(str)) {
-            str.SetFormatted("Please replace %sT%s():%sT%s_Base() with %sT%s(%sWindow* window):%sT%s_Base(window).",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),shortCut.Data(),tabName[iTab].Data());
-            cout << "The parameter list of the constructor of tabs has changed." << endl;
-            cout << str.Data() << endl << endl;
-         }
+      buffer.AppendFormatted("\n");
+
+      // Fields
+      buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+      if (tabShortDescription[iTab].Length())
+         buffer.AppendFormatted(" // %s", tabShortDescription[iTab].Data());
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("};\n\n");
+      buffer.AppendFormatted("#endif   // %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
+
+      // Write File
+
+      // Check for deprecated constructor
+      fstream *fileStream = new fstream(hFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      str.SetFormatted(" %sT%s()",shortCut.Data(),tabName[iTab].Data());
+      if (fileBuffer.Contains(str)) {
+         str.SetFormatted("Please replace %sT%s():%sT%s_Base() with %sT%s(%sWindow* window):%sT%s_Base(window).",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),shortCut.Data(),tabName[iTab].Data());
+         cout << "The parameter list of the constructor of tabs has changed." << endl;
+         cout << str.Data() << endl << endl;
       }
+      if (tabObjectDisplay[iTab]) {
+         str1.RemoveAll();
+         str2.RemoveAll();
+         cond.RemoveAll();
+         equal.Set(2);
+         str1.AddFormatted("ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
+         str2.AddFormatted("void Display(bool processEvents=true);\n   ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
+         cond.AddFormatted("void Display(bool processEvents=true);",shortCut.Data(),tabName[iTab].Data());
+         equal.AddAt(0,0);
+         str1.AddFormatted("ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
+         str2.AddFormatted("void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);\n   ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
+         cond.AddFormatted("void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);",shortCut.Data(),tabName[iTab].Data());
+         equal.AddAt(0,1);
+         ReplaceHeader(hFile.Data(), 0, buffer.Data(), 6,str1,str2,cond,equal);
+      }
+      else
+         ReplaceHeader(hFile.Data(), 0, buffer.Data(), 6);
    }
 
    return kTRUE;
@@ -4090,7 +4137,9 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       buffer.AppendFormatted("\n");
 
       // Display
-      buffer.AppendFormatted("   void Display(bool processEvents=true);\n");
+      buffer.AppendFormatted("   void BaseDisplay(bool processEvents=true);\n");
+      if (tabObjectDisplay[iTab])
+         buffer.AppendFormatted("   virtual void Display(bool processEvents=true) = 0;\n");
       buffer.AppendFormatted("\n");
 
       // BaseTabEventHandler
@@ -14135,13 +14184,28 @@ Bool_t ROMEBuilder::WritePrecompiledHeaders()
    return true;
 }
 
-Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,const char* str1, const char* str2)
+Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,const char* str1, const char* str2,const char* condition, bool replaceWhenFound)
 {
+   ROMEStrArray arr1;
+   ROMEStrArray arr2;
+   ROMEStrArray cond;
+   TArrayI rep(1);
+   arr1.Add(str1);
+   arr2.Add(str2);
+   cond.Add(condition);
+   rep.AddAt((int)replaceWhenFound,0);
+   return ReplaceHeader(filename,header,body,nspace,arr1,arr2,cond,rep);
+}
+Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,ROMEStrArray &arr1, ROMEStrArray &arr2, ROMEStrArray &condition, TArrayI &replaceWhenFound)
+{
+   int i;
    bool writeFile = false;
    fstream *fileStream;
    ROMEString fileBuffer;
    Ssiz_t pBuffer=-1;
-   ROMEString buffer = header;
+   ROMEString buffer;
+   if (header!=0)
+      buffer = header;
    if (gSystem->AccessPathName(filename,kFileExists)) {
       writeFile = true;
       buffer += body;
@@ -14153,19 +14217,26 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
       }
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;
-      pBuffer = fileBuffer.Index(kHeaderEndMark);
-      if (pBuffer<0) {
-         if (makeOutput)
-            cout << "\n\nWarning : File '" << filename << "' does not have header end mark. Builder does not modify this file." << endl;
-         return true;
+      if (header!=0) {
+         pBuffer = fileBuffer.Index(kHeaderEndMark);
+         if (pBuffer<0) {
+            if (makeOutput)
+               cout << "\n\nWarning : File '" << filename << "' does not have header end mark. Builder does not modify this file." << endl;
+            return true;
+         }
+         // compare old and new header
+         if (fileBuffer(0,pBuffer+80) != header)
+            writeFile = true;
       }
-      // compare old and new header
-      if (fileBuffer(0,pBuffer+80) != header)
-         writeFile = true;
       //check if the file has string to be replaced.
-      if (str1  && fileBuffer.Contains(str1)) {
-         writeFile = true;
-         fileBuffer.ReplaceAll(str1, str2);
+      for (i=0;i<TMath::Min(TMath::Min(arr1.GetEntriesFast(),arr2.GetEntriesFast()),TMath::Min(condition.GetEntriesFast(),replaceWhenFound.GetSize()));i++) {
+         if (arr1.At(i).Length()>0  && fileBuffer.Contains(arr1.At(i))) {
+            if (condition.At(i).Length()>0 && (fileBuffer.Contains(condition.At(i)) && replaceWhenFound.At(i)) || 
+                                              (!fileBuffer.Contains(condition.At(i)) && !replaceWhenFound.At(i))) {
+               writeFile = true;
+               fileBuffer.ReplaceAll(arr1.At(i), arr2.At(i));
+            }
+         }
       }
 #if 1
 // this special treatment is neccesary only for several month from Jun.2006
@@ -14187,6 +14258,8 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
             fileBuffer.Insert(strlen(header), "\n");
          }
       }
+      if (header==0)
+         buffer = fileBuffer;
    }
 #endif
    if (writeFile) {
