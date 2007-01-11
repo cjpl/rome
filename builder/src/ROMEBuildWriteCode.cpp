@@ -6368,13 +6368,13 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
             buffer.AppendFormatted("               case %d:\n",j);
             buffer.AppendFormatted("                  return \"%s\";\n",valueDBName[i][j].Data());
          }
-         buffer.AppendFormatted("               default:\n",i);
+         buffer.AppendFormatted("               default:\n");
          buffer.AppendFormatted("                  return \"\";\n");
          buffer.AppendFormatted("            }\n");
          buffer.AppendFormatted("         }\n");
       }
    }
-   buffer.AppendFormatted("         default:\n",i);
+   buffer.AppendFormatted("         default:\n");
    buffer.AppendFormatted("            return \"\";\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
@@ -6397,19 +6397,22 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
             buffer.AppendFormatted("                  path.SetFormatted(%s);\n",valueDBPath[i][j].Data());
             buffer.AppendFormatted("                  return path.Data();\n");
          }
-         buffer.AppendFormatted("               default:\n",i);
+         buffer.AppendFormatted("               default:\n");
          buffer.AppendFormatted("                  return \"\";\n");
          buffer.AppendFormatted("            }\n");
          buffer.AppendFormatted("         }\n");
       }
    }
-   buffer.AppendFormatted("         default:\n",i);
+   buffer.AppendFormatted("         default:\n");
    buffer.AppendFormatted("            return \"\";\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      return fDBPath[folderIndex][valueIndex].Data();\n");
+   buffer.AppendFormatted("   WarningSuppression(path.Length());\n");
+   buffer.AppendFormatted("   return 0;\n");
    buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("const char* %sDBAccess::GetDBPathOriginalAt(Int_t folderIndex,Int_t valueIndex) {\n",shortCut.Data());
    buffer.AppendFormatted("   if (fDBPath[folderIndex][valueIndex]==\"\") {\n");
    buffer.AppendFormatted("      switch (folderIndex) {\n");
@@ -6426,13 +6429,13 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
             str.ReplaceAll("\"","\\\"");
             buffer.AppendFormatted("                  return \"%s\";\n",str.Data());
          }
-         buffer.AppendFormatted("               default:\n",i);
+         buffer.AppendFormatted("               default:\n");
          buffer.AppendFormatted("                  return \"\";\n");
          buffer.AppendFormatted("            }\n");
          buffer.AppendFormatted("         }\n");
       }
    }
-   buffer.AppendFormatted("         default:\n",i);
+   buffer.AppendFormatted("         default:\n");
    buffer.AppendFormatted("            return \"\";\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
