@@ -3962,11 +3962,11 @@ Bool_t ROMEBuilder::WriteTabH()
          equal.Set(2);
          str1.AddFormatted("ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
          str2.AddFormatted("void Display(bool processEvents=true);\n   ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
-         cond.AddFormatted("void Display(bool processEvents=true);",shortCut.Data(),tabName[iTab].Data());
+         cond.AddFormatted("void Display(bool processEvents=true);");
          equal.AddAt(0,0);
          str1.AddFormatted("ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
          str2.AddFormatted("void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);\n   ClassDef(%sT%s",shortCut.Data(),tabName[iTab].Data());
-         cond.AddFormatted("void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);",shortCut.Data(),tabName[iTab].Data());
+         cond.AddFormatted("void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);");
          equal.AddAt(0,1);
          ReplaceHeader(hFile.Data(), 0, buffer.Data(), 6,str1,str2,cond,equal);
       }
