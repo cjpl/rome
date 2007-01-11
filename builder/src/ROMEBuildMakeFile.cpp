@@ -1661,11 +1661,29 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
    ROMEString path;
    ROMEString name;
    ROMEString ext;
-   Bool_t inIfDef = kFALSE;
+
+   // without flags
    for (i=0;i<numOfMFSources;i++) {
-      inIfDef = kFALSE;
       if (!mfSourceFileUsed[i])
          continue;
+      if (numOfMFSourceFlags[i])
+         continue;
+      AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
+#if defined( R__UNIX )
+      buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
+#else
+      buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
+#endif // R__UNIX
+   }
+   buffer.AppendFormatted("\n");
+
+   // without cflags
+   for (i=0;i<numOfMFSources;i++) {
+      if (!mfSourceFileUsed[i])
+         continue;
+      if (numOfMFSourceFlags[i] < 1)
+         continue;
+      buffer.AppendFormatted("\n");
       bool *commandLineFlag = new bool[numOfMFSourceFlags[i]];
       for (j=0;j<numOfMFSourceFlags[i];j++) {
          commandLineFlag[j] = false;
@@ -1681,16 +1699,12 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
          buffer.AppendFormatted("!IFDEF %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-         buffer.AppendFormatted("\nifdef %s\n",mfSourceFileFlag[i][j].Data());
-         inIfDef = kTRUE;
+         buffer.AppendFormatted("ifdef %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__UNIX
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      if (!inIfDef)
-         buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
-      else
-         buffer.AppendFormatted("objects += obj/%s%s",name.Data(),kObjectSuffix);
+      buffer.AppendFormatted("objects += obj/%s%s\n",name.Data(),kObjectSuffix);
 #else
       buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
 #endif // R__UNIX
@@ -1701,7 +1715,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
          buffer.AppendFormatted("!ENDIF # %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-         buffer.AppendFormatted("\nendif # %s\n",mfSourceFileFlag[i][j].Data());
+         buffer.AppendFormatted("endif # %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__UNIX
       }
       delete [] commandLineFlag;
@@ -1942,12 +1956,12 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileObjects(buffer,generatedSources);
    WriteMakefileObjects(buffer,tabSources);
    WriteMakefileObjects(buffer,taskSources);
-   WriteMakefileAdditionalSourceFilesObjects(buffer);
    WriteMakefileObjects(buffer,romeSources);
    WriteMakefileObjects(buffer,argusSources);
    WriteMakefileObjects(buffer,folderSources);
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
+   WriteMakefileAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n\n");
 
 // Depend files
