@@ -6906,6 +6906,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
          buffer.AppendFormatted("   ROMEString comment = \"\";\n");
          buffer.AppendFormatted("   ROMEString str = \"\";\n");
+         buffer.AppendFormatted("   ROMEString tmp;\n");
+         buffer.AppendFormatted("   tmp = \"\";\n"); // to suppress unused warning
          buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
          buffer.AppendFormatted("   ROMEString path;\n");
          buffer.AppendFormatted("   ROMEString writeString;\n");
@@ -7040,6 +7042,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          buffer.AppendFormatted("   bool writeFlag;\n");
          buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
          buffer.AppendFormatted("   ROMEString str;\n");
+         buffer.AppendFormatted("   ROMEString tmp;\n");
+         buffer.AppendFormatted("   tmp = \"\";\n"); // to suppress unused warning
          buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
          buffer.AppendFormatted("   ROMEString writeString;\n");
          buffer.AppendFormatted("   ROMEString path = \"\";\n");
@@ -8075,8 +8079,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("   }");
                   subsubSubSubGroup->GetLastParameter()->AddSetLine("}");
                   subsubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("str = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",i,j);
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetDBPathWriteFlag(str.Data()))");
+                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("tmp = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",i,j);
+                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetDBPathWriteFlag(tmp.Data()))");
                   subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",i,j);
                   subsubSubSubGroup->GetLastParameter()->AddWriteLine("else");
                   subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"\";");
