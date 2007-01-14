@@ -2023,7 +2023,16 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
-   buffer.AppendFormatted("all:startecho pch obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("LOGFILE = .make_error.log\n");
+   buffer.AppendFormatted("all:\n");
+   buffer.AppendFormatted("\t@($(MAKE) startecho pch obj %s%s.exe endecho \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t|| ($(RM) $(LOGFILE); exit 1;)) \\\n");
+   buffer.AppendFormatted("\t2>&1 > /dev/tty | tee $(LOGFILE)\n");
+   buffer.AppendFormatted("\t@if [ -s $(LOGFILE) ]; then \\\n");
+   buffer.AppendFormatted("\t   echo \"=== WARNINGS SUMMARY ===\"; \\\n");
+   buffer.AppendFormatted("\t   cat $(LOGFILE); \\\n");
+   buffer.AppendFormatted("\tfi\n");
+   buffer.AppendFormatted("\t@$(RM) $(LOGFILE)\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
