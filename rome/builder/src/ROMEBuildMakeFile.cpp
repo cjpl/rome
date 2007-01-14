@@ -876,10 +876,9 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("# %sCXXFLAGS        : additional C++ compile flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sFFLAGS          : additional Fortran compile flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sLDFLAGS         : additional link flag\n", shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("# NOREDIRECT        : By default, stdout and stderr are redirected\n");
-   buffer.AppendFormatted("#                     to /dev/tty and stdout respectively to showing\n");
-   buffer.AppendFormatted("#                     warning messages summary.\n");
-   buffer.AppendFormatted("#                     When NOREDIRECT is defined, redirection is disabled.\n");
+   buffer.AppendFormatted("# NOREDIRECT        : By default, stdout and stderr are swapped\n");
+   buffer.AppendFormatted("#                     in order to show warning messages summary.\n");
+   buffer.AppendFormatted("#                     When NOREDIRECT is defined, swapping is disabled.\n");
 #endif // R__UNIX
    buffer.AppendFormatted("\n");
 }
@@ -2034,7 +2033,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("\t@($(MAKE) startecho pch obj %s%s.exe endecho \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t|| ($(RM) $(LOGFILE); exit 1;)) \\\n");
-   buffer.AppendFormatted("\t2>&1 > /dev/tty | tee $(LOGFILE)\n");
+   buffer.AppendFormatted("\t3>&2 2>&1 1>&3 | tee $(LOGFILE)\n");
    buffer.AppendFormatted("\t@if [ -s $(LOGFILE) ]; then \\\n");
    buffer.AppendFormatted("\t   echo \"=== WARNINGS SUMMARY ===\"; \\\n");
    buffer.AppendFormatted("\t   cat $(LOGFILE); \\\n");
