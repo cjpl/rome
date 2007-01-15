@@ -2027,9 +2027,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@$(MAKE) -s startecho\n");
    buffer.AppendFormatted("\t@$(MAKE) -s pch\n");
    buffer.AppendFormatted("\t@$(MAKE) -s obj\n");
-   buffer.AppendFormatted("\t@$(ROMESYS)/bin/check_redirection\n");
    buffer.AppendFormatted("\t@echo 0 > .build_success\n");
-   buffer.AppendFormatted("\t@if [ `cat .check_redirection` = 0 ]; then \\\n");
+   buffer.AppendFormatted("\t@if [ -t 1 ] && [ -t 2 ]; then \\\n");
    buffer.AppendFormatted("\t  ($(MAKE) %s%s.exe \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t  || (echo $$? > .build_success; $(RM) .make_error.log)) \\\n");
    buffer.AppendFormatted("\t  3>&2 2>&1 1>&3 | tee .make_error.log; \\\n");
@@ -2043,13 +2042,13 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t  echo \"\"; \\\n");
    buffer.AppendFormatted("\tfi\n");
    buffer.AppendFormatted("\t@export BUILD_SUCCESS=`cat .build_success`; \\\n");
-   buffer.AppendFormatted("\tif [ $$BUILD_SUCCESS = 0 ]; then \\\n");
+   buffer.AppendFormatted("\tif [ $$BUILD_SUCCESS -eq 0 ]; then \\\n");
    buffer.AppendFormatted("\t  $(MAKE) -s endecho; \\\n");
    buffer.AppendFormatted("\telse\\\n");
-   buffer.AppendFormatted("\t  $(RM) .make_error.log .check_redirection .build_success; \\\n");
+   buffer.AppendFormatted("\t  $(RM) .make_error.log .build_success; \\\n");
    buffer.AppendFormatted("\t  exit $$BUILD_SUCCESS; \\\n");
    buffer.AppendFormatted("\tfi\n");
-   buffer.AppendFormatted("\t@$(RM) .make_error.log .check_redirection .build_success\n");
+   buffer.AppendFormatted("\t@$(RM) .make_error.log .build_success\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
