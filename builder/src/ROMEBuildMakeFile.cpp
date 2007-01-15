@@ -2037,8 +2037,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t  3>&2 2>&1 1>&3 | tee $(LOGFILE); \\\n");
    buffer.AppendFormatted("\tfi\n");
    buffer.AppendFormatted("\t@if [ -s $(LOGFILE) ]; then \\\n");
+   buffer.AppendFormatted("\t  echo \"\"; \\\n");
    buffer.AppendFormatted("\t  echo \"=== WARNINGS SUMMARY ===\"; \\\n");
    buffer.AppendFormatted("\t  cat $(LOGFILE); \\\n");
+   buffer.AppendFormatted("\t  echo \"\"; \\\n");
    buffer.AppendFormatted("\tfi\n");
    buffer.AppendFormatted("\t@$(RM) $(LOGFILE)\n");
    buffer.AppendFormatted("\t@$(RM) .check_redirection\n");
