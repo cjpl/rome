@@ -47,7 +47,7 @@ CXXLD ?= $(CXX)
 #####################################################################
 INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
-TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
+TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config bin/check_redirection
 
 ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
 ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
@@ -253,7 +253,10 @@ bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
 	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
-	$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
+	$(CXXLD) $(LDFLAGS) -W -Wall $(INCLUDE) -o $@ $< $(LIBRARY)
+
+bin/check_redirection: tools/check_redirection/main.cpp
+	$(CXXLD) $(LDFLAGS) -W -Wall $(INCLUDE) -o $@ $<
 
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe

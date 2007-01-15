@@ -876,9 +876,6 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("# %sCXXFLAGS        : additional C++ compile flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sFFLAGS          : additional Fortran compile flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sLDFLAGS         : additional link flag\n", shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("# NOREDIRECT        : By default, stdout and stderr are swapped\n");
-   buffer.AppendFormatted("#                     in order to show warning messages summary.\n");
-   buffer.AppendFormatted("#                     When NOREDIRECT is defined, swapping is disabled.\n");
 #endif // R__UNIX
    buffer.AppendFormatted("\n");
 }
@@ -2028,18 +2025,24 @@ void ROMEBuilder::WriteMakefile() {
 #else
    buffer.AppendFormatted("LOGFILE = .make_error.log\n");
    buffer.AppendFormatted("all:\n");
-   buffer.AppendFormatted("ifdef NOREDIRECT\n");
-   buffer.AppendFormatted("\t@$(MAKE) startecho pch obj %s%s.exe endecho\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("else\n");
-   buffer.AppendFormatted("\t@($(MAKE) startecho pch obj %s%s.exe endecho \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("\t|| ($(RM) $(LOGFILE); exit 1;)) \\\n");
-   buffer.AppendFormatted("\t3>&2 2>&1 1>&3 | tee $(LOGFILE)\n");
+   buffer.AppendFormatted("\t@$(MAKE) -s startecho\n");
+   buffer.AppendFormatted("\t@$(MAKE) -s pch\n");
+   buffer.AppendFormatted("\t@$(MAKE) -s obj\n");
+   buffer.AppendFormatted("\t-@$(ROMESYS)/bin/check_redirection; \\\n");
+   buffer.AppendFormatted("\tif [ `cat .check_redirection` = 1 ]; then \\\n");
+   buffer.AppendFormatted("\t  $(MAKE) %s%s.exe; \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\telse \\\n");
+   buffer.AppendFormatted("\t  ($(MAKE) %s%s.exe \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t  || ($(RM) $(LOGFILE); exit 1;)) \\\n");
+   buffer.AppendFormatted("\t  3>&2 2>&1 1>&3 | tee $(LOGFILE); \\\n");
+   buffer.AppendFormatted("\tfi\n");
    buffer.AppendFormatted("\t@if [ -s $(LOGFILE) ]; then \\\n");
-   buffer.AppendFormatted("\t   echo \"=== WARNINGS SUMMARY ===\"; \\\n");
-   buffer.AppendFormatted("\t   cat $(LOGFILE); \\\n");
+   buffer.AppendFormatted("\t  echo \"=== WARNINGS SUMMARY ===\"; \\\n");
+   buffer.AppendFormatted("\t  cat $(LOGFILE); \\\n");
    buffer.AppendFormatted("\tfi\n");
    buffer.AppendFormatted("\t@$(RM) $(LOGFILE)\n");
-   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("\t@$(RM) .check_redirection\n");
+   buffer.AppendFormatted("\t@$(MAKE) -s endecho\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
