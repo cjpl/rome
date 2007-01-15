@@ -2023,28 +2023,33 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
-   buffer.AppendFormatted("LOGFILE = .make_error.log\n");
    buffer.AppendFormatted("all:\n");
    buffer.AppendFormatted("\t@$(MAKE) -s startecho\n");
    buffer.AppendFormatted("\t@$(MAKE) -s pch\n");
    buffer.AppendFormatted("\t@$(MAKE) -s obj\n");
-   buffer.AppendFormatted("\t-@$(ROMESYS)/bin/check_redirection; \\\n");
-   buffer.AppendFormatted("\tif [ `cat .check_redirection` = 1 ]; then \\\n");
-   buffer.AppendFormatted("\t  $(MAKE) %s%s.exe; \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("\telse \\\n");
+   buffer.AppendFormatted("\t@$(ROMESYS)/bin/check_redirection\n");
+   buffer.AppendFormatted("\t@echo 0 > .build_success\n");
+   buffer.AppendFormatted("\t@if [ `cat .check_redirection` = 0 ]; then \\\n");
    buffer.AppendFormatted("\t  ($(MAKE) %s%s.exe \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("\t  || ($(RM) $(LOGFILE); exit 1;)) \\\n");
-   buffer.AppendFormatted("\t  3>&2 2>&1 1>&3 | tee $(LOGFILE); \\\n");
+   buffer.AppendFormatted("\t  || (echo $$? > .build_success; $(RM) .make_error.log)) \\\n");
+   buffer.AppendFormatted("\t  3>&2 2>&1 1>&3 | tee .make_error.log; \\\n");
+   buffer.AppendFormatted("\telse \\\n");
+   buffer.AppendFormatted("\t  $(MAKE) %s%s.exe || echo $$? > .build_success; \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\tfi\n");
-   buffer.AppendFormatted("\t@if [ -s $(LOGFILE) ]; then \\\n");
+   buffer.AppendFormatted("\t@if [ -s .make_error.log ]; then \\\n");
    buffer.AppendFormatted("\t  echo \"\"; \\\n");
    buffer.AppendFormatted("\t  echo \"=== WARNINGS SUMMARY ===\"; \\\n");
-   buffer.AppendFormatted("\t  cat $(LOGFILE); \\\n");
+   buffer.AppendFormatted("\t  cat .make_error.log; \\\n");
    buffer.AppendFormatted("\t  echo \"\"; \\\n");
    buffer.AppendFormatted("\tfi\n");
-   buffer.AppendFormatted("\t@$(RM) $(LOGFILE)\n");
-   buffer.AppendFormatted("\t@$(RM) .check_redirection\n");
-   buffer.AppendFormatted("\t@$(MAKE) -s endecho\n");
+   buffer.AppendFormatted("\t@export BUILD_SUCCESS=`cat .build_success`; \\\n");
+   buffer.AppendFormatted("\tif [ $$BUILD_SUCCESS = 0 ]; then \\\n");
+   buffer.AppendFormatted("\t  $(MAKE) -s endecho; \\\n");
+   buffer.AppendFormatted("\telse\\\n");
+   buffer.AppendFormatted("\t  $(RM) .make_error.log .check_redirection .build_success; \\\n");
+   buffer.AppendFormatted("\t  exit $$BUILD_SUCCESS; \\\n");
+   buffer.AppendFormatted("\tfi\n");
+   buffer.AppendFormatted("\t@$(RM) .make_error.log .check_redirection .build_success\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
