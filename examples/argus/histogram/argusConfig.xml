@@ -85,8 +85,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Active>false</Active>
         <Reconnect>true</Reconnect>
         <Root>0</Root>
-        <Host>0</Host>
-        <Port>9090</Port>
+        <Host>9090</Host>
+        <Port>0</Port>
       </NetFolder>
 
       <Tabs>

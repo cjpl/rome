@@ -209,7 +209,7 @@ check : $(ROMEProjects) $(ARGUSProjects)
 
 	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q
 
-	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b & \
+	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b && \
 	./runhanalyzer.exe -i readConfig.xml -q
 
 	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q
