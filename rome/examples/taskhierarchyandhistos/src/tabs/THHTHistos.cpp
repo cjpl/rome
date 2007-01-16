@@ -49,6 +49,14 @@
 
 
 ClassImp(THHTHistos)
+void THHTHistos::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
+{
+   BaseSetupPads(nx,ny,redraw);
+}
+void THHTHistos::Display(bool processEvents)
+{
+   BaseDisplay(processEvents);
+}
 
 void THHTHistos::Init()
 {
