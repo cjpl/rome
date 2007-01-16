@@ -2023,6 +2023,11 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
+#   if 1
+   buffer.AppendFormatted("all:startecho pch obj %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t@$(MAKE) -s endecho\n");
+#   else
+   // This code shows warning summary at the end of 'make'. But a problem is parallel compile does not work.
    buffer.AppendFormatted("all:\n");
    buffer.AppendFormatted("\t@$(MAKE) -s startecho\n");
    buffer.AppendFormatted("\t@$(MAKE) -s pch\n");
@@ -2049,6 +2054,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t  exit $$BUILD_SUCCESS; \\\n");
    buffer.AppendFormatted("\tfi\n");
    buffer.AppendFormatted("\t@$(RM) .make_error.log .build_success\n");
+#   endif
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
