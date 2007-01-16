@@ -1198,7 +1198,7 @@ void XMLToFormWindow::DeleteFrame(XMLToFormFrame *frame)
    }
    if (frame->GetNumberOfElements()>0) {
       delete [] frame->fHHFrames;
-      delete frame->fHHFrameIndex;
+      delete [] frame->fHHFrameIndex;
       delete [] frame->fVFrames;
       delete frame->fHFrame;
    }
