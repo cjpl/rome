@@ -14,6 +14,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
+#include <TError.h>
 #include <TGButton.h>
 #include <TGTab.h>
 #include <TGLayout.h>
@@ -688,7 +689,15 @@ XMLToFormWindow::~XMLToFormWindow()
 void XMLToFormWindow::PlaceWindow(const TGWindow * main)
 {
    MapSubwindows();
+
+   // work around to disable warning from TString::AssertElement
+   Int_t ignoreLevelOrg = gErrorIgnoreLevel;
+   gErrorIgnoreLevel = kBreak;
+
    Resize(fMaximalWindowWidth,GetDefaultSize().fHeight);
+
+   // work around to disable warning from TString::AssertElement
+   gErrorIgnoreLevel = ignoreLevelOrg;
 
    // position relative to the parent's window
    Int_t ax, ay;
