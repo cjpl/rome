@@ -87,17 +87,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("#include \"Windows4Root.h\"\n");
 #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"ROME.h\"\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (!folderUsed[i])
-            continue;
-         if (folderDataBase[i] && numOfValue[i] > 0 && !folderSupport[i]) {
-            if (folderUserCode[i])
-               buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
-            else
-               buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
-         }
-      }
-
       buffer.AppendFormatted("#include \"generated/%s.h\"\n",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
       buffer.AppendFormatted("\n");
