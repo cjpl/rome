@@ -101,7 +101,6 @@ Bool_t ROMEMidasDAQ::Init() {
       for (i=0;i<nRequest;i++) {
          if (this->GetEventRequestRate(i)==1)
             fRequestAll = true;
-	    cout << this->GetEventRequestRate(i) << endl;
          bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
             this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
       }
@@ -514,7 +513,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
             return fCurrentPosition;
          }
          // check input
-         if (readError || pevent->event_id < 0) {
+         if (readError) {
             if (readError && n > 0) ROMEPrint::Warning("Unexpected end of file\n");
             fMaxDataEvent = fCurrentPosition - 2;
 #if defined(R__UNIX)

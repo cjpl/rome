@@ -970,8 +970,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
          minRebuild = true;
-         outDir = "C:/jan/romedoesno/dance-rome_MacBookPro/";
-         xmlFile = "C:/jan/romedoesno/dance-rome_MacBookPro/dance.xml";
+         outDir = "C:/Data/Testprojects/jan/rometest2/MultiEventTest/";
+         xmlFile = "C:/Data/Testprojects/jan/rometest2/MultiEventTest/MultiEventTest.xml";
       }
       else if (!strcmp(argv[i],"-gsptest")) {
          noLink = true;
