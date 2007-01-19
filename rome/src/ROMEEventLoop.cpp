@@ -324,6 +324,7 @@ Int_t ROMEEventLoop::RunEvent()
    ROMEString text;
 
    // Run one Event.
+   gROME->SetSkipEvent(false);
    fCurrentEvent++;
    ROMEPrint::Debug("ROMEEventLoop::RunEvent()");
 
@@ -732,6 +733,7 @@ Bool_t ROMEEventLoop::DAQEvent()
 
    if (gROME->IsDontReadNextEvent()) {
       gROME->SetDontReadNextEvent(false);
+      fCurrentEvent--;
       return true;
    }
 
