@@ -118,6 +118,7 @@ protected:
    Bool_t         fNoGraphics;                   //! No graphics flag
 
    Bool_t         fDontReadNextEvent;            //! Don't read the next event from file/buffer
+   Bool_t         fSkipEvent;                    //! Prevents the analyzer from analyzing the subsequent tasks of an event
 
    // Directories
    ROMEString     fInputDir;                     //! General Input Directory
@@ -347,6 +348,10 @@ public:
    // Event Read Flag
    Bool_t          IsDontReadNextEvent() { return fDontReadNextEvent; }
    void            SetDontReadNextEvent(Bool_t flag = true) { fDontReadNextEvent = flag; }
+
+   // Skip Event
+   Bool_t          IsSkipEvent() { return fSkipEvent; }
+   void            SetSkipEvent(Bool_t skip = true) { fSkipEvent = skip; }
 
    // Tree IO
    Bool_t          isTreeAccumulation()  { return fTreeAccumulation;  }

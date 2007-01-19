@@ -52,7 +52,7 @@ void ROMETask::Exec(Option_t *option)
    // EndOfRun
    // Terminate
    char *cstop;
-   if (gROME->isTerminationFlag())
+   if (gROME->isTerminationFlag() || gROME->IsSkipEvent())
       return;
    fWatchAll.Start(false);
    if (!strncmp(option,"Init",4)) {

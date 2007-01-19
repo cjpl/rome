@@ -106,6 +106,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fGraphicalConfigEdit = true;
    fPreserveConfig = false;
    fDontReadNextEvent = false;
+   fSkipEvent = false;
    fInputDir = "./";
    fOutputDir = "./";
    fDataBaseDir = 0;
