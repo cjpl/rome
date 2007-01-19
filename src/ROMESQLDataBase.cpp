@@ -192,7 +192,7 @@ Bool_t ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const c
    return true;
 }
 
-Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t eventNumber) {
+Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t eventNumber) {
    ROMEString sqlQuery;
    ROMEString sqlResult;
    ROMEString temp;
