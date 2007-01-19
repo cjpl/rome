@@ -49,8 +49,12 @@ Bool_t ROMESQLite3::DisConnect()
 
 Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
 {
-   if (strlen(query) < 2048)
+   if (strlen(query) < 2048) {
       ROMEPrint::Debug("\nROMESQLite3::MakeQuery : %s\n", query);
+   } else {
+      ROMEPrint::Debug("\nROMESQLite3::MakeQuery : Printing sql query is suppressed,"
+                       " because query is longer than 2048.\n");
+   }
    if(store){
       sqlite3_prepare(db, query, -1, &stmt, NULL);
       if(GetErrorCode() != SQLITE_OK){
