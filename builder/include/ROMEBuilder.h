@@ -55,10 +55,16 @@ const char* const cloSeparator = ":";
 const char* const kEqualSign = "=";
 const char* const kFlagSign = "/";
 const char* const kObjectSuffix = ".obj";
+const char* const kSharedObjectSuffix = ".dll";
 #else
 const char* const kEqualSign =":=";
 const char* const kFlagSign = "-";
 const char* const kObjectSuffix = ".o";
+#if defined( R__MACOSX )
+const char* const kSharedObjectSuffix = ".dylib";
+#else
+const char* const kSharedObjectSuffix = ".so";
+#endif
 #endif
 const char* const kHeaderEndMark = "/////////////////////////////////////----///////////////////////////////////////";
 
