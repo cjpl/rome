@@ -1221,7 +1221,7 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
          if (!sharedLink || fileName == "main")
             buffer.AppendFormatted("%sobj/%s%s",separator.Data(),fileName.Data(),kObjectSuffix);
          else
-            buffer.AppendFormatted("%s$(PWDST)/obj/%s.so",separator.Data(),fileName.Data());
+            buffer.AppendFormatted("%s$(PWDST)/obj/%s%s",separator.Data(),fileName.Data(),kSharedObjectSuffix);
 #if defined( R__UNIX )
          separator = " \\\n           ";
 #endif // R__UNIX
@@ -1248,14 +1248,14 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
       if (!sharedLink)
          buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
       else
-         buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict.so $(objects)\n",shortCut.Data());
+         buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict%s $(objects)\n",shortCut.Data(),kSharedObjectSuffix);
       buffer.AppendFormatted("endif\n");
    }
    else{
       if (!sharedLink)
          buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
       else
-         buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict.so $(objects)\n",shortCut.Data());
+         buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict%s $(objects)\n",shortCut.Data(),kSharedObjectSuffix);
    }
 #else
    buffer.AppendFormatted("objects = $(objects) obj/%sUserDict%s\n",shortCut.Data(),kObjectSuffix);
@@ -1600,10 +1600,10 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
 
          if (sharedLink) {
-            buffer.AppendFormatted("$(PWDST)/obj/%s.so : obj/%s%s\n"
-                                   ,name.Data(),name.Data(),kObjectSuffix);
+            buffer.AppendFormatted("$(PWDST)/obj/%s%s : obj/%s%s\n"
+                                   ,name.Data(),kSharedObjectSuffix,name.Data(),kObjectSuffix);
             if (quietMake)
-               buffer.AppendFormatted("\t@echo \"making    obj/%s.so\"\n",name.Data());
+               buffer.AppendFormatted("\t@echo \"making    obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
             buffer.AppendFormatted("\t%s %s $(SOFLAGS) -o $@ $<\n"
                                    ,linker.Data(),linkOption.Data());
          }
@@ -1697,7 +1697,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
       if (sharedLink)
-         buffer.AppendFormatted(" \\\n           $(PWDST)/obj/%s.so",name.Data());
+         buffer.AppendFormatted(" \\\n           $(PWDST)/obj/%s%s",name.Data(),kSharedObjectSuffix);
       else
          buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
 #else
@@ -1736,7 +1736,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
       if (!sharedLink)
          buffer.AppendFormatted("objects += obj/%s%s\n",name.Data(),kObjectSuffix);
       else
-         buffer.AppendFormatted("objects += $(PWDST)/obj/%s.so\n",name.Data());
+         buffer.AppendFormatted("objects += $(PWDST)/obj/%s%s\n",name.Data(),kSharedObjectSuffix);
 #else
       buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
 #endif // R__UNIX
@@ -2235,7 +2235,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) obj/*.d $(PCHHEADERS)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*%s obj/*.so G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
+   buffer.AppendFormatted("\t-$(RM) obj/*%s obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix,kSharedObjectSuffix);
    if (pch)
       buffer.AppendFormatted(" include/generated/*.gch");
    buffer.AppendFormatted("\n");
@@ -2244,7 +2244,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) -R src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s.so obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s%s obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,kSharedObjectSuffix,shortCut.Data(),shortCut.Data());
 
 // .d files need to be place at the last
 #if defined( R__VISUAL_CPLUSPLUS )
