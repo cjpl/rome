@@ -90,6 +90,7 @@ protected:
    Bool_t        sqlite3;
    Bool_t        noVP;
    Bool_t        librome;
+   Bool_t        sharedLink;
    Bool_t        pch;
    Bool_t        minRebuild;
    Bool_t        quietMake;
