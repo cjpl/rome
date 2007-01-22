@@ -805,6 +805,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #else
    librome = false;
 #endif
+   sharedLink = false;
 
    char workDir[kMAXPATHLEN];
    strcpy(workDir,gSystem->WorkingDirectory());
@@ -989,6 +990,9 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-nl")) {
          noLink = true;
       }
+      else if (!strcmp(argv[i],"-sl")) {
+         sharedLink = true;
+      }
       else if (!strcmp(argv[i],"-nosql")) {
          cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
       }
@@ -1115,6 +1119,7 @@ void ROMEBuilder::Usage()
    cout << "  -o        Outputfile path" << endl;
    cout << "  -v        Verbose Mode (no Argument)" << endl;
    cout << "  -nl       No Linking (no Argument)" << endl;
+   cout << "  -sl       Link shared objects, only on Un*x (no Argument)" << endl;
    cout << "  -pch      Use precompiled header (no Argument)" << endl;
 #if defined( R__VISUAL_CPLUSPLUS )
    cout << "  -minrb    Enables minimal rebuild, only on windows (no Argument)" << endl;
