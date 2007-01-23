@@ -869,6 +869,18 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
       }
+      else if (!strcmp(argv[i],"-dchhv")) {
+         makeOutput = false;
+         midas = true;
+         noLink = true;
+         minRebuild = true;
+         sql = false;
+         mysql = true;
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("dch",0);
+         affiliations.AddAtAndExpand("xechv",1);
+      }
       else if (!strcmp(argv[i],"-drsdch")) {
          makeOutput = false;
          midas = true;
@@ -971,8 +983,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
          minRebuild = true;
-         outDir = "C:/Data/Testprojects/jan/rometest3/MultiEventTest/";
-         xmlFile = "C:/Data/Testprojects/jan/rometest3/MultiEventTest/MultiEventTest.xml";
+         outDir = "C:/Data/Testprojects/jan/rometest19/MultiEventTest/";
+         xmlFile = "C:/Data/Testprojects/jan/rometest19/MultiEventTest/MultiEventTest.xml";
       }
       else if (!strcmp(argv[i],"-gsptest")) {
          noLink = true;

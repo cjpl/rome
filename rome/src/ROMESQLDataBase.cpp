@@ -25,7 +25,6 @@
 #if defined ( HAVE_SQLITE3 )
 #   include "ROMESQLite3.h"
 #endif
-#include "ROMEiostream.h"
 #include "ROMEPath.h"
 #include "ROMESQLDataBase.h"
 
