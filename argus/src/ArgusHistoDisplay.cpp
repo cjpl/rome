@@ -36,6 +36,7 @@
 #include <TF1.h>
 #include <TLine.h>
 #include <TH1.h>
+#include <TArrayI.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <Windows4Root.h>
 #   include <direct.h>
@@ -226,6 +227,7 @@ const char* ArgusHistoDisplay::GetDrawOptionAt(Int_t displayTypeIndex)
 
 void ArgusHistoDisplay::BaseInit()
 {
+   int i;
    ROMEString str;
 
    /* Create an embedded canvas and add to the main frame, centered in x and y */
@@ -239,6 +241,9 @@ void ArgusHistoDisplay::BaseInit()
    SetSize(GetDefaultSize());
    fChannelNumber = 0;
    fDisplayTypeOld = -1;
+   fDisplayObjLoaded = new TArrayI(fNumberOfDisplayTypes);
+   for (i=0;i<fNumberOfDisplayTypes;i++)
+      fDisplayObjLoaded->AddAt(0,i);
    MapSubwindows();
    MapWindow();
    SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
@@ -459,8 +464,11 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 //            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
          else
             ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
-         for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++)
+         for (k=0;k<TMath::Min(((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->GetEntriesFast(),fNumberOfUserLines);k++) {
+            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetLineColor(2);
+            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetLineStyle(2);
             ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k)->Draw();
+         }
          SetStatisticBox(true);
       }
    }

@@ -3157,6 +3157,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("#include <TProfile2D.h>\n");
          buffer.AppendFormatted("#include <TStyle.h>\n");
          buffer.AppendFormatted("#include <TLine.h>\n");
+         buffer.AppendFormatted("#include <TArrayI.h>\n");
          if (readGlobalSteeringParameters)
             buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       }
@@ -3429,8 +3430,19 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
 
       // BaseTabEventHandler
       buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler() {\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   if (!RequestNewEvent(fWindow->GetCurrentRun(),fWindow->GetCurrentEvent()))\n");
-      buffer.AppendFormatted("      return;\n");
+      if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   int ii;\n");
+         buffer.AppendFormatted("   if (RequestNewEvent(fWindow->GetCurrentRun(),fWindow->GetCurrentEvent())) {\n");
+         buffer.AppendFormatted("      for (ii=0;ii<fNumberOfDisplayTypes;ii++)\n");
+         buffer.AppendFormatted("         fDisplayObjLoaded->AddAt(0,ii);\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (fDisplayObjLoaded->At(fDisplayObjIndex))\n");
+         buffer.AppendFormatted("      return;\n");
+      }
+      else {
+         buffer.AppendFormatted("   if (!RequestNewEvent(fWindow->GetCurrentRun(),fWindow->GetCurrentEvent()))\n");
+         buffer.AppendFormatted("      return;\n");
+      }
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fStyle->cd();\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
@@ -3573,7 +3585,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("         }\n");
          }
          buffer.AppendFormatted("         ((TNamed*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->SetTitle(((TNamed*)((TObjArray*)fUserObjects->At(fCurrentDisplayType))->At(chn))->GetTitle());\n");
-         buffer.AppendFormatted("         for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++) {\n");
+         buffer.AppendFormatted("         for (k=0;k<TMath::Min(((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->GetEntriesFast(),fNumberOfUserLines);k++) {\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetX1(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetX1());\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetY1(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetY1());\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetX2(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetX2());\n");

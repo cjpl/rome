@@ -10,6 +10,7 @@
 #include "ROMEDataBase.h"
 #include "ROMEString.h"
 #include "ROMESQL.h"
+#include "ROMEiostream.h"
 
 class ROMEPath;
 class ROMEStr2DArray;

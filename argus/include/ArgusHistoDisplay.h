@@ -31,6 +31,7 @@ class TLine;
 class TH1;
 class XMLToForm;
 class TStyle;
+class TArrayI;
 
 class ArgusHistoDisplay : public ArgusTab
 {
@@ -40,7 +41,7 @@ protected:
       kMaxNumberOfPadsX = 6,
       kMaxNumberOfPadsY = 20,
       kNumberOfDisplayViewSelections = 1000,
-      kMaxNumberOfLines = 5
+      kMaxNumberOfLines = 10
    };
    enum MenuEnumeration {
       M_ROOT = 900,
@@ -66,7 +67,8 @@ protected:
    Int_t                fCurrentDisplayType;//! 
    Int_t                fNumberOfDisplayTypes;//! 
    Int_t                fDisplayTypeOld;  //! 
-   Int_t                fDisplayObjIndex; //! 
+   Int_t                fDisplayObjIndex; //!
+   TArrayI             *fDisplayObjLoaded;//!
    Bool_t               fInherited;       //! 
    ROMEString           fInheritanceName; //! 
    Bool_t               fTabActive;       //! 
@@ -105,6 +107,7 @@ public:
    TH1* GetUserHistoAt(Int_t index,const char* type);
    TObject* GetCurrentObjectAt(Int_t index);
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
+   Int_t GetNumberOfUserLines() { return fNumberOfUserLines; };
    TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
    void SetDrawOptionAt(Int_t displayTypeIndex,const char* option);
    const char* GetDrawOptionAt(Int_t displayTypeIndex);
