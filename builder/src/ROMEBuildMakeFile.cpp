@@ -1070,7 +1070,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 #   endif
    buffer.AppendFormatted(" -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs    := -lutil\n");
-   buffer.AppendFormatted("ossoflags := -shared -Wl\n");
+   buffer.AppendFormatted("ossoflags := -shared\n");
 #elif defined( R__SOLARIS )
    buffer.AppendFormatted("oscflags  :=\n");
    buffer.AppendFormatted("oslibs    := -lsocket -lnsl\n");
@@ -1592,20 +1592,21 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
-         buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
-                                ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
-         if (quietMake)
-            buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $< -o $@\n"
-                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
-
-         if (sharedLink) {
-            buffer.AppendFormatted("$(PWDST)/obj/%s%s : obj/%s%s\n"
-                                   ,name.Data(),kSharedObjectSuffix,name.Data(),kObjectSuffix);
+         if (sharedLink && name != "main") {
+            buffer.AppendFormatted("$(PWDST)/obj/%s%s : %s $(%sDep)\n"
+                                   ,name.Data(),kSharedObjectSuffix,sources->At(i).Data(),name.Data());
             if (quietMake)
-               buffer.AppendFormatted("\t@echo \"making    obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
-            buffer.AppendFormatted("\t%s %s $(SOFLAGS) -o $@ $<\n"
-                                   ,linker.Data(),linkOption.Data());
+               buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
+            buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $(SOFLAGS) $< -o $@\n"
+                                   ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
+         } else {
+            buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
+                                   ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
+            if (quietMake)
+               buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
+            buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $< -o $@\n"
+                                   ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
+
          }
       }
       buffer.AppendFormatted("\n");
@@ -2244,7 +2245,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) -R src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s%s obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,kSharedObjectSuffix,shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s*%s obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,shortCut.Data(),kSharedObjectSuffix,shortCut.Data());
 
 // .d files need to be place at the last
 #if defined( R__VISUAL_CPLUSPLUS )
