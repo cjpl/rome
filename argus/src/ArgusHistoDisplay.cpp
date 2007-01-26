@@ -465,8 +465,6 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          else
             ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
          for (k=0;k<TMath::Min(((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->GetEntriesFast(),fNumberOfUserLines);k++) {
-            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetLineColor(2);
-            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetLineStyle(2);
             ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k)->Draw();
          }
          SetStatisticBox(true);
