@@ -2038,7 +2038,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedSupportFolderDictionary.d\n",shortCut.Data());
    if (hasFolderUserCode)
       buffer.AppendFormatted("dependfiles += obj/%sFolderDictionary.d\n",shortCut.Data());
-   if (numOfTask) {
+   if (hasTaskGenerated) {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedTaskDictionary.d\n",shortCut.Data());
       buffer.AppendFormatted("dependfiles += obj/%sTaskDictionary.d\n",shortCut.Data());
    }

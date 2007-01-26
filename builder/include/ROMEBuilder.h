@@ -172,6 +172,7 @@ protected:
    Bool_t        hasFolderUserCode;
    Bool_t        hasFolderGenerated;
    Bool_t        hasSupportFolderGenerated;
+   Bool_t        hasTaskGenerated;
 
    ROMEString  **valueName;
    ROMEString  **valueType;
