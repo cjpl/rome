@@ -34,7 +34,6 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
 {
 #if defined ( HAVE_MIDAS )
    if (gROME->isOnline()) {
-#if defined( HAVE_MIDAS )
       int i,iv;
       HNDLE hKey;
       char name[500];
@@ -43,7 +42,6 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
       int buffersize = sizeof(buffer);
       char value[500];
       ROMEString odbPath;
-      bool array = false;
 
       ROMEPath *path = new ROMEPath();
       // decode path
@@ -79,19 +77,19 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
          values->SetAt(value,iv,0);
          iv++;
       }
-#endif // HAVE_MIDAS
    }
 #endif // HAVE_MIDAS
    return true;
    WarningSuppression(values);
    WarningSuppression(dataBasePath);
+   WarningSuppression(runNumber);
+   WarningSuppression(eventNumber);
 }
 
 Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
 #if defined ( HAVE_MIDAS )
    if (gROME->isOnline()) {
-#if defined( HAVE_MIDAS )
       int i,iv;
       HNDLE hKey;
       char name[500];
@@ -99,7 +97,6 @@ Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBase
       char buffer[5000];
       int buffersize = sizeof(buffer);
       ROMEString odbPath;
-      bool array = false;
 
       ROMEPath *path = new ROMEPath();
       // decode path
@@ -134,10 +131,11 @@ Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBase
          }
          iv++;
       }
-#endif // HAVE_MIDAS
    }
 #endif // HAVE_MIDAS
    return true;
    WarningSuppression(values);
    WarningSuppression(dataBasePath);
+   WarningSuppression(runNumber);
+   WarningSuppression(eventNumber);
 }
