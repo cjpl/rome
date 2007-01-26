@@ -53,7 +53,6 @@ ARGUSProjects = argus/file/flmonitor.exe \
                 argus/processMessage/pmmonitor.exe \
                 argus/menu/tmmonitor.exe \
                 argus/thread/ttmonitor.exe \
-                argus/statusBar/sbmonitor.exe \
                 argus/tabs/tbmonitor.exe \
                 argus/helloWorld/hwmonitor.exe \
                 argus/histogram/romeproject/hgframework.exe \
@@ -152,10 +151,6 @@ argus/thread/ttmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/thread/thread.xml -o argus/thread -nl
 	make $(JOBSFLAG) -C argus/thread/
 
-argus/statusBar/sbmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/statusBar/statusBar.xml -o argus/statusBar -nl
-	make $(JOBSFLAG) -C argus/statusBar/
-
 argus/tabs/tbmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/tabs/tabs.xml -o argus/tabs -nl
 	make $(JOBSFLAG) -C argus/tabs/
@@ -232,16 +227,14 @@ check : $(ROMEProjects) $(ARGUSProjects)
 
 	cd argus/thread; ./ttmonitor.exe -i romeConfig.xml -q
 
-	cd argus/statusBar; ./sbmonitor.exe -i argusConfig.xml -q
-
 	cd argus/tabs;	./tbmonitor.exe -i romeConfig.xml -q
 
 	cd argus/helloWorld; ./hwmonitor.exe -i romeConfig.xml -q
 
-	cd argus/histogram/romeproject; ./hgframework.exe -i romeConfig.xml -q & \
+	cd argus/histogram/romeproject; ./hgframework.exe -i romeConfig.xml -q && \
 	cd ..; ./hgmonitor.exe -i argusConfig.xml  -q
 
-	cd argus/folders/romeproject; ./foframework.exe -i romeConfig.xml -q -r 1 & \
+	cd argus/folders/romeproject; ./foframework.exe -i romeConfig.xml -q -r 1 && \
 	cd ..; ./fomonitor.exe -i argusConfig.xml -q
 
 clean :
