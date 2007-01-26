@@ -1133,7 +1133,6 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
    return kTRUE;
 }
 
-
 Bool_t ROMEAnalyzer::ConnectSocketClient()
 {
    if (fSocketClient!=0) {
@@ -1391,6 +1390,7 @@ THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
    localThis->GetNetFolderServer()->SetEventStorageAvailable(true);
    return THREADRETURN;
 }
+
 void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination)
 {
    buffer->Reset();
@@ -1418,6 +1418,7 @@ Long64_t ROMEAnalyzer::GetCurrentEventNumber()
    gROME->GetRunEventNumberMutex()->UnLock();
    return tempNumber;
 }
+
 Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 {
    Long64_t tempNumber;
@@ -1429,13 +1430,15 @@ Long64_t ROMEAnalyzer::GetCurrentRunNumber()
    gROME->GetRunEventNumberMutex()->UnLock();
    return tempNumber;
 }
-void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber) 
-{ 
+
+void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
+{
    gROME->GetRunEventNumberMutex()->Lock();
-   fCurrentEventNumber = eventNumber; 
+   fCurrentEventNumber = eventNumber;
    gROME->GetRunEventNumberMutex()->UnLock();
 }
-void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber) 
+
+void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
 {
    gROME->GetRunEventNumberMutex()->Lock();
    fCurrentRunNumber = runNumber;
@@ -1448,6 +1451,7 @@ void ROMEAnalyzer::UpdateObjectStorage()
    fObjectStorageUpdated = kFALSE;
    gROME->GetUpdateObjectStorageMutex()->UnLock();
 }
+
 Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
 {
    Bool_t ret;
@@ -1456,6 +1460,7 @@ Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
    gROME->GetUpdateObjectStorageMutex()->UnLock();
    return ret;
 }
+
 void ROMEAnalyzer::SetObjectStorageUpdated()
 {
    gROME->GetUpdateObjectStorageMutex()->Lock();

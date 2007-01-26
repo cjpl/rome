@@ -44,14 +44,14 @@ protected:
    TGTextBuffer          *fBLabel;       // text buffer
    TGLabel               *fLabel;        // label
    Char_t                *fRetStr;       //! return string
-   
+
 public:
    ArgusTextDialog(const TGWindow * p, const TGWindow * main, UInt_t w, UInt_t h,
                    Char_t *label, Char_t *ret_str, UInt_t options = kVerticalFrame);
-   virtual ~ArgusTextDialog();   
+   virtual ~ArgusTextDialog();
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
-   
+
    ClassDef(ArgusTextDialog, 0) // Panel to input text
 };
 #endif

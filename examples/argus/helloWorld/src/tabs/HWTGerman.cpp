@@ -53,10 +53,10 @@ ClassImp(HWTGerman)
 
 void HWTGerman::Init()
 {
-   // Create a vertical frame containing buttons and canvas 
+   // Create a vertical frame containing buttons and canvas
    fVert = new TGVerticalFrame(fParent, (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()));
 
-   // Create an embedded canvas and add to the main frame, centered in x and y 
+   // Create an embedded canvas and add to the main frame, centered in x and y
    fCanvas = new TRootEmbeddedCanvas("Hello World", fVert, (UInt_t) (600 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (600 * gAnalyzer->GetWindow()->GetWindowScale()));
 
    // Create a text

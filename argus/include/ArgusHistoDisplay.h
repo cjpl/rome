@@ -64,14 +64,14 @@ protected:
    TGPopupMenu         *fMenuView100[10]; //!
    TGPopupMenu         *fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
 
-   Int_t                fCurrentDisplayType;//! 
-   Int_t                fNumberOfDisplayTypes;//! 
-   Int_t                fDisplayTypeOld;  //! 
+   Int_t                fCurrentDisplayType;//!
+   Int_t                fNumberOfDisplayTypes;//!
+   Int_t                fDisplayTypeOld;  //!
    Int_t                fDisplayObjIndex; //!
    TArrayI             *fDisplayObjLoaded;//!
-   Bool_t               fInherited;       //! 
-   ROMEString           fInheritanceName; //! 
-   Bool_t               fTabActive;       //! 
+   Bool_t               fInherited;       //!
+   ROMEString           fInheritanceName; //!
+   Bool_t               fTabActive;       //!
 
    TObjArray           *fUserObjects;     //!
    TObjArray           *fObjects;         //!
@@ -82,21 +82,21 @@ protected:
    Int_t                fNumberOfUserLines;//!
    Int_t                fNumberOfLines;   //!
 
-   Int_t                fNumberOfPads;             //! 
-   Int_t                fNumberOfPadsX;            //! 
-   Int_t                fNumberOfPadsY;            //! 
+   Int_t                fNumberOfPads;             //!
+   Int_t                fNumberOfPadsX;            //!
+   Int_t                fNumberOfPadsY;            //!
 
    Bool_t               fStatisticBoxFlag; //!
 
-   TRootEmbeddedCanvas *fCanvas;                   //! 
-   TPad                *fPad[kMaxNumberOfPads];    //! 
+   TRootEmbeddedCanvas *fCanvas;                   //!
+   TPad                *fPad[kMaxNumberOfPads];    //!
 
-   XMLToForm           *fDialog; //! 
+   XMLToForm           *fDialog; //!
 
-   Int_t                fChannelNumber; //! 
+   Int_t                fChannelNumber; //!
 
-   Bool_t               fPadConfigActive;                    //! 
-   Int_t                fPadConfigChannel[kMaxNumberOfPads]; //! 
+   Bool_t               fPadConfigActive;                    //!
+   Int_t                fPadConfigChannel[kMaxNumberOfPads]; //!
 
 public:
    ArgusHistoDisplay(ArgusWindow* window);

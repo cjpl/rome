@@ -27,7 +27,7 @@
 
 ClassImp(ROMENetFolderServer)
 
-ROMENetFolderServer::ROMENetFolderServer() 
+ROMENetFolderServer::ROMENetFolderServer()
 {
    Int_t i;
    for (i = 0; i < kMaxSocketClients; i++) {

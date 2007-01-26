@@ -33,6 +33,7 @@
 #include "ROMEAnalyzer.h"
 
 ClassImp(ArgusWindow)
+
 ArgusWindow::ArgusWindow()
 {
    InitArgus(true);
@@ -180,6 +181,7 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
    Error("GetTabObject", "%s was not found.", tabName);
    return 0;
 }
+
 Int_t ArgusWindow::GetActiveTabObjectIndex()
 {
    for (int i=0;i<fTabObjects->GetEntries();i++) {
@@ -220,10 +222,10 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
    return string.Data();
 }
 
-void ArgusWindow::RequestEventHandling() 
+void ArgusWindow::RequestEventHandling()
 {
    SetStatus(0,"",0);
-   fRequestEventHandling = true; 
+   fRequestEventHandling = true;
 }
 
 void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime)
@@ -249,11 +251,12 @@ void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sl
    return;
 }
 
-Bool_t ArgusWindow::IsSubWindowRunningAt(Int_t i) 
-{ 
-   return fSubWindowRunning->At(i)!=0; 
+Bool_t ArgusWindow::IsSubWindowRunningAt(Int_t i)
+{
+   return fSubWindowRunning->At(i)!=0;
 }
-void ArgusWindow::SetSubWindowRunningAt(Int_t i,Bool_t running) 
+
+void ArgusWindow::SetSubWindowRunningAt(Int_t i,Bool_t running)
 {
    if (fSubWindowRunning->GetSize()<=i) {
       if (fSubWindowRunning->GetSize()*2>i)
@@ -261,14 +264,15 @@ void ArgusWindow::SetSubWindowRunningAt(Int_t i,Bool_t running)
       else
          fSubWindowRunning->Set(i+1);
    }
-   fSubWindowRunning->AddAt((Int_t)running,i); 
+   fSubWindowRunning->AddAt((Int_t)running,i);
 }
 
-const char* ArgusWindow::GetSubWindowTimeStringAt(Int_t i) 
-{ 
-   return fSubWindowTimeString->At(i).Data(); 
+const char* ArgusWindow::GetSubWindowTimeStringAt(Int_t i)
+{
+   return fSubWindowTimeString->At(i).Data();
 }
-void ArgusWindow::SetSubWindowTimeStringAt(Int_t i,const char* timeString) 
-{ 
-   fSubWindowTimeString->AddAt(timeString,i); 
+
+void ArgusWindow::SetSubWindowTimeStringAt(Int_t i,const char* timeString)
+{
+   fSubWindowTimeString->AddAt(timeString,i);
 }

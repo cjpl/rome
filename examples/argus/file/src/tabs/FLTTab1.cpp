@@ -52,17 +52,17 @@ void FLTTab1::Init()
 {
    fRunNumber = gAnalyzer->GetCurrentRunNumber();
 
-   // Create "run number" text entry 
+   // Create "run number" text entry
    fTextRun = new TGTextEntry(this, "     ");
    fTextRun->SetMaxLength(5);
    fTextRun->Associate(this);
 
-   // Create "event number" text entry 
+   // Create "event number" text entry
    fTextEvent = new TGTextEntry(this, "     ");
    fTextEvent->SetMaxLength(5);
    fTextEvent->Associate(this);
 
-   // Create "value number" text entry 
+   // Create "value number" text entry
    fTextValue = new TGTextEntry(this, "     ");
    fTextValue->SetMaxLength(5);
    fTextValue->Associate(this);
@@ -154,7 +154,7 @@ void FLTTab1::Update()
 
 bool FLTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
-   // Process messages coming from widgets associated with the dialog.  
+   // Process messages coming from widgets associated with the dialog.
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {

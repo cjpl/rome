@@ -8,7 +8,7 @@ void deleteComments(PMXML_NODE node);
 
 int main(int argc, char *argv[])
 {
-   char *inputFile;   
+   char *inputFile;
 
    if (argc!=3) {
       cout << "  -i      xml configuration file" << endl;
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
    int nChild;
    int i;
    bool rome,argus;
-   
+
    rootNode = mxml_parse_file(inputFile, error, sizeof(error));
    if (rootNode==NULL) {
       cout << "File not found!" << endl;

@@ -37,7 +37,7 @@ class TObjArray;
 class TGHProgressBar;
 class ROMECompositeFrame;
 
-class ArgusWindow : public TGMainFrame 
+class ArgusWindow : public TGMainFrame
 {
 protected:
    Int_t                    fWindowId;             //! Window id
@@ -50,7 +50,7 @@ protected:
    Bool_t                   fArgusActive;          //! active flag
    TGStatusBar             *fStatusBar;            //! status bar
    Bool_t                   fStatusBarSwitch;      //! status bar switch
-   TGHProgressBar          *fProgress;             //! 
+   TGHProgressBar          *fProgress;             //!
    ROMECompositeFrame      *fInfoFrame;            //! info frame
    TGMenuBar               *fMenuBar;              //! menu bar
    TGPopupMenu             *fMenuFile;             //! file menu
@@ -72,9 +72,9 @@ protected:
       M_FILE_CONTROLLER,
       M_FILE_EXIT
    };
-      
+
 public:
-   ArgusWindow(); 
+   ArgusWindow();
    ArgusWindow(const TGWindow* p,Bool_t tabWindow=kTRUE);
    virtual ~ArgusWindow();
 
@@ -121,7 +121,7 @@ public:
    // Menu
    TGMenuBar*      GetMenuBar() { return fMenuBar; }
    void            CloseWindow();
-   
+
    // Tabs
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
    ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); }

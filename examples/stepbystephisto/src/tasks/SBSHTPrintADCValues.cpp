@@ -65,7 +65,7 @@
 #include <include/tasks/SBSHTPrintADCValues.h>
 #include <TRandom.h>
 #include <Riostream.h>
-#include "TF1.h" 
+#include "TF1.h"
 
 Double_t lognormal(Double_t *x, Double_t *par) {
    Double_t x2 = x[0]-par[3];
@@ -81,7 +81,7 @@ Double_t lognormal(Double_t *x, Double_t *par) {
    Double_t temp2 = (x2-theta)*sigma*TMath::Sqrt(2*TMath::Pi());
 
    return temp1/temp2;
-} 
+}
 
 ClassImp(SBSHTPrintADCValues)
 
@@ -106,17 +106,17 @@ void SBSHTPrintADCValues::Event()
 
 void SBSHTPrintADCValues::EndOfRun()
 {
-   TF1 *fitFcn = new TF1("fitFcn",lognormal,0,1,4); 
+   TF1 *fitFcn = new TF1("fitFcn",lognormal,0,1,4);
 
-   fitFcn->SetParameters(0.001, 0, 1, 0); 
-   fitFcn->SetParName(0, "sigma"); 
-   fitFcn->SetParName(1, "theta"); 
-   fitFcn->SetParName(2, "m"); 
-   fitFcn->SetParName(3, "x_offset"); 
+   fitFcn->SetParameters(0.001, 0, 1, 0);
+   fitFcn->SetParName(0, "sigma");
+   fitFcn->SetParName(1, "theta");
+   fitFcn->SetParName(2, "m");
+   fitFcn->SetParName(3, "x_offset");
 
-   GetADC()->Fit(fitFcn,"r"); 
-   Double_t par[4]; 
-   fitFcn->GetParameters(par); 
+   GetADC()->Fit(fitFcn,"r");
+   Double_t par[4];
+   fitFcn->GetParameters(par);
 
 }
 

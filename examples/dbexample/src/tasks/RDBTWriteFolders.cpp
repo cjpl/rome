@@ -84,7 +84,7 @@ void RDBTWriteFolders::EndOfRun()
    Long64_t eventNumber = gAnalyzer->GetCurrentEventNumber(); // event number is an arguments of ROMEDataBase::Write
 
    Int_t idForWriting = static_cast<Int_t>(runNumber + 1000); // id number to be written in database. This is just an example, you can use whatever you like.
-   
+
    //
    // Write single value
    //
