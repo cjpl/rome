@@ -22,8 +22,11 @@ public:
    TGraphMT(const TH1 *h):TGraph(h){}
    TGraphMT(const TF1 *f, Option_t *option=""):TGraph(f,option){}
    TGraphMT(const char *filename, const char *format="%lg %lg", Option_t *option=""):TGraph(filename,format,option){}
+   TGraphMT& operator=(const TGraphMT&);
 
-   void SetPoint(Int_t i, Double_t x, Double_t y);
+   void  SetPoint(Int_t i, Double_t x, Double_t y);
+   TH1F* GetHistogramHandle() { return fHistogram; }
+   void  DeleteHistogram() { SafeDelete(fHistogram); }
 
    ClassDef(TGraphMT, 0) // TGraph class for multi-threaded programs
 };
