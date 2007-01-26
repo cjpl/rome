@@ -3063,8 +3063,14 @@ Bool_t ROMEBuilder::WriteTabCpp()
       buffer.AppendFormatted("\n");
 
       if (tabObjectDisplay[iTab]) {
-         buffer.AppendFormatted("void %sT%s::Display()\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("void %sT%s::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)\n", shortCut.Data(), tabName[iTab].Data());
          buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   BaseSetupPads(nx, ny, redraw);\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("void %sT%s::Display(bool processEvents)\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   BaseDisplay(processEvents);\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
@@ -3902,8 +3908,10 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("   void TabSelected();\n");
       buffer.AppendFormatted("   void TabUnSelected();\n");
       buffer.AppendFormatted("   void EventHandler();\n");
-      if (tabObjectDisplay[iTab])
-         buffer.AppendFormatted("   void Display();\n");
+      if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);\n");
+         buffer.AppendFormatted("   void Display(bool processEvents=true);\n");
+      }
 
       // Thread
       for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
