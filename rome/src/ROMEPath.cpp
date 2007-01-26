@@ -293,8 +293,11 @@ return false;
             return false;
          }
          SetFieldIndexAt(i,value);
-         if (*cstop==')')
+         if (*cstop==')') {
+            if (GetFieldIndexAt(1)==-1)
+               SetFieldIndexAt(1,GetFieldIndexAt(0)+1);
             return true;
+         }
          path = path((int)(cstop+1-path.Data()),path.Length());
       }
    }
