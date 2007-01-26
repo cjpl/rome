@@ -503,6 +503,14 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
       if (strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT")) {
          SetStatisticBox(true);
       }
+      if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT")) {
+         // this allows changing X range
+         fPad[i]->cd();
+         TGraphMT *pgraph = ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i));
+         pgraph->DeleteHistogram();
+         pgraph->Draw("A");
+         SetLimits(pgraph);
+      }
       fPad[i]->Modified();
    }
 
@@ -515,29 +523,36 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
       gSystem->Sleep(10);
    }
 }
+
 void ArgusHistoDisplay::SetLimits(TGraphMT *g)
 {
-   if (g->GetN()<=1)
+   Int_t n = g->GetN();
+   if (n<=1)
       return;
    int i;
-   double xmin,xmax,ymin,ymax,x,y;
-   g->GetPoint(0,xmin,ymin);
-   g->GetPoint(0,xmax,ymax);
-   for (i=1;i<g->GetN();i++) {
-      g->GetPoint(i,x,y);
-      if (xmin>x)
-         xmin = x;
-      if (xmax<x)
-         xmax = x;
-      if (ymin>y)
-         ymin = y;
-      if (ymax<y)
-         ymax = y;
+   double xmin,xmax,ymin,ymax;
+   double *x = new double[n];
+   double *y = new double[n];
+   x = g->GetX();
+   y = g->GetY();
+   xmin = xmax = x[0];
+   ymin = ymax = y[0];
+   for (i=1;i<n;i++) {
+      if (xmin>x[i])
+         xmin = x[i];
+      if (xmax<x[i])
+         xmax = x[i];
+      if (ymin>y[i])
+         ymin = y[i];
+      if (ymax<y[i])
+         ymax = y[i];
    }
    if (xmin<xmax && ymin<ymax) {
       g->SetMinimum(ymin-(ymax-ymin)/10.);
       g->SetMaximum(ymax+(ymax-ymin)/10.);
-      g->GetXaxis()->SetLimits(xmin,xmax);
+      TAxis *axis = g->GetXaxis();
+      if(axis)
+         axis->SetLimits(xmin,xmax);
    }
 }
 

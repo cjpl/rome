@@ -33,3 +33,37 @@ void TGraphMT::SetPoint(Int_t i, Double_t x, Double_t y)
    fY[i] = y;
 }
 
+//______________________________________________________________________________
+TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
+{
+   // Equal operator for this graph
+
+   if(this!=&gr) {
+      if (!fHistogram) {
+         fHistogram = new TH1F("histInTGraphMTOperator", "histInTGraphMTOperator", 2, 0, 1);
+      }
+
+      TH1F *histtmp = fHistogram;
+      TList *listtmp = fFunctions;
+
+      if (fX) {
+         delete [] fX;
+         fX = 0;
+      }
+      if (fY) {
+         delete [] fY;
+         fY = 0;
+      }
+
+      TGraph::operator=(gr);
+
+      SafeDelete(histtmp);
+      SafeDelete(listtmp);
+
+      SafeDelete(fHistogram);
+      if (gr.fHistogram) {
+         fHistogram = new TH1F(*gr.fHistogram);
+      }
+   }
+   return *this;
+}
