@@ -66,7 +66,7 @@ protected:
       T_EventStep,
       T_EventInterval
    };
-      
+
 public:
    ArgusAnalyzerController():TGTransientFrame(NULL, NULL, 1, 1){}
    ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,UInt_t options = kVerticalFrame);

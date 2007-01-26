@@ -14207,7 +14207,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
       //check if the file has string to be replaced.
       for (i=0;i<TMath::Min(TMath::Min(arr1.GetEntriesFast(),arr2.GetEntriesFast()),TMath::Min(condition.GetEntriesFast(),replaceWhenFound.GetSize()));i++) {
          if (arr1.At(i).Length()>0  && fileBuffer.Contains(arr1.At(i))) {
-            if (condition.At(i).Length()>0 && (fileBuffer.Contains(condition.At(i)) && replaceWhenFound.At(i)) || 
+            if (condition.At(i).Length()>0 && (fileBuffer.Contains(condition.At(i)) && replaceWhenFound.At(i)) ||
                                               (!fileBuffer.Contains(condition.At(i)) && !replaceWhenFound.At(i))) {
                writeFile = true;
                fileBuffer.ReplaceAll(arr1.At(i), arr2.At(i));

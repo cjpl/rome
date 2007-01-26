@@ -60,7 +60,7 @@ public:
 
    virtual ~TTTTab1()
    {
-      delete fBStartVertical; 
+      delete fBStartVertical;
       delete fBStopVertical;
       delete fBStartHorizontal;
       delete fBStopHorizontal;

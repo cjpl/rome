@@ -343,7 +343,7 @@ void ROMEBuilder::AddRomeSources()
          romeSources->Add("dict/ROMESDict.cpp");
       }
    }
-#if defined( R__VISUAL_CPLUSPLUS ) 
+#if defined( R__VISUAL_CPLUSPLUS )
    // temporary
    if (midas) {
       romeSources->Add("$(MIDASSYS)/src/midas.c");
@@ -1354,7 +1354,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 
    // Dependencies
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
-   
+
    buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
 
    // Echo
@@ -1415,7 +1415,7 @@ void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
 
    ROMEString dictionaryName;
    dictionaryName.SetFormatted("%sUserDict",shortCut.Data());
- 
+
    if (numOfMFDictIncDirs > 0) {
 #if defined( R__UNIX )
       buffer.AppendFormatted("DictionaryIncludes +=");

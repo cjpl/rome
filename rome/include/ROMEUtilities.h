@@ -53,7 +53,7 @@ inline void ROMEUtilities::ByteSwap( UInt_t *x )
 {
 #if defined( R__USEASMSWAP )
    *x = Rbswap_32(*x);
-#elif defined( R__MACOSX ) 
+#elif defined( R__MACOSX )
    *x = OSSwapInt32(*x);
 #else
    *x =  ((UInt_t)((((UInt_t)(*x) & 0xff000000) >> 24) |

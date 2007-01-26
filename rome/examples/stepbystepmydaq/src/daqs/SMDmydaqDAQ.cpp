@@ -7,7 +7,6 @@ SMDmydaqDAQ::SMDmydaqDAQ()
 {
 }
 
-
 Bool_t SMDmydaqDAQ::Init()
 {
    return true;

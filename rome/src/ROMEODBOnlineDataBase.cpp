@@ -55,7 +55,7 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
       }
       odbPath += "/";
       odbPath += path->GetFieldName();
-   
+
       if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)(odbPath.Data()), &hKey)!= CM_SUCCESS) {
          ROMEPrint::Error("\nCannot read online database\n");
          return false;
@@ -110,7 +110,7 @@ Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBase
       }
       odbPath += "/";
       odbPath += path->GetFieldName();
-   
+
       if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)(odbPath.Data()), &hKey)!= CM_SUCCESS) {
          ROMEPrint::Error("\nCannot write to online database\n");
          return false;

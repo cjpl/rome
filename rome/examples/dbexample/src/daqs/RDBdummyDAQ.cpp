@@ -5,7 +5,6 @@ RDBdummyDAQ::RDBdummyDAQ()
 {
 }
 
-
 bool RDBdummyDAQ::Init()
 {
    return true;

@@ -71,7 +71,7 @@ protected:
    ULong_t       fLastUpdateTime;                  //! Time of the last window update
    Bool_t        fWindowFirstDraw;                 //! Window first time draw flag
    Long64_t      fUpdateWindowLastEvent;           //! Last event event updated on the window
-   
+
    // Macro names
    TString       fBeginOfRunMacro;                 //! name of macro to execute at the begin of run
    TString       fBeginOfEventMacro;               //! name of macro to execute at the begin of run
