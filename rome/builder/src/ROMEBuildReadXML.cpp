@@ -655,6 +655,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                if (!strcmp((const char*)name,"Tasks")) {
                   // initialization
                   numOfTask = -1;
+                  hasTaskGenerated = false;
                   parent[0] = "GetMainTask()";
                   // output
                   if (makeOutput) cout << "\n\nTasks:" << endl;
@@ -937,6 +938,16 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                }
             }
          }
+         if (folderUsed[numOfFolder]) {
+            if (folderUserCode[numOfFolder]) {
+               hasFolderUserCode = true;
+            } else {
+               if (folderSupport[numOfFolder])
+                  hasSupportFolderGenerated = true;
+               else
+                  hasFolderGenerated = true;
+            }
+         }
          // description
          if (folderDescription[currentNumberOfFolders].Length()
              && !folderShortDescription[currentNumberOfFolders].Length()
@@ -995,17 +1006,10 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       }
       // folder with changeble class file
       if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
-         hasFolderUserCode = true;
          xml->GetValue(tmp,"false");
          FormatText(tmp, kTRUE);
          if (tmp == "true")
             folderUserCode[numOfFolder] = true;
-      }
-      else {
-         if (folderSupport[numOfFolder])
-            hasSupportFolderGenerated = true;
-         else
-            hasFolderGenerated = true;
       }
       // folder version
       if (type == 1 && !strcmp((const char*)name,"FolderVersion")) {
@@ -1443,6 +1447,9 @@ Bool_t ROMEBuilder::ReadXMLTask()
                   }
                }
             }
+         }
+         if (taskUsed[numOfTask]) {
+            hasTaskGenerated = true;
          }
          // description
          if (taskDescription[numOfTask].Length()
