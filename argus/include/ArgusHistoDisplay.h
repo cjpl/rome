@@ -18,6 +18,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
 #include "ArgusTab.h"
+#include "TGraphMT.h"
 
 class ROMEStrArray;
 class TGMenuBar;
@@ -26,7 +27,6 @@ class TGHProgressBar;
 class TRootEmbeddedCanvas;
 class TText;
 class TPad;
-class TGraphMT;
 class TLine;
 class TH1;
 class XMLToForm;
