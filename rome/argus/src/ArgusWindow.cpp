@@ -162,9 +162,12 @@ Bool_t ArgusWindow::Start()
 
 void ArgusWindow::ClearStatusBar()
 {
+/*
    Int_t parts[2] = { 70,30 };
    fStatusBar->SetParts(parts, sizeof(parts) / sizeof(Int_t));
    fStatusBar->SetText("", 0);
+   fStatusBar->SetText("", 1);
+*/
 }
 
 void ArgusWindow::CloseWindow()
