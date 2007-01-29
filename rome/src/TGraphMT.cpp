@@ -70,12 +70,12 @@ TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
 #if 0
             gr.fHistogram->Copy(*fHistogram);
 #else
-            static_cast<TNamed*>(gr.fHistogram)->TNamed::Copy(*fHistogram);
+            gr.fHistogram->TNamed::Copy(*fHistogram);
             fHistogram->SetMaximum(gr.fHistogram->GetMaximum());
             fHistogram->SetMinimum(gr.fHistogram->GetMinimum());
-            static_cast<TAttLine*>(gr.fHistogram)->TAttLine::Copy(*fHistogram);
-            static_cast<TAttFill*>(gr.fHistogram)->TAttFill::Copy(*fHistogram);
-            static_cast<TAttMarker*>(gr.fHistogram)->TAttMarker::Copy(*fHistogram);           
+            gr.fHistogram->TAttLine::Copy(*fHistogram);
+            gr.fHistogram->TAttFill::Copy(*fHistogram);
+            gr.fHistogram->TAttMarker::Copy(*fHistogram);           
             gr.fHistogram->GetXaxis()->Copy(*fHistogram->GetXaxis());
             gr.fHistogram->GetYaxis()->Copy(*fHistogram->GetYaxis());
             gr.fHistogram->GetZaxis()->Copy(*fHistogram->GetZaxis());
