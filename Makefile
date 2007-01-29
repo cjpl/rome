@@ -259,12 +259,12 @@ bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
 
-librome.a: $(LibObjects)
+librome.a: Makefile $(LibObjects)
 	-$(RM) $@
-	$(AR) -rcs $@ $^
+	$(AR) -rcs $@ $(LibObjects)
 
-librome.so: $(LibObjects)
-	$(CXXLD) $(SOFLAGS) -o $@ $^
+librome.so: Makefile $(LibObjects)
+	$(CXXLD) $(SOFLAGS) -o $@ $(LibObjects)
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
