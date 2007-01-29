@@ -67,7 +67,7 @@ TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
          if (!fHistogram) {
             fHistogram = new TH1F(*gr.fHistogram);
          } else {
-#if 0
+#if 0 // this copies allmost all, but maybe too much for copying TGraph.
             gr.fHistogram->Copy(*fHistogram);
 #else
             gr.fHistogram->TNamed::Copy(*fHistogram);
