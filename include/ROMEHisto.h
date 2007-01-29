@@ -14,6 +14,7 @@ class ROMEHisto : public TObject {
 private:
    char*      fCstop; //!
 protected:
+   Bool_t     fActive;                  // Active flag
    ROMEString fTitle;                   // Title
    ROMEString fTitleOrig;               // Title Original
    ROMEString fFolderTitle;             // Title of the Folder
@@ -52,6 +53,7 @@ public:
    ROMEHisto();
    ~ROMEHisto() {};
 
+   void SetActive(bool value) { fActive = value; };
    void SetTitle(const char* value) { fTitle = value; };
    void SetFolderTitle(const char* value) { fFolderTitle = value; };
    void SetArraySize(const char* value) { fArraySize = value; };
@@ -68,6 +70,7 @@ public:
    void SetZNbins(const char* value) { fZNbins = value; };
    void SetZmin(const char* value) { fZmin = value; };
    void SetZmax(const char* value) { fZmax = value; };
+   void SetOriginal(const char* title,const char* folderTitle,Int_t arraySize,Int_t arrayStartIndex,const char* xLabel,const char* yLabel,const char* zLabel,Int_t xNbins,Double_t xmin,Double_t xmax,Int_t yNbins,Double_t ymin,Double_t ymax,Int_t zNbins,Double_t zmin,Double_t zmax);
    void SetTitleOriginal(const char* value) { fTitleOrig = value; };
    void SetFolderTitleOriginal(const char* value) { fFolderTitleOrig = value; };
    void SetArraySizeOriginal(Int_t value) { fArraySizeOrig = value; };
@@ -84,6 +87,7 @@ public:
    void SetZNbinsOriginal(Int_t value) { fZNbinsOrig = value; };
    void SetZminOriginal(Double_t value) { fZminOrig = value; };
    void SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
+   bool IsActive() { return fActive; };
    const char* GetTitle() const;
    const char* GetFolderTitle();
    const char* GetXLabel();

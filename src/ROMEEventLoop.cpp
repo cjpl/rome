@@ -283,6 +283,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");
+         CleanTasks();
          if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())
             ROMEPrint::Print(gROME->GetWindow()->GetTimeStatisticsString(str));
          ROMEPrint::Print("\n");

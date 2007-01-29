@@ -13,6 +13,8 @@
 class ROMEConfigGraph : public TObject
 {
 public:
+   ROMEString   fGraphActive;
+   Bool_t       fGraphActiveModified;
    ROMEString   fGraphTitle;
    Bool_t       fGraphTitleModified;
    ROMEString   fGraphFolderTitle;
@@ -40,6 +42,7 @@ public:
    ROMEString   fGraphZmax;
    Bool_t       fGraphZmaxModified;
    ROMEConfigGraph() {
+      fGraphActiveModified = false;
       fGraphTitleModified = false;
       fGraphFolderTitleModified = false;
       fGraphArraySizeModified = false;

@@ -79,8 +79,10 @@ public:
 protected:
    ROMEStrArray *histoParameters;
    ROMEStrArray *histoParameterTypes;
+   ROMEStrArray *histoParameterWidgetTypes;
    ROMEStrArray *graphParameters;
    ROMEStrArray *graphParameterTypes;
+   ROMEStrArray *graphParameterWidgetTypes;
 
    ROMEString    outDir;
    ROMEString    xmlFile;

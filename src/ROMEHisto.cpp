@@ -15,7 +15,30 @@ ClassImp(ROMEHisto)
 
 ROMEHisto::ROMEHisto():TObject()
 {
+   fActive = true;
    fAccumulation = false;
+}
+
+void ROMEHisto::SetOriginal(const char* title,const char* folderTitle,Int_t arraySize,Int_t arrayStartIndex,
+                            const char* xLabel,const char* yLabel,const char* zLabel,Int_t xNbins,Double_t xmin,Double_t xmax,
+                            Int_t yNbins,Double_t ymin,Double_t ymax,Int_t zNbins,Double_t zmin,Double_t zmax)
+{
+   fTitleOrig = title;
+   fFolderTitleOrig = folderTitle;
+   fArraySizeOrig = arraySize;
+   fArrayStartIndexOrig = arrayStartIndex;
+   fXLabelOrig = xLabel;
+   fYLabelOrig = yLabel;
+   fZLabelOrig = zLabel;
+   fXNbinsOrig = xNbins;
+   fXminOrig = xmin;
+   fXmaxOrig = xmax;
+   fYNbinsOrig = yNbins;
+   fYminOrig = ymin;
+   fYmaxOrig = ymax;
+   fZNbinsOrig = zNbins;
+   fZminOrig = zmin;
+   fZmaxOrig = zmax;
 }
 
 const char* ROMEHisto::GetTitle() const{

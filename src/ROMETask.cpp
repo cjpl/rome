@@ -52,6 +52,13 @@ void ROMETask::Exec(Option_t *option)
    // EndOfRun
    // Terminate
    char *cstop;
+   if (!strncmp(option,"Terminate",9)) {
+      fCurrentEventMethod = "Terminate";
+      ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
+      fWatchUser.Start(false);
+      Terminate();
+      fWatchUser.Stop();
+   }
    if (gROME->isTerminationFlag() || gROME->IsSkipEvent())
       return;
    fWatchAll.Start(false);
@@ -80,13 +87,6 @@ void ROMETask::Exec(Option_t *option)
       ROMEPrint::Debug("Executing %s::EndOfRun\n", ClassName());
       fWatchUser.Start(false);
       EndOfRun();
-      fWatchUser.Stop();
-   }
-   else if (!strncmp(option,"Terminate",9)) {
-      fCurrentEventMethod = "Terminate";
-      ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
-      fWatchUser.Start(false);
-      Terminate();
       fWatchUser.Stop();
    }
    else if (!strncmp(option,"Time",4)) {
