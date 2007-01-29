@@ -507,8 +507,6 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
          // this allows changing X range
          fPad[i]->cd();
          TGraphMT *pgraph = ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i));
-         pgraph->DeleteHistogram();
-         pgraph->Draw("A");
          SetLimits(pgraph);
       }
       fPad[i]->Modified();
