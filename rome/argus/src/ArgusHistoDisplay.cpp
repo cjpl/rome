@@ -529,8 +529,8 @@ void ArgusHistoDisplay::SetLimits(TGraphMT *g)
       return;
    int i;
    double xmin,xmax,ymin,ymax;
-   double *x = new double[n];
-   double *y = new double[n];
+   double *x;
+   double *y;
    x = g->GetX();
    y = g->GetY();
    xmin = xmax = x[0];

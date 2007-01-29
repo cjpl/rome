@@ -65,6 +65,7 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
 
 ROMEMidasDAQ::~ROMEMidasDAQ() {
    SafeDelete(fOdbOffline);
+   SafeDelete(fEventFilePositions);
 }
 
 Bool_t ROMEMidasDAQ::Init() {
