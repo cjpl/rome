@@ -36,33 +36,68 @@ void TGraphMT::SetPoint(Int_t i, Double_t x, Double_t y)
 //______________________________________________________________________________
 TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
 {
-   // Equal operator for this graph
-
+// Equal operator for this graph
    if(this!=&gr) {
-      if (!fHistogram) {
-         fHistogram = new TH1F("histInTGraphMTOperator", "histInTGraphMTOperator", 2, 0, 1);
+      TNamed::operator=(gr);
+      TAttLine::operator=(gr);
+      TAttFill::operator=(gr);
+      TAttMarker::operator=(gr);
+
+      if (gr.fMaxSize == 0) {
+         if (fX)
+            delete [] fX;
+         if (fY)
+            delete [] fY;
+         fX = fY = 0;
+      } else if (fMaxSize != gr.fMaxSize) {
+         if (fX)
+            delete [] fX;
+         if (fY)
+            delete [] fY;
+         fX = new Double_t[gr.fMaxSize];
+         fY = new Double_t[gr.fMaxSize];
       }
 
-      TH1F *histtmp = fHistogram;
-      TList *listtmp = fFunctions;
+      fNpoints = gr.fNpoints;
+      fMaxSize = gr.fMaxSize;
+      if (gr.fFunctions) fFunctions = (TList*)gr.fFunctions->Clone();
+      else fFunctions = new TList;
 
-      if (fX) {
-         delete [] fX;
-         fX = 0;
-      }
-      if (fY) {
-         delete [] fY;
-         fY = 0;
-      }
-
-      TGraph::operator=(gr);
-
-      SafeDelete(histtmp);
-      SafeDelete(listtmp);
-
-      SafeDelete(fHistogram);
       if (gr.fHistogram) {
-         fHistogram = new TH1F(*gr.fHistogram);
+         if (!fHistogram) {
+            fHistogram = new TH1F(*gr.fHistogram);
+         } else {
+#if 0
+            gr.fHistogram->Copy(*fHistogram);
+#else
+            static_cast<TNamed*>(gr.fHistogram)->TNamed::Copy(*fHistogram);
+            fHistogram->SetMaximum(gr.fHistogram->GetMaximum());
+            fHistogram->SetMinimum(gr.fHistogram->GetMinimum());
+            static_cast<TAttLine*>(gr.fHistogram)->TAttLine::Copy(*fHistogram);
+            static_cast<TAttFill*>(gr.fHistogram)->TAttFill::Copy(*fHistogram);
+            static_cast<TAttMarker*>(gr.fHistogram)->TAttMarker::Copy(*fHistogram);           
+            gr.fHistogram->GetXaxis()->Copy(*fHistogram->GetXaxis());
+            gr.fHistogram->GetYaxis()->Copy(*fHistogram->GetYaxis());
+            gr.fHistogram->GetZaxis()->Copy(*fHistogram->GetZaxis());
+            fHistogram->GetXaxis()->SetParent(fHistogram);
+            fHistogram->GetYaxis()->SetParent(fHistogram);
+            fHistogram->GetZaxis()->SetParent(fHistogram);
+#endif
+         }
+      } else {
+         SafeDelete(fHistogram);
+      }
+      fMinimum = gr.fMinimum;
+      fMaximum = gr.fMaximum;
+
+      if (!fMaxSize) {
+         return *this;
+      }
+
+      Int_t n = gr.GetN() * sizeof(Double_t);
+      if (n > 0) {
+         memcpy(fX, gr.fX, n);
+         memcpy(fY, gr.fY, n);
       }
    }
    return *this;
