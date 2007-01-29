@@ -199,6 +199,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMETree.h \
                   include/ROMEGraph.h \
                   include/ROMEPath.h \
+                  include/ROMEOrcaDAQ.h \
                   include/ROMEStopwatch.h \
                   include/ROMEDAQSystem.h \
                   include/ROMEUtilities.h \
