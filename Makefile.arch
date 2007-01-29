@@ -10,22 +10,38 @@ OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
 
 ifeq ($(OSTYPE),osf1)
 LIBRARY += -lc -lbsd
+SOFLAGS = -Wl,-expect_unresolved,* -shared
 endif
 
 ifeq ($(OSTYPE),freebsd)
 LIBRARY += -lbsd -lcompat
+SOFLAGS =  -shared -Wl,-x
 endif
 
 ifeq ($(OSTYPE),darwin)
+MACOSX_MAJOR    := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 1)
+MACOSX_MINOR    := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 2)
+export MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)
 FINK_DIR := $(shell which fink 2>&1 | sed -ne "s/\/bin\/fink//p")
 INCLUDE += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
 LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib) -lpthread
+ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)
+SOFLAGS := -dynamiclib -single_module -undefined suppress
+else
+ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.2)
+SOFLAGS := -dynamiclib -single_module -undefined suppress
+else
+SOFLAGS := -dynamiclib -single_module -undefined dynamic_lookup
+endif
+endif
 endif
 
 ifeq ($(OSTYPE),linux)
 LIBRARY += -lpthread
+SOFLAGS := -shared
 endif
 
 ifeq ($(OSTYPE),solaris)
 LIBRARY += -lsocket -lnsl
+SOFLAGS := -G
 endif

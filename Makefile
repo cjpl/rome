@@ -81,7 +81,7 @@ endif
 DICTIONARIES = ROMEBuilderDict.h UpdateVersionHDict.h
 ifeq ($(LIBROME), yes)
   INCLUDE += -DHAVE_LIBROME
-  LIBROMEFILE = librome.a
+  LIBROMEFILE = librome.a librome.so
   DICTIONARIES += ROMELibDict.h
 else
   LIBROMEFILE =
@@ -261,6 +261,9 @@ include/ROMEVersion.h: bin/updateVersionH.exe
 librome.a: $(LibObjects)
 	-$(RM) $@
 	$(AR) -rcs $@ $^
+
+librome.so: $(LibObjects)
+	$(CXXLD) $(SOFLAGS) -o $@ $^
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \

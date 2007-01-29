@@ -2103,9 +2103,13 @@ void ROMEBuilder::WriteMakefile() {
 // --------------
    buffer.AppendFormatted("## Link statements\n");
 
-   buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) ",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   if (librome)
-      buffer.AppendFormatted(" $(ROMESYS)/librome.a");
+   buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   if (librome) {
+      if (sharedLink)
+         buffer.AppendFormatted(" $(ROMESYS)/librome.so");
+      else
+         buffer.AppendFormatted(" $(ROMESYS)/librome.a");
+   }
    buffer.AppendFormatted(" $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("\t@echo linking %s%s...\n",shortCut.Data(),mainProgName.Data());
