@@ -304,7 +304,6 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       }
 
       if (((EVENT_HEADER*)mEvent)->event_id!=1) {
-         gROME->SetCurrentEventNumber(gROME->GetCurrentEventNumber()+1);
          gROME->SetFillEvent(false);
       }
       else
@@ -407,7 +406,6 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       // initalize event
       gROME->SetEventID(pevent->event_id);
       if (pevent->event_id!=1) {
-         gROME->SetCurrentEventNumber(gROME->GetCurrentEventNumber()+1);
          gROME->SetFillEvent(false);
       }
       else

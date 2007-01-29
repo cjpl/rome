@@ -14,6 +14,7 @@ class ROMEGraph : public TObject {
 private:
    char*      fCstop; //!
 protected:
+   Bool_t     fActive;                  // Active flag
    ROMEString fTitle;                   // Title
    ROMEString fTitleOrig;               // Title Original
    ROMEString fFolderTitle;             // Title of the Folder
@@ -45,6 +46,7 @@ public:
    ROMEGraph();
    ~ROMEGraph() {};
 
+   void SetActive(bool value) { fActive = value; };
    void SetTitle(const char* value) { fTitle = value; };
    void SetFolderTitle(const char* value) { fFolderTitle = value; };
    void SetArraySize(const char* value) { fArraySize = value; };
@@ -58,6 +60,7 @@ public:
    void SetYmax(const char* value) { fYmax = value; };
    void SetZmin(const char* value) { fZmin = value; };
    void SetZmax(const char* value) { fZmax = value; };
+   void SetOriginal(const char* title,const char* folderTitle,Int_t arraySize,Int_t arrayStartIndex,const char* xLabel,const char* yLabel,const char* zLabel,Double_t xmin,Double_t xmax,Double_t ymin,Double_t ymax,Double_t zmin,Double_t zmax);
    void SetTitleOriginal(const char* value) { fTitleOrig = value; };
    void SetFolderTitleOriginal(const char* value) { fFolderTitleOrig = value; };
    void SetArraySizeOriginal(Int_t value) { fArraySizeOrig = value; };
@@ -71,6 +74,7 @@ public:
    void SetYmaxOriginal(Double_t value) { fYmaxOrig = value; };
    void SetZminOriginal(Double_t value) { fZminOrig = value; };
    void SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
+   bool IsActive() { return fActive; }
    const char* GetTitle() const;
    const char* GetFolderTitle();
    const char* GetXLabel();

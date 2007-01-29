@@ -22,6 +22,14 @@ ClassImp(ROMEConfig)
 Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto)
 {
    ROMEString fullPath;
+   // fHistActive
+   fullPath.SetFormatted("%sHistActive",path);
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistActive,"");
+   if (configHisto->fHistActive=="")
+      configHisto->fHistActiveModified = false;
+   else {
+      configHisto->fHistActiveModified = true;
+   }
    // fHistTitle
    fullPath.SetFormatted("%sHistTitle",path);
    xml->GetPathValue(fullPath.Data(),configHisto->fHistTitle,"");
@@ -154,7 +162,8 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
 }
 Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
 {
-    if (configHisto->fHistTitleModified ||
+    if (configHisto->fHistActiveModified ||
+        configHisto->fHistTitleModified ||
         configHisto->fHistFolderTitleModified ||
         configHisto->fHistArraySizeModified ||
         configHisto->fHistArrayStartIndexModified ||
@@ -176,6 +185,13 @@ Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
 }
 Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* configHisto)
 {
+   // fHistActive
+   if (configHisto->fHistActiveModified) {
+      if (configHisto->fHistActive=="true")
+         histo->SetActive(true);
+      else
+         histo->SetActive(false);
+   }
    // fHistTitle
    if (configHisto->fHistTitleModified) {
       histo->SetTitle(configHisto->fHistTitle.Data());
@@ -244,6 +260,12 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
 }
 Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,Int_t commentLevel,ROMEStrArray& comment)
 {
+   // fHistActive
+   if (commentLevel >= 3 && configHisto->fHistActiveModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configHisto->fHistActiveModified) {
+      xml->WriteElement("HistActive",configHisto->fHistActive.Data());
+   }
    // fHistTitle
    if (commentLevel >= 3 && configHisto->fHistTitleModified)
       xml->WriteComment(comment.At(0).Data());
@@ -345,6 +367,14 @@ Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configH
 Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConfigGraph* configGraph)
 {
    ROMEString fullPath;
+   // fGraphActive
+   fullPath.SetFormatted("%sGraphActive",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphActive,"");
+   if (configGraph->fGraphActive=="")
+      configGraph->fGraphActiveModified = false;
+   else {
+      configGraph->fGraphActiveModified = true;
+   }
    // fGraphTitle
    fullPath.SetFormatted("%sGraphTitle",path);
    xml->GetPathValue(fullPath.Data(),configGraph->fGraphTitle,"");
@@ -405,7 +435,8 @@ Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConf
 }
 Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
 {
-    if (configGraph->fGraphTitleModified ||
+    if (configGraph->fGraphActiveModified ||
+        configGraph->fGraphTitleModified ||
         configGraph->fGraphFolderTitleModified ||
         configGraph->fGraphArraySizeModified ||
         configGraph->fGraphArrayStartIndexModified ||
@@ -418,6 +449,13 @@ Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
 }
 Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* configGraph)
 {
+   // fGraphActive
+   if (configGraph->fGraphActiveModified) {
+      if (configGraph->fGraphActive=="true")
+         graph->SetActive(true);
+      else
+         graph->SetActive(false);
+   }
    // fGraphTitle
    if (configGraph->fGraphTitleModified) {
       graph->SetTitle(configGraph->fGraphTitle.Data());
@@ -450,6 +488,12 @@ Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* confi
 }
 Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,Int_t commentLevel,ROMEStrArray& comment)
 {
+   // fGraphActive
+   if (commentLevel >= 3 && configGraph->fGraphActiveModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphActiveModified) {
+      xml->WriteElement("GraphActive",configGraph->fGraphActive.Data());
+   }
    // fGraphTitle
    if (commentLevel >= 3 && configGraph->fGraphTitleModified)
       xml->WriteComment(comment.At(0).Data());

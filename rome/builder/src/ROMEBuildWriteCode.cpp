@@ -1723,22 +1723,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   f%ss = 0;\n",histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   f%sHisto = new ROMEHisto();\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetTitleOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoTitle[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetFolderTitleOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetXLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoXLabel[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetYLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoYLabel[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetZLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoZLabel[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetArraySizeOriginal(%s);\n",histoName[iTask][i].Data(),histoArraySize[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetArrayStartIndexOriginal(%s);\n",histoName[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetXNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoXNbins[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetXminOriginal(%s);\n",histoName[iTask][i].Data(),histoXmin[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetXmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoXmax[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetYNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoYNbins[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetYminOriginal(%s);\n",histoName[iTask][i].Data(),histoYmin[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetYmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoYmax[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetZNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoZNbins[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetZminOriginal(%s);\n",histoName[iTask][i].Data(),histoZmin[iTask][i].Data());
-         buffer.AppendFormatted("   f%sHisto->SetZmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoZmax[iTask][i].Data());
+         buffer.AppendFormatted("   f%sHisto->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),
+            histoTitle[iTask][i].Data(),histoFolderTitle[iTask][i].Data(),histoArraySize[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data(),
+            histoXLabel[iTask][i].Data(),histoYLabel[iTask][i].Data(),histoZLabel[iTask][i].Data(),
+            histoXNbins[iTask][i].Data(),histoXmin[iTask][i].Data(),histoXmax[iTask][i].Data(),
+            histoYNbins[iTask][i].Data(),histoYmin[iTask][i].Data(),histoYmax[iTask][i].Data(),
+            histoZNbins[iTask][i].Data(),histoZmin[iTask][i].Data(),histoZmax[iTask][i].Data());
       }
       for (i=0;i<numOfGraphs[iTask];i++) {
          if (graphArraySize[iTask][i]=="1") {
@@ -1747,19 +1737,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   f%ss = 0;\n",graphName[iTask][i].Data());
          }
          buffer.AppendFormatted("   f%sGraph = new ROMEGraph();\n",graphName[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetTitleOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetFolderTitleOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphFolderTitle[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetXLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphXLabel[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetYLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphYLabel[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetZLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphZLabel[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetArraySizeOriginal(%s);\n",graphName[iTask][i].Data(),graphArraySize[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetArrayStartIndexOriginal(%s);\n",graphName[iTask][i].Data(),graphArrayStartIndex[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetXminOriginal(%s);\n",graphName[iTask][i].Data(),graphXmin[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetXmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphXmax[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetYminOriginal(%s);\n",graphName[iTask][i].Data(),graphYmin[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetYmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphYmax[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetZminOriginal(%s);\n",graphName[iTask][i].Data(),graphZmin[iTask][i].Data());
-         buffer.AppendFormatted("   f%sGraph->SetZmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphZmax[iTask][i].Data());
+         buffer.AppendFormatted("   f%sGraph->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s);\n",graphName[iTask][i].Data(),
+            graphTitle[iTask][i].Data(),graphFolderTitle[iTask][i].Data(),graphArraySize[iTask][i].Data(),graphArrayStartIndex[iTask][i].Data(),
+            graphXLabel[iTask][i].Data(),graphYLabel[iTask][i].Data(),graphZLabel[iTask][i].Data(),
+            graphXmin[iTask][i].Data(),graphXmax[iTask][i].Data(),
+            graphYmin[iTask][i].Data(),graphYmax[iTask][i].Data(),
+            graphZmin[iTask][i].Data(),graphZmax[iTask][i].Data());
          if (graphArraySize[iTask][i]=="1") {
             buffer.AppendFormatted("   f%sGraphStorage = new %s();\n",graphName[iTask][i].Data(),graphType[iTask][i].Data());
          }
@@ -1776,6 +1759,18 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       // Book Histo
       buffer.AppendFormatted("void %sT%s_Base::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       if (numOfHistos[iTask]>0) {
+         // create histo folders
+         for (i=0;i<numOfHistos[iTask];i++) {
+            if (histoFolderName[iTask][i]=="")
+               continue;
+            bool alreadyDefined = false;
+            for (j=0;j<i;j++) {
+               if (histoFolderName[iTask][i]==histoFolderName[iTask][j])
+                  alreadyDefined = true;
+            }
+            if (!alreadyDefined)
+               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"folder to store %s histos/graphs\");\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
+         }
          array = false;
          for (i=0;i<numOfHistos[iTask];i++) {
             if (histoArraySize[iTask][i]!="1") array = true;
@@ -1817,140 +1812,122 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   ROMEString zmaxStr;\n");
          }
          for (i=0;i<numOfHistos[iTask];i++) {
-            buffer.AppendFormatted("   f%sHisto->SetTitleOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetFolderTitleOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoXLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoYLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoZLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetArraySizeOriginal(%s);\n",histoName[iTask][i].Data(),histoArraySize[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetArrayStartIndexOriginal(%s);\n",histoName[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoXNbins[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXminOriginal(%s);\n",histoName[iTask][i].Data(),histoXmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoXmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoYNbins[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYminOriginal(%s);\n",histoName[iTask][i].Data(),histoYmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoYmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoZNbins[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZminOriginal(%s);\n",histoName[iTask][i].Data(),histoZmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoZmax[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      f%sHisto->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),
+               histoTitle[iTask][i].Data(),histoFolderTitle[iTask][i].Data(),histoArraySize[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data(),
+               histoXLabel[iTask][i].Data(),histoYLabel[iTask][i].Data(),histoZLabel[iTask][i].Data(),
+               histoXNbins[iTask][i].Data(),histoXmin[iTask][i].Data(),histoXmax[iTask][i].Data(),
+               histoYNbins[iTask][i].Data(),histoYmin[iTask][i].Data(),histoYmax[iTask][i].Data(),
+               histoZNbins[iTask][i].Data(),histoZmin[iTask][i].Data(),histoZmax[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
          }
          for (i=0;i<numOfHistos[iTask];i++) {
-            bool sameFolder = false;
             bool homeFolder = false;
             if (histoFolderName[iTask][i]=="") {
                homeFolder = true;
             }
-            else {
-               for (j=0;j<i;j++) {
-                  if (histoFolderName[iTask][i]==histoFolderName[iTask][j])
-                     sameFolder = true;
-               }
-            }
+            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      histoHandle = Get%sHisto();\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      histoTitle = histoHandle->GetTitle();\n");
+            buffer.AppendFormatted("      folderTitle = histoHandle->GetFolderTitle();\n");
+            buffer.AppendFormatted("      xLabel = histoHandle->GetXLabel();\n");
+            buffer.AppendFormatted("      yLabel = histoHandle->GetYLabel();\n");
+            buffer.AppendFormatted("      zLabel = histoHandle->GetZLabel();\n");
+            buffer.AppendFormatted("      arraySize = histoHandle->GetArraySize();\n");
+            buffer.AppendFormatted("      arraySizeStr = histoHandle->GetArraySizeString(arraySizeStr);\n");
+            buffer.AppendFormatted("      arrayStartIndex = histoHandle->GetArrayStartIndex();\n");
+            buffer.AppendFormatted("      arrayStartIndexStr = histoHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
+            buffer.AppendFormatted("      xNbins = histoHandle->GetXNbins();\n");
+            buffer.AppendFormatted("      xNbinsStr = histoHandle->GetXNbinsString(xNbinsStr);\n");
+            buffer.AppendFormatted("      xmin = histoHandle->GetXmin();\n");
+            buffer.AppendFormatted("      xminStr = histoHandle->GetXminString(xminStr);\n");
+            buffer.AppendFormatted("      xmax = histoHandle->GetXmax();\n");
+            buffer.AppendFormatted("      xmaxStr = histoHandle->GetXmaxString(xmaxStr);\n");
+            buffer.AppendFormatted("      yNbins = histoHandle->GetYNbins();\n");
+            buffer.AppendFormatted("      yNbinsStr = histoHandle->GetYNbinsString(yNbinsStr);\n");
+            buffer.AppendFormatted("      ymin = histoHandle->GetYmin();\n");
+            buffer.AppendFormatted("      yminStr = histoHandle->GetYminString(yminStr);\n");
+            buffer.AppendFormatted("      ymax = histoHandle->GetYmax();\n");
+            buffer.AppendFormatted("      ymaxStr = histoHandle->GetYmaxString(ymaxStr);\n");
+            buffer.AppendFormatted("      zNbins = histoHandle->GetZNbins();\n");
+            buffer.AppendFormatted("      zNbinsStr = histoHandle->GetZNbinsString(zNbinsStr);\n");
+            buffer.AppendFormatted("      zmin = histoHandle->GetZmin();\n");
+            buffer.AppendFormatted("      zminStr = histoHandle->GetZminString(zminStr);\n");
+            buffer.AppendFormatted("      zmax  = histoHandle->GetZmax();\n");
+            buffer.AppendFormatted("      zmaxStr  = histoHandle->GetZmaxString(zmaxStr);\n");
 
-            buffer.AppendFormatted("   histoHandle = Get%sHisto();\n",histoName[iTask][i].Data());
-            buffer.AppendFormatted("   histoTitle = histoHandle->GetTitle();\n");
-            buffer.AppendFormatted("   folderTitle = histoHandle->GetFolderTitle();\n");
-            buffer.AppendFormatted("   xLabel = histoHandle->GetXLabel();\n");
-            buffer.AppendFormatted("   yLabel = histoHandle->GetYLabel();\n");
-            buffer.AppendFormatted("   zLabel = histoHandle->GetZLabel();\n");
-            buffer.AppendFormatted("   arraySize = histoHandle->GetArraySize();\n");
-            buffer.AppendFormatted("   arraySizeStr = histoHandle->GetArraySizeString(arraySizeStr);\n");
-            buffer.AppendFormatted("   arrayStartIndex = histoHandle->GetArrayStartIndex();\n");
-            buffer.AppendFormatted("   arrayStartIndexStr = histoHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
-            buffer.AppendFormatted("   xNbins = histoHandle->GetXNbins();\n");
-            buffer.AppendFormatted("   xNbinsStr = histoHandle->GetXNbinsString(xNbinsStr);\n");
-            buffer.AppendFormatted("   xmin = histoHandle->GetXmin();\n");
-            buffer.AppendFormatted("   xminStr = histoHandle->GetXminString(xminStr);\n");
-            buffer.AppendFormatted("   xmax = histoHandle->GetXmax();\n");
-            buffer.AppendFormatted("   xmaxStr = histoHandle->GetXmaxString(xmaxStr);\n");
-            buffer.AppendFormatted("   yNbins = histoHandle->GetYNbins();\n");
-            buffer.AppendFormatted("   yNbinsStr = histoHandle->GetYNbinsString(yNbinsStr);\n");
-            buffer.AppendFormatted("   ymin = histoHandle->GetYmin();\n");
-            buffer.AppendFormatted("   yminStr = histoHandle->GetYminString(yminStr);\n");
-            buffer.AppendFormatted("   ymax = histoHandle->GetYmax();\n");
-            buffer.AppendFormatted("   ymaxStr = histoHandle->GetYmaxString(ymaxStr);\n");
-            buffer.AppendFormatted("   zNbins = histoHandle->GetZNbins();\n");
-            buffer.AppendFormatted("   zNbinsStr = histoHandle->GetZNbinsString(zNbinsStr);\n");
-            buffer.AppendFormatted("   zmin = histoHandle->GetZmin();\n");
-            buffer.AppendFormatted("   zminStr = histoHandle->GetZminString(zminStr);\n");
-            buffer.AppendFormatted("   zmax  = histoHandle->GetZmax();\n");
-            buffer.AppendFormatted("   zmaxStr  = histoHandle->GetZmaxString(zmaxStr);\n");
+            buffer.AppendFormatted("      histoTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(histoTitle),histoTitle,histoTitle);\n");
+            buffer.AppendFormatted("      folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
+            buffer.AppendFormatted("      xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
+            buffer.AppendFormatted("      yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
+            buffer.AppendFormatted("      zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
+            buffer.AppendFormatted("      arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
+            buffer.AppendFormatted("      arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
+            buffer.AppendFormatted("      xNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(xNbinsStr),xNbins);\n");
+            buffer.AppendFormatted("      xmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr),xmin );\n");
+            buffer.AppendFormatted("      xmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr),xmax );\n");
+            buffer.AppendFormatted("      yNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(yNbinsStr),yNbins);\n");
+            buffer.AppendFormatted("      ymin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr),ymin );\n");
+            buffer.AppendFormatted("      ymax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr),ymax);\n");
+            buffer.AppendFormatted("      zNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(zNbinsStr),zNbins);\n");
+            buffer.AppendFormatted("      zmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr),zmin);\n");
+            buffer.AppendFormatted("      zmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr),zmax);\n");
 
-            buffer.AppendFormatted("   histoTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(histoTitle),histoTitle,histoTitle);\n");
-            buffer.AppendFormatted("   folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
-            buffer.AppendFormatted("   xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
-            buffer.AppendFormatted("   yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
-            buffer.AppendFormatted("   zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
-            buffer.AppendFormatted("   arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
-            buffer.AppendFormatted("   arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
-            buffer.AppendFormatted("   xNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(xNbinsStr),xNbins);\n");
-            buffer.AppendFormatted("   xmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr),xmin );\n");
-            buffer.AppendFormatted("   xmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr),xmax );\n");
-            buffer.AppendFormatted("   yNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(yNbinsStr),yNbins);\n");
-            buffer.AppendFormatted("   ymin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr),ymin );\n");
-            buffer.AppendFormatted("   ymax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr),ymax);\n");
-            buffer.AppendFormatted("   zNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(zNbinsStr),zNbins);\n");
-            buffer.AppendFormatted("   zmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr),zmin);\n");
-            buffer.AppendFormatted("   zmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr),zmax);\n");
-
-            // create histo folder
-            if (!sameFolder&&!homeFolder) {
-               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",folderTitle.Data());\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
-            }
             // create histos
-            buffer.AppendFormatted("   histoName = \"%s\";\n",histoName[iTask][i].Data());
-            buffer.AppendFormatted("   histoName+=fHistoSuffix;\n");
+            buffer.AppendFormatted("      histoName = \"%s\";\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      histoName+=fHistoSuffix;\n");
             if (histoArraySize[iTask][i]=="1") {
                if (histoType[iTask][i][2]==49) {
-                  buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
+                  buffer.AppendFormatted("      f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
                }
                if (histoType[iTask][i][2]==50) {
-                  buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
+                  buffer.AppendFormatted("      f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
                }
                if (histoType[iTask][i][2]==51) {
-                  buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
+                  buffer.AppendFormatted("      f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
                }
                if (histoType[iTask][i]=="TProfile") {
-                  buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
+                  buffer.AppendFormatted("      f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
                }
                if (histoType[iTask][i]=="TProfile2D") {
-                  buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
+                  buffer.AppendFormatted("      f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data());
                }
                if (!homeFolder)
-                  buffer.AppendFormatted("   %sFolder->Add(f%s);\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+                  buffer.AppendFormatted("      %sFolder->Add(f%s);\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
                else
-                  buffer.AppendFormatted("   GetHistoFolder()->Add(f%s);\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   f%s->GetXaxis()->SetTitle(xLabel.Data());\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   f%s->GetYaxis()->SetTitle(yLabel.Data());\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   f%s->GetZaxis()->SetTitle(zLabel.Data());\n",histoName[iTask][i].Data());
+                  buffer.AppendFormatted("      GetHistoFolder()->Add(f%s);\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->GetXaxis()->SetTitle(xLabel.Data());\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->GetYaxis()->SetTitle(yLabel.Data());\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->GetZaxis()->SetTitle(zLabel.Data());\n",histoName[iTask][i].Data());
             }
             else {
-               buffer.AppendFormatted("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
-               buffer.AppendFormatted("   f%ss = new TObjArray(arraySize);\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   for (j=0;j<arraySize;j++) {\n");
-               buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      name.Insert(0,histoName.Data());\n");
-               buffer.AppendFormatted("      title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      title.Insert(0,histoTitle.Data());\n");
+               buffer.AppendFormatted("      %s *hist%d;\n",histoType[iTask][i].Data(),i);
+               buffer.AppendFormatted("      f%ss = new TObjArray(arraySize);\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      for (j=0;j<arraySize;j++) {\n");
+               buffer.AppendFormatted("         name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         name.Insert(0,histoName.Data());\n");
+               buffer.AppendFormatted("         title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         title.Insert(0,histoTitle.Data());\n");
                if (histoType[iTask][i][2]==49) {
-                  buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax);\n",i,histoType[iTask][i].Data());
+                  buffer.AppendFormatted("         hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax);\n",i,histoType[iTask][i].Data());
                }
                if (histoType[iTask][i][2]==50) {
-                  buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",i,histoType[iTask][i].Data());
+                  buffer.AppendFormatted("         hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",i,histoType[iTask][i].Data());
                }
                if (histoType[iTask][i][2]==51) {
-                  buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",i,histoType[iTask][i].Data());
+                  buffer.AppendFormatted("         hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",i,histoType[iTask][i].Data());
                }
-               buffer.AppendFormatted("      f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
+               buffer.AppendFormatted("         f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
                if (!homeFolder)
-                  buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+                  buffer.AppendFormatted("         %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
                else
-                  buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("      hist%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
-               buffer.AppendFormatted("      hist%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
-               buffer.AppendFormatted("      hist%d->GetZaxis()->SetTitle(zLabel.Data());\n",i);
-               buffer.AppendFormatted("   }\n");
+                  buffer.AppendFormatted("         GetHistoFolder()->Add(f%ss->At(j));\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("         hist%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
+               buffer.AppendFormatted("         hist%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
+               buffer.AppendFormatted("         hist%d->GetZaxis()->SetTitle(zLabel.Data());\n",i);
+               buffer.AppendFormatted("      }\n");
             }
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -1958,6 +1935,28 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       // Book Graph
       buffer.AppendFormatted("void %sT%s_Base::BookGraph() {\n",shortCut.Data(),taskName[iTask].Data());
       if (numOfGraphs[iTask]>0) {
+         // create graph folders
+         for (i=0;i<numOfGraphs[iTask];i++) {
+            if (graphFolderName[iTask][i]=="")
+               continue;
+            bool alreadyDefined = false;
+            for (j=0;j<i;j++) {
+               if (graphFolderName[iTask][i]==graphFolderName[iTask][j])
+                  alreadyDefined = true;
+            }
+            if (!alreadyDefined) {
+               for (j=0;j<numOfHistos[iTask];j++) {
+                  if (graphFolderName[iTask][i]==histoFolderName[iTask][j])
+                     alreadyDefined = true;
+               }
+               if (!alreadyDefined) {
+                  buffer.AppendFormatted("      TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
+                  buffer.AppendFormatted("      %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
+               }
+               else
+                  buffer.AppendFormatted("      TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"folder to store %s histos/graphs\");\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
+            }
+         }
          array = false;
          for (i=0;i<numOfGraphs[iTask];i++) {
             if (graphArraySize[iTask][i]!="1") array = true;
@@ -1993,106 +1992,92 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   ROMEString zMaxStr;\n");
          }
          for (i=0;i<numOfGraphs[iTask];i++) {
-            buffer.AppendFormatted("   f%sGraph->SetTitleOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetFolderTitleOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphFolderTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetXLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphXLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetYLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphYLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetZLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphZLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetArraySizeOriginal(%s);\n",graphName[iTask][i].Data(),graphArraySize[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetArrayStartIndexOriginal(%s);\n",graphName[iTask][i].Data(),graphArrayStartIndex[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetXminOriginal(%s);\n",graphName[iTask][i].Data(),graphXmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetXmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphXmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetYminOriginal(%s);\n",graphName[iTask][i].Data(),graphYmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetYmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphYmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetZminOriginal(%s);\n",graphName[iTask][i].Data(),graphZmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetZmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphZmax[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      f%sGraph->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s);\n",graphName[iTask][i].Data(),
+               graphTitle[iTask][i].Data(),graphFolderTitle[iTask][i].Data(),graphArraySize[iTask][i].Data(),graphArrayStartIndex[iTask][i].Data(),
+               graphXLabel[iTask][i].Data(),graphYLabel[iTask][i].Data(),graphZLabel[iTask][i].Data(),
+               graphXmin[iTask][i].Data(),graphXmax[iTask][i].Data(),
+               graphYmin[iTask][i].Data(),graphYmax[iTask][i].Data(),
+               graphZmin[iTask][i].Data(),graphZmax[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
          }
          for (i=0;i<numOfGraphs[iTask];i++) {
-            bool sameFolder = false;
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
             bool homeFolder = false;
             if (graphFolderName[iTask][i]=="") {
                homeFolder = true;
             }
-            else {
-               for (j=0;j<i;j++) {
-                  if (graphFolderName[iTask][i]==graphFolderName[iTask][j])
-                     sameFolder = true;
-               }
-            }
 
-            buffer.AppendFormatted("   graphHandle = Get%sGraph();\n",graphName[iTask][i].Data());
-            buffer.AppendFormatted("   graphTitle = graphHandle->GetTitle();\n");
-            buffer.AppendFormatted("   folderTitle = graphHandle->GetFolderTitle();\n");
-            buffer.AppendFormatted("   xLabel = graphHandle->GetXLabel();\n");
-            buffer.AppendFormatted("   yLabel = graphHandle->GetYLabel();\n");
-            buffer.AppendFormatted("   zLabel = graphHandle->GetZLabel();\n");
-            buffer.AppendFormatted("   arraySize = graphHandle->GetArraySize();\n");
-            buffer.AppendFormatted("   arraySizeStr = graphHandle->GetArraySizeString(arraySizeStr);\n");
-            buffer.AppendFormatted("   arrayStartIndex = graphHandle->GetArrayStartIndex();\n");
-            buffer.AppendFormatted("   arrayStartIndexStr = graphHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
-            buffer.AppendFormatted("   xMin = graphHandle->GetXmin();\n");
-            buffer.AppendFormatted("   xMinStr = graphHandle->GetXminString(xMinStr);\n");
-            buffer.AppendFormatted("   xMax = graphHandle->GetXmax();\n");
-            buffer.AppendFormatted("   xMaxStr = graphHandle->GetXmaxString(xMaxStr);\n");
-            buffer.AppendFormatted("   yMin = graphHandle->GetYmin();\n");
-            buffer.AppendFormatted("   yMinStr = graphHandle->GetYminString(yMinStr);\n");
-            buffer.AppendFormatted("   yMax = graphHandle->GetYmax();\n");
-            buffer.AppendFormatted("   yMaxStr = graphHandle->GetYmaxString(yMaxStr);\n");
-            buffer.AppendFormatted("   zMin = graphHandle->GetZmin();\n");
-            buffer.AppendFormatted("   zMinStr = graphHandle->GetZminString(zMinStr);\n");
-            buffer.AppendFormatted("   zMax = graphHandle->GetZmax();\n");
-            buffer.AppendFormatted("   zMaxStr = graphHandle->GetZmaxString(zMaxStr);\n");
+            buffer.AppendFormatted("      graphHandle = Get%sGraph();\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      graphTitle = graphHandle->GetTitle();\n");
+            buffer.AppendFormatted("      folderTitle = graphHandle->GetFolderTitle();\n");
+            buffer.AppendFormatted("      xLabel = graphHandle->GetXLabel();\n");
+            buffer.AppendFormatted("      yLabel = graphHandle->GetYLabel();\n");
+            buffer.AppendFormatted("      zLabel = graphHandle->GetZLabel();\n");
+            buffer.AppendFormatted("      arraySize = graphHandle->GetArraySize();\n");
+            buffer.AppendFormatted("      arraySizeStr = graphHandle->GetArraySizeString(arraySizeStr);\n");
+            buffer.AppendFormatted("      arrayStartIndex = graphHandle->GetArrayStartIndex();\n");
+            buffer.AppendFormatted("      arrayStartIndexStr = graphHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
+            buffer.AppendFormatted("      xMin = graphHandle->GetXmin();\n");
+            buffer.AppendFormatted("      xMinStr = graphHandle->GetXminString(xMinStr);\n");
+            buffer.AppendFormatted("      xMax = graphHandle->GetXmax();\n");
+            buffer.AppendFormatted("      xMaxStr = graphHandle->GetXmaxString(xMaxStr);\n");
+            buffer.AppendFormatted("      yMin = graphHandle->GetYmin();\n");
+            buffer.AppendFormatted("      yMinStr = graphHandle->GetYminString(yMinStr);\n");
+            buffer.AppendFormatted("      yMax = graphHandle->GetYmax();\n");
+            buffer.AppendFormatted("      yMaxStr = graphHandle->GetYmaxString(yMaxStr);\n");
+            buffer.AppendFormatted("      zMin = graphHandle->GetZmin();\n");
+            buffer.AppendFormatted("      zMinStr = graphHandle->GetZminString(zMinStr);\n");
+            buffer.AppendFormatted("      zMax = graphHandle->GetZmax();\n");
+            buffer.AppendFormatted("      zMaxStr = graphHandle->GetZmaxString(zMaxStr);\n");
 
-            buffer.AppendFormatted("   graphTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(graphTitle),graphTitle,graphTitle);\n");
-            buffer.AppendFormatted("   folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
-            buffer.AppendFormatted("   xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
-            buffer.AppendFormatted("   yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
-            buffer.AppendFormatted("   zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
-            buffer.AppendFormatted("   arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
-            buffer.AppendFormatted("   arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
-            buffer.AppendFormatted("   xMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMinStr),xMin);\n");
-            buffer.AppendFormatted("   xMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMaxStr),xMax);\n");
-            buffer.AppendFormatted("   yMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMinStr),yMin);\n");
-            buffer.AppendFormatted("   yMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMaxStr),yMax);\n");
-            buffer.AppendFormatted("   zMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMinStr),zMin);\n");
-            buffer.AppendFormatted("   zMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMaxStr),zMax);\n");
+            buffer.AppendFormatted("      graphTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(graphTitle),graphTitle,graphTitle);\n");
+            buffer.AppendFormatted("      folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
+            buffer.AppendFormatted("      xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
+            buffer.AppendFormatted("      yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
+            buffer.AppendFormatted("      zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
+            buffer.AppendFormatted("      arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
+            buffer.AppendFormatted("      arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
+            buffer.AppendFormatted("      xMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMinStr),xMin);\n");
+            buffer.AppendFormatted("      xMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMaxStr),xMax);\n");
+            buffer.AppendFormatted("      yMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMinStr),yMin);\n");
+            buffer.AppendFormatted("      yMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMaxStr),yMax);\n");
+            buffer.AppendFormatted("      zMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMinStr),zMin);\n");
+            buffer.AppendFormatted("      zMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMaxStr),zMax);\n");
 
-            // create graph folder
-            if (!sameFolder&&!homeFolder) {
-               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",folderTitle.Data());\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
-            }
             // create graphs
-            buffer.AppendFormatted("   graphName = \"%s\";\n",graphName[iTask][i].Data());
-            buffer.AppendFormatted("   graphName+=fGraphSuffix;\n");
+            buffer.AppendFormatted("      graphName = \"%s\";\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      graphName+=fGraphSuffix;\n");
             if (graphArraySize[iTask][i]=="1") {
-               buffer.AppendFormatted("   f%s = new %s(1);\n",graphName[iTask][i].Data(),graphType[iTask][i].Data());
-               buffer.AppendFormatted("   f%s->SetNameTitle(\"%s\",\"%s\");\n",graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
+               buffer.AppendFormatted("      f%s = new %s(1);\n",graphName[iTask][i].Data(),graphType[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->SetNameTitle(\"%s\",\"%s\");\n",graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
                if (!homeFolder)
-                  buffer.AppendFormatted("   %sFolder->Add(f%s);\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
+                  buffer.AppendFormatted("      %sFolder->Add(f%s);\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
                else
-                  buffer.AppendFormatted("   GetHistoFolder()->Add(f%s);\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("   f%s->GetXaxis()->SetTitle(xLabel.Data());\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("   f%s->GetYaxis()->SetTitle(yLabel.Data());\n",graphName[iTask][i].Data());
+                  buffer.AppendFormatted("      GetHistoFolder()->Add(f%s);\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->GetXaxis()->SetTitle(xLabel.Data());\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->GetYaxis()->SetTitle(yLabel.Data());\n",graphName[iTask][i].Data());
             }
             else {
-               buffer.AppendFormatted("   %s *graph%d;\n",graphType[iTask][i].Data(),i);
-               buffer.AppendFormatted("   f%ss = new TObjArray(arraySize);\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("   for (j=0;j<arraySize;j++) {\n");
-               buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      name.Insert(0,graphName.Data());\n");
-               buffer.AppendFormatted("      title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      title.Insert(0,graphTitle.Data());\n");
-               buffer.AppendFormatted("      graph%d = new %s(1);\n",i,graphType[iTask][i].Data());
-               buffer.AppendFormatted("      graph%d->SetNameTitle(\"%s\",\"%s\");\n",i,graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
-               buffer.AppendFormatted("      f%ss->Add(graph%d);\n",graphName[iTask][i].Data(),i);
+               buffer.AppendFormatted("      %s *graph%d;\n",graphType[iTask][i].Data(),i);
+               buffer.AppendFormatted("      f%ss = new TObjArray(arraySize);\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      for (j=0;j<arraySize;j++) {\n");
+               buffer.AppendFormatted("         name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         name.Insert(0,graphName.Data());\n");
+               buffer.AppendFormatted("         title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         title.Insert(0,graphTitle.Data());\n");
+               buffer.AppendFormatted("         graph%d = new %s(1);\n",i,graphType[iTask][i].Data());
+               buffer.AppendFormatted("         graph%d->SetNameTitle(\"%s\",\"%s\");\n",i,graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
+               buffer.AppendFormatted("         f%ss->Add(graph%d);\n",graphName[iTask][i].Data(),i);
                if (!homeFolder)
-                  buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
+                  buffer.AppendFormatted("         %sFolder->Add(f%ss->At(j));\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
                else
-                  buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("      graph%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
-               buffer.AppendFormatted("      graph%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
-               buffer.AppendFormatted("   }\n");
+                  buffer.AppendFormatted("         GetHistoFolder()->Add(f%ss->At(j));\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("         graph%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
+               buffer.AppendFormatted("         graph%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
+               buffer.AppendFormatted("      }\n");
             }
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -2100,6 +2085,20 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       // ReBook Histo
       buffer.AppendFormatted("void %sT%s_Base::ReBookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       if (numOfHistos[iTask]>0) {
+         // get histo folders
+         for (i=0;i<numOfHistos[iTask];i++) {
+            if (histoFolderName[iTask][i]=="")
+               continue;
+            bool alreadyDefined = false;
+            for (j=0;j<i;j++) {
+               if (histoFolderName[iTask][i]==histoFolderName[iTask][j])
+                  alreadyDefined = true;
+            }
+            if (!alreadyDefined) {
+               buffer.AppendFormatted("      TFolder *%sFolder;\n",histoFolderName[iTask][i].Data());
+               buffer.AppendFormatted("      %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
+            }
+         }
          array = false;
          for (i=0;i<numOfHistos[iTask];i++) {
             if (histoArraySize[iTask][i]!="1") array = true;
@@ -2142,121 +2141,102 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   ROMEString zmaxStr;\n");
          }
          for (i=0;i<numOfHistos[iTask];i++) {
-            buffer.AppendFormatted("   f%sHisto->SetTitleOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetFolderTitleOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoXLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoYLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZLabelOriginal(\"%s\");\n",histoName[iTask][i].Data(),histoZLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetArraySizeOriginal(%s);\n",histoName[iTask][i].Data(),histoArraySize[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetArrayStartIndexOriginal(%s);\n",histoName[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoXNbins[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXminOriginal(%s);\n",histoName[iTask][i].Data(),histoXmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetXmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoXmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoYNbins[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYminOriginal(%s);\n",histoName[iTask][i].Data(),histoYmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetYmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoYmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZNbinsOriginal(%s);\n",histoName[iTask][i].Data(),histoZNbins[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZminOriginal(%s);\n",histoName[iTask][i].Data(),histoZmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sHisto->SetZmaxOriginal(%s);\n",histoName[iTask][i].Data(),histoZmax[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      f%sHisto->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),
+               histoTitle[iTask][i].Data(),histoFolderTitle[iTask][i].Data(),histoArraySize[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data(),
+               histoXLabel[iTask][i].Data(),histoYLabel[iTask][i].Data(),histoZLabel[iTask][i].Data(),
+               histoXNbins[iTask][i].Data(),histoXmin[iTask][i].Data(),histoXmax[iTask][i].Data(),
+               histoYNbins[iTask][i].Data(),histoYmin[iTask][i].Data(),histoYmax[iTask][i].Data(),
+               histoZNbins[iTask][i].Data(),histoZmin[iTask][i].Data(),histoZmax[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
          }
          for (i=0;i<numOfHistos[iTask];i++) {
-            bool sameFolder = false;
             bool homeFolder = false;
             if (histoFolderName[iTask][i]=="") {
                homeFolder = true;
             }
-            else {
-               for (j=0;j<i;j++) {
-                  if (histoFolderName[iTask][i]==histoFolderName[iTask][j])
-                     sameFolder = true;
-               }
-            }
+            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      histoHandle = Get%sHisto();\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      histoTitle = histoHandle->GetTitle();\n");
+            buffer.AppendFormatted("      folderTitle = histoHandle->GetFolderTitle();\n");
+            buffer.AppendFormatted("      xLabel = histoHandle->GetXLabel();\n");
+            buffer.AppendFormatted("      yLabel = histoHandle->GetYLabel();\n");
+            buffer.AppendFormatted("      zLabel = histoHandle->GetZLabel();\n");
+            buffer.AppendFormatted("      arraySize = histoHandle->GetArraySize();\n");
+            buffer.AppendFormatted("      arraySizeStr = histoHandle->GetArraySizeString(arraySizeStr);\n");
+            buffer.AppendFormatted("      arrayStartIndex = histoHandle->GetArrayStartIndex();\n");
+            buffer.AppendFormatted("      arrayStartIndexStr = histoHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
+            buffer.AppendFormatted("      xNbins = histoHandle->GetXNbins();\n");
+            buffer.AppendFormatted("      xNbinsStr = histoHandle->GetXNbinsString(xNbinsStr);\n");
+            buffer.AppendFormatted("      xmin = histoHandle->GetXmin();\n");
+            buffer.AppendFormatted("      xminStr = histoHandle->GetXminString(xminStr);\n");
+            buffer.AppendFormatted("      xmax = histoHandle->GetXmax();\n");
+            buffer.AppendFormatted("      xmaxStr = histoHandle->GetXmaxString(xmaxStr);\n");
+            buffer.AppendFormatted("      yNbins = histoHandle->GetYNbins();\n");
+            buffer.AppendFormatted("      yNbinsStr = histoHandle->GetYNbinsString(yNbinsStr);\n");
+            buffer.AppendFormatted("      ymin = histoHandle->GetYmin();\n");
+            buffer.AppendFormatted("      yminStr = histoHandle->GetYminString(yminStr);\n");
+            buffer.AppendFormatted("      ymax = histoHandle->GetYmax();\n");
+            buffer.AppendFormatted("      ymaxStr = histoHandle->GetYmaxString(ymaxStr);\n");
+            buffer.AppendFormatted("      zNbins = histoHandle->GetZNbins();\n");
+            buffer.AppendFormatted("      zNbinsStr = histoHandle->GetZNbinsString(zNbinsStr);\n");
+            buffer.AppendFormatted("      zmin = histoHandle->GetZmin();\n");
+            buffer.AppendFormatted("      zminStr = histoHandle->GetZminString(zminStr);\n");
+            buffer.AppendFormatted("      zmax  = histoHandle->GetZmax();\n");
+            buffer.AppendFormatted("      zmaxStr  = histoHandle->GetZmaxString(zmaxStr);\n");
 
-            buffer.AppendFormatted("   histoHandle = Get%sHisto();\n",histoName[iTask][i].Data());
-            buffer.AppendFormatted("   histoTitle = histoHandle->GetTitle();\n");
-            buffer.AppendFormatted("   folderTitle = histoHandle->GetFolderTitle();\n");
-            buffer.AppendFormatted("   xLabel = histoHandle->GetXLabel();\n");
-            buffer.AppendFormatted("   yLabel = histoHandle->GetYLabel();\n");
-            buffer.AppendFormatted("   zLabel = histoHandle->GetZLabel();\n");
-            buffer.AppendFormatted("   arraySize = histoHandle->GetArraySize();\n");
-            buffer.AppendFormatted("   arraySizeStr = histoHandle->GetArraySizeString(arraySizeStr);\n");
-            buffer.AppendFormatted("   arrayStartIndex = histoHandle->GetArrayStartIndex();\n");
-            buffer.AppendFormatted("   arrayStartIndexStr = histoHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
-            buffer.AppendFormatted("   xNbins = histoHandle->GetXNbins();\n");
-            buffer.AppendFormatted("   xNbinsStr = histoHandle->GetXNbinsString(xNbinsStr);\n");
-            buffer.AppendFormatted("   xmin = histoHandle->GetXmin();\n");
-            buffer.AppendFormatted("   xminStr = histoHandle->GetXminString(xminStr);\n");
-            buffer.AppendFormatted("   xmax = histoHandle->GetXmax();\n");
-            buffer.AppendFormatted("   xmaxStr = histoHandle->GetXmaxString(xmaxStr);\n");
-            buffer.AppendFormatted("   yNbins = histoHandle->GetYNbins();\n");
-            buffer.AppendFormatted("   yNbinsStr = histoHandle->GetYNbinsString(yNbinsStr);\n");
-            buffer.AppendFormatted("   ymin = histoHandle->GetYmin();\n");
-            buffer.AppendFormatted("   yminStr = histoHandle->GetYminString(yminStr);\n");
-            buffer.AppendFormatted("   ymax = histoHandle->GetYmax();\n");
-            buffer.AppendFormatted("   ymaxStr = histoHandle->GetYmaxString(ymaxStr);\n");
-            buffer.AppendFormatted("   zNbins = histoHandle->GetZNbins();\n");
-            buffer.AppendFormatted("   zNbinsStr = histoHandle->GetZNbinsString(zNbinsStr);\n");
-            buffer.AppendFormatted("   zmin = histoHandle->GetZmin();\n");
-            buffer.AppendFormatted("   zminStr = histoHandle->GetZminString(zminStr);\n");
-            buffer.AppendFormatted("   zmax  = histoHandle->GetZmax();\n");
-            buffer.AppendFormatted("   zmaxStr  = histoHandle->GetZmaxString(zmaxStr);\n");
+            buffer.AppendFormatted("      histoTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(histoTitle),histoTitle,histoTitle);\n");
+            buffer.AppendFormatted("      folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
+            buffer.AppendFormatted("      xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
+            buffer.AppendFormatted("      yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
+            buffer.AppendFormatted("      zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
+            buffer.AppendFormatted("      arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
+            buffer.AppendFormatted("      arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
+            buffer.AppendFormatted("      xNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(xNbinsStr),xNbins);\n");
+            buffer.AppendFormatted("      xmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr),xmin );\n");
+            buffer.AppendFormatted("      xmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr),xmax );\n");
+            buffer.AppendFormatted("      yNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(yNbinsStr),yNbins);\n");
+            buffer.AppendFormatted("      ymin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr),ymin );\n");
+            buffer.AppendFormatted("      ymax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr),ymax);\n");
+            buffer.AppendFormatted("      zNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(zNbinsStr),zNbins);\n");
+            buffer.AppendFormatted("      zmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr),zmin);\n");
+            buffer.AppendFormatted("      zmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr),zmax);\n");
 
-            buffer.AppendFormatted("   histoTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(histoTitle),histoTitle,histoTitle);\n");
-            buffer.AppendFormatted("   folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
-            buffer.AppendFormatted("   xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
-            buffer.AppendFormatted("   yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
-            buffer.AppendFormatted("   zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
-            buffer.AppendFormatted("   arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
-            buffer.AppendFormatted("   arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
-            buffer.AppendFormatted("   xNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(xNbinsStr),xNbins);\n");
-            buffer.AppendFormatted("   xmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr),xmin );\n");
-            buffer.AppendFormatted("   xmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr),xmax );\n");
-            buffer.AppendFormatted("   yNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(yNbinsStr),yNbins);\n");
-            buffer.AppendFormatted("   ymin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr),ymin );\n");
-            buffer.AppendFormatted("   ymax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr),ymax);\n");
-            buffer.AppendFormatted("   zNbins = GetObjectInterpreterIntValue(GetObjectInterpreterCode(zNbinsStr),zNbins);\n");
-            buffer.AppendFormatted("   zmin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr),zmin);\n");
-            buffer.AppendFormatted("   zmax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr),zmax);\n");
-
-            // get histo folder
-            if (!sameFolder&&!homeFolder) {
-               buffer.AppendFormatted("   TFolder *%sFolder;;\n",histoFolderName[iTask][i].Data());
-               buffer.AppendFormatted("   %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
-            }
             // create histos
-            buffer.AppendFormatted("   histoName = \"%s\";\n",histoName[iTask][i].Data());
-            buffer.AppendFormatted("   histoName+=fHistoSuffix;\n");
+            buffer.AppendFormatted("      histoName = \"%s\";\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      histoName+=fHistoSuffix;\n");
             if (histoArraySize[iTask][i]=="1") {
             }
             else {
-               buffer.AppendFormatted("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
-               buffer.AppendFormatted("   arraySizeOld = f%ss->GetEntries();\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   if (arraySize > arraySizeOld)\n");
-               buffer.AppendFormatted("      f%ss->Expand(arraySize);\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("   for (j=arraySizeOld;j<arraySize;j++) {\n");
-               buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      name.Insert(0,histoName.Data());\n");
-               buffer.AppendFormatted("      title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      title.Insert(0,histoTitle.Data());\n");
+               buffer.AppendFormatted("      %s *hist%d;\n",histoType[iTask][i].Data(),i);
+               buffer.AppendFormatted("      arraySizeOld = f%ss->GetEntries();\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      if (arraySize > arraySizeOld)\n");
+               buffer.AppendFormatted("         f%ss->Expand(arraySize);\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      for (j=arraySizeOld;j<arraySize;j++) {\n");
+               buffer.AppendFormatted("         name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         name.Insert(0,histoName.Data());\n");
+               buffer.AppendFormatted("         title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         title.Insert(0,histoTitle.Data());\n");
                if (histoType[iTask][i][2]==49) {
-                  buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax);\n",i,histoType[iTask][i].Data());
+                  buffer.AppendFormatted("         hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax);\n",i,histoType[iTask][i].Data());
                }
                if (histoType[iTask][i][2]==50) {
-                  buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",i,histoType[iTask][i].Data());
+                  buffer.AppendFormatted("         hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",i,histoType[iTask][i].Data());
                }
                if (histoType[iTask][i][2]==51) {
-                  buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",i,histoType[iTask][i].Data());
+                  buffer.AppendFormatted("         hist%d = new %s(name.Data(),title.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",i,histoType[iTask][i].Data());
                }
-               buffer.AppendFormatted("      f%ss->AddAt(hist%d,j);\n",histoName[iTask][i].Data(),i);
+               buffer.AppendFormatted("         f%ss->AddAt(hist%d,j);\n",histoName[iTask][i].Data(),i);
                if (!homeFolder)
-                  buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+                  buffer.AppendFormatted("         %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
                else
-                  buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("      hist%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
-               buffer.AppendFormatted("      hist%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
-               buffer.AppendFormatted("      hist%d->GetZaxis()->SetTitle(zLabel.Data());\n",i);
-               buffer.AppendFormatted("   }\n");
+                  buffer.AppendFormatted("         GetHistoFolder()->Add(f%ss->At(j));\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("         hist%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
+               buffer.AppendFormatted("         hist%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
+               buffer.AppendFormatted("         hist%d->GetZaxis()->SetTitle(zLabel.Data());\n",i);
+               buffer.AppendFormatted("      }\n");
             }
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -2264,6 +2244,20 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       // ReBook Graph
       buffer.AppendFormatted("void %sT%s_Base::ReBookGraph() {\n",shortCut.Data(),taskName[iTask].Data());
       if (numOfGraphs[iTask]>0) {
+         // get graph folders
+         for (i=0;i<numOfGraphs[iTask];i++) {
+            if (graphFolderName[iTask][i]=="")
+               continue;
+            bool alreadyDefined = false;
+            for (j=0;j<i;j++) {
+               if (graphFolderName[iTask][i]==graphFolderName[iTask][j])
+                  alreadyDefined = true;
+            }
+            if (!alreadyDefined) {
+               buffer.AppendFormatted("      TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
+               buffer.AppendFormatted("      %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
+            }
+         }
          array = false;
          for (i=0;i<numOfGraphs[iTask];i++) {
             if (graphArraySize[iTask][i]!="1") array = true;
@@ -2300,103 +2294,88 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   ROMEString zMaxStr;\n");
          }
          for (i=0;i<numOfGraphs[iTask];i++) {
-            buffer.AppendFormatted("   f%sGraph->SetTitleOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetFolderTitleOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphFolderTitle[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetXLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphXLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetYLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphYLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetZLabelOriginal(\"%s\");\n",graphName[iTask][i].Data(),graphZLabel[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetArraySizeOriginal(%s);\n",graphName[iTask][i].Data(),graphArraySize[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetArrayStartIndexOriginal(%s);\n",graphName[iTask][i].Data(),graphArrayStartIndex[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetXminOriginal(%s);\n",graphName[iTask][i].Data(),graphXmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetXmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphXmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetYminOriginal(%s);\n",graphName[iTask][i].Data(),graphYmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetYmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphYmax[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetZminOriginal(%s);\n",graphName[iTask][i].Data(),graphZmin[iTask][i].Data());
-            buffer.AppendFormatted("   f%sGraph->SetZmaxOriginal(%s);\n",graphName[iTask][i].Data(),graphZmax[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      f%sGraph->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s);\n",graphName[iTask][i].Data(),
+               graphTitle[iTask][i].Data(),graphFolderTitle[iTask][i].Data(),graphArraySize[iTask][i].Data(),graphArrayStartIndex[iTask][i].Data(),
+               graphXLabel[iTask][i].Data(),graphYLabel[iTask][i].Data(),graphZLabel[iTask][i].Data(),
+               graphXmin[iTask][i].Data(),graphXmax[iTask][i].Data(),
+               graphYmin[iTask][i].Data(),graphYmax[iTask][i].Data(),
+               graphZmin[iTask][i].Data(),graphZmax[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
          }
          for (i=0;i<numOfGraphs[iTask];i++) {
-            bool sameFolder = false;
             bool homeFolder = false;
             if (graphFolderName[iTask][i]=="") {
                homeFolder = true;
             }
-            else {
-               for (j=0;j<i;j++) {
-                  if (graphFolderName[iTask][i]==graphFolderName[iTask][j])
-                     sameFolder = true;
-               }
-            }
 
-            buffer.AppendFormatted("   graphHandle = Get%sGraph();\n",graphName[iTask][i].Data());
-            buffer.AppendFormatted("   graphTitle = graphHandle->GetTitle();\n");
-            buffer.AppendFormatted("   folderTitle = graphHandle->GetFolderTitle();\n");
-            buffer.AppendFormatted("   xLabel = graphHandle->GetXLabel();\n");
-            buffer.AppendFormatted("   yLabel = graphHandle->GetYLabel();\n");
-            buffer.AppendFormatted("   zLabel = graphHandle->GetZLabel();\n");
-            buffer.AppendFormatted("   arraySize = graphHandle->GetArraySize();\n");
-            buffer.AppendFormatted("   arraySizeStr = graphHandle->GetArraySizeString(arraySizeStr);\n");
-            buffer.AppendFormatted("   arrayStartIndex = graphHandle->GetArrayStartIndex();\n");
-            buffer.AppendFormatted("   arrayStartIndexStr = graphHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
-            buffer.AppendFormatted("   xMin = graphHandle->GetXmin();\n");
-            buffer.AppendFormatted("   xMinStr = graphHandle->GetXminString(xMinStr);\n");
-            buffer.AppendFormatted("   xMax = graphHandle->GetXmax();\n");
-            buffer.AppendFormatted("   xMaxStr = graphHandle->GetXmaxString(xMaxStr);\n");
-            buffer.AppendFormatted("   yMin = graphHandle->GetYmin();\n");
-            buffer.AppendFormatted("   yMinStr = graphHandle->GetYminString(yMinStr);\n");
-            buffer.AppendFormatted("   yMax = graphHandle->GetYmax();\n");
-            buffer.AppendFormatted("   yMaxStr = graphHandle->GetYmaxString(yMaxStr);\n");
-            buffer.AppendFormatted("   zMin = graphHandle->GetZmin();\n");
-            buffer.AppendFormatted("   zMinStr = graphHandle->GetZminString(zMinStr);\n");
-            buffer.AppendFormatted("   zMax = graphHandle->GetZmax();\n");
-            buffer.AppendFormatted("   zMaxStr = graphHandle->GetZmaxString(zMaxStr);\n");
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      graphHandle = Get%sGraph();\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      graphTitle = graphHandle->GetTitle();\n");
+            buffer.AppendFormatted("      folderTitle = graphHandle->GetFolderTitle();\n");
+            buffer.AppendFormatted("      xLabel = graphHandle->GetXLabel();\n");
+            buffer.AppendFormatted("      yLabel = graphHandle->GetYLabel();\n");
+            buffer.AppendFormatted("      zLabel = graphHandle->GetZLabel();\n");
+            buffer.AppendFormatted("      arraySize = graphHandle->GetArraySize();\n");
+            buffer.AppendFormatted("      arraySizeStr = graphHandle->GetArraySizeString(arraySizeStr);\n");
+            buffer.AppendFormatted("      arrayStartIndex = graphHandle->GetArrayStartIndex();\n");
+            buffer.AppendFormatted("      arrayStartIndexStr = graphHandle->GetArrayStartIndexString(arrayStartIndexStr);\n");
+            buffer.AppendFormatted("      xMin = graphHandle->GetXmin();\n");
+            buffer.AppendFormatted("      xMinStr = graphHandle->GetXminString(xMinStr);\n");
+            buffer.AppendFormatted("      xMax = graphHandle->GetXmax();\n");
+            buffer.AppendFormatted("      xMaxStr = graphHandle->GetXmaxString(xMaxStr);\n");
+            buffer.AppendFormatted("      yMin = graphHandle->GetYmin();\n");
+            buffer.AppendFormatted("      yMinStr = graphHandle->GetYminString(yMinStr);\n");
+            buffer.AppendFormatted("      yMax = graphHandle->GetYmax();\n");
+            buffer.AppendFormatted("      yMaxStr = graphHandle->GetYmaxString(yMaxStr);\n");
+            buffer.AppendFormatted("      zMin = graphHandle->GetZmin();\n");
+            buffer.AppendFormatted("      zMinStr = graphHandle->GetZminString(zMinStr);\n");
+            buffer.AppendFormatted("      zMax = graphHandle->GetZmax();\n");
+            buffer.AppendFormatted("      zMaxStr = graphHandle->GetZmaxString(zMaxStr);\n");
 
-            buffer.AppendFormatted("   graphTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(graphTitle),graphTitle,graphTitle);\n");
-            buffer.AppendFormatted("   folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
-            buffer.AppendFormatted("   xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
-            buffer.AppendFormatted("   yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
-            buffer.AppendFormatted("   zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
-            buffer.AppendFormatted("   arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
-            buffer.AppendFormatted("   arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
-            buffer.AppendFormatted("   xMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMinStr),xMin);\n");
-            buffer.AppendFormatted("   xMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMaxStr),xMax);\n");
-            buffer.AppendFormatted("   yMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMinStr),yMin);\n");
-            buffer.AppendFormatted("   yMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMaxStr),yMax);\n");
-            buffer.AppendFormatted("   zMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMinStr),zMin);\n");
-            buffer.AppendFormatted("   zMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMaxStr),zMax);\n");
+            buffer.AppendFormatted("      graphTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(graphTitle),graphTitle,graphTitle);\n");
+            buffer.AppendFormatted("      folderTitle = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle),folderTitle,folderTitle);\n");
+            buffer.AppendFormatted("      xLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel),xLabel,xLabel);\n");
+            buffer.AppendFormatted("      yLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel),yLabel,yLabel);\n");
+            buffer.AppendFormatted("      zLabel = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel),zLabel,zLabel);\n");
+            buffer.AppendFormatted("      arraySize = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr),arraySize);\n");
+            buffer.AppendFormatted("      arrayStartIndex = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr),arrayStartIndex);\n");
+            buffer.AppendFormatted("      xMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMinStr),xMin);\n");
+            buffer.AppendFormatted("      xMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xMaxStr),xMax);\n");
+            buffer.AppendFormatted("      yMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMinStr),yMin);\n");
+            buffer.AppendFormatted("      yMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yMaxStr),yMax);\n");
+            buffer.AppendFormatted("      zMin = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMinStr),zMin);\n");
+            buffer.AppendFormatted("      zMax = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zMaxStr),zMax);\n");
 
-            // get graph folder
-            if (!sameFolder&&!homeFolder) {
-               buffer.AppendFormatted("   TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
-               buffer.AppendFormatted("   %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
-            }
             // create graphs
-            buffer.AppendFormatted("   graphName = \"%s\";\n",graphName[iTask][i].Data());
-            buffer.AppendFormatted("   graphName+=fGraphSuffix;\n");
+            buffer.AppendFormatted("      graphName = \"%s\";\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      graphName+=fGraphSuffix;\n");
             if (graphArraySize[iTask][i]=="1") {
             }
             else {
-               buffer.AppendFormatted("   %s *graph%d;\n",graphType[iTask][i].Data(),i);
-               buffer.AppendFormatted("   arraySizeOld = f%ss->GetEntries();\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("   if (arraySize > arraySizeOld)\n");
-               buffer.AppendFormatted("      f%ss->Expand(arraySize);\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("   for (j=arraySizeOld;j<arraySize;j++) {\n");
-               buffer.AppendFormatted("      if (f%ss->At(j))\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("         continue;\n");
-               buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      name.Insert(0,graphName.Data());\n");
-               buffer.AppendFormatted("      title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
-               buffer.AppendFormatted("      title.Insert(0,graphTitle.Data());\n");
-               buffer.AppendFormatted("      graph%d = new %s(1);\n",i,graphType[iTask][i].Data());
-               buffer.AppendFormatted("      graph%d->SetNameTitle(\"%s\",\"%s\");\n",i,graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
-               buffer.AppendFormatted("      f%ss->AddAt(graph%d,j);\n",graphName[iTask][i].Data(),i);
+               buffer.AppendFormatted("      %s *graph%d;\n",graphType[iTask][i].Data(),i);
+               buffer.AppendFormatted("      arraySizeOld = f%ss->GetEntries();\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      if (arraySize > arraySizeOld)\n");
+               buffer.AppendFormatted("         f%ss->Expand(arraySize);\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      for (j=arraySizeOld;j<arraySize;j++) {\n");
+               buffer.AppendFormatted("         if (f%ss->At(j))\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("            continue;\n");
+               buffer.AppendFormatted("         name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         name.Insert(0,graphName.Data());\n");
+               buffer.AppendFormatted("         title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
+               buffer.AppendFormatted("         title.Insert(0,graphTitle.Data());\n");
+               buffer.AppendFormatted("         graph%d = new %s(1);\n",i,graphType[iTask][i].Data());
+               buffer.AppendFormatted("         graph%d->SetNameTitle(\"%s\",\"%s\");\n",i,graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
+               buffer.AppendFormatted("         f%ss->AddAt(graph%d,j);\n",graphName[iTask][i].Data(),i);
                if (!homeFolder)
-                  buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
+                  buffer.AppendFormatted("         %sFolder->Add(f%ss->At(j));\n",graphFolderName[iTask][i].Data(),graphName[iTask][i].Data());
                else
-                  buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("      graph%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
-               buffer.AppendFormatted("      graph%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
-               buffer.AppendFormatted("   }\n");
+                  buffer.AppendFormatted("         GetHistoFolder()->Add(f%ss->At(j));\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("         graph%d->GetXaxis()->SetTitle(xLabel.Data());\n",i);
+               buffer.AppendFormatted("         graph%d->GetYaxis()->SetTitle(yLabel.Data());\n",i);
+               buffer.AppendFormatted("      }\n");
             }
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -2415,15 +2394,17 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   int nentry;\n");
          }
          for (i=0;i<numOfHistos[iTask];i++) {
+            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
             if (histoArraySize[iTask][i]=="1") {
-               buffer.AppendFormatted("   if (!Get%sHisto()->isAccumulation()) f%s->Reset();\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      if (!Get%sHisto()->isAccumulation()) f%s->Reset();\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
             else {
-               buffer.AppendFormatted("   if (!Get%sHisto()->isAccumulation()) {\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("       nentry = f%ss->GetEntries();\n",histoName[iTask][i].Data());
-               buffer.AppendFormatted("       for (j=0;j<nentry;j++) ((%s*)f%ss->At(j))->Reset();\n",histoType[iTask][i].Data(),histoName[iTask][i].Data());
-               buffer.AppendFormatted("   }\n");
+               buffer.AppendFormatted("      if (!Get%sHisto()->isAccumulation()) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("          nentry = f%ss->GetEntries();\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("          for (j=0;j<nentry;j++) ((%s*)f%ss->At(j))->Reset();\n",histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      }\n");
             }
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -2435,6 +2416,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             if (histoArraySize[iTask][i]=="1") {
                buffer.AppendFormatted("%s* %sT%s_Base::Get%s()\n",histoType[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("{\n");
+               buffer.AppendFormatted("   if (!f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      Error(\"Get%s\", \"histogram %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      return 0;\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
                buffer.AppendFormatted("      f%s = (%s*)(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%s\"));\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("   return f%s;\n",histoName[iTask][i].Data());
@@ -2444,6 +2429,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             else {
                buffer.AppendFormatted("%s* %sT%s_Base::Get%sAt(Int_t index)\n",histoType[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("{\n");
+               buffer.AppendFormatted("   if (!f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      Error(\"Get%sAt\", \"histogram %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      return 0;\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
                buffer.AppendFormatted("      ROMEString str;\n");
                buffer.AppendFormatted("      str.SetFormatted(\"%sT%s:%s_%%d\",index);\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
@@ -2455,6 +2444,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("TObjArray* %sT%s_Base::Get%s()\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("{\n");
+               buffer.AppendFormatted("   if (!f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      Error(\"Get%s\", \"histogram %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      return 0;\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
                buffer.AppendFormatted("      f%ss = (TObjArray*)(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%ss\"));\n",histoName[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("   return f%ss;\n",histoName[iTask][i].Data());
@@ -2478,13 +2471,15 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   int nentry;\n");
          }
          for (i=0;i<numOfGraphs[iTask];i++) {
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
             if (graphArraySize[iTask][i]=="1") {
-               buffer.AppendFormatted("   f%s->Set(0);\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      f%s->Set(0);\n",graphName[iTask][i].Data());
             }
             else {
-               buffer.AppendFormatted("    nentry = f%ss->GetEntries();\n",graphName[iTask][i].Data());
-               buffer.AppendFormatted("    for (j=0;j<nentry;j++) ((%s*)f%ss->At(j))->Set(0);\n",graphType[iTask][i].Data(),graphName[iTask][i].Data());
+               buffer.AppendFormatted("       nentry = f%ss->GetEntries();\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("       for (j=0;j<nentry;j++) ((%s*)f%ss->At(j))->Set(0);\n",graphType[iTask][i].Data(),graphName[iTask][i].Data());
             }
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -2496,6 +2491,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             if (graphArraySize[iTask][i]=="1") {
                buffer.AppendFormatted("%s* %sT%s_Base::Get%s()\n",graphType[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
                buffer.AppendFormatted("{\n");
+               buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      Error(\"Get%s\", \"graph %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphName[iTask][i].Data());
+               buffer.AppendFormatted("      return 0;\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
                buffer.AppendFormatted("      f%s = (%s*)(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%s\"));\n",graphName[iTask][i].Data(),graphType[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
                buffer.AppendFormatted("   return f%s;\n",graphName[iTask][i].Data());
@@ -2505,6 +2504,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             else {
                buffer.AppendFormatted("%s* %sT%s_Base::Get%sAt(Int_t index)\n",graphType[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
                buffer.AppendFormatted("{\n");
+               buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      Error(\"Get%sAt\", \"graph %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphName[iTask][i].Data());
+               buffer.AppendFormatted("      return 0;\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
                buffer.AppendFormatted("      ROMEString str;\n");
                buffer.AppendFormatted("      str.SetFormatted(\"%sT%s:%s_%%d\",index);\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
@@ -2516,6 +2519,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("TObjArray* %sT%s_Base::Get%s()\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
                buffer.AppendFormatted("{\n");
+               buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+               buffer.AppendFormatted("      Error(\"Get%s\", \"graph %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphName[iTask][i].Data());
+               buffer.AppendFormatted("      return 0;\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
                buffer.AppendFormatted("      f%ss = (TObjArray*)(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%ss\"));\n",graphName[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
                buffer.AppendFormatted("   return f%ss;\n",graphName[iTask][i].Data());
@@ -2523,14 +2530,18 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("\n");
             }
             buffer.AppendFormatted("Bool_t %sT%s_Base::Register%s() {\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
-            buffer.AppendFormatted("      return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+            buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
+            buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   return false;\n");
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
             buffer.AppendFormatted("Bool_t %sT%s_Base::UnRegister%s() {\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
-            buffer.AppendFormatted("      return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+            buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
+            buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   return false;\n");
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
@@ -2854,6 +2865,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
             buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   ROMEHisto* Get%sHisto() { return f%sHisto; }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   Bool_t Is%sActive() {return f%sHisto->IsActive(); }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
       }
 
       for (i=0;i<numOfGraphs[iTask];i++) {
@@ -2867,6 +2879,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
             buffer.AppendFormatted("   TObjArray* Get%sGraphsStorage() { return f%sGraphsStorage; } \n",graphName[iTask][i].Data(),graphName[iTask][i].Data());
          }
          buffer.AppendFormatted("   ROMEGraph* Get%sGraph() { return f%sGraph; }\n",graphName[iTask][i].Data(),graphName[iTask][i].Data());
+         buffer.AppendFormatted("   Bool_t Is%sActive() {return f%sGraph->IsActive(); }\n",graphName[iTask][i].Data(),graphName[iTask][i].Data());
          buffer.AppendFormatted("   Bool_t Register%s();\n",graphName[iTask][i].Data());
          buffer.AppendFormatted("   Bool_t UnRegister%s();\n",graphName[iTask][i].Data());
       }
@@ -3468,8 +3481,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
                   index = taskHierarchyParentIndex[index];
                }
+               if (tabObjectDisplayType[iTab][i].BeginsWith("TG"))
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->IsActive()",taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
+               else
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Get%sHisto()->IsActive()",taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),histoName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                buffer.AppendFormatted(") {\n");
-               if (tabObjectDisplayType[iTab][i]=="TGraphMT") {
+               if (tabObjectDisplayType[iTab][i].BeginsWith("TG")) {
                   buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                   buffer.AppendFormatted("         *((%s*)((TObjArray*)fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",tabObjectDisplayType[iTab][i].Data(),tabObjectDisplayObjectTypeIndex[iTab][i],taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                   buffer.AppendFormatted("         if (((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetN()==0)\n",tabObjectDisplayType[iTab][i].Data(),tabObjectDisplayObjectTypeIndex[iTab][i]);
@@ -3494,6 +3511,10 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
                   index = taskHierarchyParentIndex[index];
                }
+               if (tabSingleObjectType[iTab][j]=="Graph")
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->IsActive()",taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
+               else
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Get%sHisto()->IsActive()",taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                buffer.AppendFormatted(") {\n");
                if (tabSingleObjectType[iTab][j]=="Histogram") {
                   if (histoArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
@@ -4793,11 +4814,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   Get%s%sTaskBase()->Get%s()->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sHisto()->IsActive())\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      Get%s%sTaskBase()->Get%s()->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   for (i=0;i<Get%s%sTaskBase()->Get%sHisto()->GetArraySize();i++)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      Get%s%sTaskBase()->Get%sAt(i)->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sHisto()->IsActive()) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      for (i=0;i<Get%s%sTaskBase()->Get%sHisto()->GetArraySize();i++)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         Get%s%sTaskBase()->Get%sAt(i)->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   }\n");
          }
       }
    }
@@ -4818,11 +4842,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   Get%s%sTaskBase()->Get%s()->Set(0);\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sGraph()->IsActive())\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      Get%s%sTaskBase()->Get%s()->Set(0);\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   for (i=0;i<Get%s%sTaskBase()->Get%sGraph()->GetArraySize();i++)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      Get%s%sTaskBase()->Get%sAt(i)->Set(0);\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sGraph()->IsActive()) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      for (i=0;i<Get%s%sTaskBase()->Get%sGraph()->GetArraySize();i++)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         Get%s%sTaskBase()->Get%sAt(i)->Set(0);\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   }\n");
          }
       }
    }
@@ -6839,13 +6866,20 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("   ROMEStrArray entries;\n");
    for (i=0;i<histoParameters->GetEntriesFast();i++) {
       buffer.AppendFormatted("   // %s;\n",histoParameters->At(i).Data());
-      buffer.AppendFormatted("   writeString.SetFormatted(\"%s\",histo->Get%s());\n",histoParameterTypes->At(i).Data(),histoParameters->At(i).Data());
+      if (histoParameterTypes->At(i)=="bool") {
+         buffer.AppendFormatted("   if (histo->Is%s())\n",histoParameters->At(i).Data());
+         buffer.AppendFormatted("      writeString = \"true\";\n");
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      writeString = \"false\";\n");
+      }
+      else
+         buffer.AppendFormatted("   writeString.SetFormatted(\"%s\",histo->Get%s());\n",histoParameterTypes->At(i).Data(),histoParameters->At(i).Data());
       buffer.AppendFormatted("   comment = \"\";\n");
       buffer.AppendFormatted("   if (fCommentLevel >= %d)\n",ROMEConfig::kCommentLevelParam);
       path.SetFormatted("/xs:schema/xs:complexType[@name='HistogramDesc']/xs:sequence/xs:element[@name=Hist%s]/xs:annotation/xs:documentation", histoParameters->At(i).Data());
       configXSD->GetPathValue(path, str, "");
       buffer.AppendFormatted("      comment = \"%s\";\n",str.Data());
-      buffer.AppendFormatted("   frame->AddElement(new XMLToFormElement(\"EditBox\",\"Hist%s\",writeString.Data(),\"\",0,&entries,comment.Data()));\n",histoParameters->At(i).Data());
+      buffer.AppendFormatted("   frame->AddElement(new XMLToFormElement(\"%s\",\"Hist%s\",writeString.Data(),\"\",0,&entries,comment.Data()));\n",histoParameterWidgetTypes->At(i).Data(),histoParameters->At(i).Data());
    }
    buffer.AppendFormatted("   // Accumulation;\n");
    buffer.AppendFormatted("   if (histo->isAccumulation())\n");
@@ -6869,13 +6903,20 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("   ROMEStrArray entries;\n");
    for (i=0;i<graphParameters->GetEntriesFast();i++) {
       buffer.AppendFormatted("   // %s;\n",graphParameters->At(i).Data());
-      buffer.AppendFormatted("   writeString.SetFormatted(\"%s\",graph->Get%s());\n",graphParameterTypes->At(i).Data(),graphParameters->At(i).Data());
+      if (graphParameterTypes->At(i)=="bool") {
+         buffer.AppendFormatted("   if (graph->Is%s())\n",graphParameters->At(i).Data());
+         buffer.AppendFormatted("      writeString = \"true\";\n");
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      writeString = \"false\";\n");
+      }
+      else
+         buffer.AppendFormatted("   writeString.SetFormatted(\"%s\",graph->Get%s());\n",graphParameterTypes->At(i).Data(),graphParameters->At(i).Data());
       buffer.AppendFormatted("   comment = \"\";\n");
       buffer.AppendFormatted("   if (fCommentLevel >= %d)\n",ROMEConfig::kCommentLevelParam);
       path.SetFormatted("/xs:schema/xs:complexType[@name='GraphDesc']/xs:sequence/xs:element[@name=Graph%s]/xs:annotation/xs:documentation", graphParameters->At(i).Data());
       configXSD->GetPathValue(path, str, "");
       buffer.AppendFormatted("      comment = \"%s\";\n",str.Data());
-      buffer.AppendFormatted("   frame->AddElement(new XMLToFormElement(\"EditBox\",\"Graph%s\",writeString.Data(),\"\",0,&entries,comment.Data()));\n",graphParameters->At(i).Data());
+      buffer.AppendFormatted("   frame->AddElement(new XMLToFormElement(\"%s\",\"Graph%s\",writeString.Data(),\"\",0,&entries,comment.Data()));\n",histoParameterWidgetTypes->At(i).Data(),graphParameters->At(i).Data());
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -6898,12 +6939,12 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
    ROMEString temp;
    ROMEString comment;
    if (parGroup->GetGroupIdentifier()=="Histogram") {
-      temp = parGroup->GetParameterAt(0)->GetSetLineAt(0);
+      temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0,temp.Last('-'));
       buffer.AppendFormatted("%sAddHisto(tempFrame[%d],%s);\n",sTab.Data(),level,temp.Data());
    }
    else if (parGroup->GetGroupIdentifier()=="Graph") {
-      temp = parGroup->GetParameterAt(0)->GetSetLineAt(0);
+      temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0,temp.Last('-'));
       buffer.AppendFormatted("%sAddGraph(tempFrame[%d],%s);\n",sTab.Data(),level,temp.Data());
    }
@@ -7656,67 +7697,104 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
    histoParameters = new ROMEStrArray(16);
    histoParameterTypes = new ROMEStrArray(16);
+   histoParameterWidgetTypes = new ROMEStrArray(16);
+   histoParameters->AddLast("Active");
+   histoParameterTypes->AddLast("bool");
+   histoParameterWidgetTypes->AddLast("CheckButton");
    histoParameters->AddLast("Title");
    histoParameterTypes->AddLast("%s");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("FolderTitle");
    histoParameterTypes->AddLast("%s");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("ArraySize");
    histoParameterTypes->AddLast("%d");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("ArrayStartIndex");
    histoParameterTypes->AddLast("%d");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("XLabel");
    histoParameterTypes->AddLast("%s");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("YLabel");
    histoParameterTypes->AddLast("%s");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("ZLabel");
    histoParameterTypes->AddLast("%s");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("XNbins");
    histoParameterTypes->AddLast("%d");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Xmin");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Xmax");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("YNbins");
    histoParameterTypes->AddLast("%d");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Ymin");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Ymax");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("ZNbins");
    histoParameterTypes->AddLast("%d");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Zmin");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Zmax");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
 
    graphParameters = new ROMEStrArray(16);
    graphParameterTypes = new ROMEStrArray(16);
+   graphParameterWidgetTypes = new ROMEStrArray(16);
+   graphParameters->AddLast("Active");
+   graphParameterTypes->AddLast("bool");
+   graphParameterWidgetTypes->AddLast("CheckButton");
    graphParameters->AddLast("Title");
    graphParameterTypes->AddLast("%s");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("FolderTitle");
    graphParameterTypes->AddLast("%s");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("ArraySize");
    graphParameterTypes->AddLast("%d");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("ArrayStartIndex");
    graphParameterTypes->AddLast("%d");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("XLabel");
    graphParameterTypes->AddLast("%s");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("YLabel");
    graphParameterTypes->AddLast("%s");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("ZLabel");
    graphParameterTypes->AddLast("%s");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("Xmin");
    graphParameterTypes->AddLast("%g");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("Xmax");
    graphParameterTypes->AddLast("%g");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("Ymin");
    graphParameterTypes->AddLast("%g");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("Ymax");
    graphParameterTypes->AddLast("%g");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("Zmin");
    graphParameterTypes->AddLast("%g");
+   graphParameterWidgetTypes->AddLast("EditBox");
    graphParameters->AddLast("Zmax");
    graphParameterTypes->AddLast("%g");
+   graphParameterWidgetTypes->AddLast("EditBox");
 
    mainParGroup = new ROMEConfigParameterGroup("ConfigData");
 
@@ -8565,6 +8643,17 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          subSubGroup = new ROMEConfigParameterGroup(histoName[taskHierarchyClassIndex[i]][j],"1","Histogram","HistName");
          subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Histogram");
+         subSubGroup->AddParameter(new ROMEConfigParameter("HistActive"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
+         subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetActive(true);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->AddSetLine("else");
+         subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetActive(false);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
+         subSubGroup->GetLastParameter()->AddWriteLine("if (((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->IsActive())",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("else");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
          subSubGroup->AddParameter(new ROMEConfigParameter("HistTitle"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetTitle(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -8661,6 +8750,17 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          subSubGroup = new ROMEConfigParameterGroup(graphName[taskHierarchyClassIndex[i]][j],"1","Graph","GraphName");
          subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Graph");
+         subSubGroup->AddParameter(new ROMEConfigParameter("GraphActive"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Graph");
+         subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->SetActive(true);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->AddSetLine("else");
+         subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->SetActive(false);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
+         subSubGroup->GetLastParameter()->AddWriteLine("if (((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->IsActive())",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("else");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
          subSubGroup->AddParameter(new ROMEConfigParameter("GraphTitle"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Graph");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->SetTitle(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
@@ -9308,14 +9408,14 @@ Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *
    // Parameters
    if (parGroup->GetGroupIdentifier()=="Histogram") {
       pointerT = pointer(0,pointer.Length()-2);
-      temp = parGroup->GetParameterAt(0)->GetSetLineAt(0);
+      temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0,temp.Last('-'));
       buffer.AppendFormatted("%sSetHistoConfiguration(%s,configData->%s);\n",sTab.Data(),temp.Data(),pointerT.Data());
       return true;
    }
    if (parGroup->GetGroupIdentifier()=="Graph") {
       pointerT = pointer(0,pointer.Length()-2);
-      temp = parGroup->GetParameterAt(0)->GetSetLineAt(0);
+      temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0,temp.Last('-'));
       buffer.AppendFormatted("%sSetGraphConfiguration(%s,configData->%s);\n",sTab.Data(),temp.Data(),pointerT.Data());
       return true;
@@ -12739,42 +12839,46 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
+         buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTaskBase()->Get%sHisto()->IsActive()) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
-            buffer.AppendFormatted("      ROMEPrint::Warning(\"Histogram '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      %sTemp_%d->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         }
-         else {
-            buffer.AppendFormatted("   nentry = gAnalyzer->Get%s%sTaskBase()->Get%s()->GetEntries();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   for (i=0;i<nentry;i++) {\n");
-            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("         ROMEPrint::Warning(\"Histogram '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
-            buffer.AppendFormatted("         %sTemp_%d->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   }\n");
-         }
-      }
-      for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
-         if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),i,graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   if (%sTemp_%d==NULL)\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i);
-            buffer.AppendFormatted("      ROMEPrint::Warning(\"Graph '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      ((TNamed*)%sTemp_%d)->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%s());\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         %sTemp_%d->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   nentry = gAnalyzer->Get%s%sTaskBase()->Get%s()->GetEntries();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   for (i=0;i<nentry;i++) {\n");
-            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i)->GetName()));\n",graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),i,graphType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      nentry = gAnalyzer->Get%s%sTaskBase()->Get%s()->GetEntries();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      for (i=0;i<nentry;i++) {\n");
+            buffer.AppendFormatted("         %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
+            buffer.AppendFormatted("            ROMEPrint::Warning(\"Histogram '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         else\n");
+            buffer.AppendFormatted("            %sTemp_%d->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      }\n");
+         }
+         buffer.AppendFormatted("   }\n");
+      }
+      for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
+         buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->IsActive()) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+         if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
+            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),i,graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      if (%sTemp_%d==NULL)\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("         ROMEPrint::Warning(\"Graph '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",graphName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
-            buffer.AppendFormatted("         ((TNamed*)%sTemp_%d)->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("         ((TNamed*)%sTemp_%d)->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%s());\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          }
+         else {
+            buffer.AppendFormatted("      nentry = gAnalyzer->Get%s%sTaskBase()->Get%s()->GetEntries();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      for (i=0;i<nentry;i++) {\n");
+            buffer.AppendFormatted("         %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i)->GetName()));\n",graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),i,graphType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         if (%sTemp_%d==NULL)\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i);
+            buffer.AppendFormatted("            ROMEPrint::Warning(\"Graph '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         else\n");
+            buffer.AppendFormatted("            ((TNamed*)%sTemp_%d)->Copy(*gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      }\n");
+         }
+         buffer.AppendFormatted("   }\n");
       }
    }
    buffer.AppendFormatted("}\n\n");

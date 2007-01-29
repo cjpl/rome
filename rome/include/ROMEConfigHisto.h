@@ -13,6 +13,8 @@
 class ROMEConfigHisto : public TObject
 {
 public:
+   ROMEString   fHistActive;
+   Bool_t       fHistActiveModified;
    ROMEString   fHistTitle;
    Bool_t       fHistTitleModified;
    ROMEString   fHistFolderTitle;
@@ -48,6 +50,7 @@ public:
    ROMEString   fHistAccumulate;
    Bool_t       fHistAccumulateModified;
    ROMEConfigHisto() {
+      fHistActiveModified = false;
       fHistTitleModified = false;
       fHistFolderTitleModified = false;
       fHistArraySizeModified = false;

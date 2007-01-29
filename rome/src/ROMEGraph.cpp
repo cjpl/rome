@@ -15,6 +15,26 @@ ClassImp(ROMEGraph)
 
 ROMEGraph::ROMEGraph():TObject()
 {
+   fActive = true;
+}
+
+void ROMEGraph::SetOriginal(const char* title,const char* folderTitle,Int_t arraySize,Int_t arrayStartIndex,
+                            const char* xLabel,const char* yLabel,const char* zLabel,Double_t xmin,Double_t xmax,
+                            Double_t ymin,Double_t ymax,Double_t zmin,Double_t zmax)
+{
+   fTitleOrig = title;
+   fFolderTitleOrig = folderTitle;
+   fArraySizeOrig = arraySize;
+   fArrayStartIndexOrig = arrayStartIndex;
+   fXLabelOrig = xLabel;
+   fYLabelOrig = yLabel;
+   fZLabelOrig = zLabel;
+   fXminOrig = xmin;
+   fXmaxOrig = xmax;
+   fYminOrig = ymin;
+   fYmaxOrig = ymax;
+   fZminOrig = zmin;
+   fZmaxOrig = zmax;
 }
 
 const char* ROMEGraph::GetTitle() const{
