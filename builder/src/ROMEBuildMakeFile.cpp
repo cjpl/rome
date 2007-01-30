@@ -876,6 +876,7 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("# %sCXXFLAGS        : additional C++ compile flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sFFLAGS          : additional Fortran compile flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sLDFLAGS         : additional link flag\n", shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("# %sSOFLAGS         : additional shared library link flag\n", shortCut.ToUpper(tmp));
 #endif // R__UNIX
    buffer.AppendFormatted("\n");
 }
@@ -985,6 +986,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sFFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sLDFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
+   buffer.AppendFormatted("%sSOFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Compile and link flags\n");
@@ -1110,7 +1112,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
          buffer.AppendFormatted("endif # %s\n",mfUnixLibFlag[i][j].Data());
    }
    buffer.AppendFormatted("LDFLAGS   := $(%sLDFLAGS) $(osldflags)\n",shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("SOFLAGS   := $(ossoflags)\n");
+   buffer.AppendFormatted("SOFLAGS   := $(%sSOFLAGS) $(ossoflags)\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("## Object specific comiple options\n");
    buffer.AppendFormatted("NOOPT                     %s -O0\n",kEqualSign);
@@ -1207,7 +1209,10 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
 #if defined( R__UNIX )
       static bool calledFirstTime = true;
       if (calledFirstTime) {
-         buffer.AppendFormatted("objects +=");
+         if (sharedLink)
+            buffer.AppendFormatted("dlobjects +=");
+         else
+            buffer.AppendFormatted("objects +=");
          calledFirstTime = false;
       }
 #else
@@ -1215,10 +1220,8 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
 #endif // R__UNIX
       for (i=0;i<sources->GetEntriesFast();i++) {
          AnalyzeFileName(sources->At(i).Data(),path,fileName,fileExtension);
-         if (!sharedLink || fileName == "main")
+         if (!sharedLink || (sharedLink && fileName != "main"))
             buffer.AppendFormatted("%sobj/%s%s",separator.Data(),fileName.Data(),kObjectSuffix);
-         else
-            buffer.AppendFormatted("%s$(PWDST)/obj/%s%s",separator.Data(),fileName.Data(),kSharedObjectSuffix);
 #if defined( R__UNIX )
          separator = " \\\n           ";
 #endif // R__UNIX
@@ -1243,11 +1246,10 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
    if (!haveDict) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
    }
-   if (!sharedLink) {
+   if (sharedLink)
+      buffer.AppendFormatted("dlobjects := obj/%sUserDict%s $(dlobjects)\n",shortCut.Data(),kObjectSuffix);
+   else
       buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
-   } else {
-      buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict%s $(objects)\n",shortCut.Data(),kSharedObjectSuffix);
-   }
    if (!haveDict) {
       buffer.AppendFormatted("endif\n");
    }
@@ -1586,24 +1588,12 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
-         if (sharedLink && name != "main") {
-            buffer.AppendFormatted("$(PWDST)/obj/%s%s : %s $(%sDep)\n"
-                                   ,name.Data(),kSharedObjectSuffix,sources->At(i).Data(),name.Data());
-            if (quietMake)
-               buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
-            buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT obj/%s%s $< -o obj/%s%s\n"
-                                   ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kSharedObjectSuffix,name.Data(),kObjectSuffix);
-            buffer.AppendFormatted("\t%s $(LDFLAGS) $(SOFLAGS) obj/%s%s -o $@\n",linker.Data(),name.Data(),kObjectSuffix);
-//            buffer.AppendFormatted("\t@$(RM) obj/%s%s\n",name.Data(),kObjectSuffix);
-         } else {
-            buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
-                                   ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
-            if (quietMake)
-               buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
-            buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $< -o $@\n"
-                                   ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
-
-         }
+         buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
+                                ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
+         if (quietMake)
+            buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $< -o $@\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
       }
       buffer.AppendFormatted("\n");
 #endif // R__UNIX
@@ -1693,10 +1683,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
          continue;
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      if (sharedLink)
-         buffer.AppendFormatted(" \\\n           $(PWDST)/obj/%s%s",name.Data(),kSharedObjectSuffix);
-      else
-         buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
+      buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
 #else
       buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
 #endif // R__UNIX
@@ -1730,10 +1717,10 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      if (!sharedLink)
-         buffer.AppendFormatted("objects += obj/%s%s\n",name.Data(),kObjectSuffix);
+      if (sharedLink)
+         buffer.AppendFormatted("dlobjects += obj/%s%s\n",name.Data(),kObjectSuffix);
       else
-         buffer.AppendFormatted("objects += $(PWDST)/obj/%s%s\n",name.Data(),kSharedObjectSuffix);
+         buffer.AppendFormatted("objects += obj/%s%s\n",name.Data(),kObjectSuffix);
 #else
       buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
 #endif // R__UNIX
@@ -1984,6 +1971,9 @@ void ROMEBuilder::WriteMakefile() {
 // Objects
 // -------
    buffer.AppendFormatted("## Objects\n");
+   if (sharedLink) {
+      buffer.AppendFormatted("objects   += obj/main.o\n\n");
+   }
    WriteMakefileObjects(buffer,generatedSources);
    WriteMakefileObjects(buffer,tabSources);
    WriteMakefileObjects(buffer,taskSources);
@@ -1993,6 +1983,12 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
    WriteMakefileAdditionalSourceFilesObjects(buffer);
+   if (librome) {
+      if (sharedLink)
+         buffer.AppendFormatted("dlobjects += $(ROMESYS)/librome.a\n");
+      else
+         buffer.AppendFormatted("objects += $(ROMESYS)/librome.a\n");
+   }
    buffer.AppendFormatted("\n\n");
 
 // Depend files
@@ -2091,60 +2087,59 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
 
-// make objects
-   buffer.AppendFormatted("objects : $(objects)\n");
-   buffer.AppendFormatted("\n");
-
 // Link Statement
 // --------------
    buffer.AppendFormatted("## Link statements\n");
 
-   buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   if (librome) {
-      if (sharedLink)
-         buffer.AppendFormatted(" $(ROMESYS)/librome%s",kSharedObjectSuffix);
-      else
-         buffer.AppendFormatted(" $(ROMESYS)/librome.a");
-   }
-   buffer.AppendFormatted(" $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    buffer.AppendFormatted("\t@echo linking %s%s...\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
-#endif // R__VISUAL_CPLUSPLUS
-#if defined( R__UNIX )
+#else
    ROMEString linker;
+   ROMEString linkCommand;
    if (quietMake) {
       linker = "@$(CXXLD)";
+      linkCommand = "@ln -sf";
    } else {
       linker = "$(CXXLD)";
+      linkCommand = "ln -sf";
    }
-   if (quietMake) {
-      buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   if (sharedLink) {
+      buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) obj/lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+      if (quietMake) {
+         buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      }
+      buffer.AppendFormatted("\t%s $(LDFLAGS) -o $@ $(PWDST)/obj/lib%s%s%s $(objects) $(Libraries)\n",linker.Data(),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+   } else {
+      buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+      if (quietMake) {
+         buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      }
+      buffer.AppendFormatted("\t%s $(LDFLAGS) -o $@ $(objects) $(Libraries)\n", linker.Data());
    }
-   buffer.AppendFormatted("\t%s $(LDFLAGS) -o $@ $(objects)", linker.Data());
-   if (librome) {
-      if (sharedLink)
-         buffer.AppendFormatted(" $(ROMESYS)/librome%s",kSharedObjectSuffix);
-      else
-         buffer.AppendFormatted(" $(ROMESYS)/librome.a");
-   }
-   buffer.AppendFormatted(" $(Libraries)\n");
-   buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t@if [ -e lib%s%s%s ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("lib%s%s.so: $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+   buffer.AppendFormatted("so: lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
+   // this library is for loading from ROOT session
+   buffer.AppendFormatted("lib%s%s%s: $(dlobjects) $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    if (quietMake) {
-      buffer.AppendFormatted("\t@echo \"linking   lib%s%s.so\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-      tmp5 = "@";
+      buffer.AppendFormatted("\t@echo \"linking   lib%s%s%s\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    }
-   else {
-      tmp5 = "";
-   }
-   buffer.AppendFormatted("\t%s$(CXXLD) $(SOFLAGS) -o lib%s%s.so $(objects) $(Libraries)\n",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t%s $(SOFLAGS) -o lib%s%s%s $(dlobjects) $(objects) $(Libraries)\n",linker.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("\t%sln -sf lib%s%s.so lib%s%s.dylib",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+   buffer.AppendFormatted("\t%s lib%s%s.dylib lib%s%s.so\n",linkCommand.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
-   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n");
+   // this library is for linking executable binary
+   if (sharedLink) {
+      buffer.AppendFormatted("obj/lib%s%s%s: $(dlobjects) $(dependfiles) $(%s%sDep)\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+      if (quietMake) {
+         buffer.AppendFormatted("\t@echo \"linking   obj/lib%s%s%s\"\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+      }
+      buffer.AppendFormatted("\t%s $(SOFLAGS) -o $(PWDST)/obj/lib%s%s%s $(dlobjects)\n",linker.Data(),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+   }
+   buffer.AppendFormatted("\n");
 #endif // R__UNIX
 
 // PCH
