@@ -1242,17 +1242,14 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
    }
    if (!haveDict) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
-      if (!sharedLink)
-         buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
-      else
-         buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict%s $(objects)\n",shortCut.Data(),kSharedObjectSuffix);
-      buffer.AppendFormatted("endif\n");
    }
-   else{
-      if (!sharedLink)
-         buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
-      else
-         buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict%s $(objects)\n",shortCut.Data(),kSharedObjectSuffix);
+   if (!sharedLink) {
+      buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
+   } else {
+      buffer.AppendFormatted("objects := $(PWDST)/obj/%sUserDict%s $(objects)\n",shortCut.Data(),kSharedObjectSuffix);
+   }
+   if (!haveDict) {
+      buffer.AppendFormatted("endif\n");
    }
 #else
    buffer.AppendFormatted("objects = $(objects) obj/%sUserDict%s\n",shortCut.Data(),kObjectSuffix);
@@ -1594,8 +1591,10 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                    ,name.Data(),kSharedObjectSuffix,sources->At(i).Data(),name.Data());
             if (quietMake)
                buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
-            buffer.AppendFormatted("\t%s %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $(SOFLAGS) $< -o $@\n"
-                                   ,linker.Data(),compileOption.Data(),name.Data(),name.Data());
+            buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT obj/%s%s $< -o obj/%s%s\n"
+                                   ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kSharedObjectSuffix,name.Data(),kObjectSuffix);
+            buffer.AppendFormatted("\t%s $(SOFLAGS) obj/%s%s -o $@\n",linker.Data(),name.Data(),kObjectSuffix);
+//            buffer.AppendFormatted("\t@$(RM) obj/%s%s\n",name.Data(),kObjectSuffix);
          } else {
             buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
                                    ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
