@@ -1003,7 +1003,15 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          noLink = true;
       }
       else if (!strcmp(argv[i],"-sl")) {
+#if defined( R__UNIX )
          sharedLink = true;
+#if !defined( R__LINUX )
+         cout<<"You need to set LD_LIBRARY_PATH to run created program."<<endl;         
+         cout<<"e.g. $ROOTSYS/lib:$ROMESYS:/your/project/directory/obj"<<endl;         
+#endif
+#else
+         cout<<"-sl option is available on Un*x."<<endl;         
+#endif
       }
       else if (!strcmp(argv[i],"-nosql")) {
          cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
