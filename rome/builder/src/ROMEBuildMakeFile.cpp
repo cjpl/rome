@@ -1593,7 +1593,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
             buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT obj/%s%s $< -o obj/%s%s\n"
                                    ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kSharedObjectSuffix,name.Data(),kObjectSuffix);
-            buffer.AppendFormatted("\t%s $(SOFLAGS) obj/%s%s -o $@\n",linker.Data(),name.Data(),kObjectSuffix);
+            buffer.AppendFormatted("\t%s $(LDFLAGS) $(SOFLAGS) obj/%s%s -o $@\n",linker.Data(),name.Data(),kObjectSuffix);
 //            buffer.AppendFormatted("\t@$(RM) obj/%s%s\n",name.Data(),kObjectSuffix);
          } else {
             buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
@@ -2220,7 +2220,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) obj/*.d $(PCHHEADERS)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*%s obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix,kSharedObjectSuffix);
+   buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
    if (pch)
       buffer.AppendFormatted(" include/generated/*.gch");
    buffer.AppendFormatted("\n");
@@ -2229,7 +2229,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) -R src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s*%s obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,shortCut.Data(),kSharedObjectSuffix,shortCut.Data());
+   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,shortCut.Data());
 
 // .d files need to be place at the last
 #if defined( R__VISUAL_CPLUSPLUS )
