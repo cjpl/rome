@@ -985,6 +985,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sFFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sLDFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
+   if (sharedLink) {
+#if defined( R__LINUX )
+      buffer.AppendFormatted("%sLDFLAGS  += -Wl,-rpath,$(ROMESYS):$(PWDST)\n");
+#endif
+   }
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Compile and link flags\n");
