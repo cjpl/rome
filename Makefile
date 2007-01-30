@@ -79,13 +79,6 @@ endif
 endif
 
 DICTIONARIES = ROMEBuilderDict.h UpdateVersionHDict.h
-ifeq ($(LIBROME), yes)
-  INCLUDE += -DHAVE_LIBROME
-  LIBROMEFILE = librome.a librome.so
-  DICTIONARIES += ROMELibDict.h
-else
-  LIBROMEFILE =
-endif
 
 NEED_TARRAYL64 = no
 ifeq ($(ROOT_MAJOR), 5)
@@ -102,6 +95,14 @@ INCLUDE += -Iinclude/array64
 endif
 
 -include Makefile.arch
+
+ifeq ($(LIBROME), yes)
+  INCLUDE += -DHAVE_LIBROME
+  LIBROMEFILE := librome.a librome.so
+  DICTIONARIES += ROMELibDict.h
+else
+  LIBROMEFILE =
+endif
 
 BldObjects := obj/ROMEBuilder.o \
               obj/ROMEBuildReadXML.o \
@@ -265,6 +266,9 @@ librome.a: Makefile $(LibObjects)
 
 librome.so: Makefile $(LibObjects)
 	$(CXXLD) $(SOFLAGS) -o $@ $(LibObjects)
+ifeq ($(OSTYPE),darwin)
+	ln -s librome.so librome.dylib
+endif
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \

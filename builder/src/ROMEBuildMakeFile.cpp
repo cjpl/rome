@@ -987,7 +987,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sLDFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    if (sharedLink) {
 #if defined( R__LINUX )
-      buffer.AppendFormatted("%sLDFLAGS  += -Wl,-rpath,$(ROMESYS):$(PWDST)\n");
+      buffer.AppendFormatted("%sLDFLAGS  += -Wl,-rpath,$(ROMESYS):$(PWDST)\n",shortCut.ToUpper(tmp1));
 #endif
    }
    buffer.AppendFormatted("\n");
@@ -1602,8 +1602,8 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                    ,name.Data(),kSharedObjectSuffix,sources->At(i).Data(),name.Data());
             if (quietMake)
                buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kSharedObjectSuffix);
-            buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $(SOFLAGS) $< -o $@\n"
-                                   ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
+            buffer.AppendFormatted("\t%s %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $(SOFLAGS) $< -o $@\n"
+                                   ,linker.Data(),compileOption.Data(),name.Data(),name.Data());
          } else {
             buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
                                    ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
@@ -2111,7 +2111,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    if (librome) {
       if (sharedLink)
-         buffer.AppendFormatted(" $(ROMESYS)/librome.so");
+         buffer.AppendFormatted(" $(ROMESYS)/librome%s",kSharedObjectSuffix);
       else
          buffer.AppendFormatted(" $(ROMESYS)/librome.a");
    }

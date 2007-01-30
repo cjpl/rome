@@ -11,11 +11,13 @@ OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
 ifeq ($(OSTYPE),osf1)
 LIBRARY += -lc -lbsd
 SOFLAGS = -Wl,-expect_unresolved,* -shared
+SOEXT = so
 endif
 
 ifeq ($(OSTYPE),freebsd)
 LIBRARY += -lbsd -lcompat
 SOFLAGS =  -shared -Wl,-x
+SOEXT = so
 endif
 
 ifeq ($(OSTYPE),darwin)
@@ -34,14 +36,17 @@ else
 SOFLAGS := -dynamiclib -single_module -undefined dynamic_lookup
 endif
 endif
+SOEXT = dylib
 endif
 
 ifeq ($(OSTYPE),linux)
 LIBRARY += -lpthread
 SOFLAGS := -shared
+SOEXT = so
 endif
 
 ifeq ($(OSTYPE),solaris)
 LIBRARY += -lsocket -lnsl
 SOFLAGS := -G
+SOEXT = so
 endif
