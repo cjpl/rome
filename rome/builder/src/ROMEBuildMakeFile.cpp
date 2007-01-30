@@ -985,17 +985,12 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sFFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sLDFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
-   if (sharedLink) {
-#if defined( R__LINUX )
-      buffer.AppendFormatted("%sLDFLAGS  += -Wl,-rpath,$(ROMESYS):$(PWDST)\n",shortCut.ToUpper(tmp1));
-#endif
-   }
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Compile and link flags\n");
    buffer.AppendFormatted("rootlibs  := $(shell $(ROOTSYS)/bin/root-config --libs) -lHtml -lThread\n");
-   buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs) -lHtml -lThread\n");
-   buffer.AppendFormatted("rootcflags:= $(shell  $(ROOTSYS)/bin/root-config --cflags)\n");
+   buffer.AppendFormatted("rootglibs := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml -lThread\n");
+   buffer.AppendFormatted("rootcflags:= $(shell $(ROOTSYS)/bin/root-config --cflags)\n");
    buffer.AppendFormatted("sqllibs   :=");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
@@ -1105,10 +1100,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    // libs
-   if (librome)
-      buffer.AppendFormatted("Libraries := -L$(ROMESYS) -lrome\n");
-   else
-      buffer.AppendFormatted("Libraries :=\n");
+   buffer.AppendFormatted("Libraries :=\n");
    buffer.AppendFormatted("Libraries += $(oslibs) $(sqllibs) $(daqlibs) $(rootglibs) $(clibs)\n");
    for (i=0;i<numOfMFUnixLibs;i++) {
       for (j=0;j<numOfMFUnixLibFlags[i];j++)
@@ -2121,13 +2113,23 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
+   ROMEString linker;
+   if (quietMake) {
+      linker = "@$(CXXLD)";
+   } else {
+      linker = "$(CXXLD)";
+   }
    if (quietMake) {
       buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-      buffer.AppendFormatted("\t@$(CXXLD) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
    }
-   else {
-      buffer.AppendFormatted("\t$(CXXLD) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+   buffer.AppendFormatted("\t%s $(LDFLAGS) -o $@ $(objects)", linker.Data());
+   if (librome) {
+      if (sharedLink)
+         buffer.AppendFormatted(" $(ROMESYS)/librome%s",kSharedObjectSuffix);
+      else
+         buffer.AppendFormatted(" $(ROMESYS)/librome.a");
    }
+   buffer.AppendFormatted(" $(Libraries)\n");
    buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
