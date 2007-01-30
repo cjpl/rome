@@ -267,6 +267,7 @@ librome.a: Makefile $(LibObjects)
 librome.so: Makefile $(LibObjects)
 	$(CXXLD) $(SOFLAGS) -o $@ $(LibObjects)
 ifeq ($(OSTYPE),darwin)
+	-$(RM) librome.dylib
 	ln -s librome.so librome.dylib
 endif
 

@@ -784,8 +784,12 @@ Bool_t ROMEBuilder::StartBuilder()
 
 #if defined( R__MACOSX )
    if (sharedLink) {
-      cout<<"You need to set DYLD_LIBRARY_PATH to run created program."<<endl;
-      cout<<"e.g. $ROOTSYS/lib:$ROMESYS"<<endl;
+      cout<<endl;
+      cout<<"##########################################################"<<endl;
+      cout<<" You need to set DYLD_LIBRARY_PATH to run created program."<<endl;
+      cout<<" e.g. $ROOTSYS/lib:$ROMESYS"<<endl;
+      cout<<"##########################################################"<<endl;
+      cout<<endl;
    }
 #endif
 
