@@ -269,11 +269,11 @@ librome.a: Makefile $(LibObjects)
 
 librome.so: Makefile $(LibObjects)
 ifeq ($(OSTYPE),darwin)
-	$(CXXLD) $(SOFLAGS) -o $(ROMESYS)/librome.dylib $(LibObjects)
+	$(CXXLD) $(ROMELIB_FLAGS) $(SOFLAGS) -o $(ROMESYS)/librome.dylib $(LibObjects)
 	-$(RM) librome.so
 	ln -s librome.dylib librome.so
 else
-	$(CXXLD) $(SOFLAGS) -o $(ROMESYS)/librome.so $(LibObjects)
+	$(CXXLD) $(ROMELIB_FLAGS) $(SOFLAGS) -o $(ROMESYS)/librome.so $(LibObjects)
 endif
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
