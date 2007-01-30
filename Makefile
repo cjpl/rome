@@ -32,6 +32,9 @@
 ### For details, please read man page of gcc.
 # ROMEPIC = no
 
+### ROMESYS
+ROMESYS = $(shell pwd)
+
 ### Compiler
 CXX   ?= g++
 CC    ?= gcc
@@ -265,10 +268,12 @@ librome.a: Makefile $(LibObjects)
 	$(AR) -rcs $@ $(LibObjects)
 
 librome.so: Makefile $(LibObjects)
-	$(CXXLD) $(SOFLAGS) -o $@ $(LibObjects)
 ifeq ($(OSTYPE),darwin)
-	-$(RM) librome.dylib
-	ln -s librome.so librome.dylib
+	$(CXXLD) $(SOFLAGS) -o $(ROMESYS)/librome.dylib $(LibObjects)
+	-$(RM) librome.so
+	ln -s librome.dylib librome.so
+else
+	$(CXXLD) $(SOFLAGS) -o $(ROMESYS)/librome.so $(LibObjects)
 endif
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)

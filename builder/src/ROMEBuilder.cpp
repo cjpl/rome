@@ -781,18 +781,6 @@ Bool_t ROMEBuilder::StartBuilder()
 #endif // 4.01/00
    cout << endl;
 #endif // ROOT_VERSION
-
-#if defined( R__MACOSX )
-   if (sharedLink) {
-      cout<<endl;
-      cout<<"##########################################################"<<endl;
-      cout<<" You need to set DYLD_LIBRARY_PATH to run created program."<<endl;
-      cout<<" e.g. $ROOTSYS/lib:$ROMESYS"<<endl;
-      cout<<"##########################################################"<<endl;
-      cout<<endl;
-   }
-#endif
-
    return true;
 }
 
