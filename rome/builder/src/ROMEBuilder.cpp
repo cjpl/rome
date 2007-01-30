@@ -781,6 +781,14 @@ Bool_t ROMEBuilder::StartBuilder()
 #endif // 4.01/00
    cout << endl;
 #endif // ROOT_VERSION
+
+#if defined( R__MACOSX )
+   if (sharedLink) {
+      cout<<"You need to set DYLD_LIBRARY_PATH to run created program."<<endl;
+      cout<<"e.g. $ROOTSYS/lib:$ROMESYS"<<endl;
+   }
+#endif
+
    return true;
 }
 
@@ -1005,10 +1013,6 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-sl")) {
 #if defined( R__UNIX )
          sharedLink = true;
-#if !defined( R__LINUX )
-         cout<<"You need to set LD_LIBRARY_PATH to run created program."<<endl;         
-         cout<<"e.g. $ROOTSYS/lib:$ROMESYS:/your/project/directory/obj"<<endl;         
-#endif
 #else
          cout<<"-sl option is available on Un*x."<<endl;         
 #endif
