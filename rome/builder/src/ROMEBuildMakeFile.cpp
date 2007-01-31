@@ -1209,7 +1209,7 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
 #if defined( R__UNIX )
       static bool calledFirstTime = true;
       if (calledFirstTime) {
-         if (sharedLink)
+         if (dynamicLink)
             buffer.AppendFormatted("dlobjects +=");
          else
             buffer.AppendFormatted("objects +=");
@@ -1220,7 +1220,7 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
 #endif // R__UNIX
       for (i=0;i<sources->GetEntriesFast();i++) {
          AnalyzeFileName(sources->At(i).Data(),path,fileName,fileExtension);
-         if (!sharedLink || (sharedLink && fileName != "main"))
+         if (!dynamicLink || (dynamicLink && fileName != "main"))
             buffer.AppendFormatted("%sobj/%s%s",separator.Data(),fileName.Data(),kObjectSuffix);
 #if defined( R__UNIX )
          separator = " \\\n           ";
@@ -1246,7 +1246,7 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
    if (!haveDict) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
    }
-   if (sharedLink)
+   if (dynamicLink)
       buffer.AppendFormatted("dlobjects := obj/%sUserDict%s $(dlobjects)\n",shortCut.Data(),kObjectSuffix);
    else
       buffer.AppendFormatted("objects := obj/%sUserDict%s $(objects)\n",shortCut.Data(),kObjectSuffix);
@@ -1717,7 +1717,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      if (sharedLink)
+      if (dynamicLink)
          buffer.AppendFormatted("dlobjects += obj/%s%s\n",name.Data(),kObjectSuffix);
       else
          buffer.AppendFormatted("objects += obj/%s%s\n",name.Data(),kObjectSuffix);
@@ -1838,8 +1838,8 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
       buffer.AppendFormatted(" -v");
    if (noLink)
       buffer.AppendFormatted(" -nl");
-   if (sharedLink)
-      buffer.AppendFormatted(" -sl");
+   if (dynamicLink)
+      buffer.AppendFormatted(" -dl");
    if (orca)
       buffer.AppendFormatted(" -orca");
    if (midas)
@@ -1971,7 +1971,7 @@ void ROMEBuilder::WriteMakefile() {
 // Objects
 // -------
    buffer.AppendFormatted("## Objects\n");
-   if (sharedLink) {
+   if (dynamicLink) {
       buffer.AppendFormatted("objects   += obj/main.o\n\n");
    }
    WriteMakefileObjects(buffer,generatedSources);
@@ -1984,7 +1984,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileObjects(buffer,databaseSources);
    WriteMakefileAdditionalSourceFilesObjects(buffer);
    if (librome) {
-      if (sharedLink)
+      if (dynamicLink)
          buffer.AppendFormatted("dlobjects += $(ROMESYS)/librome.a\n");
       else
          buffer.AppendFormatted("objects += $(ROMESYS)/librome.a\n");
@@ -2105,7 +2105,7 @@ void ROMEBuilder::WriteMakefile() {
       linker = "$(CXXLD)";
       linkCommand = "ln -sf";
    }
-   if (sharedLink) {
+   if (dynamicLink) {
       buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) obj/lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
       if (quietMake) {
          buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
@@ -2132,7 +2132,7 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__MACOSX
    buffer.AppendFormatted("\n");
    // this library is for linking executable binary
-   if (sharedLink) {
+   if (dynamicLink) {
       buffer.AppendFormatted("obj/lib%s%s%s: $(dlobjects) $(dependfiles) $(%s%sDep)\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
       if (quietMake) {
          buffer.AppendFormatted("\t@echo \"linking   obj/lib%s%s%s\"\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
