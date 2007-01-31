@@ -49,7 +49,7 @@ const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
 
 const char  valueCounter[] = {'i','j','k'};
-const char* const ROMECommandLineOptions = ":a:i:b:D:q:v:ns:ng:m:r:e:o:docu:";
+const char* const ROMECommandLineOptions = ":a:i:b:D:q:v:ns:ng:m:r:e:o:docu:I:h:";
 const char* const cloSeparator = ":";
 #if defined( R__VISUAL_CPLUSPLUS )
 const char* const kEqualSign = "=";
@@ -98,7 +98,7 @@ protected:
    Bool_t        sqlite3;
    Bool_t        noVP;
    Bool_t        librome;
-   Bool_t        sharedLink;
+   Bool_t        dynamicLink;
    Bool_t        pch;
    Bool_t        minRebuild;
    Bool_t        quietMake;

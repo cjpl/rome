@@ -805,7 +805,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #else
    librome = false;
 #endif
-   sharedLink = false;
+   dynamicLink = false;
 
    char workDir[kMAXPATHLEN];
    strcpy(workDir,gSystem->WorkingDirectory());
@@ -1002,11 +1002,15 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-nl")) {
          noLink = true;
       }
-      else if (!strcmp(argv[i],"-sl")) {
-#if defined( R__UNIX )
-         sharedLink = true;
+      else if (!strcmp(argv[i],"-dl")) {
+#if defined(USE_PIC_UPPER) || defined(USE_PIC_LOWER)
+#   if defined( R__UNIX )
+         dynamicLink = true;
+#   else
+         cout<<"-dl option is available on Un*x."<<endl;         
+#   endif
 #else
-         cout<<"-sl option is available on Un*x."<<endl;         
+         cout<<"PIC option is necessary to use dynamic link library."<<endl;         
 #endif
       }
       else if (!strcmp(argv[i],"-nosql")) {
@@ -1135,7 +1139,7 @@ void ROMEBuilder::Usage()
    cout << "  -o        Outputfile path" << endl;
    cout << "  -v        Verbose Mode (no Argument)" << endl;
    cout << "  -nl       No Linking (no Argument)" << endl;
-   cout << "  -sl       Link shared objects, only on Un*x (no Argument)" << endl;
+   cout << "  -dl       Making dynamic library and ling it to program, only on Un*x (no Argument)" << endl;
    cout << "  -pch      Use precompiled header (no Argument)" << endl;
 #if defined( R__VISUAL_CPLUSPLUS )
    cout << "  -minrb    Enables minimal rebuild, only on windows (no Argument)" << endl;
