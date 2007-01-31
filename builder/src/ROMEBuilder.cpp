@@ -725,7 +725,11 @@ Bool_t ROMEBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make");
+      if (quietMake) {
+         tempStr.SetFormatted("make -s");
+      } else {
+         tempStr.SetFormatted("make");
+      }
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
       tempStr.SetFormatted("nmake -f Makefile.win");
