@@ -833,11 +833,12 @@ Bool_t ROMEEventLoop::Update()
       fProgressWrite = false;
    }
 
+   // Condition of following 'if' statements can be a problem when 'event type !=1' comes frequently.(EventHandler can be called too frequently.)
    if (!gROME->isBatchMode() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
       newUpdateWindowEvent =  gROME->GetCurrentEventNumber();
-      if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->GetWindow()->IsEventHandlingRequested()) {
+      if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID()!=1) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
-         if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->GetWindow()->IsEventHandlingRequested()) {
+         if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID()!=1) {
             if (gROME->GetWindow()->IsControllerActive())
                gROME->GetWindow()->GetAnalyzerController()->Update();
             if (!this->isStopped()) {
