@@ -1111,8 +1111,8 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       for (j=0;j<numOfMFUnixLibFlags[i];j++)
          buffer.AppendFormatted("endif # %s\n",mfUnixLibFlag[i][j].Data());
    }
-   buffer.AppendFormatted("LDFLAGS   := $(%sLDFLAGS) $(osldflags)\n",shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("SOFLAGS   := $(%sSOFLAGS) $(ossoflags)\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("LDFLAGS   := $(osldflags)\n");
+   buffer.AppendFormatted("SOFLAGS   := $(ossoflags)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("## Object specific comiple options\n");
    buffer.AppendFormatted("NOOPT                     %s -O0\n",kEqualSign);
@@ -1544,9 +1544,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    ROMEString commandPrefix;
    ROMEString temp;
    ROMEString compiler;
-   ROMEString linker;
    ROMEString compileOption;
-   ROMEString linkOption;
 #endif
 
    for (i=0;i<sources->GetEntriesFast();i++) {
@@ -1558,8 +1556,6 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       else {
          commandPrefix = "";
       }
-      linker.SetFormatted("%s$(CXXLD)",commandPrefix.Data());
-      linkOption.SetFormatted("$(%sLDFLAGS)", shortCut.ToUpper(temp));
       if (ext == "c") {
          compiler.SetFormatted("%s$(CC)", commandPrefix.Data());
          compileOption.SetFormatted("$(%sCFLAGS)", shortCut.ToUpper(temp));
@@ -2110,13 +2106,13 @@ void ROMEBuilder::WriteMakefile() {
       if (quietMake) {
          buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
       }
-      buffer.AppendFormatted("\t%s $(LDFLAGS) -o $@ $(PWDST)/obj/lib%s%s%s $(objects) $(Libraries)\n",linker.Data(),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+      buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o $@ $(PWDST)/obj/lib%s%s%s $(objects) $(Libraries)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
    } else {
       buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
       if (quietMake) {
          buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
       }
-      buffer.AppendFormatted("\t%s $(LDFLAGS) -o $@ $(objects) $(Libraries)\n", linker.Data());
+      buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n", linker.Data(),shortCut.ToUpper(tmp));
    }
    buffer.AppendFormatted("\t@if [ -e lib%s%s%s ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    buffer.AppendFormatted("\n");
@@ -2126,7 +2122,7 @@ void ROMEBuilder::WriteMakefile() {
    if (quietMake) {
       buffer.AppendFormatted("\t@echo \"linking   lib%s%s%s\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    }
-   buffer.AppendFormatted("\t%s $(SOFLAGS) -o lib%s%s%s $(dlobjects) $(objects) $(Libraries)\n",linker.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
+   buffer.AppendFormatted("\t%s $(%sSOFLAGS) $(SOFLAGS) -o lib%s%s%s $(dlobjects) $(objects) $(Libraries)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\t%s lib%s%s.dylib lib%s%s.so\n",linkCommand.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
@@ -2137,7 +2133,7 @@ void ROMEBuilder::WriteMakefile() {
       if (quietMake) {
          buffer.AppendFormatted("\t@echo \"linking   obj/lib%s%s%s\"\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
       }
-      buffer.AppendFormatted("\t%s $(SOFLAGS) -o $(PWDST)/obj/lib%s%s%s $(dlobjects)\n",linker.Data(),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+      buffer.AppendFormatted("\t%s $(%sSOFLAGS) $(SOFLAGS) -o $(PWDST)/obj/lib%s%s%s $(dlobjects)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
    }
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
