@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <io.h>
+#   include <SYS\STAT.H>
 #endif
 #if defined( R__UNIX )
 #   include <unistd.h>
@@ -202,7 +203,6 @@ Bool_t ROMEMidasDAQ::Init() {
          ROMEPrint::Print("The midas DAQ does not yet support InputFileNames.\n");
          return false;
       }
-
       ROMEPrint::Print("Program is running offline.\n");
    }
    return true;

@@ -41,7 +41,7 @@ protected:
       kMaxNumberOfPadsX = 6,
       kMaxNumberOfPadsY = 20,
       kNumberOfDisplayViewSelections = 1000,
-      kMaxNumberOfLines = 10
+      kMaxNumberOfLines = 20
    };
    enum MenuEnumeration {
       M_ROOT = 900,
