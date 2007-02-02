@@ -872,6 +872,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
+         affiliations.AddAtAndExpand("dchcabling",1);
       }
       else if (!strcmp(argv[i],"-dchhv")) {
          makeOutput = false;
@@ -883,7 +884,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
-         affiliations.AddAtAndExpand("xechv",1);
+         affiliations.AddAtAndExpand("dchcabling",1);
+         affiliations.AddAtAndExpand("xechv",2);
       }
       else if (!strcmp(argv[i],"-drsdch")) {
          makeOutput = false;
@@ -897,6 +899,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
          affiliations.AddAtAndExpand("drs",1);
+         affiliations.AddAtAndExpand("dchcabling",2);
          flags.AddAtAndExpand("HAVE_DRS",0);
          flags.AddAtAndExpand("HAVE_VME",1);
          flags.AddAtAndExpand("HAVE_AFG3251",2);

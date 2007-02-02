@@ -992,7 +992,7 @@ Bool_t ROMEEventLoop::UserInput()
          }
          if (ch == 'j' || ch == 'J' || gROME->IsUserEventJ()) {
             if (gROME->IsUserEventJ()) {
-               GotoEvent(gROME->GetUserEventJEventNumber()-1);
+               GotoEvent(gROME->GetUserEventJEventNumber());
                fStop = true;
                fContinuous = false;
                wait = false;
@@ -1015,7 +1015,7 @@ Bool_t ROMEEventLoop::UserInput()
                ROMEPrint::Print("                                  \r");
                inumber = strtol(number.Data(),&cstop,10);
                if (inumber != 0) {
-                  GotoEvent(inumber-1);
+                  GotoEvent(inumber);
                   fStop = true;
                   fContinuous = false;
                   wait = false;
