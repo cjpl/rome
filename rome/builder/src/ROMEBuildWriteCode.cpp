@@ -1949,7 +1949,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                   if (graphFolderName[iTask][i]==histoFolderName[iTask][j])
                      alreadyDefined = true;
                }
-               if (!alreadyDefined) {
+               if (alreadyDefined) {
                   buffer.AppendFormatted("      TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
                   buffer.AppendFormatted("      %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
                }
@@ -2095,8 +2095,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                   alreadyDefined = true;
             }
             if (!alreadyDefined) {
-               buffer.AppendFormatted("      TFolder *%sFolder;\n",histoFolderName[iTask][i].Data());
-               buffer.AppendFormatted("      %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   TFolder *%sFolder;\n",histoFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
             }
          }
          array = false;
@@ -2141,7 +2141,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   ROMEString zmaxStr;\n");
          }
          for (i=0;i<numOfHistos[iTask];i++) {
-            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sHisto->IsActive() && !f%sHisto->isAccumulation()) {\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("      f%sHisto->SetOriginal(\"%s\",\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),
                histoTitle[iTask][i].Data(),histoFolderTitle[iTask][i].Data(),histoArraySize[iTask][i].Data(),histoArrayStartIndex[iTask][i].Data(),
                histoXLabel[iTask][i].Data(),histoYLabel[iTask][i].Data(),histoZLabel[iTask][i].Data(),
@@ -2155,7 +2155,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             if (histoFolderName[iTask][i]=="") {
                homeFolder = true;
             }
-            buffer.AppendFormatted("   if (f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sHisto->IsActive() && !f%sHisto->isAccumulation()) {\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("      histoHandle = Get%sHisto();\n",histoName[iTask][i].Data());
             buffer.AppendFormatted("      histoTitle = histoHandle->GetTitle();\n");
             buffer.AppendFormatted("      folderTitle = histoHandle->GetFolderTitle();\n");
@@ -4814,11 +4814,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sHisto()->IsActive())\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sHisto()->IsActive() && !Get%s%sTaskBase()->Get%sHisto()->isAccumulation())\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      Get%s%sTaskBase()->Get%s()->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sHisto()->IsActive()) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (Get%s%sTaskBase()->Get%sHisto()->IsActive() && !Get%s%sTaskBase()->Get%sHisto()->isAccumulation()) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      for (i=0;i<Get%s%sTaskBase()->Get%sHisto()->GetArraySize();i++)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("         Get%s%sTaskBase()->Get%sAt(i)->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   }\n");
@@ -8741,6 +8741,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
          subSubGroup->GetLastParameter()->AddSetLine("else");
          subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetAccumulation(true);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->AddSetLine(" ");
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("if (((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->isAccumulation())",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
          subSubGroup->GetLastParameter()->AddWriteLine("else");

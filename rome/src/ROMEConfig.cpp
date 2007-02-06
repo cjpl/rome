@@ -158,6 +158,14 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
    else {
       configHisto->fHistZmaxModified = true;
    }
+   // fHistAccumulate
+   fullPath.SetFormatted("%sHistAccumulate",path);
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistAccumulate,"");
+   if (configHisto->fHistAccumulate=="")
+      configHisto->fHistAccumulateModified = false;
+   else {
+      configHisto->fHistAccumulateModified = true;
+   }
    return true;
 }
 Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
@@ -178,7 +186,8 @@ Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
         configHisto->fHistYmaxModified ||
         configHisto->fHistZNbinsModified ||
         configHisto->fHistZminModified ||
-        configHisto->fHistZmaxModified)
+        configHisto->fHistZmaxModified ||
+        configHisto->fHistAccumulateModified)
       return true;
     else
       return false;
@@ -255,6 +264,13 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
    // fHistZmax
    if (configHisto->fHistZmaxModified) {
       histo->SetZmax(configHisto->fHistZmax.Data());
+   }
+   // fHistAccumulate
+   if (configHisto->fHistAccumulateModified) {
+      if (configHisto->fHistAccumulate=="true")
+         histo->SetAccumulation(true);
+      else
+         histo->SetAccumulation(false);
    }
    return true;
 }
@@ -361,6 +377,12 @@ Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configH
       xml->WriteComment(comment.At(0).Data());
    if (configHisto->fHistZmaxModified) {
       xml->WriteElement("HistZmax",configHisto->fHistZmax.Data());
+   }
+   // fHistAccumulate
+   if (commentLevel >= 3 && configHisto->fHistAccumulateModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configHisto->fHistAccumulateModified) {
+      xml->WriteElement("HistAccumulate",configHisto->fHistAccumulate.Data());
    }
    return true;
 }
