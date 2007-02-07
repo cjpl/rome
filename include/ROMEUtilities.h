@@ -27,6 +27,8 @@ namespace ROMEUtilities {
    inline void ByteSwap( Double_t *aValue );
    void GetMidasTID(ROMEString *buf,Char_t *type);
    void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
+   const char* FastCrypt(const char *str);
+   const char* FastDecrypt(const char *str);
 }
 
 //
@@ -109,6 +111,5 @@ inline void ROMEUtilities::ByteSwap( Double_t *x )
 {
     ByteSwap( (ULong64_t *)x );
 }
-
 
 #endif // ROMEUtilities_H

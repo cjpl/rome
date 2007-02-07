@@ -114,3 +114,35 @@ void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, co
 
    return;
 }
+
+const char* ROMEUtilities::FastCrypt(const char *str)
+{
+// Easy cription. Please do not use for important passwords.
+   static char result[129];
+   Int_t i;
+   Int_t n = strlen(str);
+   if (n >= 64)
+      return 0;
+   for (i = 0; i < n; i++) {
+      result[2 * i] = (str[i] / 16) * 5 + 2 * 16 + 1;
+      result[2 * i + 1] = str[i] % 16 + (i % 5) * 16 + 2 * 16;
+   }
+   result[2 * i] = '\0';
+   return result;
+}
+
+const char* ROMEUtilities::FastDecrypt(const char *str)
+{
+// Easy cription. Please do not use for important passwords.
+   static char result[65];
+   Int_t i;
+   Int_t n = strlen(str);
+   if (n >= 128)
+      return 0;
+   for (i = 0; i < n; i += 2) {
+      result[i / 2] = ((str[i] - 2 * 16 - 1) / 5) * 16 +
+            (str[i + 1] - 2 * 16 - ((i / 2) % 5) * 16);
+   }
+   result[i] = '\0';
+   return result;
+}
