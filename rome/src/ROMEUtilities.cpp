@@ -143,6 +143,6 @@ const char* ROMEUtilities::FastDecrypt(const char *str)
       result[i / 2] = ((str[i] - 2 * 16 - 1) / 5) * 16 +
             (str[i + 1] - 2 * 16 - ((i / 2) % 5) * 16);
    }
-   result[i] = '\0';
+   result[i / 2] = '\0';
    return result;
 }
