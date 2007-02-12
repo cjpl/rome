@@ -1534,16 +1534,17 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
    return type;
 }
 
-void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+template <class T>
+void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
 {
    Int_t n = 0;
 
-   Int_t *p1;
-   Int_t **p2;
-   Int_t ***p3;
-   Int_t ****p4;
-   Int_t *****p5;
-   Int_t ******p6;
+   T *p1;
+   T **p2;
+   T ***p3;
+   T ****p4;
+   T *****p5;
+   T ******p6;
    Int_t i;
 
    while(1) {
@@ -1558,163 +1559,53 @@ void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5,
 
    switch(n) {
       case 1:
-         p1 = new Int_t[x1];
+         p1 = new T[x1];
          return p1;
 
       case 2:
-         p2 = new Int_t*[x1];
+         p2 = new T*[x1];
          for (i=0;i<x1;i++)
-            p2[i] = static_cast<Int_t*>(AllocateInt(x2));
+            p2[i] = static_cast<T*>(AllocateArray(p0, x2));
          return p2;
 
       case 3:
-         p3 = new Int_t**[x1];
+         p3 = new T**[x1];
          for (i=0;i<x1;i++)
-            p3[i] = static_cast<Int_t**>(AllocateInt(x2, x3));
+            p3[i] = static_cast<T**>(AllocateArray(p0, x2, x3));
          return p3;
 
       case 4:
-         p4 = new Int_t***[x1];
+         p4 = new T***[x1];
          for (i=0;i<x1;i++)
-            p4[i] = static_cast<Int_t***>(AllocateInt(x2, x3, x4));
+            p4[i] = static_cast<T***>(AllocateArray(p0, x2, x3, x4));
          return p4;
 
       case 5:
-         p5 = new Int_t****[x1];
+         p5 = new T****[x1];
          for (i=0;i<x1;i++)
-            p5[i] = static_cast<Int_t****>(AllocateInt(x2, x3, x4, x5));
+            p5[i] = static_cast<T****>(AllocateArray(p0, x2, x3, x4, x5));
          return p5;
 
       case 6:
-         p6 = new Int_t*****[x1];
+         p6 = new T*****[x1];
          for (i=0;i<x1;i++)
-            p6[i] = static_cast<Int_t*****>(AllocateInt(x2, x3, x4, x5, x6));
+            p6[i] = static_cast<T*****>(AllocateArray(p0, x2, x3, x4, x5, x6));
          return p6;
    };
 
    return 0;
 }
 
-void* ROMEBuilder::AllocateBool(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
-{
-   Int_t n = 0;
-
-   Bool_t *p1;
-   Bool_t **p2;
-   Bool_t ***p3;
-   Bool_t ****p4;
-   Bool_t *****p5;
-   Bool_t ******p6;
-   Int_t i;
-
-   while(1) {
-      if(x1) n++; else break;
-      if(x2) n++; else break;
-      if(x3) n++; else break;
-      if(x4) n++; else break;
-      if(x5) n++; else break;
-      if(x6) n++; else break;
-      break;
-   }
-
-   switch(n) {
-      case 1:
-         p1 = new Bool_t[x1];
-         return p1;
-
-      case 2:
-         p2 = new Bool_t*[x1];
-         for (i=0;i<x1;i++)
-            p2[i] = static_cast<Bool_t*>(AllocateBool(x2));
-         return p2;
-
-      case 3:
-         p3 = new Bool_t**[x1];
-         for (i=0;i<x1;i++)
-            p3[i] = static_cast<Bool_t**>(AllocateBool(x2, x3));
-         return p3;
-
-      case 4:
-         p4 = new Bool_t***[x1];
-         for (i=0;i<x1;i++)
-            p4[i] = static_cast<Bool_t***>(AllocateBool(x2, x3, x4));
-         return p4;
-
-      case 5:
-         p5 = new Bool_t****[x1];
-         for (i=0;i<x1;i++)
-            p5[i] = static_cast<Bool_t****>(AllocateBool(x2, x3, x4, x5));
-         return p5;
-
-      case 6:
-         p6 = new Bool_t*****[x1];
-         for (i=0;i<x1;i++)
-            p6[i] = static_cast<Bool_t*****>(AllocateBool(x2, x3, x4, x5, x6));
-         return p6;
-   };
-
-   return 0;
+void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
+   return AllocateArray(static_cast<Int_t*>(0), x1, x2, x3, x4, x5, x6);
 }
 
-void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
-{
-   Int_t n = 0;
+void* ROMEBuilder::AllocateBool(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
+   return AllocateArray(static_cast<Bool_t*>(0), x1, x2, x3, x4, x5, x6);
+}
 
-   ROMEString *p1;
-   ROMEString **p2;
-   ROMEString ***p3;
-   ROMEString ****p4;
-   ROMEString *****p5;
-   ROMEString ******p6;
-   Int_t i;
-
-   while(1) {
-      if(x1) n++; else break;
-      if(x2) n++; else break;
-      if(x3) n++; else break;
-      if(x4) n++; else break;
-      if(x5) n++; else break;
-      if(x6) n++; else break;
-      break;
-   }
-
-   switch(n) {
-      case 1:
-         p1 = new ROMEString[x1];
-         return p1;
-
-      case 2:
-         p2 = new ROMEString*[x1];
-         for (i=0;i<x1;i++)
-            p2[i] = static_cast<ROMEString*>(AllocateROMEString(x2));
-         return p2;
-
-      case 3:
-         p3 = new ROMEString**[x1];
-         for (i=0;i<x1;i++)
-            p3[i] = static_cast<ROMEString**>(AllocateROMEString(x2, x3));
-         return p3;
-
-      case 4:
-         p4 = new ROMEString***[x1];
-         for (i=0;i<x1;i++)
-            p4[i] = static_cast<ROMEString***>(AllocateROMEString(x2, x3, x4));
-         return p4;
-
-      case 5:
-         p5 = new ROMEString****[x1];
-         for (i=0;i<x1;i++)
-            p5[i] = static_cast<ROMEString****>(AllocateROMEString(x2, x3, x4, x5));
-         return p5;
-
-      case 6:
-         p6 = new ROMEString*****[x1];
-         for (i=0;i<x1;i++)
-            p6[i] = static_cast<ROMEString*****>(AllocateROMEString(x2, x3, x4, x5, x6));
-         return p6;
-   };
-
-   return 0;
+void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
+   return AllocateArray(static_cast<ROMEString*>(0), x1, x2, x3, x4, x5, x6);
 }
 
 Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
