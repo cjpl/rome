@@ -743,6 +743,7 @@ private:
    Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
    Bool_t  CopyFile(const char* oldFileName,const char* newFileName);
 
+   template <class T> void* AllocateArray(T* p0, Int_t x1 = 0, Int_t x2 = 0, Int_t x3 = 0, Int_t x4 = 0, Int_t x5 = 0, Int_t x6 = 0);
    void* AllocateInt(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateBool(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateROMEString(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
