@@ -16,15 +16,12 @@ extern "C" {
    void        romesqldb_disconnect(void *romedb);
    int         romesqldb_read(void *romedb, const char *dataBasePath, long long int runNumber, long long int eventNumber);
    int         romesqldb_write(void *romedb, const char *dataBasePath, long long int runNumber, long long int eventNumber);
-
    int         romesqldb_get_int_value(void *romedb, int column, int row);
    double      romesqldb_get_double_value(void *romedb, int column, int row);
    const char *romesqldb_get_string_value(void *romedb, int column, int row);
-
    void        romesqldb_set_int_value(void *romedb, int column, int row, int val);
    void        romesqldb_set_double_value(void *romedb, int column, int row, double val);
    void        romesqldb_set_string_value(void *romedb, int column, int row, const char *val);
-
    char       *romesqldb_get_dbms_type(void *romedb);
    void        romesqldb_link_error(void *romedb);
    const char *romesqldb_get_type(void *romedb);
@@ -49,16 +46,13 @@ extern "C" {
                                 long long int *eventNumber, int *ret);
    void        romesqldb_write__(int *romedb, char *dataBasePath, long long int *runNumber,
                                  long long int *eventNumber, int *ret);
-
    void        romesqldb_get_int_value__(int *romedb, int *column, int *row, int *ret);
    void        romesqldb_get_float_value__(int *romedb, int *column, int *row, float *ret);
    void        romesqldb_get_double_value__(int *romedb, int *column, int *row, double *ret);
    void        romesqldb_get_string_value__(int *romedb, int *column, int *row, char *ret, const int ret_len);
-
    void        romesqldb_set_int_value__(int *romedb, int *column, int *row, int *val);
    void        romesqldb_set_double_value__(int *romedb, int *column, int *row, double *val);
    void        romesqldb_set_string_value__(int *romedb, int *column, int *row, char *val);
-
    void        romesqldb_get_dbms_type__(int *romedb, char *ret, const int ret_len);
    void        romesqldb_link_error__(int *romedb);
    void        romesqldb_get_type__(int *romedb, char *ret, const int ret_len);
@@ -76,6 +70,65 @@ extern "C" {
    void        romesqldb_rollback_transaction__(int *romedb, char *option, int *ret);
    void        romesqldb_print__(int *romedb, char *opt);
 
+   void        romesqldb_init_(char *name, char *connection, int *ret);
+   void        romesqldb_disconnect_(int *romedb);
+   void        romesqldb_read_(int *romedb, char *dataBasePath, long long int *runNumber,
+                               long long int *eventNumber, int *ret);
+   void        romesqldb_write_(int *romedb, char *dataBasePath, long long int *runNumber,
+                                long long int *eventNumber, int *ret);
+   void        romesqldb_get_int_value_(int *romedb, int *column, int *row, int *ret);
+   void        romesqldb_get_float_value_(int *romedb, int *column, int *row, float *ret);
+   void        romesqldb_get_double_value_(int *romedb, int *column, int *row, double *ret);
+   void        romesqldb_get_string_value_(int *romedb, int *column, int *row, char *ret, const int ret_len);
+   void        romesqldb_set_int_value_(int *romedb, int *column, int *row, int *val);
+   void        romesqldb_set_double_value_(int *romedb, int *column, int *row, double *val);
+   void        romesqldb_set_string_value_(int *romedb, int *column, int *row, char *val);
+   void        romesqldb_get_dbms_type_(int *romedb, char *ret, const int ret_len);
+   void        romesqldb_link_error_(int *romedb);
+   void        romesqldb_get_type_(int *romedb, char *ret, const int ret_len);
+   void        romesqldb_get_description_(int *romedb, char *ret, const int ret_len);
+   void        romesqldb_make_query_(int *romedb, char *query, int *store, int *ret);
+   void        romesqldb_get_number_of_rows_(int *romedb, int *ret);
+   void        romesqldb_next_row_(int *romedb, int *ret);
+   void        romesqldb_get_number_of_fields_(int *romedb, int *ret);
+   void        romesqldb_get_field_(int *romedb, int *fieldNumber, char *ret, const int ret_len);
+   void        romesqldb_free_reqult_(int *romedb);
+   void        romesqldb_get_error_code_(int *romedb, int *ret);
+   void        romesqldb_get_error_message_(int *romedb, char *ret, const int ret_len);
+   void        romesqldb_start_transaction_(int *romedb, char *option, int *ret);
+   void        romesqldb_commit_transaction_(int *romedb, char *option, int *ret);
+   void        romesqldb_rollback_transaction_(int *romedb, char *option, int *ret);
+   void        romesqldb_print_(int *romedb, char *opt);
+
+   void        _romesqldb_init_(char *name, char *connection, int *ret);
+   void        _romesqldb_disconnect_(int *romedb);
+   void        _romesqldb_read_(int *romedb, char *dataBasePath, long long int *runNumber,
+                                long long int *eventNumber, int *ret);
+   void        _romesqldb_write_(int *romedb, char *dataBasePath, long long int *runNumber,
+                                 long long int *eventNumber, int *ret);
+   void        _romesqldb_get_int_value_(int *romedb, int *column, int *row, int *ret);
+   void        _romesqldb_get_float_value_(int *romedb, int *column, int *row, float *ret);
+   void        _romesqldb_get_double_value_(int *romedb, int *column, int *row, double *ret);
+   void        _romesqldb_get_string_value_(int *romedb, int *column, int *row, char *ret, const int ret_len);
+   void        _romesqldb_set_int_value_(int *romedb, int *column, int *row, int *val);
+   void        _romesqldb_set_double_value_(int *romedb, int *column, int *row, double *val);
+   void        _romesqldb_set_string_value_(int *romedb, int *column, int *row, char *val);
+   void        _romesqldb_get_dbms_type_(int *romedb, char *ret, const int ret_len);
+   void        _romesqldb_link_error_(int *romedb);
+   void        _romesqldb_get_type_(int *romedb, char *ret, const int ret_len);
+   void        _romesqldb_get_description_(int *romedb, char *ret, const int ret_len);
+   void        _romesqldb_make_query_(int *romedb, char *query, int *store, int *ret);
+   void        _romesqldb_get_number_of_rows_(int *romedb, int *ret);
+   void        _romesqldb_next_row_(int *romedb, int *ret);
+   void        _romesqldb_get_number_of_fields_(int *romedb, int *ret);
+   void        _romesqldb_get_field_(int *romedb, int *fieldNumber, char *ret, const int ret_len);
+   void        _romesqldb_free_reqult_(int *romedb);
+   void        _romesqldb_get_error_code_(int *romedb, int *ret);
+   void        _romesqldb_get_error_message_(int *romedb, char *ret, const int ret_len);
+   void        _romesqldb_start_transaction_(int *romedb, char *option, int *ret);
+   void        _romesqldb_commit_transaction_(int *romedb, char *option, int *ret);
+   void        _romesqldb_rollback_transaction_(int *romedb, char *option, int *ret);
+   void        _romesqldb_print_(int *romedb, char *opt);
 #ifdef __cplusplus
 }
 #endif

@@ -444,6 +444,281 @@ void romesqldb_print__(int *romedb, char *opt)
    romesqldb_print(reinterpret_cast<void*>(*romedb), opt);
 }
 
+void romesqldb_init_(char *name, char *connection, int *ret)
+{
+   romesqldb_init__(name, connection, ret);
+}
+
+void romesqldb_disconnect_(int *romedb)
+{
+   romesqldb_disconnect__(romedb);
+}
+
+void romesqldb_read_(int *romedb, char *dataBasePath, long long int *runNumber,
+                      long long int *eventNumber, int *ret)
+{
+   romesqldb_read__(romedb, dataBasePath, runNumber, eventNumber, ret);
+}
+
+void romesqldb_write_(int *romedb, char *dataBasePath, long long int *runNumber,
+                       long long int *eventNumber, int *ret)
+{
+   romesqldb_write__(romedb, dataBasePath, runNumber, eventNumber, ret);
+}
+
+void romesqldb_get_int_value_(int *romedb, int *column, int *row, int *ret)
+{
+   romesqldb_get_int_value__(romedb, column, row, ret);
+}
+
+void romesqldb_get_float_value_(int *romedb, int *column, int *row, float *ret)
+{
+   romesqldb_get_float_value__(romedb, column, row, ret);
+}
+
+void romesqldb_get_double_value_(int *romedb, int *column, int *row, double *ret)
+{
+   romesqldb_get_double_value__(romedb, column, row, ret);
+}
+
+void romesqldb_get_string_value_(int *romedb, int *column, int *row, char *ret, const int ret_len)
+{
+   romesqldb_get_string_value__(romedb, column, row, ret, ret_len);
+}
+
+void romesqldb_set_int_value_(int *romedb, int *column, int *row, int *val)
+{
+   romesqldb_set_int_value__(romedb, column, row, val);
+}
+
+void romesqldb_set_double_value_(int *romedb, int *column, int *row, double *val)
+{
+   romesqldb_set_double_value__(romedb, column, row, val);
+}
+
+void romesqldb_set_string_value_(int *romedb, int *column, int *row, char *val)
+{
+   romesqldb_set_string_value__(romedb, column, row, val);
+}
+
+void romesqldb_get_dbms_type_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_dbms_type__(romedb, ret, ret_len);
+}
+
+void romesqldb_link_error_(int *romedb)
+{
+   romesqldb_link_error__(romedb);
+}
+
+void romesqldb_get_type_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_type__(romedb, ret, ret_len);
+}
+
+void romesqldb_get_description_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_description__(romedb, ret, ret_len);
+}
+
+void romesqldb_make_query_(int *romedb, char *query, int *store, int *ret)
+{
+   romesqldb_make_query__(romedb, query, store, ret);
+}
+
+void romesqldb_get_number_of_rows_(int *romedb, int *ret)
+{
+   romesqldb_get_number_of_rows__(romedb, ret);
+}
+
+void romesqldb_next_row_(int *romedb, int *ret)
+{
+   romesqldb_next_row__(romedb, ret);
+}
+
+void romesqldb_get_number_of_fields_(int *romedb, int *ret)
+{
+   romesqldb_get_number_of_fields__(romedb, ret);
+}
+
+void romesqldb_get_field_(int *romedb, int *fieldNumber, char *ret, const int ret_len)
+{
+   romesqldb_get_field__(romedb, fieldNumber, ret, ret_len);
+}
+
+void romesqldb_free_reqult_(int *romedb)
+{
+   romesqldb_free_reqult__(romedb);
+}
+
+void romesqldb_get_error_code_(int *romedb, int *ret)
+{
+   romesqldb_get_error_code__(romedb, ret);
+}
+
+void romesqldb_get_error_message_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_error_message__(romedb, ret, ret_len);
+}
+
+void romesqldb_start_transaction_(int *romedb, char *option, int *ret)
+{
+   romesqldb_start_transaction__(romedb, option, ret);
+}
+
+void romesqldb_commit_transaction_(int *romedb, char *option, int *ret)
+{
+   romesqldb_commit_transaction__(romedb, option, ret);
+}
+
+void romesqldb_rollback_transaction_(int *romedb, char *option, int *ret)
+{
+   romesqldb_rollback_transaction__(romedb, option, ret);
+}
+
+void romesqldb_print_(int *romedb, char *opt)
+{
+   romesqldb_print__(romedb, opt);
+}
+
+
+void _romesqldb_init_(char *name, char *connection, int *ret)
+{
+   romesqldb_init__(name, connection, ret);
+}
+
+void _romesqldb_disconnect_(int *romedb)
+{
+   romesqldb_disconnect__(romedb);
+}
+
+void _romesqldb_read_(int *romedb, char *dataBasePath, long long int *runNumber,
+                      long long int *eventNumber, int *ret)
+{
+   romesqldb_read__(romedb, dataBasePath, runNumber, eventNumber, ret);
+}
+
+void _romesqldb_write_(int *romedb, char *dataBasePath, long long int *runNumber,
+                       long long int *eventNumber, int *ret)
+{
+   romesqldb_write__(romedb, dataBasePath, runNumber, eventNumber, ret);
+}
+
+void _romesqldb_get_int_value_(int *romedb, int *column, int *row, int *ret)
+{
+   romesqldb_get_int_value__(romedb, column, row, ret);
+}
+
+void _romesqldb_get_float_value_(int *romedb, int *column, int *row, float *ret)
+{
+   romesqldb_get_float_value__(romedb, column, row, ret);
+}
+
+void _romesqldb_get_double_value_(int *romedb, int *column, int *row, double *ret)
+{
+   romesqldb_get_double_value__(romedb, column, row, ret);
+}
+
+void _romesqldb_get_string_value_(int *romedb, int *column, int *row, char *ret, const int ret_len)
+{
+   romesqldb_get_string_value__(romedb, column, row, ret, ret_len);
+}
+
+void _romesqldb_set_int_value_(int *romedb, int *column, int *row, int *val)
+{
+   romesqldb_set_int_value__(romedb, column, row, val);
+}
+
+void _romesqldb_set_double_value_(int *romedb, int *column, int *row, double *val)
+{
+   romesqldb_set_double_value__(romedb, column, row, val);
+}
+
+void _romesqldb_set_string_value_(int *romedb, int *column, int *row, char *val)
+{
+   romesqldb_set_string_value__(romedb, column, row, val);
+}
+
+void _romesqldb_get_dbms_type_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_dbms_type__(romedb, ret, ret_len);
+}
+
+void _romesqldb_link_error_(int *romedb)
+{
+   romesqldb_link_error__(romedb);
+}
+
+void _romesqldb_get_type_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_type__(romedb, ret, ret_len);
+}
+
+void _romesqldb_get_description_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_description__(romedb, ret, ret_len);
+}
+
+void _romesqldb_make_query_(int *romedb, char *query, int *store, int *ret)
+{
+   romesqldb_make_query__(romedb, query, store, ret);
+}
+
+void _romesqldb_get_number_of_rows_(int *romedb, int *ret)
+{
+   romesqldb_get_number_of_rows__(romedb, ret);
+}
+
+void _romesqldb_next_row_(int *romedb, int *ret)
+{
+   romesqldb_next_row__(romedb, ret);
+}
+
+void _romesqldb_get_number_of_fields_(int *romedb, int *ret)
+{
+   romesqldb_get_number_of_fields__(romedb, ret);
+}
+
+void _romesqldb_get_field_(int *romedb, int *fieldNumber, char *ret, const int ret_len)
+{
+   romesqldb_get_field__(romedb, fieldNumber, ret, ret_len);
+}
+
+void _romesqldb_free_reqult_(int *romedb)
+{
+   romesqldb_free_reqult__(romedb);
+}
+
+void _romesqldb_get_error_code_(int *romedb, int *ret)
+{
+   romesqldb_get_error_code__(romedb, ret);
+}
+
+void _romesqldb_get_error_message_(int *romedb, char *ret, const int ret_len)
+{
+   romesqldb_get_error_message__(romedb, ret, ret_len);
+}
+
+void _romesqldb_start_transaction_(int *romedb, char *option, int *ret)
+{
+   romesqldb_start_transaction__(romedb, option, ret);
+}
+
+void _romesqldb_commit_transaction_(int *romedb, char *option, int *ret)
+{
+   romesqldb_commit_transaction__(romedb, option, ret);
+}
+
+void _romesqldb_rollback_transaction_(int *romedb, char *option, int *ret)
+{
+   romesqldb_rollback_transaction__(romedb, option, ret);
+}
+
+void _romesqldb_print_(int *romedb, char *opt)
+{
+   romesqldb_print__(romedb, opt);
+}
+
 #ifdef __cplusplus
 }
 #endif
