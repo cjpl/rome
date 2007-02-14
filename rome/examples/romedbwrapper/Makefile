@@ -11,7 +11,7 @@ rootcflags:= $(shell $(ROOTSYS)/bin/root-config --cflags)
 sqllibs   :=  -lsqlite3
 sqlcflags := -DHAVE_SQL -DHAVE_SQLITE3
 
-Flags     := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags) -g -Wall -W
+CFlags    := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags) -g -Wall -W
 Libraries :=
 Libraries += $(oslibs) $(sqllibs) $(daqlibs) $(rootlibs) $(clibs)
 LDFLAGS   := $(osldflags)
@@ -55,16 +55,16 @@ test_f: $(objects) main_f.o
 	$(FC) $(LDFLAGS) -o $@ main_f.o $(objects) $(Libraries)
 
 ROME%.o : $(ROMESYS)/src/ROME%.cpp
-	$(CXX) -c $(Flags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
+	$(CXX) -c $(CFlags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
 
 main_c.o : main_c.c
-	$(CC) -c $(Flags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
+	$(CC) -c $(CFlags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
 
 main_f.o : main_f.F
-	$(FC) -c $(Flags) $(Includes) $< -o $@
+	$(FC) -c $(FFlags) $(Includes) $< -o $@
 
 Dict.o : Dict.cpp Dict.h
-	$(CXX) -c $(Flags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
+	$(CXX) -c $(CFlags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
 
 Dict.h Dict.cpp: $(DICTHEADERS) Makefile
 	$(ROOTSYS)/bin/rootcint -f Dict.cpp -c -p $(Includes) $(DICTHEADERS)
