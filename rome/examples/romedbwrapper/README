@@ -1,0 +1,5 @@
+This example shows how to use ROMESQLDataBase class from C and Fortran program.
+
+ % make
+ % ./test_c
+ % ./test_f
