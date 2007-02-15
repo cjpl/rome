@@ -307,7 +307,7 @@ static void fstr2cstr(char *ret, const int ret_len)
 {
    int i;
 
-   if (ret[ret_len] != ' ') {
+   if (ret[ret_len - 1] != ' ') {
       return;
    }
    for (i = ret_len - 2; ret[i] == ' ' && i >= 0; i--) {;}
