@@ -31,6 +31,17 @@
 				<HistXmax>100</HistXmax>
 			</Histogram>
 			<Histogram>
+				<HistName>MySingleHisto</HistName>
+				<HistTitle>MySingleHisto</HistTitle>
+				<HistFolderName>mysinglehistos</HistFolderName>
+				<HistType>TH1F</HistType>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>-100</HistXmin>
+				<HistXmax>100</HistXmax>
+			</Histogram>
+			<Histogram>
 				<HistName>My2DHisto</HistName>
 				<HistTitle>MyOtherHisto</HistTitle>
 				<HistFolderName>myotherhistos</HistFolderName>
@@ -79,6 +90,11 @@
 							<ObjectDisplayName>MyOtherHisto</ObjectDisplayName>
 							<ObjectDisplayTitle>MyOtherHisto</ObjectDisplayTitle>
 							<ObjectDisplayObject>MyOtherHisto</ObjectDisplayObject>
+						</ObjectDisplay>
+						<ObjectDisplay>
+							<ObjectDisplayName>MySingleHisto</ObjectDisplayName>
+							<ObjectDisplayTitle>MySingleHisto</ObjectDisplayTitle>
+							<ObjectDisplayObject>MySingleHisto</ObjectDisplayObject>
 						</ObjectDisplay>
 					</ObjectDisplays>
 				</Tab>

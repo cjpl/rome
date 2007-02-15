@@ -20,12 +20,12 @@ ClassImp(ROMEPath)
 ROMEPath::ROMEPath() {
    fOrderArray = false;
    fFieldArray = false;
-   fTableAbsolutePaths = new ROMEStrArray(0);
-   fTableNames = new ROMEStrArray(0);
-   fTableConstraints = new ROMEStrArray(0);
-   fTableDBConstraints = new ROMEStrArray(0);
-   fTableIDName = new ROMEStrArray(0);
-   fTableIDXName = new ROMEStrArray(0);
+   fTableAbsolutePaths = new ROMEStrArray();
+   fTableNames = new ROMEStrArray();
+   fTableConstraints = new ROMEStrArray();
+   fTableDBConstraints = new ROMEStrArray();
+   fTableIDName = new ROMEStrArray();
+   fTableIDXName = new ROMEStrArray();
    fFieldIndex.Set(3);
    fOrderIndex.Set(3);
    SetOrderIndexAt(0,0);
@@ -35,8 +35,8 @@ ROMEPath::ROMEPath() {
    SetFieldIndexAt(1,-1);
    SetFieldIndexAt(2,1);
 
-   fConstraintField = new ROMEStrArray(0);
-   fConstraintValue = new ROMEStrArray(0);
+   fConstraintField = new ROMEStrArray();
+   fConstraintValue = new ROMEStrArray();
 }
 
 ROMEPath::~ROMEPath() {

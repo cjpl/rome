@@ -40,6 +40,7 @@
 // This task contains the following histgrams :                               //
 //    MyHisto                                                                 //
 //    MyOtherHisto                                                            //
+//    MySingleHisto                                                           //
 //    My2DHisto                                                               //
 // This task contains the following graphs :                                  //
 //    MyGraph                                                                 //
@@ -82,6 +83,7 @@ void DOTFillHisto::Event()
    GetMyOtherHistoAt(0)->Fill(gRandom->Gaus(10,10));
    GetMyOtherHistoAt(1)->Fill(gRandom->Gaus(10,20));
    GetMyOtherHistoAt(2)->Fill(gRandom->Gaus(10,30));
+   GetMySingleHisto()->Fill(gRandom->Gaus(0,2));
    GetMy2DHistoAt(0)->Fill(gRandom->Gaus(10,10),gRandom->Gaus(10,10));
    GetMy2DHistoAt(1)->Fill(gRandom->Gaus(10,20),gRandom->Gaus(10,20));
    GetMy2DHistoAt(2)->Fill(gRandom->Gaus(10,30),gRandom->Gaus(10,30));
