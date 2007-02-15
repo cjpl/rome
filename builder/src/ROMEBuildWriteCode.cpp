@@ -4993,7 +4993,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   Int_t i;\n");
    buffer.AppendFormatted("   i = 0;\n");
    buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
+   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))\n");
+   buffer.AppendFormatted("   TBufferFile *buffer = new TBufferFile(TBuffer::kWrite,bufsize);\n");
+   buffer.AppendFormatted("#else\n");
    buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
+   buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
    buffer.AppendFormatted("   bypassOld = kFALSE;\n"); // to suppress unused warning
    buffer.AppendFormatted("   Bool_t bypassStorageOld;\n");
@@ -5084,6 +5088,7 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TObjArray.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -5418,6 +5423,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TClonesArray.h>\n");
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
    buffer.AppendFormatted("#include <TFile.h>\n");
@@ -9643,6 +9649,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("\n\n");
 
    // Header
+   buffer.AppendFormatted("#include <math.h>\n");
    buffer.AppendFormatted("#include \"ROMEEventLoop.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
@@ -11491,7 +11498,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   TFile *filsav = gFile;\n");
    buffer.AppendFormatted("   gFile = 0;\n");
    buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
+   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))\n");
+   buffer.AppendFormatted("   TBufferFile *buffer = new TBufferFile(TBuffer::kWrite,bufsize);\n");
+   buffer.AppendFormatted("#else\n");
    buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
+   buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("   Bool_t bypassOrgOld;\n");
    buffer.AppendFormatted("   bypassOrgOld = kFALSE;\n"); // to suppress unused warning
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
@@ -12999,6 +13010,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TGClient.h>\n");
    buffer.AppendFormatted("#include <TSystem.h>\n");
@@ -14328,6 +14340,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
    rep.AddAt((int)replaceWhenFound,0);
    return ReplaceHeader(filename,header,body,nspace,arr1,arr2,cond,rep);
 }
+
 Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,ROMEStrArray &arr1, ROMEStrArray &arr2, ROMEStrArray &condition, TArrayI &replaceWhenFound)
 {
    int i;

@@ -64,6 +64,7 @@
 
 #include <include/tasks/SBSHTPrintADCValues.h>
 #include <TRandom.h>
+#include <TMath.h>
 #include <Riostream.h>
 #include "TF1.h"
 
