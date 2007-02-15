@@ -67,9 +67,6 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Task>
           <TaskName>FillHisto</TaskName>
           <Active>true</Active>
-          <Histogram>
-            <HistName>MyHisto</HistName>
-          </Histogram>
         </Task>
       </Tasks>
     </Analyzer>

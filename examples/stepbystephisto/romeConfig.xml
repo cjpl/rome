@@ -92,9 +92,6 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Task>
           <TaskName>PrintADCValues</TaskName>
           <Active>true</Active>
-          <Histogram>
-            <HistName>ADC</HistName>
-          </Histogram>
         </Task>
       </Tasks>
     </Analyzer>

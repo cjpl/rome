@@ -1,3 +1,5 @@
+-include ../Makefile.arch
+
 RESTRICT_TEST = yes
 
 # parallel job option
@@ -63,9 +65,14 @@ ARGUSProjects += argus/folders/romeproject/foframework.exe \
                  argus/folders/fomonitor.exe
 endif
 
-all: rome argus
+all: rome argus romedbwrapper
 rome: $(ROMEProjects)
 argus: $(ARGUSProjects)
+
+romoedbwrapper :
+ifeq ($(OSTYPE),linux)
+	make -C romedbwrapper
+endif
 
 multirun/mranalyzer.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i multirun/multirun.xml -o multirun -nl;
@@ -176,6 +183,8 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 	make $(JOBSFLAG) -C argus/folders/
 
 check : $(ROMEProjects) $(ARGUSProjects)
+
+	cd romedbwrapper; ./test_c; ./test_f
 
 	cd multirun; ./mranalyzer.exe -i romeConfig.xml -q
 

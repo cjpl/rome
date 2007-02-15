@@ -296,7 +296,7 @@ void romesqldb_print(void *romedb, const char *option)
 static void cstr2fstr(char *ret, const int ret_len)
 {
    int len = strlen(ret);
-   memset(ret + len, 0, ret_len - len);
+   memset(ret + len, ' ', ret_len - len);
 }
 
 static void fstr2cstr(char *ret, const int ret_len)
