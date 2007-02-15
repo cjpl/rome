@@ -75,6 +75,7 @@ protected:
 
    TObjArray           *fUserObjects;     //!
    TObjArray           *fObjects;         //!
+   Int_t                fNumberOfObjects; //!
    TObjArray           *fUserLines;       //!
    TObjArray           *fLines;           //!
    ROMEStrArray        *fDrawOption;      //!

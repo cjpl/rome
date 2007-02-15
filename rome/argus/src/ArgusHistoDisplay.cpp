@@ -76,6 +76,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
    fNumberOfPadsX = 1;
    fNumberOfPadsY = 1;
    fPadConfigActive = false;
+   fNumberOfObjects = 0;
 
    fNumberOfUserTGraph = 0;
    fStatisticBoxFlag = kFALSE;

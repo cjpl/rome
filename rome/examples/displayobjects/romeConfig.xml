@@ -104,20 +104,6 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <TaskName>FillHisto</TaskName>
           <!-- Inactive tasks are not executed by the framework. Default is true. -->
           <Active>true</Active>
-          <Histogram>
-            <!-- Description of the histogram configuration. -->
-            <HistName>MyHisto</HistName>
-          </Histogram>
-
-          <Histogram>
-            <!-- Description of the histogram configuration. -->
-            <HistName>MyOtherHisto</HistName>
-          </Histogram>
-
-          <Histogram>
-            <!-- Description of the histogram configuration. -->
-            <HistName>My2DHisto</HistName>
-          </Histogram>
         </Task>
       </Tasks>
     </Analyzer>
@@ -178,6 +164,13 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
               <ObjectDisplay>
                 <!-- Description of an object display. -->
                 <ObjectDisplayName>MyOtherHisto</ObjectDisplayName>
+                <!-- The root draw option. (optional) -->
+                <DrawOption></DrawOption>
+              </ObjectDisplay>
+
+              <ObjectDisplay>
+                <!-- Description of an object display. -->
+                <ObjectDisplayName>MySingleHisto</ObjectDisplayName>
                 <!-- The root draw option. (optional) -->
                 <DrawOption></DrawOption>
               </ObjectDisplay>
