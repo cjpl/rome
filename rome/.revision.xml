@@ -22,7 +22,7 @@
   <User>sawada</User>
   <Host>bahamoud</Host>
   <Directory>/afs/psi.ch/user/s/sawada/local/rome</Directory>
-  <LastCompile>Mon, 30 Oct 2006 18:39:28 +0000 (GMT) +534121000 nsec</LastCompile>
+  <LastCompile>Fri, 15 Dec 2006 10:33:39 +0000 (GMT) + 30461000 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>sawada</User>
@@ -107,4 +107,10 @@
   <Host>megofl01</Host>
   <Directory>/home/sawada/local/rome</Directory>
   <LastCompile>Tue, 09 Jan 2007 07:12:05 +0000 (GMT) +252938000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>bahamoud</Host>
+  <Directory>/scratch0/sawada/rome</Directory>
+  <LastCompile>Thu, 15 Feb 2007 00:53:27 +0000 (GMT) +597143000 nsec</LastCompile>
 </Entry>

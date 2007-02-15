@@ -85,6 +85,16 @@ double romesqldb_get_double_value(void *romedb, int column, int row)
    return strtod(work->values->At(column, row).Data(), &cstop);
 }
 
+float romesqldb_get_float_value(void *romedb, int column, int row)
+{
+   ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
+   if (work == 0) {
+      return 0;
+   }
+   char *cstop;
+   return strtof(work->values->At(column, row).Data(), &cstop);
+}
+
 const char *romesqldb_get_string_value(void *romedb, int column, int row)
 {
    ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
@@ -106,6 +116,17 @@ void romesqldb_set_int_value(void *romedb, int column, int row, int val)
 }
 
 void romesqldb_set_double_value(void *romedb, int column, int row, double val)
+{
+   ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
+   if (work == 0) {
+      return;
+   }
+   ROMEString str;
+   str.SetFormatted("%g", val);
+   work->values->SetAt(str, column, row);
+}
+
+void romesqldb_set_float_value(void *romedb, int column, int row, float val)
 {
    ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
    if (work == 0) {
@@ -347,14 +368,14 @@ void romesqldb_get_int_value__(long long *romedb, int *column, int *row, int *re
    *ret = romesqldb_get_int_value(reinterpret_cast<void*>(*romedb), *column, *row);
 }
 
-void romesqldb_get_float_value__(long long *romedb, int *column, int *row, float *ret)
+void romesqldb_get_double_value__(long long *romedb, int *column, int *row, double *ret)
 {
    *ret = romesqldb_get_double_value(reinterpret_cast<void*>(*romedb), *column, *row);
 }
 
-void romesqldb_get_double_value__(long long *romedb, int *column, int *row, double *ret)
+void romesqldb_get_float_value__(long long *romedb, int *column, int *row, float *ret)
 {
-   *ret = romesqldb_get_double_value(reinterpret_cast<void*>(*romedb), *column, *row);
+   *ret = romesqldb_get_float_value(reinterpret_cast<void*>(*romedb), *column, *row);
 }
 
 void romesqldb_get_string_value__(long long *romedb, int *column, int *row, char *ret, const int ret_len)
@@ -374,6 +395,11 @@ void romesqldb_set_int_value__(long long *romedb, int *column, int *row, int *va
 void romesqldb_set_double_value__(long long *romedb, int *column, int *row, double *val)
 {
    romesqldb_set_double_value(reinterpret_cast<void*>(*romedb), *column, *row, *val);
+}
+
+void romesqldb_set_float_value__(long long *romedb, int *column, int *row, float *val)
+{
+   romesqldb_set_float_value(reinterpret_cast<void*>(*romedb), *column, *row, *val);
 }
 
 void romesqldb_set_string_value__(long long *romedb, int *column, int *row, char *val, const int val_len)
@@ -551,14 +577,14 @@ void romesqldb_get_int_value_(long long *romedb, int *column, int *row, int *ret
    romesqldb_get_int_value__(romedb, column, row, ret);
 }
 
-void romesqldb_get_float_value_(long long *romedb, int *column, int *row, float *ret)
-{
-   romesqldb_get_float_value__(romedb, column, row, ret);
-}
-
 void romesqldb_get_double_value_(long long *romedb, int *column, int *row, double *ret)
 {
    romesqldb_get_double_value__(romedb, column, row, ret);
+}
+
+void romesqldb_get_float_value_(long long *romedb, int *column, int *row, float *ret)
+{
+   romesqldb_get_float_value__(romedb, column, row, ret);
 }
 
 void romesqldb_get_string_value_(long long *romedb, int *column, int *row, char *ret, const int ret_len)
@@ -574,6 +600,11 @@ void romesqldb_set_int_value_(long long *romedb, int *column, int *row, int *val
 void romesqldb_set_double_value_(long long *romedb, int *column, int *row, double *val)
 {
    romesqldb_set_double_value__(romedb, column, row, val);
+}
+
+void romesqldb_set_float_value_(long long *romedb, int *column, int *row, float *val)
+{
+   romesqldb_set_float_value__(romedb, column, row, val);
 }
 
 void romesqldb_set_string_value_(long long *romedb, int *column, int *row, char *val, const int val_len)
@@ -689,14 +720,14 @@ void _romesqldb_get_int_value_(long long *romedb, int *column, int *row, int *re
    romesqldb_get_int_value__(romedb, column, row, ret);
 }
 
-void _romesqldb_get_float_value_(long long *romedb, int *column, int *row, float *ret)
-{
-   romesqldb_get_float_value__(romedb, column, row, ret);
-}
-
 void _romesqldb_get_double_value_(long long *romedb, int *column, int *row, double *ret)
 {
    romesqldb_get_double_value__(romedb, column, row, ret);
+}
+
+void _romesqldb_get_float_value_(long long *romedb, int *column, int *row, float *ret)
+{
+   romesqldb_get_float_value__(romedb, column, row, ret);
 }
 
 void _romesqldb_get_string_value_(long long *romedb, int *column, int *row, char *ret, const int ret_len)
@@ -712,6 +743,11 @@ void _romesqldb_set_int_value_(long long *romedb, int *column, int *row, int *va
 void _romesqldb_set_double_value_(long long *romedb, int *column, int *row, double *val)
 {
    romesqldb_set_double_value__(romedb, column, row, val);
+}
+
+void _romesqldb_set_float_value_(long long *romedb, int *column, int *row, float *val)
+{
+   romesqldb_set_float_value__(romedb, column, row, val);
 }
 
 void _romesqldb_set_string_value_(long long *romedb, int *column, int *row, char *val, const int val_len)
