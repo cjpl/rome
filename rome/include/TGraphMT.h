@@ -7,6 +7,7 @@
 #ifndef TGraphMT_H
 #define TGraphMT_H
 #include <TGraph.h>
+#include <TH1F.h>
 
 class TGraphMT : public TGraph
 {
