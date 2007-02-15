@@ -293,10 +293,6 @@ void romesqldb_print(void *romedb, const char *option)
 
 
 /* for Fortran */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static void cstr2fstr(char *ret, const int ret_len)
 {
    int len = strlen(ret);
@@ -835,6 +831,3 @@ void _romesqldb_print_(long long *romedb, char *opt, const int opt_len)
    romesqldb_print__(romedb, opt, opt_len);
 }
 
-#ifdef __cplusplus
-}
-#endif
