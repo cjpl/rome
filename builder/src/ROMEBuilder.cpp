@@ -1252,6 +1252,7 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
 
        !strcmp(type,"double") ||
        !strcmp(type,"Double_t") ||
+       !strcmp(type,"Double32_t") ||
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
