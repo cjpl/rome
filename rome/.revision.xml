@@ -114,3 +114,9 @@
   <Directory>/scratch0/sawada/rome</Directory>
   <LastCompile>Thu, 15 Feb 2007 00:53:27 +0000 (GMT) +597143000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>yamada</User>
+  <Host>bahamoud</Host>
+  <Directory>/scratch1/yamada/rome/trunk</Directory>
+  <LastCompile>Mon, 19 Feb 2007 18:01:47 +0000 (GMT) +383012000 nsec</LastCompile>
+</Entry>
