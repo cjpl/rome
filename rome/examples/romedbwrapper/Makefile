@@ -1,3 +1,5 @@
+OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
+
 ## Compilers
 CXX   ?= g++
 CC    ?= gcc
@@ -13,9 +15,8 @@ sqlcflags := -DHAVE_SQL -DHAVE_SQLITE3
 
 CFlags    := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags) -g -Wall -W
 Libraries :=
-Libraries += $(oslibs) $(sqllibs) $(daqlibs) $(rootlibs) $(clibs)
+Libraries += $(oslibs) $(sqllibs) $(rootlibs)
 LDFLAGS   := $(osldflags)
-SOFLAGS   := $(ossoflags)
 
 ## Include directories
 Includes := -I$(ROMESYS)/include/
@@ -42,6 +43,11 @@ DICTHEADERS = $(ROMESYS)/include/ROMEString.h \
               $(ROMESYS)/include/ROMESQLDataBase.h \
               $(ROMESYS)/include/ROMEDataBase.h \
 
+ifeq ($(OSTYPE), darwin)
+CXX_LIBS = -L$(dir $(shell $(CXX) -print-libgcc-file-name)) \
+           -lstdc++ -lgcc_eh
+endif
+
 ##
 ## Compile and link rules
 ##
@@ -52,7 +58,7 @@ test_c: $(objects) main_c.o
 	$(CXX) $(LDFLAGS) -o $@ $(objects) main_c.o $(Libraries)
 
 test_f: $(objects) main_f.o
-	$(FC) $(LDFLAGS) -o $@ main_f.o $(objects) $(Libraries)
+	$(FC) $(LDFLAGS) -o $@ main_f.o $(objects) $(CXX_LIBS) $(Libraries)
 
 ROME%.o : $(ROMESYS)/src/ROME%.cpp
 	$(CXX) -c $(CFlags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@

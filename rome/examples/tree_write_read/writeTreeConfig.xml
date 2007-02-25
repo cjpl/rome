@@ -122,8 +122,6 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <RunNumbers>2</RunNumbers>
       <EventNumbers>0-10</EventNumbers>
     </Offline>
-
-    <Common/>
   </RunConfiguration>
   <RunConfiguration>
 
@@ -131,5 +129,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <RunNumbers>3-4</RunNumbers>
       <EventNumbers>0-15</EventNumbers>
     </Offline>
+
+    <Common/>
   </RunConfiguration>
 </Configuration>
