@@ -252,15 +252,15 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (fNetFolder) {
                   ROMEString command;
 #if defined( R__VISUAL_CPLUSPLUS )
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);", gROME->GetCurrentEventNumber() - fEventStep + 1);
+                  command.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);", gROME->GetCurrentEventNumber() - fEventStep);
 #else
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() - fEventStep + 1);
+                  command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() - fEventStep);
 #endif
                   fNetFolder->ExecuteCommand(command.Data());
                }
             }
             else {
-               gROME->SetUserEventJ(gROME->GetCurrentEventNumber() - fEventStep + 1);
+               gROME->SetUserEventJ(gROME->GetCurrentEventNumber() - fEventStep);
             }
             break;
          case B_Next:
@@ -268,15 +268,15 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (fNetFolder) {
                   ROMEString command;
 #if defined( R__VISUAL_CPLUSPLUS )
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);", gROME->GetCurrentEventNumber() + fEventStep + 1);
+                  command.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);", gROME->GetCurrentEventNumber() + fEventStep);
 #else
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() + fEventStep + 1);
+                  command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() + fEventStep);
 #endif
                   fNetFolder->ExecuteCommand(command.Data());
                }
             }
             else {
-               gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep + 1);
+               gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep);
             }
             break;
          case B_Stop:

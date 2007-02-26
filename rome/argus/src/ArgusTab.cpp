@@ -62,7 +62,7 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
       return gROME->GetSocketClientNetFolder()->RequestNewEvent(oldRunNumber,oldEventNumber);
    }
    else {
-      if (oldRunNumber<gROME->GetCurrentRunNumber() || oldRunNumber==gROME->GetCurrentRunNumber() && oldEventNumber<gROME->GetCurrentEventNumber())
+      if (oldRunNumber!=gROME->GetCurrentRunNumber() || oldEventNumber!=gROME->GetCurrentEventNumber())
          return kTRUE;
    }
    return kFALSE;
