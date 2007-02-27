@@ -1350,8 +1350,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 
    // Dependencies
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
-
-   buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
+   buffer.AppendFormatted(" $(%sionaryDep)", dictionaryName);
+   buffer.AppendFormatted(" Makefile\n");
 
    // Echo
    buffer.AppendFormatted("\t@echo \"creating  dict/%s.cpp dict/%s.h\"\n",dictionaryName,dictionaryName);
@@ -1495,7 +1495,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    dictionaryOutputs->AddFormatted(bufferT.Data());
 
    // Dependencies
-   buffer.AppendFormatted(" $(DictionaryHeaders)\n");
+   buffer.AppendFormatted(" $(DictionaryHeaders) Makefile\n");
 
    // Command
 #if defined( R__UNIX )
