@@ -203,9 +203,9 @@ int main()
    buffer.AppendFormatted(" * These macros can be used in the following way:\n");
    buffer.AppendFormatted(" *\n");
    buffer.AppendFormatted(" *    #if ROME_VERSION_CODE >= ROME_VERSION(2,5)\n");
-   buffer.AppendFormatted(" *       #include <newheader.h>\n");
+   buffer.AppendFormatted(" *    #   include <newheader.h>\n");
    buffer.AppendFormatted(" *    #else\n");
-   buffer.AppendFormatted(" *       #include <oldheader.h>\n");
+   buffer.AppendFormatted(" *    #   include <oldheader.h>\n");
    buffer.AppendFormatted(" *    #endif\n");
    buffer.AppendFormatted(" *\n");
    buffer.AppendFormatted("*/\n");
