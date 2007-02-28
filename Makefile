@@ -235,6 +235,19 @@ ifeq ($(NEED_TARRAYL64), yes)
 LibDictHeaders += include/array64/TArrayL64.h
 endif
 
+ifeq ($(OSTYPE),darwin)
+  ifeq ($(DYLD_LIBRARY_PATH),)  
+    export DYLD_LIBRARY_PATH = $(shell $(ROOTSYS)/bin/root-config --libdir)
+  else
+    export DYLD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir)
+  endif
+else
+  ifeq ($(LD_LIBRARY_PATH),)  
+    export LD_LIBRARY_PATH = $(shell $(ROOTSYS)/bin/root-config --libdir)
+  else
+    export LD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir)
+  endif
+endif
 
 #
 # Compile and linking
@@ -277,15 +290,12 @@ else
 endif
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
 	$(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(INCLUDE) $(LibDictHeaders)
 
 ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
 	$(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(INCLUDE) $(BldDictHeaders)
 
 UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/mxml.o: src/mxml.c include/mxml.h
