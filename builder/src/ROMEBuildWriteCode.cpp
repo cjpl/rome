@@ -3387,7 +3387,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1,1,0,1,1,0,1));\n",tabObjectDisplayObjectType[iTab][i].Data());
             buffer.AppendFormatted("      ((TObjArray*)fLines->Last())->AddLast(new TObjArray());\n");
             buffer.AppendFormatted("      for (j=0 ; j<kMaxNumberOfLines ; j++) {\n");
-            buffer.AppendFormatted("         ((TObjArray*)((TObjArray*)fLines->Last())->Last())->AddLast(new TLine());\n");
+            buffer.AppendFormatted("         ((TObjArray*)((TObjArray*)fLines->Last())->Last())->AddLast(new TLine(-1, -1, -1, -1));\n");
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
          }
@@ -3430,7 +3430,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted("      ((TObjArray*)fUserObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1,1,0,1,1,0,1));\n",tabObjectDisplayObjectType[iTab][i].Data());
                buffer.AppendFormatted("      ((TObjArray*)fUserLines->Last())->AddLast(new TObjArray());\n");
                buffer.AppendFormatted("      for (j=0;j<fNumberOfUserLines;j++) {\n");
-               buffer.AppendFormatted("         ((TObjArray*)((TObjArray*)fUserLines->Last())->Last())->AddLast(new TLine());\n");
+               buffer.AppendFormatted("         ((TObjArray*)((TObjArray*)fUserLines->Last())->Last())->AddLast(new TLine(-1, -1, -1, -1));\n");
                buffer.AppendFormatted("      }\n");
                buffer.AppendFormatted("   }\n");
             }

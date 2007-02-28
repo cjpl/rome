@@ -79,6 +79,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
    fNumberOfObjects = 0;
 
    fNumberOfUserTGraph = 0;
+   fNumberOfUserLines = 0;
    fStatisticBoxFlag = kFALSE;
 
    fMenuBar = 0;
