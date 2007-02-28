@@ -24,6 +24,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Host></Host>
       <Experiment></Experiment>
       <AnalyzerName>HGUIExample</AnalyzerName>
+      <MemoryBuffer>SYSTEM</MemoryBuffer>
     </Online>
 
     <Paths>
@@ -66,13 +67,6 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Task>
           <TaskName>FillHisto</TaskName>
           <Active>true</Active>
-          <Histogram>
-            <HistName>MyHisto</HistName>
-          </Histogram>
-
-          <Histogram>
-            <HistName>MyOtherHisto</HistName>
-          </Histogram>
         </Task>
       </Tasks>
     </Analyzer>
