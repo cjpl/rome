@@ -65,11 +65,11 @@ ARGUSProjects += argus/folders/romeproject/foframework.exe \
                  argus/folders/fomonitor.exe
 endif
 
-all: rome argus romedbwrapper
+all: rome argus dbwrapper
 rome: $(ROMEProjects)
 argus: $(ARGUSProjects)
 
-romoedbwrapper :
+dbwrapper :
 ifeq ($(OSTYPE),linux)
 	make -C romedbwrapper
 endif
@@ -182,7 +182,7 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -nl -midas
 	make $(JOBSFLAG) -C argus/folders/
 
-check : $(ROMEProjects) $(ARGUSProjects)
+check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd romedbwrapper; ./test_c; ./test_f
 
@@ -195,7 +195,7 @@ check : $(ROMEProjects) $(ARGUSProjects)
 
 	cd taskhierarchy; ./thexample.exe -i romeConfig.xml -q -e 0-9999 -r 1
 
-	cd netfolder; ./nfexample.exe -i singleProcessConfig.xml -q -e 0-99
+	cd netfolder; ./nfexample.exe -i singleProcessConfig.xml -q -e 0-19
 
 	cd stepbystep;	./sbsanalyzer.exe -i romeConfig.xml -q
 
@@ -204,10 +204,10 @@ check : $(ROMEProjects) $(ARGUSProjects)
 	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q
 	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q
 
-	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q
+	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99
 
-#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q & \
-#	./hguiexample.exe -i histoReadConfig.xml -q
+#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q -e 0-9 & \
+#	./hguiexample.exe -i histoReadConfig.xml -q -e 0-9
 
 	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q
 
@@ -253,5 +253,5 @@ depclean :
 	find $(ROMESYS)/examples -name "*.d" -exec rm {} \;
 
 remove :
-	rm $(ROMEProjects) $(ARGUSProjects)
+	rm $(ROMEProjects) $(ARGUSProjects) romedbwrapper/test_c romedbwrapper/test_f
 

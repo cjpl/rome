@@ -67,9 +67,6 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Task>
           <TaskName>MakeHistogram</TaskName>
           <Active>true</Active>
-          <Histogram>
-            <HistName>hAdc</HistName>
-          </Histogram>
         </Task>
       </Tasks>
     </Analyzer>
