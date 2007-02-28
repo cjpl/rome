@@ -22,8 +22,8 @@
 //------
 // change following values when release
 const Int_t romeMajor = 2;
-const Int_t romeMinor = 7;
-const Int_t isStableVersion = 0; // 0: development version, 1: stable version
+const Int_t romeMinor = 8;
+const Int_t isStableVersion = 1; // 0: development version, 1: stable version
 //------
 
 /*
