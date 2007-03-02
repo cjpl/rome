@@ -122,7 +122,7 @@ void romesqldb_set_double_value(void *romedb, int column, int row, double val)
       return;
    }
    ROMEString str;
-   str.SetFormatted("%g", val);
+   str.SetFormatted("%16g", val);
    work->values->SetAt(str, column, row);
 }
 
@@ -133,7 +133,7 @@ void romesqldb_set_float_value(void *romedb, int column, int row, float val)
       return;
    }
    ROMEString str;
-   str.SetFormatted("%g", val);
+   str.SetFormatted("%8g", val);
    work->values->SetAt(str, column, row);
 }
 

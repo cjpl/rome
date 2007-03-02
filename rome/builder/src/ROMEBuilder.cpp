@@ -1256,7 +1256,7 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
-      buf->Append("%g");
+      buf->Append("%#g");
    }
    else if (!strcmp(type,"bool") ||
       !strcmp(type,"Bool_t")) {
@@ -1457,7 +1457,7 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
       if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString"))
          return stringBuffer.SetFormatted("%s=%s",tmp.Data(),value);
       if (isFloatingType(oldType))
-         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%g\",%s)",tmp.Data(),value);
+         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%16g\",%s)",tmp.Data(),value);
       else
 #if defined( R__VISUAL_CPLUSPLUS )
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%I64d\",static_cast<Long64_t>(%s))",tmp.Data(),value);
