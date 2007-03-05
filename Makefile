@@ -294,7 +294,7 @@ include/ROMEVersion.h: bin/updateVersionH.exe
 
 librome.a: Makefile $(LibObjects)
 	$(call echoing, "creating  $@")
-	-$(RM) $@
+	-$(Q)$(RM) $@
 	$(Q)$(AR) -rcs $@ $(LibObjects)
 
 librome.so: Makefile $(LibObjects)
