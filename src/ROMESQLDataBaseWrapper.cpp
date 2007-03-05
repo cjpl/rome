@@ -471,7 +471,7 @@ void romesqldb_get_number_of_fields__(long long *romedb, int *ret)
 
 void romesqldb_get_field__(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
 {
-   const char *p = romesqldb_get_field(reinterpret_cast<void*>(*romedb), *fieldNumber); 
+   const char *p = romesqldb_get_field(reinterpret_cast<void*>(*romedb), *fieldNumber);
    if (strlen(p) <= static_cast<unsigned int>(ret_len)) {
       strcpy(ret, p);
       cstr2fstr(ret, ret_len);

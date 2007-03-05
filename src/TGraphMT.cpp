@@ -76,7 +76,7 @@ TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
             fHistogram->SetMinimum(gr.fHistogram->GetMinimum());
             gr.fHistogram->TAttLine::Copy(*fHistogram);
             gr.fHistogram->TAttFill::Copy(*fHistogram);
-            gr.fHistogram->TAttMarker::Copy(*fHistogram);           
+            gr.fHistogram->TAttMarker::Copy(*fHistogram);   
             gr.fHistogram->GetXaxis()->Copy(*fHistogram->GetXaxis());
             gr.fHistogram->GetYaxis()->Copy(*fHistogram->GetYaxis());
             gr.fHistogram->GetZaxis()->Copy(*fHistogram->GetZaxis());

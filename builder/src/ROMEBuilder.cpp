@@ -1015,10 +1015,10 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #   if defined( R__UNIX )
          dynamicLink = true;
 #   else
-         cout<<"-dl option is available on Un*x."<<endl;         
+         cout<<"-dl option is available on Un*x."<<endl;
 #   endif
 #else
-         cout<<"PIC option is necessary to use dynamic link library."<<endl;         
+         cout<<"PIC option is necessary to use dynamic link library."<<endl;
 #endif
       }
       else if (!strcmp(argv[i],"-nosql")) {
