@@ -1247,11 +1247,6 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
          !strcmp(type,"Long_t") ||
          !strcmp(type,"ULong_t") ||
 
-         !strcmp(type,"long long") ||
-         !strcmp(type,"unsigned long long") ||
-         !strcmp(type,"Long64_t") ||
-         !strcmp(type,"ULong64_t") ||
-
          !strcmp(type,"Style_t") ||
          !strcmp(type,"Marker_t") ||
          !strcmp(type,"Color_t") ||
@@ -1259,6 +1254,16 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
          !strcmp(type,"Version_t")
          ) {
       buf->Append("%d");
+   } else if (
+         !strcmp(type,"long long") ||
+         !strcmp(type,"unsigned long long") ||
+         !strcmp(type,"Long64_t") ||
+         !strcmp(type,"ULong64_t")) {
+#if defined( R__VISUAL_CPLUSPLUS )
+      buf->Append("%I64d");
+#else
+      buf->Append("%lld");
+#endif
    } else if (!strcmp(type,"bool") ||
               !strcmp(type,"Bool_t")) {
       buf->Append("%d");
