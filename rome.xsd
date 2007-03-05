@@ -142,6 +142,11 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="SPFieldFormat" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Format string to be used when converting to text. (e.g. %08x, %16.16f)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Affiliation of the steering parameter field. This is used for selecting a subgroup of all steering parameter fields for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the steering parameter fields belonging to that group will be linked into the project. The steering parameter field can have multiple affiliations, then the steering parameter field is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>

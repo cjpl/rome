@@ -167,6 +167,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] steerUsed;
    delete [] steerFieldName;
    delete [] steerFieldType;
+   delete [] steerFieldFormat;
    delete [] steerFieldArraySize;
    delete [] steerFieldInit;
    delete [] steerFieldComment;
@@ -1213,55 +1214,86 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
 {
    buf->Resize(0);
    // get the format specifier (like '%s') of a declaration type
-   if (!strcmp(type,"int") ||
-       !strcmp(type,"unsigned int") ||
-       !strcmp(type,"Int_t") ||
-       !strcmp(type,"UInt_t") ||
+   if (
+         !strcmp(type,"char") ||
+         !strcmp(type,"unsigned char") ||
+         !strcmp(type,"Char_t") ||
+         !strcmp(type,"UChar_t") ||
+         !strcmp(type,"Text_t") ||
+         !strcmp(type,"Byte_t") ||
+         !strcmp(type,"Option_t") ||
 
-       !strcmp(type,"long") ||
-       !strcmp(type,"unsigned long") ||
-       !strcmp(type,"Long_t") ||
-       !strcmp(type,"ULong_t") ||
+         !strcmp(type,"short") ||
+         !strcmp(type,"unsigned short") ||
+         !strcmp(type,"Short_t") ||
+         !strcmp(type,"UShort_t") ||
+         !strcmp(type,"Version_t") ||
+         !strcmp(type,"Font_t") ||
+         !strcmp(type,"Style_t") ||
+         !strcmp(type,"Marker_t") ||
+         !strcmp(type,"Width_t") ||
+         !strcmp(type,"Color_t") ||
+         !strcmp(type,"SCoord_t") ||
 
-       !strcmp(type,"short") ||
-       !strcmp(type,"unsigned short") ||
-       !strcmp(type,"Short_t") ||
-       !strcmp(type,"UShort_t") ||
+         !strcmp(type,"int") ||
+         !strcmp(type,"unsigned int") ||
+         !strcmp(type,"Int_t") ||
+         !strcmp(type,"UInt_t") ||
+         !strcmp(type,"Seek_t") ||
+         !strcmp(type,"Ssiz_t") ||
 
-       !strcmp(type,"long long") ||
-       !strcmp(type,"unsigned long long") ||
+         !strcmp(type,"long") ||
+         !strcmp(type,"unsigned long") ||
+         !strcmp(type,"Long_t") ||
+         !strcmp(type,"ULong_t") ||
 
-       !strcmp(type,"Style_t") ||
-       !strcmp(type,"Marker_t") ||
-       !strcmp(type,"Color_t") ||
-       !strcmp(type,"Font_t") ||
-       !strcmp(type,"Version_t")) {
+         !strcmp(type,"long long") ||
+         !strcmp(type,"unsigned long long") ||
+         !strcmp(type,"Long64_t") ||
+         !strcmp(type,"ULong64_t") ||
+
+         !strcmp(type,"Style_t") ||
+         !strcmp(type,"Marker_t") ||
+         !strcmp(type,"Color_t") ||
+         !strcmp(type,"Font_t") ||
+         !strcmp(type,"Version_t")
+         ) {
       buf->Append("%d");
+   } else if (!strcmp(type,"bool") ||
+              !strcmp(type,"Bool_t")) {
+      buf->Append("%d");
+   } else if (
+         !strcmp(type,"float") ||
+         !strcmp(type,"Float_t") ||
+         !strcmp(type,"Real_t") ||
+         !strcmp(type,"Angle_t") ||
+         !strcmp(type,"Size_t")
+         ) {
+//      buf->Append("%#.6g");
+      buf->Append("%g");
+   } else if (
+         !strcmp(type,"double") ||
+         !strcmp(type,"Double_t") ||
+         !strcmp(type,"Double32_t") ||
+         !strcmp(type,"Coord_t") ||
+         !strcmp(type,"Stat_t") ||
+         !strcmp(type,"Axis_t")
+         ) {
+//      buf->Append("%#.14g");
+      buf->Append("%g");
    }
-   else if (!strcmp(type,"char") ||
-       !strcmp(type,"unsigned char") ||
-       !strcmp(type,"Char_t") ||
-       !strcmp(type,"UChar_t") ||
-
-       !strcmp(type,"Option_t") ||
-       !strcmp(type,"Text_t")) {
+#if 0
+   else if (
+         !strcmp(type,"char*") ||
+         !strcmp(type,"unsigned char*") ||
+         !strcmp(type,"Char_t*") ||
+         !strcmp(type,"UChar_t*") ||
+         !strcmp(type,"Option_t*") ||
+         !strcmp(type,"Text_t*")
+         ) {
       buf->Append("%s");
    }
-   else if (!strcmp(type,"float") ||
-       !strcmp(type,"Float_t") ||
-
-       !strcmp(type,"double") ||
-       !strcmp(type,"Double_t") ||
-       !strcmp(type,"Double32_t") ||
-
-       !strcmp(type,"Stat_t") ||
-       !strcmp(type,"Axis_t")) {
-      buf->Append("%#g");
-   }
-   else if (!strcmp(type,"bool") ||
-      !strcmp(type,"Bool_t")) {
-      buf->Append("%d");
-   }
+#endif
    else {
       buf->Append("%s");
    }
@@ -1457,7 +1489,7 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
       if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString"))
          return stringBuffer.SetFormatted("%s=%s",tmp.Data(),value);
       if (isFloatingType(oldType))
-         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%16g\",%s)",tmp.Data(),value);
+         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%.16g\",%s)",tmp.Data(),value);
       else
 #if defined( R__VISUAL_CPLUSPLUS )
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%I64d\",static_cast<Long64_t>(%s))",tmp.Data(),value);

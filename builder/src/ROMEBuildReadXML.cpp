@@ -276,6 +276,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    steerUsed = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
    steerFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldFormat = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldInit = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldComment = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
@@ -3770,6 +3771,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
          readFieldAffiliation = false;
          steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         steerFieldFormat[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "1";
          steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
@@ -3822,6 +3824,12 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "NULL";
                else
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "0";
+            }
+            // steering parameter field format
+            if (type == 1 && !strcmp((const char*)name,"SPFieldFormat")) {
+               xml->GetValue(steerFieldFormat[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                             ,steerFieldFormat[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               FormatText(steerFieldFormat[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
             }
             // steering parameter field array size
             if (type == 1 && !strcmp((const char*)name,"SPFieldArraySize")) {
