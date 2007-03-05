@@ -289,6 +289,7 @@ protected:
    Bool_t      **steerUsed;
    ROMEString ***steerFieldName;
    ROMEString ***steerFieldType;
+   ROMEString ***steerFieldFormat;
    ROMEString ***steerFieldArraySize;
    ROMEString ***steerFieldInit;
    ROMEString ***steerFieldComment;

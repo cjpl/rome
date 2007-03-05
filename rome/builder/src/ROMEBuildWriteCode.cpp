@@ -8966,7 +8966,11 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
             subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(ii[%d],##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else
             subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(ii[%d],(%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
-         GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
+         if (steerFieldFormat[numTask][numSteer][i].Length()) {
+            formatValue  = steerFieldFormat[numTask][numSteer][i];
+         } else {
+            GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
+         }
          subSubGroup->GetLastParameter()->AddWriteLine("if (%s) {",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="TString" || steerFieldType[numTask][numSteer][i]=="ROMEString")
             subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(ii[%d]).Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
@@ -8997,7 +9001,11 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
             subGroup->GetLastParameter()->AddSetLine("   %s->Set%s(##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
          else
             subGroup->GetLastParameter()->AddSetLine("   %s->Set%s((%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
-         GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
+         if (steerFieldFormat[numTask][numSteer][i].Length()) {
+            formatValue  = steerFieldFormat[numTask][numSteer][i];
+         } else {
+            GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
+         }
          subGroup->GetLastParameter()->AddWriteLine("if (%s) {",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="TString" || steerFieldType[numTask][numSteer][i]=="ROMEString")
             subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%s().Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
