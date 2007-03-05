@@ -99,9 +99,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <NetFolderName>mynetfolder</NetFolderName>
         <Active>false</Active>
         <Reconnect>true</Reconnect>
-        <Root>0</Root>
-        <Host>0</Host>
-        <Port>9090</Port>
+        <Root>FO</Root>
+        <Host>localhost</Host>
+        <Port></Port>
       </NetFolder>
 
       <Tabs>

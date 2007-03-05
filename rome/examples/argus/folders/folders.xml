@@ -70,9 +70,9 @@
 		<NetFolder>
 			<NetFolderName>mynetfolder</NetFolderName>
 			<NetFolderTitle>rome folder</NetFolderTitle>
+			<NetFolderRoot>FO</NetFolderRoot>
 			<NetFolderHost>localhost</NetFolderHost>
 			<NetFolderPort>9090</NetFolderPort>
-			<NetFolderRoot>FO</NetFolderRoot>
 		</NetFolder>
 	</NetFolders>
 	<UserMakeFile>
