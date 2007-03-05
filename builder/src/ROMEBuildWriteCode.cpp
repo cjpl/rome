@@ -8521,17 +8521,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->AddParameter(new ROMEConfigParameter("Root"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
          subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderRoot(%d,const_cast<char*>(##.Data()));",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderHost(%d);",i);
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
          // Host
          subsubGroup->AddParameter(new ROMEConfigParameter("Host"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
          subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderHost(%d,const_cast<char*>(##.Data()));",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetNetFolderPort(%d));",i);
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",gAnalyzer->GetNetFolderHost(%d));",i);
          // Port
          subsubGroup->AddParameter(new ROMEConfigParameter("Port"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
          subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderPort(%d,const_cast<char*>(##.Data()));",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderPort(%d);",i);
       }
       // Tabs
       if (numOfTab>0) {
