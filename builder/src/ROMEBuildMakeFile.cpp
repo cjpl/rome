@@ -989,11 +989,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted("%sVERBOSEMAKE ?= 1\n", shortCut.Data());
    buffer.AppendFormatted("ifeq ($(%sVERBOSEMAKE), 0)\n", shortCut.Data());
    buffer.AppendFormatted("   Q = @\n");
+   buffer.AppendFormatted("   echoing = @echo $1\n");
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("   Q =\n");
+   buffer.AppendFormatted("   echoing =\n");
    buffer.AppendFormatted("endif\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("echoing = $(if ($(%sVERBOSEMAKE), 0), @echo $1;)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Additional flags\n");
