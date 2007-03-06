@@ -1298,6 +1298,7 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
    } else if (
          !strcmp(type,"TString") ||
          !strcmp(type,"ROMEString") ||
+         !strcmp(type,"std::string") ||
          !strcmp(type,"string")
          ) {
       buf->Append("%s");
