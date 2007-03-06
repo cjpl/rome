@@ -722,7 +722,6 @@ private:
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);
 
    // Type Utility Methods
-   void    GetFormat(ROMEString *buf,const char *type);
    void    setValue(ROMEString *buf,const char *destination,const char *source,const char *type,Int_t version);
    Bool_t  isFloatingType(const char *type);
    Bool_t  isNumber(const char * str);

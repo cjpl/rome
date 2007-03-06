@@ -11,6 +11,7 @@
 #include <RConfig.h>
 #include <ROMEUtilities.h>
 #include <ROMEXML.h>
+#include <Riostream.h>
 #include "ROMEiostream.h"
 #if defined( R__VISUAL_CPLUSPLUS )
 #  pragma warning( push )
@@ -146,3 +147,52 @@ const char* ROMEUtilities::FastDecrypt(const char *str)
    result[i / 2] = '\0';
    return result;
 }
+
+#if !defined(__CINT__)
+const char* ROMEUtilities::GetFormat(const type_info &t)
+{
+   // get the format specifier (like '%s') of a declaration type
+   static int cur = 0;
+   static char result[100][16];
+   char *p = result[cur];
+   cur = (cur + 1) % 100;
+
+   if (t == typeid(char) ||
+       t == typeid(unsigned char) ||
+       t == typeid(short) ||
+       t == typeid(unsigned short) ||
+       t == typeid(int) ||
+       t == typeid(unsigned int) ||
+       t == typeid(long) ||
+       t == typeid(unsigned long)) {
+      strcpy(p, "%d");
+   } else if (t == typeid(long long) ||
+              t == typeid(unsigned long long)) {
+#if defined( R__VISUAL_CPLUSPLUS )
+      strcpy(p, "%I64d");
+#else
+      strcpy(p, "%lld");
+#endif
+   } else if (t == typeid(bool)) {
+      strcpy(p, "%d");
+   } else if (t == typeid(float)) {
+//      strcpy(p, "%#.6g");
+      strcpy(p, "%g");
+   } else if (t == typeid(double)) {
+//      strcpy(p, "%#.14g");
+      strcpy(p, "%g");
+   } else if (t == typeid(char*) ||
+              t == typeid(unsigned char*)) {
+      strcpy(p, "%s");
+   } else if (t == typeid(TString) ||
+              t == typeid(ROMEString) ||
+              t == typeid(std::string)) {
+      strcpy(p, "%s");
+   } else {
+      strcpy(p, "%s");
+      cerr<<"Error in ROMEBuilder::GetFormat: Unknown type '"<<t.name()<<"'"<<endl;
+   }
+
+   return p;
+}
+#endif

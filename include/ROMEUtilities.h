@@ -7,6 +7,7 @@
 #ifndef ROMEUtilities_H
 #define ROMEUtilities_H
 
+#include <typeinfo>
 #include <RConfig.h>
 #include <Bytes.h>
 #if defined( R__MACOSX )
@@ -29,6 +30,9 @@ namespace ROMEUtilities {
    void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
    const char* FastCrypt(const char *str);
    const char* FastDecrypt(const char *str);
+#if !defined(__CINT__)
+   const char* GetFormat(const type_info &t);
+#endif
 }
 
 //
@@ -111,5 +115,6 @@ inline void ROMEUtilities::ByteSwap( Double_t *x )
 {
     ByteSwap( (ULong64_t *)x );
 }
+
 
 #endif // ROMEUtilities_H
