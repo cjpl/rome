@@ -1286,9 +1286,7 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
          ) {
 //      buf->Append("%#.14g");
       buf->Append("%g");
-   }
-#if 0
-   else if (
+   } else if (
          !strcmp(type,"char*") ||
          !strcmp(type,"unsigned char*") ||
          !strcmp(type,"Char_t*") ||
@@ -1297,10 +1295,15 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
          !strcmp(type,"Text_t*")
          ) {
       buf->Append("%s");
-   }
-#endif
-   else {
+   } else if (
+         !strcmp(type,"TString") ||
+         !strcmp(type,"ROMEString") ||
+         !strcmp(type,"string")
+         ) {
       buf->Append("%s");
+   } else {
+      buf->Append("%s");
+      cerr<<"Error in ROMEBuilder::GetFormat: Unknown type '"<<type<<"'"<<endl;
    }
 }
 
