@@ -154,20 +154,29 @@ const char* ROMEUtilities::GetFormat(const type_info &t)
    // get the format specifier (like '%s') of a declaration type
 
    if (t == typeid(char) ||
-       t == typeid(unsigned char) ||
-       t == typeid(short) ||
-       t == typeid(unsigned short) ||
-       t == typeid(int) ||
-       t == typeid(unsigned int) ||
-       t == typeid(long) ||
-       t == typeid(unsigned long)) {
+       t == typeid(unsigned char)) {
+      return "%c";
+   } else if (t == typeid(short) ||
+              t == typeid(int)) {
       return "%d";
-   } else if (t == typeid(long long) ||
-              t == typeid(unsigned long long)) {
+   } else if (t == typeid(unsigned short) ||
+              t == typeid(unsigned int)) {
+      return "%u";
+   } else if (t == typeid(long)) {
+      return "%ld";
+   } else if (t == typeid(unsigned long)) {
+      return "%lu";
+   } else if (t == typeid(long long)) {
 #if defined( R__VISUAL_CPLUSPLUS )
       return "%I64d";
 #else
       return "%lld";
+#endif
+   } else if (t == typeid(unsigned long long)) {
+#if defined( R__VISUAL_CPLUSPLUS )
+      return "%I64u";
+#else
+      return "%llu";
 #endif
    } else if (t == typeid(bool)) {
       return "%d";
