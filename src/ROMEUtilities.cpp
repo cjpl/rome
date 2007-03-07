@@ -152,10 +152,6 @@ const char* ROMEUtilities::FastDecrypt(const char *str)
 const char* ROMEUtilities::GetFormat(const type_info &t)
 {
    // get the format specifier (like '%s') of a declaration type
-   static int cur = 0;
-   static char result[100][16];
-   char *p = result[cur];
-   cur = (cur + 1) % 100;
 
    if (t == typeid(char) ||
        t == typeid(unsigned char) ||
@@ -165,34 +161,34 @@ const char* ROMEUtilities::GetFormat(const type_info &t)
        t == typeid(unsigned int) ||
        t == typeid(long) ||
        t == typeid(unsigned long)) {
-      strcpy(p, "%d");
+      return "%d";
    } else if (t == typeid(long long) ||
               t == typeid(unsigned long long)) {
 #if defined( R__VISUAL_CPLUSPLUS )
-      strcpy(p, "%I64d");
+      return "%I64d";
 #else
-      strcpy(p, "%lld");
+      return "%lld";
 #endif
    } else if (t == typeid(bool)) {
-      strcpy(p, "%d");
+      return "%d";
    } else if (t == typeid(float)) {
 //      strcpy(p, "%#.6g");
-      strcpy(p, "%g");
+      return "%g";
    } else if (t == typeid(double)) {
 //      strcpy(p, "%#.14g");
-      strcpy(p, "%g");
+      return "%g";
    } else if (t == typeid(char*) ||
               t == typeid(unsigned char*)) {
-      strcpy(p, "%s");
+      return "%s";
    } else if (t == typeid(TString) ||
               t == typeid(ROMEString) ||
               t == typeid(std::string)) {
-      strcpy(p, "%s");
+      return "%s";
    } else {
-      strcpy(p, "%s");
       cerr<<"Error in ROMEBuilder::GetFormat: Unknown type '"<<t.name()<<"'"<<endl;
+      return "%s";
    }
 
-   return p;
+   return 0;
 }
 #endif
