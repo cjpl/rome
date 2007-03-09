@@ -454,7 +454,9 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const cha
 
    this->ResetPhrase();
 
-   fSQL->Connect(server.Data(),user.Data(),passwd.Data(),database.Data(),port.Data());
+   if(!fSQL->Connect(server.Data(),user.Data(),passwd.Data(),database.Data(),port.Data())) {
+      return false;
+   }
 
    return true;
 }
