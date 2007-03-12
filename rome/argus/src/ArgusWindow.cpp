@@ -84,9 +84,9 @@ ArgusWindow::~ArgusWindow()
    SafeDelete(fTab);
    SafeDelete(fTabObjects);
    SafeDelete(fProgress);
+#endif
    SafeDelete(fSubWindowRunning);
    SafeDelete(fSubWindowTimeString);
-#endif
 //   SafeDelete(fController); // fController can be deleted by clicking closed box.
 }
 
