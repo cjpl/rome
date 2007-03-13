@@ -9106,6 +9106,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       WriteConfigClass(buffer,parGroup->GetSubGroupAt(i),tab+1);
    }
+   // Constructor
    buffer.AppendFormatted("%s   %s() {\n",sTab.Data(),parGroup->GetGroupName().Data());
    for (i=0;i<parGroup->GetNumberOfParameters();i++) {
       if (parGroup->GetParameterAt(i)->GetArraySize()!="1") {
@@ -9144,6 +9145,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
          buffer.AppendFormatted("%s      f%sModified = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
+         buffer.AppendFormatted("%s      f%s = 0;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      f%sArrayModified = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      f%sArraySize = 0;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
@@ -9155,6 +9157,42 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
          buffer.AppendFormatted("%s         f%sModified[i] = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
          buffer.AppendFormatted("%s      f%sArrayModified = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
+   }
+   buffer.AppendFormatted("%s   }\n",sTab.Data());
+   // Destructor
+   buffer.AppendFormatted("%s   ~%s() {\n",sTab.Data(),parGroup->GetGroupName().Data());
+   found = false;
+   for (i=0;i<parGroup->GetNumberOfParameters();i++) {
+      if (parGroup->GetParameterAt(i)->GetArraySize()!="1") {
+         buffer.AppendFormatted("%s      int i;\n",sTab.Data());
+         found = true;
+         break;
+      }
+   }
+   for (i=0;i<parGroup->GetNumberOfSubGroups() && !found;i++) {
+      if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
+         buffer.AppendFormatted("%s      int i;\n",sTab.Data());
+         break;
+      }
+   }
+   for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
+      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Histogram" ||
+          parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Graph" ||
+          parGroup->GetSubGroupAt(i)->GetArraySize()=="1") {
+         buffer.AppendFormatted("%s      SafeDelete(f%s);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
+      else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
+         buffer.AppendFormatted("%s      for (i=0;i<f%sArraySize;i++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());         buffer.AppendFormatted("%s         SafeDelete(f%s[i]);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s      }\n",sTab.Data());
+         buffer.AppendFormatted("%s      SafeDeleteArray(f%s);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
+      else {
+         buffer.AppendFormatted("%s      for (i=0;i<%s;i++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetArraySize().Data());
+         buffer.AppendFormatted("%s         SafeDelete(f%s[i]);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s      }\n",sTab.Data());
+         buffer.AppendFormatted("%s      SafeDeleteArray(f%s);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s      SafeDeleteArray(f%sModified);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
    }
    buffer.AppendFormatted("%s   }\n",sTab.Data());
