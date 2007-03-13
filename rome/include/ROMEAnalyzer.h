@@ -291,7 +291,7 @@ public:
    ROMEDataBase   *GetDataBase(Int_t i);
    ROMEDataBase   *GetDataBase(const char *name);
    Bool_t          isDataBaseActive(const char *name);
-   void            SetDataBase(Int_t i,ROMEDataBase *dataBase) { fDataBaseHandle[i] = dataBase; }
+   void            SetDataBase(Int_t i,ROMEDataBase *dataBase);
    Int_t           GetNumberOfDataBases() { return fNumberOfDataBases; }
    void            InitDataBases(Int_t number);
 

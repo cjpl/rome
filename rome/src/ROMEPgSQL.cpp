@@ -20,6 +20,7 @@ ROMEPgSQL::ROMEPgSQL() {
 }
 
 ROMEPgSQL::~ROMEPgSQL() {
+   FreeResult();
    DisConnect();
    SafeDelete(connection);
    SafeDelete(result);

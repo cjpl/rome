@@ -7337,9 +7337,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n// Constructor\n");
    buffer.AppendFormatted("%sConfig::%sConfig()\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   fConfigData = new ConfigData*[1];\n");
-   buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
-   buffer.AppendFormatted("   fNumberOfRunConfigs = 0;\n");
+   buffer.AppendFormatted("   fConfigData = 0;\n");
+   buffer.AppendFormatted("   fNumberOfRunConfigs = -1;\n");
    buffer.AppendFormatted("}\n\n");
 
    // Destructor
@@ -9146,6 +9145,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
          buffer.AppendFormatted("%s      f%s = 0;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s      f%sModified = 0;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      f%sArrayModified = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      f%sArraySize = 0;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
@@ -9185,6 +9185,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
          buffer.AppendFormatted("%s      for (i=0;i<f%sArraySize;i++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());         buffer.AppendFormatted("%s         SafeDelete(f%s[i]);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
+         buffer.AppendFormatted("%s      SafeDeleteArray(f%sModified);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      SafeDeleteArray(f%s);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       else {
