@@ -22,6 +22,7 @@ ROMESQLite3::ROMESQLite3() {
 }
 
 ROMESQLite3::~ROMESQLite3() {
+   FreeResult();
    DisConnect();
 }
 

@@ -47,6 +47,7 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, 
 }
 
 ROMETree::~ROMETree() {
+   SafeDeleteArray(fBranchActive);
 }
 
 void ROMETree::AllocateBranchActive(Int_t n) {

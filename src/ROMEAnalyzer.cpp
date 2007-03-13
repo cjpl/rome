@@ -1467,3 +1467,11 @@ void ROMEAnalyzer::SetObjectStorageUpdated()
    fObjectStorageUpdated = kTRUE;
    gROME->GetUpdateObjectStorageMutex()->UnLock();
 }
+
+void ROMEAnalyzer::SetDataBase(Int_t i,ROMEDataBase *dataBase)
+{
+   if(i >= 0 && i < fNumberOfDataBases) {
+      SafeDelete(fDataBaseHandle[i]);
+      fDataBaseHandle[i] = dataBase;
+   }
+}
