@@ -965,6 +965,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted(" /DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" /D%s",mfPreDefName[i].Data());
+   buffer.AppendFormatted(" /D%s_%s",shortCut.ToUpper(tmp),mainProgName.ToUpper(tmp2));
    buffer.AppendFormatted("\n");
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortCut.ToLower(tmp));
@@ -1119,6 +1120,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("Flags     := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)");
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
+   buffer.AppendFormatted(" -D%s_%s",shortCut.ToUpper(tmp),mainProgName.ToUpper(tmp2));
    buffer.AppendFormatted("\n");
 
    // libs
