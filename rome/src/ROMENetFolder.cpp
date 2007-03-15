@@ -120,4 +120,25 @@ Bool_t ROMENetFolder::RequestEvent()
    delete mr;
    return retValue;
 }
+Bool_t ROMENetFolder::IsProgramTerminated()
+{
+   ROMEString str = "IsProgramTerminated";
+   if (!Send(str.Data()))
+      return false;
+
+   TMessage *mr = 0;
+   if (!Recv(mr))
+      return false;
+
+   if (mr == NULL) {
+      delete mr;
+      return false;
+   }
+
+   Bool_t retValue;
+   *mr >> retValue;
+
+   delete mr;
+   return retValue;
+}
 

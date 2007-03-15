@@ -137,6 +137,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fEventID = 'a';
    fMidasOnlineDataBase = 0;
    fTerminate = false;
+   fProgramTerminated = false;
    fFillEvent = false;
    fTaskObjects = 0;
    fMainTask = 0;
@@ -328,6 +329,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
    int i;
+   bool noGraphicalConfigEdit = false;
 
    ROMEString configFile("");
 
@@ -409,6 +411,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
                answerString = answerLine;
                if (answerString == "q" || answerString == "Q") {
                   return false;
+               }
+               if (answerString.Index(".")!=-1) {
+                  noGraphicalConfigEdit = true;
+                  answerString = answerString(0,answerString.Index("."));
                }
                i = answerString.ToInteger();
                if (!answerString.IsDigit() || i < 0 || i >= nFile) {
@@ -510,7 +516,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       return false;
    }
    ROMEPrint::Print("Using configuration file %s\n", configFile.Data());
-   if (isGraphicalConfigEdit() && !isNoGraphics()) {
+   if (isGraphicalConfigEdit() && !isNoGraphics() && !noGraphicalConfigEdit) {
       if (!this->ShowConfigurationFile()) {
          ROMEPrint::Print("\nTerminate program.\n");
          return false;
@@ -1474,4 +1480,11 @@ void ROMEAnalyzer::SetDataBase(Int_t i,ROMEDataBase *dataBase)
       SafeDelete(fDataBaseHandle[i]);
       fDataBaseHandle[i] = dataBase;
    }
+}
+Bool_t ROMEAnalyzer::IsProgramTerminated()
+{
+   if (gROME->IsROMEMonitor())
+      return gROME->GetSocketClientNetFolder()->IsProgramTerminated();
+   else
+      return fProgramTerminated;
 }

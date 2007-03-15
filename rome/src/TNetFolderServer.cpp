@@ -196,7 +196,6 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       //write name
       TMessage message(kMESS_STRING);
       message.WriteString(fServerName.Data());
-      cout << fServerName.Data() << endl;
       socket->Send(message);
 
       return 1;

@@ -101,6 +101,7 @@
 				<Tab>
 					<TabName>tab1Dgraphs</TabName>
 					<TabTitle>1D Graphs</TabTitle>
+					<TabObjectDisplay>true</TabObjectDisplay>
 					<ObjectDisplays>
 						<ObjectDisplay>
 							<ObjectDisplayName>MyGraph</ObjectDisplayName>

@@ -2530,7 +2530,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("\n");
             }
             buffer.AppendFormatted("Bool_t %sT%s_Base::Register%s() {\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
-            buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
             buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
             buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
             buffer.AppendFormatted("   }\n");
@@ -2538,7 +2538,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
             buffer.AppendFormatted("Bool_t %sT%s_Base::UnRegister%s() {\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
-            buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
+            buffer.AppendFormatted("   if (f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
             buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
             buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
             buffer.AppendFormatted("   }\n");
@@ -3805,6 +3805,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   while (!RequestEvent())\n");
       buffer.AppendFormatted("      gSystem->Sleep(100);\n");
       buffer.AppendFormatted("   gAnalyzer->GetWindow()->RequestEventHandling();\n");
+      buffer.AppendFormatted("   if (gAnalyzer->IsProgramTerminated())\n");
+      buffer.AppendFormatted("      BaseEventHandler();\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
@@ -11438,17 +11440,29 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("FindObjectAny T:")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
-            WriteCheckCommandObject(buffer,"Graph",taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j],"");
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+            buffer.AppendFormatted("      message<<localThis->f%s%s_%sGraph[id];\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+            buffer.AppendFormatted("      socket->Send(message);\n");
+            buffer.AppendFormatted("      return 1;\n");
             buffer.AppendFormatted("   }\n");
          }
          else {
             buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("FindObjectAny T:_")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
             buffer.AppendFormatted("      char* cstop;\n");
             buffer.AppendFormatted("      int index = strtol(&str[%d],&cstop,10);\n",static_cast<int>(strlen("FindObjectAny T:_")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
-            WriteCheckCommandObject(buffer,"Graphs",taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j],"->At(index)");
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+            buffer.AppendFormatted("      message<<localThis->f%s%s_%sGraphs[id]->At(index);\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+            buffer.AppendFormatted("      socket->Send(message);\n");
+            buffer.AppendFormatted("      return 1;\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("FindObjectAny T:s")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
-            WriteCheckCommandObject(buffer,"Graphs",taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j],"");
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+            buffer.AppendFormatted("      message<<localThis->f%s%s_%sGraphs[id];\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+            buffer.AppendFormatted("      socket->Send(message);\n");
+            buffer.AppendFormatted("      return 1;\n");
             buffer.AppendFormatted("   }\n");
          }
          buffer.AppendFormatted("   if (strncmp(str, \"RegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("RegisterObject ")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
@@ -11740,17 +11754,6 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    return true;
 }
 
-Bool_t ROMEBuilder::WriteCheckCommandObject(ROMEString &buffer,const char *fieldIdentifier,const char *fieldName,const char *pointer)
-{
-   buffer.AppendFormatted("      ReadFolderPointer(socket);\n");
-   buffer.AppendFormatted("      TMessage message(kMESS_OBJECT);\n");
-   buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
-   buffer.AppendFormatted("      message<<localThis->f%s%s[id]%s;\n",fieldName,fieldIdentifier,pointer);
-   buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
-   buffer.AppendFormatted("      socket->Send(message);\n");
-   buffer.AppendFormatted("      return 1;\n");
-   return true;
-}
 Bool_t ROMEBuilder::WriteUpdateObjectsObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass)
 {
    if (bypass) {
@@ -14540,6 +14543,15 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
       str = "Set";
       str += folderName[numFolder];
       str += "Size(";
+      if (fileBuffer.Contains(str))
+         return true;
+   }
+
+   // Set Array
+   if (folderArray[numFolder]=="variable") {
+      str = "Set";
+      str += folderName[numFolder];
+      str += "s(";
       if (fileBuffer.Contains(str))
          return true;
    }
