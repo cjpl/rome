@@ -284,7 +284,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Program End
    gROME->SetProgramTerminated();
-   gROME->GetNetFolderServer()->SetCopyAll(true);
+   if (gROME->GetNetFolderServer()) {
+      gROME->GetNetFolderServer()->SetCopyAll(true);
+   }
 
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       fWatchAll.Stop();
