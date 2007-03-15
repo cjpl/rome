@@ -36,7 +36,7 @@ public:
 
    Bool_t   IsSocketClientRead(Int_t clientID) { return fSocketClientRead[clientID]; };
    Bool_t   IsCopyAll() { return fCopyAll; };
-   void     SetCopyAll(bool copyAll) { fCopyAll = copyAll; };
+   void     SetCopyAll(bool copyAll);
 
    Bool_t   IsEventStorageAvailable() { return fEventStorageAvailable; };
    void     SetEventStorageAvailable(bool eventStorageAvailable) { fEventStorageAvailable = eventStorageAvailable; };

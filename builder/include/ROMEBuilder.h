@@ -624,7 +624,6 @@ private:
    Bool_t  WriteRootDAQClassH(Int_t iTree,Int_t iBranch);
    Bool_t  WriteNetFolderServerCpp();
    Bool_t  WriteNetFolderServerH();
-   Bool_t  WriteCheckCommandObject(ROMEString &buffer,const char *fieldIdentifier,const char *fieldName,const char *pointer);
    Bool_t  WriteUpdateObjectsObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass);
    Bool_t  WriteDAQCpp();
    Bool_t  WriteDAQH();

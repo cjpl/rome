@@ -98,6 +98,11 @@ ROMEEventLoop::~ROMEEventLoop()
 
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
+   // Declarations
+   //--------------
+   Long64_t ii,eventLoopIndex;
+   Int_t i;
+
 //   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
    fFirstUserInput = true;
    if (!strcmp(option,"init")) {
@@ -122,10 +127,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       ROMEPrint::Print("\n\nTerminating Program !\n");
       return;
    }
-
-   // Declarations
-   //--------------
-   Long64_t ii,eventLoopIndex;
+   // Deactivate all tasks if stand alone ARGUS
+   if (gROME->IsStandAloneARGUS()) {
+      for (i=0;i<gROME->GetTaskObjectEntries();i++) {
+         ((ROMETask*)gROME->GetTaskObjectAt(i))->SetActive(false);
+      }
+   }
 
    // Initialisation
    //----------------
@@ -274,6 +281,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
       }
    }
+
+   // Program End
+   gROME->SetProgramTerminated();
+   gROME->GetNetFolderServer()->SetCopyAll(true);
 
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       fWatchAll.Stop();

@@ -23,6 +23,7 @@ public:
    Bool_t UnRegisterObject(const char* name);
    Bool_t RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber);
    Bool_t RequestEvent();
+   Bool_t IsProgramTerminated();
 
    ClassDef(ROMENetFolder, 0) // Customized TNetFolder for ROME
 };

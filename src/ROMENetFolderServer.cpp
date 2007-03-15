@@ -125,6 +125,18 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
       socket->Send(message);
       return 1;
    }
+   if (strncmp(str, "IsProgramTerminated", 19) == 0) {
+      //return program termination flag
+      Bool_t ret;
+      ret = kFALSE;
+      if (gROME->IsProgramTerminated())
+         ret = kTRUE;
+
+      TMessage message(kMESS_OBJECT);
+      message<<ret;
+      socket->Send(message);
+      return 1;
+   }
    return TNetFolderServer::CheckCommand(socket,str);
 #endif // ROOT_VERSION
    return 1;
@@ -200,4 +212,13 @@ void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* s
    TThread *thread = new TThread("server_loop", ROMENetFolderServer::ServerLoop, &fPort);
    thread->Run();
 #endif // ROOT_VERSION
+}
+
+void ROMENetFolderServer::SetCopyAll(bool copyAll) 
+{ 
+   Int_t i;
+   fCopyAll = copyAll;
+   for (i = 0; i < kMaxSocketClients; i++) {
+      fSocketClientRead[i] = kFALSE;
+   }
 }

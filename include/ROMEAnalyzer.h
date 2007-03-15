@@ -164,6 +164,7 @@ protected:
 
    // Flags
    Bool_t         fTerminate;                    //! Termination flag
+   Bool_t         fProgramTerminated;            //! Program termination flag
    Bool_t         fFillEvent;                    //! Fill Event Flag
 
    // Object Handles
@@ -344,6 +345,8 @@ public:
    // Termination Flag
    Bool_t          isTerminationFlag() { return fTerminate; }
    void            SetTerminationFlag() { fTerminate = true; }
+   Bool_t          IsProgramTerminated();
+   void            SetProgramTerminated() { fProgramTerminated = true; }
 
    // Event Read Flag
    Bool_t          IsDontReadNextEvent() { return fDontReadNextEvent; }
