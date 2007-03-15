@@ -889,9 +889,9 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
 void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 {
    int i,j;
-   ROMEString tmp;
+   ROMEString tmp,tmp2;
 #if defined( R__UNIX )
-   ROMEString tmp1, tmp2, tmp3;
+   ROMEString tmp1, tmp3;
 #endif
 
 #if defined( R__VISUAL_CPLUSPLUS )
