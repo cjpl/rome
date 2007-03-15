@@ -7339,8 +7339,9 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n// Constructor\n");
    buffer.AppendFormatted("%sConfig::%sConfig()\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   fConfigData = 0;\n");
-   buffer.AppendFormatted("   fNumberOfRunConfigs = -1;\n");
+   buffer.AppendFormatted("   fConfigData = new ConfigData*[1];\n");
+   buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
+   buffer.AppendFormatted("   fNumberOfRunConfigs = 0;\n");
    buffer.AppendFormatted("}\n\n");
 
    // Destructor
@@ -7369,8 +7370,11 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->GetPathAttribute(\"/Configuration\",\"xsi:noNamespaceSchemaLocation\",fXSDFile,\"romeConfig.xsd\");\n");
    buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml))\n");
    buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"/Configuration/RunConfiguration\");\n");
+   buffer.AppendFormatted("   Int_t i;\n");
+   buffer.AppendFormatted("   for (i = 0; i < fNumberOfRunConfigs + 1; i++)\n");
+   buffer.AppendFormatted("      SafeDelete(fConfigData[i]);\n");
    buffer.AppendFormatted("   SafeDeleteArray(fConfigData);\n");
+   buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"/Configuration/RunConfiguration\");\n");
    buffer.AppendFormatted("   fConfigData = new ConfigData*[fNumberOfRunConfigs+1];\n");
    buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
    buffer.AppendFormatted("   ROMEString path = \"/Configuration/MainConfiguration\";\n");
