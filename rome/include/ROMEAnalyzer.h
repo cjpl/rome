@@ -625,6 +625,7 @@ public:
    void            restoreOutput();
 
    void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
+   virtual Bool_t  CheckDependences() { return kTRUE; }
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);

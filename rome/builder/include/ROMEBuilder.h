@@ -74,6 +74,8 @@ class ROMEBuilder
 {
 public:
    ROMEString    romeVersion;
+   int           romeRevisionCode;
+   bool          romeStable;
    ROMEString    makeFlag;
 
 protected:
@@ -215,6 +217,7 @@ protected:
    ROMEString   *taskAuthorCollaboration;
    ROMEString   *taskAuthorEmail;
    ROMEString   *taskVersion;
+   ROMEString   *taskDependence;
    Int_t        *numOfTaskInclude;
    ROMEString  **taskInclude;
    Bool_t      **taskLocalFlag;
@@ -327,6 +330,7 @@ protected:
    ROMEString   *tabAuthorCollaboration;
    ROMEString   *tabAuthorEmail;
    ROMEString   *tabVersion;
+   ROMEString   *tabDependence;
    ROMEString   *tabHeredity;
    Int_t        *tabHeredityIndex;
    Int_t        *tabParentIndex;
@@ -750,6 +754,8 @@ private:
    ROMEString& ProcessCommentCPP(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentHTML(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentString(ROMEString& org, ROMEString& result);
+
+   ROMEString& ParseDependences(ROMEString& org, ROMEString& result);
 };
 
 #endif   // ROMEBuilder_H

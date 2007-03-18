@@ -95,6 +95,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskAuthorCollaboration;
    delete [] taskAuthorEmail;
    delete [] taskVersion;
+   delete [] taskDependence;
    delete [] taskInclude;
    delete [] taskLocalFlag;
    delete [] numOfTaskAccessedFolder;
@@ -199,6 +200,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabAuthorCollaboration;
    delete [] tabAuthorEmail;
    delete [] tabVersion;
+   delete [] tabDependence;
    delete [] tabHeredity;
    delete [] tabHeredityIndex;
    delete [] tabParentIndex;

@@ -204,6 +204,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskAuthorEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskDependence = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfInclude));
    taskLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks,maxNumberOfInclude));
    numOfTaskAccessedFolder = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
@@ -309,6 +310,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthorEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabDependence = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabHeredity = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabHeredityIndex = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabParentIndex = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
@@ -1404,6 +1406,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    taskEventID[numOfTask] = "-1";
    taskAuthor[numOfTask] = mainAuthor;
    taskVersion[numOfTask] = "0";
+   taskDependence[numOfTask] = "";
    taskDescription[numOfTask] = "";
    taskShortDescription[numOfTask] = "";
    taskUsage[numOfTask] = "";
@@ -1523,6 +1526,11 @@ Bool_t ROMEBuilder::ReadXMLTask()
          xml->GetValue(taskVersion[numOfTask],taskVersion[numOfTask]);
          FormatText(taskVersion[numOfTask], kTRUE);
          ParseSVNKeyword(taskVersion[numOfTask]);
+      }
+      // task dependence
+      if (type == 1 && !strcmp((const char*)name,"Dependence")) {
+         xml->GetValue(taskDependence[numOfTask],taskDependence[numOfTask]);
+         FormatText(taskDependence[numOfTask], kTRUE);
       }
       // task description
       if (type == 1 && !strcmp((const char*)name,"TaskDescription")) {
@@ -2024,6 +2032,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabUsed[numOfTab] = true;
    tabAuthor[currentNumberOfTabs] = mainAuthor;
    tabVersion[currentNumberOfTabs] = "0";
+   tabDependence[currentNumberOfTabs] = "";
    tabDescription[currentNumberOfTabs] = "";
    tabShortDescription[currentNumberOfTabs] = "";
    tabUsage[currentNumberOfTabs] = "";
@@ -2167,14 +2176,17 @@ Bool_t ROMEBuilder::ReadXMLTab()
                break;
          }
       }
-
       // tab version
       if (type == 1 && !strcmp(name, "TabVersion")) {
          xml->GetValue(tabVersion[currentNumberOfTabs], tabVersion[currentNumberOfTabs]);
          FormatText(tabVersion[currentNumberOfTabs], kTRUE);
          ParseSVNKeyword(tabVersion[currentNumberOfTabs]);
       }
-
+      // tab dependence
+      if (type == 1 && !strcmp(name, "Dependence")) {
+         xml->GetValue(tabDependence[currentNumberOfTabs], tabDependence[currentNumberOfTabs]);
+         FormatText(tabDependence[currentNumberOfTabs], kTRUE);
+      }
       // tab description
       if (type == 1 && !strcmp(name, "TabDescription")) {
          xml->GetValue(tabDescription[currentNumberOfTabs], tabDescription[currentNumberOfTabs]);

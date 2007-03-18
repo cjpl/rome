@@ -189,6 +189,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             }
    #endif // HAVE_MIDAS
 
+            if(!gROME->CheckDependences())
+               return;
+
             fHaveBeginOfRunMacro = (fBeginOfRunMacro.Length() > 0);
             fHaveBeginOfEventMacro =  (fBeginOfEventMacro.Length() > 0);
             fHaveEndOfEventMacro =  (fEndOfEventMacro.Length() > 0);
