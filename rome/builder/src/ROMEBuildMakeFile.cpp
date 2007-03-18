@@ -993,7 +993,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("   DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))\n");
    buffer.AppendFormatted("   ifndef NTARGETS_STOP\n");
    buffer.AppendFormatted("      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) |\\\n");
-   buffer.AppendFormatted("                                grep echo | wc -l)\n");
+   buffer.AppendFormatted("                                grep NTARGETS_MAGIC | wc -l)\n");
    buffer.AppendFormatted("   endif\n");
    buffer.AppendFormatted("   Q = @\n");
    buffer.AppendFormatted("define %sechoing\n",shortCut.ToLower(tmp));
@@ -1002,9 +1002,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("   fi; \\\n");
    buffer.AppendFormatted("   export NTARGETS=`cat $(NTARGETS_FILE)`; \\\n");
    buffer.AppendFormatted("   if [ ! -z $$NTARGETS ]; then \\\n");
+   buffer.AppendFormatted("      expr $$NTARGETS - 1 > $(NTARGETS_FILE); \\\n");
    buffer.AppendFormatted("      echo [$${NTARGETS}/$(NTARGETS_TOTAL)] $1; \\\n");
-   buffer.AppendFormatted("      export NTARGETS=`expr $$NTARGETS - 1`; \\\n");
-   buffer.AppendFormatted("      echo $$NTARGETS > $(NTARGETS_FILE); \\\n");
+   buffer.AppendFormatted("      echo NTARGETS_MAGIC >& /dev/null; \\\n");
    buffer.AppendFormatted("   else \\\n");
    buffer.AppendFormatted("      echo $1; \\\n");
    buffer.AppendFormatted("   fi;\n");
