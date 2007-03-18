@@ -1004,8 +1004,8 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("   touch $(NTARGETS_FILE).lock; \\\n");
    buffer.AppendFormatted("   export NTARGETS=`cat $(NTARGETS_FILE)`; \\\n");
    buffer.AppendFormatted("   if [ ! -z $$NTARGETS ]; then \\\n");
-   buffer.AppendFormatted("      expr $$NTARGETS - 1 > $(NTARGETS_FILE); \\\n");
    buffer.AppendFormatted("      echo [$${NTARGETS}/$(NTARGETS_TOTAL)] $1; \\\n");
+   buffer.AppendFormatted("      expr `cat $(NTARGETS_FILE)` - 1 > $(NTARGETS_FILE); \\\n");
    buffer.AppendFormatted("      set NTARGETS_MAGIC=yes; \\\n");
    buffer.AppendFormatted("      $(RM) $(NTARGETS_FILE).lock; \\\n");
    buffer.AppendFormatted("   else \\\n");
