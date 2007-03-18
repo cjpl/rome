@@ -5520,7 +5520,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("      \"*                                       *\\n\"\n");
    buffer.AppendFormatted("      \"*             %s               *\\n\"\n",romeVersion.Data());
    if (!romeStable)
-      buffer.AppendFormatted("      \"*           SVN revision.%4d           *\\n\"\n", romeRevisionCode);
+      buffer.AppendFormatted("      \"*          SVN Revision %4d            *\\n\"\n", romeRevisionCode);
    else
       buffer.AppendFormatted("      \"*                                       *\\n\"\n");
    buffer.AppendFormatted("      \"*                                       *\\n\"\n");
