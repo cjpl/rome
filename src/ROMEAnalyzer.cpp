@@ -258,6 +258,8 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    if (!ReadParameters(argc,argv)) return false;
 
+   if (!CheckDependences()) return false;
+
    gSystem->MakeDirectory(this->GetOutputDir());
 
    static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();

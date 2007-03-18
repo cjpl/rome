@@ -1,0 +1,40 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ProgramName>Example</ProgramName>
+		<ExperimentShortCut>TH</ExperimentShortCut>
+	</Experiment>
+	<Tasks>
+		<Task>
+			<TaskName>TaskA</TaskName>
+		</Task>
+		<Task>
+			<TaskName>TaskB</TaskName>
+			<Dependence>Task:TaskA</Dependence>
+		</Task>
+		<Task>
+			<TaskName>TaskC</TaskName>
+			<Dependence>Task:TaskA &amp;&amp; !Task:TaskB</Dependence>
+		</Task>
+	</Tasks>
+	<Tabs>
+		<Tab>
+			<TabName>TabA</TabName>
+			<Dependence>Task:TaskA</Dependence>
+		</Tab>
+		<Tab>
+			<TabName>TabB</TabName>
+			<Dependence>Tab:TabA</Dependence>
+		</Tab>
+	</Tabs>
+	<TaskHierarchy>
+		<Task>
+			<TaskName>TaskA</TaskName>
+		</Task>
+		<Task>
+			<TaskName>TaskB</TaskName>
+		</Task>
+		<Task>
+			<TaskName>TaskC</TaskName>
+		</Task>
+	</TaskHierarchy>
+</ROMEFrameworkDefinition>
