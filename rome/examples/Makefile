@@ -48,6 +48,7 @@ ROMEProjects = multirun/mranalyzer.exe \
                rootDAQ/rdaqanalyzer.exe \
                displayobjects/doexample.exe \
                taskhierarchyandhistos/thhexample.exe \
+               taskhierarchydependence/thexample.exe \
                macros/mcranalyzer.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
@@ -85,6 +86,10 @@ dbexample/rdbframework.exe :
 taskhierarchy/thexample.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchy/taskhierarchy.xml -o taskhierarchy -nl;
 	make $(JOBSFLAG) -C taskhierarchy/
+
+taskhierarchydependence/thexample.exe :
+	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchydependence/taskhierarchy.xml -o taskhierarchydependence -nl;
+	make $(JOBSFLAG) -C taskhierarchydependence/
 
 netfolder/nfexample.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i netfolder/netfolder.xml -o netfolder -nl;
@@ -221,6 +226,8 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 #	cd midas; ./midanalyzer.exe -i romeConfig.xml -q
 
 	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1
+
+	cd taskhierarchydependence; ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1
 
 	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1
 

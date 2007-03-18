@@ -2127,7 +2127,7 @@ void ROMEBuilder::WriteMakefile() {
    }
    buffer.AppendFormatted("ifneq (,$(findstring lib%s%s%s, $(shell ls)))\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    buffer.AppendFormatted("ifeq ($(NTARGETS_STOP), yes)\n");
-   buffer.AppendFormatted("\t@$(MAKE) MEGVERBOSEMAKE=yes so\n");
+   buffer.AppendFormatted("\t@$(MAKE) %sVERBOSEMAKE=yes so\n", shortCut.Data());
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("\t@$(MAKE) so\n");
    buffer.AppendFormatted("endif\n");
