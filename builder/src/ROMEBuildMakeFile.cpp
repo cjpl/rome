@@ -984,16 +984,34 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Verbose make option\n");
+   buffer.AppendFormatted("NTARGETS_FILE := obj/ntargets\n");
    if (quietMake)
       buffer.AppendFormatted("%sVERBOSEMAKE ?= 0\n", shortCut.Data());
    else
       buffer.AppendFormatted("%sVERBOSEMAKE ?= 1\n", shortCut.Data());
    buffer.AppendFormatted("ifeq ($(%sVERBOSEMAKE), 0)\n", shortCut.Data());
+   buffer.AppendFormatted("   DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))\n");
+   buffer.AppendFormatted("   ifndef NTARGETS_STOP\n");
+   buffer.AppendFormatted("      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) |\\\n");
+   buffer.AppendFormatted("                                grep echo | wc -l)\n");
+   buffer.AppendFormatted("   endif\n");
    buffer.AppendFormatted("   Q = @\n");
-   buffer.AppendFormatted("   echoing = @echo $1\n");
+   buffer.AppendFormatted("define %sechoing\n",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("   @if [ ! -s $(NTARGETS_FILE) ]; then \\\n");
+   buffer.AppendFormatted("      echo $(NTARGETS_TOTAL) > $(NTARGETS_FILE); \\\n");
+   buffer.AppendFormatted("   fi; \\\n");
+   buffer.AppendFormatted("   export NTARGETS=`cat $(NTARGETS_FILE)`; \\\n");
+   buffer.AppendFormatted("   if [ ! -z $$NTARGETS ]; then \\\n");
+   buffer.AppendFormatted("      echo [$${NTARGETS}/$(NTARGETS_TOTAL)] $1; \\\n");
+   buffer.AppendFormatted("      export NTARGETS=`expr $$NTARGETS - 1`; \\\n");
+   buffer.AppendFormatted("      echo $$NTARGETS > $(NTARGETS_FILE); \\\n");
+   buffer.AppendFormatted("   else \\\n");
+   buffer.AppendFormatted("      echo $1; \\\n");
+   buffer.AppendFormatted("   fi;\n");
+   buffer.AppendFormatted("endef\n");
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("   Q =\n");
-   buffer.AppendFormatted("   echoing =\n");
+   buffer.AppendFormatted("   %sechoing =\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");
 
@@ -1348,7 +1366,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
-   buffer.AppendFormatted("\t$(call echoing, \"creating  obj/%sionary.d\")\n",dictionaryName);
+   buffer.AppendFormatted("\t$(call %sechoing, \"creating  obj/%sionary.d\")\n",shortCut.ToLower(tmp),dictionaryName);
    buffer.AppendFormatted("\t$(Q)$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | \\\n\tsed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@ ",dictionaryName,dictionaryName,dictionaryName,dictionaryName);
    buffer.AppendFormatted(" || ($(RM) $@; exit 1;)\n");
    buffer.AppendFormatted("\n");
@@ -1370,8 +1388,10 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted(" Makefile\n");
 
    // Echo
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("\t@echo \"creating  dict/%s.cpp dict/%s.h\"\n",dictionaryName,dictionaryName);
-#if defined( R__UNIX )
+#else
+   buffer.AppendFormatted("\t$(call %sechoing, \"creating  dict/%s.cpp dict/%s.h\")\n",shortCut.ToLower(tmp),dictionaryName,dictionaryName);
    buffer.AppendFormatted("\t-@$(RM) dict/%s.cpp dict/%s.h\n",dictionaryName,dictionaryName);
 #endif // R__UNIX
 
@@ -1488,7 +1508,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    // dictionary depend file
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(call echoing, \"creating  obj/%sUserDictionary.d\")\n",shortCut.Data());
+   buffer.AppendFormatted("\t$(call %sechoing, \"creating  obj/%sUserDictionary.d\")\n",shortCut.ToLower(tmp),shortCut.Data());
    buffer.AppendFormatted("\t$(Q)$(CXX) $(Flags) $(Includes) -MM -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp | sed \"s/.\\/dict\\/%sUserDict.h//g\" | sed \"s/dict\\/%sUserDict.h//g\" > $@ ",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" \\\n\t   || ($(RM) obj/%sUserDictionary.d; exit 1;)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -1548,7 +1568,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    ROMEString additionalFlag = flag;
 #if defined( R__UNIX )
    ROMEString commandPrefix;
-   ROMEString temp;
+   ROMEString tmp;
    ROMEString compiler;
    ROMEString compileOption;
 #endif
@@ -1558,19 +1578,19 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
 #if defined( R__UNIX )
       if (ext == "c") {
          compiler.SetFormatted("$(Q)$(CC)");
-         compileOption.SetFormatted("$(%sCFLAGS)", shortCut.ToUpper(temp));
+         compileOption.SetFormatted("$(%sCFLAGS)", shortCut.ToUpper(tmp));
       }
       else if (ext == "F" || ext == "f") {
          compiler.SetFormatted("$(Q)$(FC)");
-         compileOption.SetFormatted("$(%sFFLAGS)", shortCut.ToUpper(temp));
+         compileOption.SetFormatted("$(%sFFLAGS)", shortCut.ToUpper(tmp));
       }
       else if (ext == "h") { // c++ precompiled header
          compiler.SetFormatted("$(Q)$(CXX)");
-         compileOption.SetFormatted("$(%sCXXFLAGS) -x c++-header", shortCut.ToUpper(temp));
+         compileOption.SetFormatted("$(%sCXXFLAGS) -x c++-header", shortCut.ToUpper(tmp));
       }
       else {
          compiler.SetFormatted("$(Q)$(CXX)");
-         compileOption.SetFormatted("$(%sCXXFLAGS) %s", shortCut.ToUpper(temp),additionalFlag.Data());
+         compileOption.SetFormatted("$(%sCXXFLAGS) %s", shortCut.ToUpper(tmp),additionalFlag.Data());
       }
 
       path.ReplaceAll("\\","/");
@@ -1578,14 +1598,14 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       if (ext == "h") {
          buffer.AppendFormatted("include/%s.gch : ./include/%s $(%sDep)\n"
                                 ,sources->At(i).Data(),sources->At(i).Data(),name.Data());
-         buffer.AppendFormatted("\t$(call echoing, \"compiling include/%s.gch\")\n",sources->At(i).Data());
+         buffer.AppendFormatted("\t$(call %sechoing, \"compiling include/%s.gch\")\n",shortCut.ToLower(tmp),sources->At(i).Data());
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d $< -o $@\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
          buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
                                 ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
-         buffer.AppendFormatted("\t$(call echoing, \"compiling obj/%s%s\")\n",name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("\t$(call %sechoing, \"compiling obj/%s%s\")\n",shortCut.ToLower(tmp),name.Data(),kObjectSuffix);
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $< -o $@\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
       }
@@ -2032,6 +2052,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedTabDictionary.d\n",shortCut.Data());
    if (numOfTab>0)
       buffer.AppendFormatted("dependfiles += obj/%sTabDictionary.d\n",shortCut.Data());
+   if (numOfDAQ>0)
+      buffer.AppendFormatted("dependfiles += obj/%sDAQDictionary.d\n",shortCut.Data());
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("dependfiles += obj/%sUserDictionary.d\n",shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -2044,8 +2066,8 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
-   buffer.AppendFormatted("all:startecho pch obj %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("\t@$(MAKE) -s endecho\n");
+   buffer.AppendFormatted("all:obj pch %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -2096,29 +2118,38 @@ void ROMEBuilder::WriteMakefile() {
    linkCommand = "$(Q)ln -sf";
    if (dynamicLink) {
       buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) obj/lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
-      buffer.AppendFormatted("\t$(call echoing, \"linking   %s%s.exe\")\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("\t$(call %sechoing, \"linking   %s%s.exe\")\n",shortCut.ToLower(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3));
       buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o $@ $(PWDST)/obj/lib%s%s%s $(objects) $(Libraries)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
    } else {
       buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
-      buffer.AppendFormatted("\t$(call echoing, \"linking   %s%s.exe\")\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("\t$(call %sechoing, \"linking   %s%s.exe\")\n",shortCut.ToLower(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3));
       buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n", linker.Data(),shortCut.ToUpper(tmp));
    }
-   buffer.AppendFormatted("\t@if [ -e lib%s%s%s ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
+   buffer.AppendFormatted("ifneq (,$(findstring lib%s%s%s, $(shell ls)))\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
+   buffer.AppendFormatted("ifeq ($(NTARGETS_STOP), yes)\n");
+   buffer.AppendFormatted("\t@$(MAKE) MEGVERBOSEMAKE=yes so\n");
+   buffer.AppendFormatted("else\n");
+   buffer.AppendFormatted("\t@$(MAKE) so\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    // this library is for loading from ROOT session
    buffer.AppendFormatted("lib%s%s%s: $(dlobjects) $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
-   buffer.AppendFormatted("\t$(call echoing, \"linking   lib%s%s%s\")\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
+   buffer.AppendFormatted("\t$(call %sechoing, \"linking   lib%s%s%s\")\n",shortCut.ToLower(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
+   buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
 
    buffer.AppendFormatted("\t%s $(%sSOFLAGS) $(SOFLAGS) -o lib%s%s%s $(dlobjects) $(objects) $(Libraries)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\t%s lib%s%s.dylib lib%s%s.so\n",linkCommand.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
+   buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
    buffer.AppendFormatted("\n");
    // this library is for linking executable binary
    if (dynamicLink) {
       buffer.AppendFormatted("obj/lib%s%s%s: $(dlobjects) $(dependfiles) $(%s%sDep)\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
-      buffer.AppendFormatted("\t$(call echoing, \"linking   obj/lib%s%s%s\")\n",shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+      buffer.AppendFormatted("\t$(call %sechoing, \"linking   obj/lib%s%s%s\")\n",shortCut.ToLower(tmp),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
       buffer.AppendFormatted("\t%s $(%sSOFLAGS) $(SOFLAGS) -o $(PWDST)/obj/lib%s%s%s $(dlobjects)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
    }
    buffer.AppendFormatted("\n");
@@ -2196,7 +2227,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) obj/*.d $(PCHHEADERS)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
+   buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp $(NTARGETS_FILE)",kObjectSuffix);
    if (pch)
       buffer.AppendFormatted(" include/generated/*.gch");
    buffer.AppendFormatted("\n");
@@ -2330,4 +2361,3 @@ void ROMEBuilder::WriteUserMakeFile()
    }
 #endif
 }
-
