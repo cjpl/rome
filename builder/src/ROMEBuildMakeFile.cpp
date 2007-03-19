@@ -999,7 +999,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("                          grep NTARGETS_MAGIC | wc -l)\n");
    buffer.AppendFormatted("      CREATE_TARGETS_FILE := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \\\n");
    buffer.AppendFormatted("                               grep NTARGETS_MAGIC | awk '{print $(NTARGETS_TOTAL)-NR+1 \" \" $$0}' > $(NTARGETS_FILE))\n");
-   buffer.AppendFormatted("      NTARGETS = $(shell grep $1 $(NTARGETS_FILE) | cut -d ' ' -f 1)\n");
+   buffer.AppendFormatted("      NTARGETS = $(shell grep $(subst .,\\.,$1) $(NTARGETS_FILE) | cut -d ' ' -f 1)\n");
    buffer.AppendFormatted("   endif\n");
    buffer.AppendFormatted("   Q = @\n");
    buffer.AppendFormatted("   define %sechoing\n",shortCut.ToLower(tmp));
