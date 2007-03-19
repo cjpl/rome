@@ -984,6 +984,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Verbose make option\n");
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("NTARGETS_FILE := obj/ntargets\n");
    if (quietMake)
       buffer.AppendFormatted("%sVERBOSEMAKE ?= 0\n", shortCut.Data());
@@ -1018,6 +1019,20 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("   %sechoing =\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");
+#else
+   if (quietMake)
+      buffer.AppendFormatted("%sVERBOSEMAKE ?= 0\n", shortCut.Data());
+   else
+      buffer.AppendFormatted("%sVERBOSEMAKE ?= 1\n", shortCut.Data());
+   buffer.AppendFormatted("ifeq ($(%sVERBOSEMAKE), 0)\n", shortCut.Data());
+   buffer.AppendFormatted("   %sechoing = @echo $1\n",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("   Q = @\n");
+   buffer.AppendFormatted("else\n");
+   buffer.AppendFormatted("   Q =\n");
+   buffer.AppendFormatted("   %sechoing =\n",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("\n");
+#endif
 
    buffer.AppendFormatted("## Additional flags\n");
    // equal signs below should be '=' to allow change in Makefile.usr
@@ -2071,7 +2086,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
    buffer.AppendFormatted("all:obj pch %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
+#endif
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -2130,25 +2147,35 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n", linker.Data(),shortCut.ToUpper(tmp));
    }
    buffer.AppendFormatted("ifneq (,$(findstring lib%s%s%s, $(shell ls)))\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("ifeq ($(NTARGETS_STOP), yes)\n");
    buffer.AppendFormatted("\t@$(MAKE) %sVERBOSEMAKE=yes so\n", shortCut.Data());
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("\t@$(MAKE) so\n");
    buffer.AppendFormatted("endif\n");
+#else
+   buffer.AppendFormatted("\t@$(MAKE) so\n");
+#endif
    buffer.AppendFormatted("endif\n");
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
+#endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    // this library is for loading from ROOT session
    buffer.AppendFormatted("lib%s%s%s: $(dlobjects) $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    buffer.AppendFormatted("\t$(call %sechoing, \"linking   lib%s%s%s\")\n",shortCut.ToLower(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
+#endif
 
    buffer.AppendFormatted("\t%s $(%sSOFLAGS) $(SOFLAGS) -o lib%s%s%s $(dlobjects) $(objects) $(Libraries)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\t%s lib%s%s.dylib lib%s%s.so\n",linkCommand.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
+#endif
    buffer.AppendFormatted("\n");
    // this library is for linking executable binary
    if (dynamicLink) {
@@ -2231,7 +2258,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) obj/*.d $(PCHHEADERS)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp $(NTARGETS_FILE)",kObjectSuffix);
+   buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
+#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
+   buffer.AppendFormatted(" $(NTARGETS_FILE)");
+#endif
    if (pch)
       buffer.AppendFormatted(" include/generated/*.gch");
    buffer.AppendFormatted("\n");
