@@ -1001,7 +1001,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("      NTARGETS_TOTLEN := $(shell expr $(NTARGETS_TOTLEN) - 1 )\n");
    buffer.AppendFormatted("      CREATE_TARGETS_FILE := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \\\n");
    buffer.AppendFormatted("                               grep NTARGETS_MAGIC | \\\n");
-   buffer.AppendFormatted("                               awk '{printf(\"%%$(NTARGETS_TOTLEN)d:%%s\\n\", \\\n");
+   buffer.AppendFormatted("                               awk '{printf(\"\\\"%%$(NTARGETS_TOTLEN)d\\\":%%s\\n\", \\\n");
    buffer.AppendFormatted("                               $(NTARGETS_TOTAL)-NR+1,$$0);}' > \\\n");
    buffer.AppendFormatted("                               $(NTARGETS_FILE))\n");
    buffer.AppendFormatted("      NTARGETS = $(shell grep -m 1 $(subst .,\\.,$1) $(NTARGETS_FILE) | cut -d ':' -f 1)\n");
