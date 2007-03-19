@@ -45,11 +45,12 @@ ROMERomeDAQ::~ROMERomeDAQ() {
    SafeDeleteArray(fTreeNEntries);
    Int_t j;
    const Int_t nTree = gROME->GetTreeObjectEntries();
-   for (j=0;j<nTree;j++) {
-      SafeDelete(fROMETrees[j]);
+   if (fROMETrees) {
+      for (j=0;j<nTree;j++) {
+         SafeDelete(fROMETrees[j]);
+      }
+      SafeDeleteArray(fROMETrees);
    }
-   SafeDeleteArray(fROMETrees);
-
 }
 
 Bool_t ROMERomeDAQ::Init() {
