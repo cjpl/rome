@@ -18,6 +18,8 @@
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 
+#define USE_TARGET_COUNT
+
 void ROMEBuilder::AddIncludeDirectories()
 {
    numOfIncludeDirectories = 6;
@@ -991,29 +993,23 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    else
       buffer.AppendFormatted("%sVERBOSEMAKE ?= 1\n", shortCut.Data());
    buffer.AppendFormatted("ifeq ($(%sVERBOSEMAKE), 0)\n", shortCut.Data());
-   buffer.AppendFormatted("   DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE) $(NTARGETS_FILE).lock)\n");
    buffer.AppendFormatted("   ifndef NTARGETS_STOP\n");
-   buffer.AppendFormatted("      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) |\\\n");
-   buffer.AppendFormatted("                                grep NTARGETS_MAGIC | wc -l)\n");
+   buffer.AppendFormatted("      DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))\n");
+   buffer.AppendFormatted("      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \\\n");
+   buffer.AppendFormatted("                          grep NTARGETS_MAGIC | wc -l)\n");
+   buffer.AppendFormatted("      CREATE_TARGETS_FILE := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \\\n");
+   buffer.AppendFormatted("                               grep NTARGETS_MAGIC | awk '{print $(NTARGETS_TOTAL)-NR+1 \" \" $$0}' > $(NTARGETS_FILE))\n");
+   buffer.AppendFormatted("      NTARGETS = $(shell grep $1 $(NTARGETS_FILE) | cut -d ' ' -f 1)\n");
    buffer.AppendFormatted("   endif\n");
    buffer.AppendFormatted("   Q = @\n");
-   buffer.AppendFormatted("define %sechoing\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("   @if [ ! -s $(NTARGETS_FILE) ]; then \\\n");
-   buffer.AppendFormatted("      echo $(NTARGETS_TOTAL) > $(NTARGETS_FILE); \\\n");
-   buffer.AppendFormatted("   fi; \\\n");
-   buffer.AppendFormatted("   while [ -e $(NTARGETS_FILE).lock ]; do set WAITING=yes; done; \\\n");
-   buffer.AppendFormatted("   touch $(NTARGETS_FILE).lock; \\\n");
-   buffer.AppendFormatted("   export NTARGETS=`cat $(NTARGETS_FILE)`; \\\n");
-   buffer.AppendFormatted("   if [ ! -z $$NTARGETS ]; then \\\n");
-   buffer.AppendFormatted("      echo [$${NTARGETS}/$(NTARGETS_TOTAL)] $1; \\\n");
-   buffer.AppendFormatted("      expr `cat $(NTARGETS_FILE)` - 1 > $(NTARGETS_FILE); \\\n");
-   buffer.AppendFormatted("      set NTARGETS_MAGIC=yes; \\\n");
-   buffer.AppendFormatted("      $(RM) $(NTARGETS_FILE).lock; \\\n");
-   buffer.AppendFormatted("   else \\\n");
-   buffer.AppendFormatted("      echo $1; \\\n");
-   buffer.AppendFormatted("      $(RM) $(NTARGETS_FILE).lock; \\\n");
-   buffer.AppendFormatted("   fi;\n");
-   buffer.AppendFormatted("endef\n");
+   buffer.AppendFormatted("   define %sechoing\n",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("      @if [ -e $(NTARGETS_FILE) ]; then \\\n");
+   buffer.AppendFormatted("         echo [$(NTARGETS)/$(NTARGETS_TOTAL)] $1; \\\n");
+   buffer.AppendFormatted("         set NTARGETS_MAGIC=yes; \\\n");
+   buffer.AppendFormatted("      else \\\n");
+   buffer.AppendFormatted("         echo $1; \\\n");
+   buffer.AppendFormatted("      fi;\n");
+   buffer.AppendFormatted("   endef\n");
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("   Q =\n");
    buffer.AppendFormatted("   %sechoing =\n",shortCut.ToLower(tmp));
