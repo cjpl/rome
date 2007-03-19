@@ -2161,10 +2161,6 @@ void ROMEBuilder::WriteMakefile() {
    // this library is for loading from ROOT session
    buffer.AppendFormatted("lib%s%s%s: $(dlobjects) $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix,shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    buffer.AppendFormatted("\t$(call %sechoing, \"linking   lib%s%s%s\")\n",shortCut.ToLower(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
-   buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
-#endif
-
    buffer.AppendFormatted("\t%s $(%sSOFLAGS) $(SOFLAGS) -o lib%s%s%s $(dlobjects) $(objects) $(Libraries)\n",linker.Data(),shortCut.ToUpper(tmp),shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),kSharedObjectSuffix);
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\t%s lib%s%s.dylib lib%s%s.so\n",linkCommand.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
