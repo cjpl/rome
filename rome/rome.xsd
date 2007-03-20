@@ -1533,6 +1533,11 @@
 					<xs:documentation>Name and path of the header file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ObjectDirectory" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Directory to put object file after compile.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="NeededFlag" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Precompiler flag needed for this file. (optional)</xs:documentation>

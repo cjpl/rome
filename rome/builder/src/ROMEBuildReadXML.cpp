@@ -428,6 +428,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
 
    mfSourceFileName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
    mfSourceFilePath = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
+   mfSourceFileObjPath = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
    mfHeaderFileName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
    mfHeaderFilePath = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
    numOfMFSourceFlags = static_cast<Int_t*>(AllocateInt(maxNumberOfMFSources));
@@ -3964,6 +3965,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
    int type;
    ROMEString temp;
    ROMEString ext;
+   bool found;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -4167,6 +4169,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                mfSourceFileUsed[numOfMFSources] = true;
                mfSourceFileName[numOfMFSources] = "";
                mfSourceFilePath[numOfMFSources] = "";
+               mfSourceFileObjPath[numOfMFSources] = "obj";
                mfHeaderFileName[numOfMFSources] = "";
                mfHeaderFilePath[numOfMFSources] = "";
                while (xml->NextLine()) {
@@ -4202,6 +4205,13 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                            mfHeaderFilePath[numOfMFSources].Append("/");
                      }
                   }
+#if defined( R__UNIX )
+                  // object directory
+                  if (type == 1 && !strcmp((const char*)name,"ObjectDirectory")) {
+                     xml->GetValue(mfSourceFileObjPath[numOfMFSources],"");
+                     FormatText(mfSourceFileObjPath[numOfMFSources], kTRUE);
+                  }
+#endif
                   // flags
                   if (type == 1 && !strcmp((const char*)name,"NeededFlag")) {
                      mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]] = "";
@@ -4248,8 +4258,26 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   }
                }
             }
-            if (type == 15 && !strcmp((const char*)name,"AdditionalFiles"))
+            if (type == 15 && !strcmp((const char*)name,"AdditionalFiles")) {
+               for (i=0;i<numOfMFSources;i++) {
+                  if (!mfSourceFileUsed[i])
+                     continue;
+                  found = false;
+                  for (j = 0; j < objDirList.GetEntries(); j++) {
+                     if (objDirList.At(j) == mfSourceFileObjPath[i].Data()) {
+                        found = true;
+                     }
+                  }
+                  if (!found &&
+                      mfSourceFileObjPath[i] != "obj" &&
+                      mfSourceFileObjPath[i] != "obj/" &&
+                      mfSourceFileObjPath[i] != "./obj" &&
+                      mfSourceFileObjPath[i] != "./obj/") {
+                     objDirList.AddLast(mfSourceFileObjPath[i]);
+                  }
+               }
                break;
+            }
          }
       }
 

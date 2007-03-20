@@ -18,8 +18,6 @@
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 
-#define USE_TARGET_COUNT
-
 void ROMEBuilder::AddIncludeDirectories()
 {
    numOfIncludeDirectories = 6;
@@ -986,7 +984,6 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Verbose make option\n");
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("NTARGETS_FILE := obj/ntargets\n");
    if (quietMake)
       buffer.AppendFormatted("%sVERBOSEMAKE ?= 0\n", shortCut.Data());
@@ -1020,20 +1017,6 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("   %sechoing =\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");
-#else
-   if (quietMake)
-      buffer.AppendFormatted("%sVERBOSEMAKE ?= 0\n", shortCut.Data());
-   else
-      buffer.AppendFormatted("%sVERBOSEMAKE ?= 1\n", shortCut.Data());
-   buffer.AppendFormatted("ifeq ($(%sVERBOSEMAKE), 0)\n", shortCut.Data());
-   buffer.AppendFormatted("   %sechoing = @echo $1\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("   Q = @\n");
-   buffer.AppendFormatted("else\n");
-   buffer.AppendFormatted("   Q =\n");
-   buffer.AppendFormatted("   %sechoing =\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("endif\n");
-   buffer.AppendFormatted("\n");
-#endif
 
    buffer.AppendFormatted("## Additional flags\n");
    // equal signs below should be '=' to allow change in Makefile.usr
@@ -1579,7 +1562,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    dictionaryCommands->AddFormatted("$(Q)rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
 }
 
-void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag)
+void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag,ROMEString *objdir)
 {
    int i;
    ROMEString path;
@@ -1592,6 +1575,12 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    ROMEString compiler;
    ROMEString compileOption;
 #endif
+   ROMEString objdirectory;
+   if (objdir) {
+      objdirectory = *objdir; 
+   } else {
+      objdirectory = "obj";
+   }
 
    for (i=0;i<sources->GetEntriesFast();i++) {
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
@@ -1619,15 +1608,16 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("include/%s.gch : ./include/%s $(%sDep)\n"
                                 ,sources->At(i).Data(),sources->At(i).Data(),name.Data());
          buffer.AppendFormatted("\t$(call %sechoing, \"compiling include/%s.gch\")\n",shortCut.ToLower(tmp),sources->At(i).Data());
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d $< -o $@\n"
-                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF %s/%s.d $< -o $@\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),objdirectory.Data(),name.Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
-         buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
+         buffer.AppendFormatted("%s/%s%s : %s $(%sDep)\n",objdirectory.Data()
                                 ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
-         buffer.AppendFormatted("\t$(call %sechoing, \"compiling obj/%s%s\")\n",shortCut.ToLower(tmp),name.Data(),kObjectSuffix);
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT $@ $< -o $@\n"
-                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data());
+         buffer.AppendFormatted("\t$(call %sechoing, \"compiling %s/%s%s\")\n",shortCut.ToLower(tmp),objdirectory.Data()
+                                ,name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF %s/%s.d -MT $@ $< -o $@\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),objdirectory.Data(),name.Data());
       }
       buffer.AppendFormatted("\n");
 #endif // R__UNIX
@@ -1717,9 +1707,9 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
          continue;
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
+      buffer.AppendFormatted(" \\\n           %s/%s%s",mfSourceFileObjPath[i].Data(),name.Data(),kObjectSuffix);
 #else
-      buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
+      buffer.AppendFormatted("objects %s $(objects) %s/%s%s\n",kEqualSign,mfSourceFileObjPath[i].Data(),name.Data(),kObjectSuffix);
 #endif // R__UNIX
    }
    buffer.AppendFormatted("\n");
@@ -1752,11 +1742,11 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
       if (dynamicLink)
-         buffer.AppendFormatted("dlobjects += obj/%s%s\n",name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("dlobjects += %s/%s%s\n",mfSourceFileObjPath[i].Data(),name.Data(),kObjectSuffix);
       else
-         buffer.AppendFormatted("objects += obj/%s%s\n",name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("objects += %s/%s%s\n",mfSourceFileObjPath[i].Data(),name.Data(),kObjectSuffix);
 #else
-      buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
+      buffer.AppendFormatted("objects %s $(objects) %s/%s%s\n",kEqualSign,mfSourceFileObjPath[i].Data(),name.Data(),kObjectSuffix);
 #endif // R__UNIX
       for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
          if (commandLineFlag[j])
@@ -1803,7 +1793,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer)
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      buffer.AppendFormatted("dependfiles += obj/%s.d\n",name.Data());
+      buffer.AppendFormatted("dependfiles += %s/%s.d\n",mfSourceFileObjPath[i].Data(),name.Data());
 #endif // R__UNIX
       for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
          if (commandLineFlag[j])
@@ -1845,8 +1835,10 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString&
 #endif // R__UNIX
       }
       ROMEStrArray *tempArray = new ROMEStrArray(1);
+      ROMEString objdir;
       tempArray->AddFormatted("%s%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
-      WriteMakefileCompileStatements(buffer,tempArray,flag);
+      objdir.SetFormatted("%s",mfSourceFileObjPath[i].Data());
+      WriteMakefileCompileStatements(buffer,tempArray,flag,&objdir);
       delete tempArray;
       for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
          if (commandLineFlag[j])
@@ -1912,6 +1904,7 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString buffer;
    ROMEString tmp,tmp2,tmp3,tmp4,tmp5;
    ROMEString path, name, ext;
+   int i;
 
    dictionaryNames = new ROMEStrArray(50);
    dictionaryOutputs = new ROMEStrArray(50);
@@ -2084,15 +2077,20 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("##\n");
 // all
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("all:startecho obj");
 #else
-   buffer.AppendFormatted("all:obj pch %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
+   buffer.AppendFormatted("all:obj");
+#endif
+   for (i = 0; i < objDirList.GetEntries(); i++) {
+      buffer.AppendFormatted(" %s",objDirList.At(i).Data());
+   }
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted(" %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+#else
+   buffer.AppendFormatted(" pch %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
 #endif
-#endif
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n\n");
 
    // user makefile
    buffer.AppendFormatted("# Include user Makefile\n");
@@ -2125,6 +2123,20 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
 
+// make user obj directories
+   for (i = 0; i < objDirList.GetEntries(); i++) {
+      buffer.AppendFormatted("%s:\n",objDirList.At(i).Data());
+#if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("\t@mkdir %s\n\n",objDirList.At(i).Data());
+#else
+      buffer.AppendFormatted("\t@if [ ! -d  %s ] ; then \\\n",objDirList.At(i).Data());
+      buffer.AppendFormatted("\t\techo \"Making directory %s\" ; \\\n",objDirList.At(i).Data());
+      buffer.AppendFormatted("\t\tmkdir -p %s; \\\n",objDirList.At(i).Data());
+      buffer.AppendFormatted("\tfi;\n");
+#endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("\n");
+   }
+
 // Link Statement
 // --------------
    buffer.AppendFormatted("## Link statements\n");
@@ -2148,19 +2160,13 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n", linker.Data(),shortCut.ToUpper(tmp));
    }
    buffer.AppendFormatted("ifneq (,$(findstring lib%s%s%s, $(shell ls)))\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("ifeq ($(NTARGETS_STOP), yes)\n");
    buffer.AppendFormatted("\t@$(MAKE) %sVERBOSEMAKE=yes so\n", shortCut.Data());
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("\t@$(MAKE) so\n");
    buffer.AppendFormatted("endif\n");
-#else
-   buffer.AppendFormatted("\t@$(MAKE) so\n");
-#endif
    buffer.AppendFormatted("endif\n");
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
-#endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),kSharedObjectSuffix);
    // this library is for loading from ROOT session
@@ -2170,9 +2176,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\t%s lib%s%s.dylib lib%s%s.so\n",linkCommand.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
-#endif
    buffer.AppendFormatted("\n");
    // this library is for linking executable binary
    if (dynamicLink) {
@@ -2252,13 +2256,20 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("## Cleaning rules\n");
    buffer.AppendFormatted("depclean:\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*.d $(PCHHEADERS)\n");
+   buffer.AppendFormatted("\t-$(RM) obj/*.d");
+   for (i = 0; i < objDirList.GetEntries(); i++) {
+      buffer.AppendFormatted(" %s/*.d",objDirList.At(i).Data());
+   }
+   buffer.AppendFormatted(" $(PCHHEADERS)\n");
+
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
-#ifdef USE_TARGET_COUNT  // this is for target counting. this has a problem on some environments.
+   buffer.AppendFormatted("\t-$(RM) obj/*%s",kObjectSuffix);
+   for (i = 0; i < objDirList.GetEntries(); i++) {
+      buffer.AppendFormatted(" %s/*%s",objDirList.At(i).Data(),kObjectSuffix);
+   }
+   buffer.AppendFormatted(" G__auto*LinkDef.h dict/*.h dict/*.cpp");
    buffer.AppendFormatted(" $(NTARGETS_FILE)");
-#endif
    if (pch)
       buffer.AppendFormatted(" include/generated/*.gch");
    buffer.AppendFormatted("\n");
@@ -2267,7 +2278,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) -R src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),kObjectSuffix,shortCut.Data());
+   buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s*.d",shortCut.Data(),kObjectSuffix,shortCut.Data());
+   for (i = 0; i < objDirList.GetEntries(); i++) {
+      buffer.AppendFormatted(" $(RM) %s/%s*%s %s/%s*.d",objDirList.At(i).Data(),shortCut.Data(),kObjectSuffix
+                             ,objDirList.At(i).Data(),shortCut.Data());
+   }
+   buffer.AppendFormatted(" G__auto*LinkDef.h\n");
 
 // .d files need to be place at the last
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -2302,7 +2318,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("ifeq ($(SkipDepInclude), no)\n");
-   buffer.AppendFormatted("-include obj/*.d\n");
+   buffer.AppendFormatted("-include obj/*.d");
+   for (i = 0; i < objDirList.GetEntries(); i++) {
+      buffer.AppendFormatted(" %s/*.d",objDirList.At(i).Data());
+   }
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("endif\n");
 #endif // R__VISUAL_CPLUSPLUS
 
