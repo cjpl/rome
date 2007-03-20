@@ -468,6 +468,7 @@ protected:
    Int_t         numOfMFSources;
    ROMEString   *mfSourceFileName;
    ROMEString   *mfSourceFilePath;
+   ROMEString   *mfSourceFileObjPath;
    ROMEString   *mfHeaderFileName;
    ROMEString   *mfHeaderFilePath;
    Int_t        *numOfMFSourceFlags;
@@ -475,6 +476,7 @@ protected:
    Int_t        *numOfMFSourceAffiliations;
    ROMEString  **mfSourceFileAffiliation;
    Bool_t       *mfSourceFileUsed;
+   ROMEStrArray  objDirList;
 
 // main
    ROMEString    mainAuthor;
@@ -689,7 +691,7 @@ private:
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);
    void    GetUserDictIncludeDirString(ROMEString& buffer,const char* separator);
    void    GetUserDictHeaderString(ROMEString& buffer,const char* separator);
-   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0);
+   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0,ROMEString *objdir = 0);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,const char* flag = 0);

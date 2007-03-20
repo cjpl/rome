@@ -307,6 +307,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] mfPreDefName;
    delete [] mfSourceFileName;
    delete [] mfSourceFilePath;
+   delete [] mfSourceFileObjPath;
    delete [] mfHeaderFileName;
    delete [] mfHeaderFilePath;
    delete [] numOfMFSourceFlags;
