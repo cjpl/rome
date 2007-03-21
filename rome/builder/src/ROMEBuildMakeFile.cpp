@@ -2065,7 +2065,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedTabDictionary.d\n",shortCut.Data());
    if (numOfTab>0)
       buffer.AppendFormatted("dependfiles += obj/%sTabDictionary.d\n",shortCut.Data());
-   if (numOfDAQ>0)
+   if (daqHeaders->GetEntriesFast() >0)
       buffer.AppendFormatted("dependfiles += obj/%sDAQDictionary.d\n",shortCut.Data());
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("dependfiles += obj/%sUserDictionary.d\n",shortCut.Data());
