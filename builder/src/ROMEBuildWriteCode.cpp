@@ -14867,9 +14867,9 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
          continue;
       str1.SetFormatted("Task(%s)", taskHierarchyName[i].Data());
 
-      index = taskHierarchyObjectIndex[i];
-      str2.SetFormatted("(gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
-      while (index!=-1) {
+      str2.SetFormatted("(gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      index = taskHierarchyParentIndex[i];
+      while (index != -1) {
          str2.AppendFormatted(" &&\n          gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
          index = taskHierarchyParentIndex[index];
       }
@@ -14879,8 +14879,15 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
+
       str1.SetFormatted("Tab(%s)", tabName[i].Data());
-      str2.SetFormatted("(gAnalyzer->GetWindow()->GetTabSwitches()->%s%s)", tabName[i].Data(),tabSuffix[i].Data());
+      str2.SetFormatted("(gAnalyzer->GetWindow()->GetTabSwitches()->%s%s", tabName[i].Data(),tabSuffix[i].Data());
+      index = tabParentIndex[i];
+      while (index != -1) {
+         str2.AppendFormatted(" &&\n          gAnalyzer->GetWindow()->GetTabSwitches()->%s%s", tabName[index].Data(),tabSuffix[index].Data());
+         index = tabParentIndex[index];
+      }
+      str2.Append(")");
       result.ReplaceAll(str1, str2);
    }
    return result;

@@ -115,6 +115,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Tab>
           <TabName>TabB</TabName>
           <Active>true</Active>
+          <Tab>
+            <TabName>TabC</TabName>
+            <Active>true</Active>
+          </Tab>
         </Tab>
       </Tabs>
     </Monitor>
