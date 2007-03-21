@@ -9,21 +9,21 @@
 		</Task>
 		<Task>
 			<TaskName>TaskB</TaskName>
-			<Dependence>Task:TaskA</Dependence>
+			<Dependence>Task(TaskA)</Dependence>
 		</Task>
 		<Task>
 			<TaskName>TaskC</TaskName>
-			<Dependence>Task:TaskA &amp;&amp; !Task:TaskB</Dependence>
+			<Dependence>Task(TaskA) &amp;&amp; !Task(TaskB)</Dependence>
 		</Task>
 	</Tasks>
 	<Tabs>
 		<Tab>
 			<TabName>TabA</TabName>
-			<Dependence>Task:TaskA</Dependence>
+			<Dependence>Task(TaskA)</Dependence>
 		</Tab>
 		<Tab>
 			<TabName>TabB</TabName>
-			<Dependence>Tab:TabA</Dependence>
+			<Dependence>Tab(TabA)</Dependence>
 		</Tab>
 	</Tabs>
 	<TaskHierarchy>
