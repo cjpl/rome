@@ -14860,17 +14860,18 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
    int i;
    ROMEString str1, str2;
    result = org;
+   TString ch;
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      str1.SetFormatted("Task:%s", taskHierarchyName[i].Data());
+      str1.SetFormatted("Task(%s)", taskHierarchyName[i].Data());
       str2.SetFormatted("(gAnalyzer->GetTaskObjectAt(%d)->IsActive())",taskHierarchyObjectIndex[i]);
       result.ReplaceAll(str1, str2);
    }
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      str1.SetFormatted("Tab:%s", tabName[i].Data());
+      str1.SetFormatted("Tab(%s)", tabName[i].Data());
       str2.SetFormatted("(gAnalyzer->GetWindow()->GetTabSwitches()->%s%s)", tabName[i].Data(),tabSuffix[i].Data());
       result.ReplaceAll(str1, str2);
    }

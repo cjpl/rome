@@ -771,7 +771,7 @@
 				</xs:element>
 				<xs:element name="Dependence" type="xs:string" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>C++ statement to check if condition written in a configuration file is valid for the task. Task:FOO and Tab:BAR will be replaced with active flags of the task FOO and tab BAR, respectively. Please have a look at examples/taskhierarchydependence for details. (optional)</xs:documentation>
+						<xs:documentation>C++ statement to check if condition written in a configuration file is valid for the task. Task(FOO) and Tab(BAR) will be replaced with active flags of the task FOO and tab BAR, respectively. Please have a look at examples/taskhierarchydependence for details. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:choice>
@@ -1025,7 +1025,7 @@
 				</xs:element>
 				<xs:element name="Dependence" type="xs:string" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>C++ statement to check if condition written in a configuration file is valid for the tab. Task:FOO and Tab:BAR will be replaced with active flags of the task FOO and tab BAR, respectively. Please have a look at examples/taskhierarchydependence for details. (optional)</xs:documentation>
+						<xs:documentation>C++ statement to check if condition written in a configuration file is valid for the tab. Task(FOO) and Tab(BAR) will be replaced with active flags of the task FOO and tab BAR, respectively. Please have a look at examples/taskhierarchydependence for details. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="Tab" type="TabDesc" minOccurs="0" maxOccurs="unbounded">
