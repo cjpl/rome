@@ -67,6 +67,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Task>
           <TaskName>TaskA</TaskName>
           <Active>true</Active>
+          <Task>
+            <TaskName>TaskA_A</TaskName>
+            <Active>false</Active>
+          </Task>
         </Task>
 
         <Task>
@@ -76,6 +80,11 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
         <Task>
           <TaskName>TaskC</TaskName>
+          <Active>true</Active>
+        </Task>
+
+        <Task>
+          <TaskName>TaskD</TaskName>
           <Active>true</Active>
         </Task>
       </Tasks>

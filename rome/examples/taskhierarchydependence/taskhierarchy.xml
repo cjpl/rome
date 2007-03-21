@@ -8,12 +8,19 @@
 			<TaskName>TaskA</TaskName>
 		</Task>
 		<Task>
+			<TaskName>TaskA_A</TaskName>
+		</Task>
+		<Task>
 			<TaskName>TaskB</TaskName>
 			<Dependence>Task(TaskA)</Dependence>
 		</Task>
 		<Task>
 			<TaskName>TaskC</TaskName>
 			<Dependence>Task(TaskA) &amp;&amp; !Task(TaskB)</Dependence>
+		</Task>
+		<Task>
+			<TaskName>TaskD</TaskName>
+			<Dependence>!Task(TaskA_A)</Dependence>
 		</Task>
 	</Tasks>
 	<Tabs>
@@ -29,12 +36,18 @@
 	<TaskHierarchy>
 		<Task>
 			<TaskName>TaskA</TaskName>
+			<Task>
+				<TaskName>TaskA_A</TaskName>
+			</Task>
 		</Task>
 		<Task>
 			<TaskName>TaskB</TaskName>
 		</Task>
 		<Task>
 			<TaskName>TaskC</TaskName>
+		</Task>
+		<Task>
+			<TaskName>TaskD</TaskName>
 		</Task>
 	</TaskHierarchy>
 </ROMEFrameworkDefinition>
