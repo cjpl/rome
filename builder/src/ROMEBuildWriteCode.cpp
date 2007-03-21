@@ -14861,11 +14861,19 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
    ROMEString str1, str2;
    result = org;
    TString ch;
+   Int_t index;
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       str1.SetFormatted("Task(%s)", taskHierarchyName[i].Data());
-      str2.SetFormatted("(gAnalyzer->GetTaskObjectAt(%d)->IsActive())",taskHierarchyObjectIndex[i]);
+
+      index = taskHierarchyObjectIndex[i];
+      str2.SetFormatted("(gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
+      while (index!=-1) {
+         str2.AppendFormatted(" &&\n          gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
+         index = taskHierarchyParentIndex[index];
+      }
+      str2.Append(")");
       result.ReplaceAll(str1, str2);
    }
    for (i = 0; i < numOfTab; i++) {
