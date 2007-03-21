@@ -20,7 +20,7 @@
 		</Task>
 		<Task>
 			<TaskName>TaskD</TaskName>
-			<Dependence>!Task(TaskA_A)</Dependence>
+			<Dependence>!Task(TaskA_A) &amp;&amp; Tab(TabC)</Dependence>
 		</Task>
 	</Tasks>
 	<Tabs>
@@ -31,6 +31,9 @@
 		<Tab>
 			<TabName>TabB</TabName>
 			<Dependence>Tab(TabA)</Dependence>
+			<Tab>
+				<TabName>TabC</TabName>
+			</Tab>
 		</Tab>
 	</Tabs>
 	<TaskHierarchy>
