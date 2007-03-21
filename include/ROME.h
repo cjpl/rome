@@ -51,6 +51,7 @@
 //#   define dbgprintf(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__FUNCTION__),printf(" "__VA_ARGS__))
 #else
 #   define dbgprintf(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__func__),printf(" "__VA_ARGS__))
+#   define dbgcout cout<<__FILE__<<":"<<__LINE__<<" in "<<__func__<<": "
 #endif
 
 #endif   // ROME_H
