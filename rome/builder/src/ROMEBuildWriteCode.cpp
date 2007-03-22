@@ -4809,11 +4809,38 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("Bool_t %sAnalyzer::CheckDependences()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   Bool_t ret = kTRUE;\n");
+
+   buffer.AppendFormatted("   Bool_t analyzer;\n");
+   buffer.AppendFormatted("   Bool_t monitor;\n");
+
+   buffer.AppendFormatted("   switch(fProgramMode) {\n");
+   buffer.AppendFormatted("   case kStandAloneROME:\n");
+   buffer.AppendFormatted("      analyzer = kTRUE;\n");
+   buffer.AppendFormatted("      monitor = kFALSE;\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   case kStandAloneARGUS:\n");
+   buffer.AppendFormatted("      analyzer = kFALSE;\n");
+   buffer.AppendFormatted("      monitor = kTRUE;\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   case kROMEAndARGUS:\n");
+   buffer.AppendFormatted("      analyzer = kTRUE;\n");
+   buffer.AppendFormatted("      monitor = kTRUE;\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   case kROMEMonitor:\n");
+   buffer.AppendFormatted("      analyzer = kTRUE;\n");
+   buffer.AppendFormatted("      monitor = kTRUE;\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   default:\n");
+   buffer.AppendFormatted("      analyzer = kFALSE;\n");
+   buffer.AppendFormatted("      monitor = kFALSE;\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]] || !taskDependence[taskHierarchyClassIndex[i]].Length())
          continue;
       ParseDependences(taskDependence[taskHierarchyClassIndex[i]], tmp);
-      buffer.AppendFormatted("   if (gAnalyzer->GetTaskObjectAt(%d)->IsActive() &&\n",taskHierarchyObjectIndex[i]);
+      buffer.AppendFormatted("   if ((GetTaskObjectAt(%d)->IsActive() && analyzer) &&\n",taskHierarchyObjectIndex[i]);
       buffer.AppendFormatted("       !(%s)) {\n", tmp.Data());
       buffer.AppendFormatted("      cerr<<\"Error: Dependence for the '%s' task is not satisfied.\"<<endl;\n",taskHierarchyName[i].Data());
       buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n", taskDependence[taskHierarchyClassIndex[i]].Data());
@@ -4824,7 +4851,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!tabUsed[i] || !tabDependence[i].Length())
          continue;
       ParseDependences(tabDependence[i], tmp);
-      buffer.AppendFormatted("   if (gAnalyzer->GetWindow()->GetTabSwitches()->%s%s &&\n",tabName[i].Data(),tabSuffix[i].Data());
+      buffer.AppendFormatted("   if ((GetWindow()->GetTabSwitches()->%s%s && monitor) &&\n",tabName[i].Data(),tabSuffix[i].Data());
       buffer.AppendFormatted("       !(%s)) {\n", tmp.Data());
       buffer.AppendFormatted("      cerr<<\"Error: Dependence for the '%s' tab is not satisfied.\"<<endl;\n",tabName[i].Data());
       buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n", tabDependence[i].Data());
@@ -15212,10 +15239,10 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
          continue;
       str1.SetFormatted("Task(%s)", taskHierarchyName[i].Data());
 
-      str2.SetFormatted("(gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      str2.SetFormatted("((Get%s%sTaskBase()->IsActive() && analyzer)",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
       index = taskHierarchyParentIndex[i];
       while (index != -1) {
-         str2.AppendFormatted(" &&\n          gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
+         str2.AppendFormatted(" &&\n          (Get%s%sTaskBase()->IsActive() && analyzer)",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
          index = taskHierarchyParentIndex[index];
       }
       str2.Append(")");
@@ -15226,10 +15253,10 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
          continue;
 
       str1.SetFormatted("Tab(%s)", tabName[i].Data());
-      str2.SetFormatted("(gAnalyzer->GetWindow()->GetTabSwitches()->%s%s", tabName[i].Data(),tabSuffix[i].Data());
+      str2.SetFormatted("((GetWindow()->GetTabSwitches()->%s%s && monitor)", tabName[i].Data(),tabSuffix[i].Data());
       index = tabParentIndex[i];
       while (index != -1) {
-         str2.AppendFormatted(" &&\n          gAnalyzer->GetWindow()->GetTabSwitches()->%s%s", tabName[index].Data(),tabSuffix[index].Data());
+         str2.AppendFormatted(" &&\n          (GetWindow()->GetTabSwitches()->%s%s && monitor)", tabName[index].Data(),tabSuffix[index].Data());
          index = tabParentIndex[index];
       }
       str2.Append(")");
