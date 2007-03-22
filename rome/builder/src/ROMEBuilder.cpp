@@ -655,6 +655,7 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteAnalyzerCpp()) return false;
    if (!WriteAnalyzer2Cpp()) return false;
    if (!WriteAnalyzer3Cpp()) return false;
+   if (!WriteAnalyzer4Cpp()) return false;
    if (!WriteAnalyzerH()) return false;
    if (makeOutput)
       cout << "\n\nWindow:" << endl;
@@ -697,6 +698,9 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteConfigToFormCpp()) return false;
    if (!WriteConfigToFormH()) return false;
    if (!WriteConfigCpp()) return false;
+   if (!WriteConfig2Cpp()) return false;
+   if (!WriteConfig3Cpp()) return false;
+   if (!WriteConfig4Cpp()) return false;
    if (!WriteConfigH()) return false;
    if (numOfEvent>0) {
       if (!WriteMidasDAQCpp()) return false;

@@ -565,10 +565,14 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sAnalyzer2.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sAnalyzer3.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sAnalyzer4.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow2.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sConfig2.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sConfig3.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sConfig4.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sDBAccess.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sNetFolderServer.cpp",shortCut.Data());
    if (numOfEvent>0)
@@ -1188,7 +1192,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted("%sUserDictOpt            = $(NOOPT)\n",shortCut.Data());
 
    buffer.AppendFormatted("%sAnalyzer3Opt           = $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer4Opt           = $(NOOPT)\n",shortCut.Data());
    buffer.AppendFormatted("%sConfigOpt              = $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfig2Opt             = $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfig3Opt             = $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfig4Opt             = $(NOOPT)\n",shortCut.Data());
    buffer.AppendFormatted("%sConfigToFormOpt        = $(NOOPT)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
