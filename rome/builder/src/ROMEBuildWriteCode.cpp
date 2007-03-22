@@ -4371,7 +4371,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include <TObjArray.h>\n");
    buffer.AppendFormatted("#include <TObjString.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
-   buffer.AppendFormatted("#include <TTask.h>\n");
+   buffer.AppendFormatted("#include <TSystem.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -4870,6 +4870,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       buffer.AppendFormatted("%s%sDAQ* %sAnalyzer::Get%sDAQ() {\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),shortCut.Data(),daqNameArray->At(i).Data());
       buffer.AppendFormatted("   if (f%sDAQ==NULL) {\n",daqNameArray->At(i).Data());
       buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
+      buffer.AppendFormatted("      gSystem->StackTrace();\n");
       buffer.AppendFormatted("      fApplication->Terminate(1);\n");
       buffer.AppendFormatted("      return NULL;\n");
       buffer.AppendFormatted("   }\n");
@@ -12777,6 +12778,7 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("      f%sFolders = (TClonesArray*)(GetSocketClientNetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast()<=index) {\n",folderName[numFolder].Data());
          buffer.AppendFormatted("     ROMEPrint::Error(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",index);\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
+         buffer.AppendFormatted("      gSystem->StackTrace();\n");
          buffer.AppendFormatted("     fApplication->Terminate(1);\n");
          buffer.AppendFormatted("     return NULL;\n");
          buffer.AppendFormatted("   }\n");
