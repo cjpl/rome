@@ -594,6 +594,7 @@ private:
    Bool_t  WriteAnalyzerCpp();
    Bool_t  WriteAnalyzer2Cpp();
    Bool_t  WriteAnalyzer3Cpp();
+   Bool_t  WriteAnalyzer4Cpp();
    Bool_t  WriteAnalyzerH();
    Bool_t  WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,const char *objectActivePointer,bool bypass);
    Bool_t  WriteWindowCpp();
@@ -609,6 +610,9 @@ private:
    Bool_t  WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString tabPointer,ROMEString configPointer,int level,int tab);
    Bool_t  WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer,int level,int tab,ROMEString indexes);
    Bool_t  WriteConfigCpp();
+   Bool_t  WriteConfig2Cpp();
+   Bool_t  WriteConfig3Cpp();
+   Bool_t  WriteConfig4Cpp();
    Bool_t  WriteConfigH();
    Bool_t  AddConfigParameters();
    Bool_t  AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);

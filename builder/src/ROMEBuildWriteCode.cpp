@@ -5338,8 +5338,6 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("   return exitID!=-1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
-   WriteConfigToFormSave(buffer,mainParGroup,"","","",0,1,"");
-   buffer.AppendFormatted("\n");
 
    // Get Object Interpreter Code
    int codeNumber = 0;
@@ -5385,6 +5383,91 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    WriteObjectInterpreterValue(buffer,"int","Int");
    WriteObjectInterpreterValue(buffer,"double","Double");
    WriteObjectInterpreterValue(buffer,"ROMEString&","Char");
+
+   // Write File
+   WriteFile(cppFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
+{
+   int i;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+   ROMEString clsName;
+   ROMEString clsDescription;
+
+   ROMEString parentt;
+   ROMEString buf;
+   ROMEString str;
+   ROMEString pointer;
+
+   if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
+
+   ROMEString tmp;
+   ROMEString format;
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sAnalyzer4.cpp",outDir.Data(),shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   clsName.SetFormatted("%sAnalyzer", shortCut.Data());
+   clsDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",shortCut.Data(),mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#include <direct.h>\n");
+#endif
+   buffer.AppendFormatted("#include <RConfig.h>\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( push )\n");
+   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+   buffer.AppendFormatted("#include <Windows4Root.h>\n");
+#endif // R__VISUAL_CPLUSPLUS
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
+   }
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
+   }
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
+   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
+
+   WriteConfigToFormSave(buffer,mainParGroup,"","","",0,1,"");
+   buffer.AppendFormatted("\n");
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -7148,6 +7231,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          }
       }
    }
+
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       if (level==0 || (level==1 && parGroup->GetGroupName()=="Common") || (level==2 && parGroup->GetGroupName()=="Folders")) {
          buffer.AppendFormatted("Bool_t %sAnalyzer::Save%s(%sConfigToForm *dialog)\n",shortCut.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),shortCut.Data());
@@ -7456,19 +7540,6 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
-   // Check Configuration Modified
-   buffer.AppendFormatted("\n// Check Configuration Modified\n");
-   buffer.AppendFormatted("Bool_t %sConfig::CheckConfigurationModified(Int_t index) {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   ROMEString tempPath;\n");
-   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n",shortCut.Data());
-   buffer.AppendFormatted("   int ii[100];\n");
-   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
-   iSub = 0;
-   WriteConfigCheckModified(buffer,mainParGroup,1,"","","configData->","",&iSub);
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
-
    // Check Configuration
    buffer.AppendFormatted("\n// Check Configuration\n");
    buffer.AppendFormatted("Bool_t %sConfig::CheckConfiguration(Long64_t runNumber) {\n",shortCut.Data());
@@ -7533,27 +7604,6 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
-   // Set Configuration
-   buffer.AppendFormatted("\n// Set Configuration\n");
-   buffer.AppendFormatted("Bool_t %sConfig::SetConfiguration(Int_t modIndex,Int_t index) {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n",shortCut.Data());
-   buffer.AppendFormatted("   %sConfig::ConfigData *modConfigData = fConfigData[modIndex];\n",shortCut.Data());
-   buffer.AppendFormatted("   int ii[100];\n");
-   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
-   buffer.AppendFormatted("   char* cstop;\n");
-   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
-   buffer.AppendFormatted("   ROMEString path = \"\";\n");
-   buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
-   buffer.AppendFormatted("   int ind;\n");
-   buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
-   buffer.AppendFormatted("   fActiveConfiguration = index;\n");
-   iSub = 0;
-   WriteConfigSet(buffer,mainParGroup,1,"","",&iSub);
-   // end
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
-
    // Write Configuration File
    buffer.AppendFormatted("\n// Write Configuration File\n");
    buffer.AppendFormatted("Bool_t %sConfig::WriteConfigurationFile(const char *file) {\n",shortCut.Data());
@@ -7606,6 +7656,301 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
+
+   // Write File
+   WriteFile(cppFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteConfig2Cpp() {
+   int i;
+   ROMEString str;
+   ROMEString pointer;
+   ROMEString path;
+   ROMEString clsName;
+   ROMEString clsDescription;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+
+   ROMEString format;
+   int iSub = 0;
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sConfig2.cpp",outDir.Data(),shortCut.Data());
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   clsName.SetFormatted("%sConfig", shortCut.Data());
+   clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   buffer.AppendFormatted("\n");
+
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#include <Windows4Root.h>\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <typeinfo>\n");
+   buffer.AppendFormatted("#include \"ROME.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && numOfValue[i] > 0 && !folderSupport[i]) {
+         if (folderUserCode[i])
+            buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         else
+            buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
+   }
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
+   }
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
+   for (i=0;i<numOfDB;i++)
+      buffer.AppendFormatted("#include \"databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
+
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
+   if (sql)
+      buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+
+   buffer.AppendFormatted("\nClassImp(%sConfig)\n",shortCut.Data());
+
+   // Check Configuration Modified
+   buffer.AppendFormatted("\n// Check Configuration Modified\n");
+   buffer.AppendFormatted("Bool_t %sConfig::CheckConfigurationModified(Int_t index) {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   ROMEString tempPath;\n");
+   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n",shortCut.Data());
+   buffer.AppendFormatted("   int ii[100];\n");
+   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
+   iSub = 0;
+   WriteConfigCheckModified(buffer,mainParGroup,1,"","","configData->","",&iSub);
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Write File
+   WriteFile(cppFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteConfig3Cpp() {
+   int i;
+   ROMEString str;
+   ROMEString pointer;
+   ROMEString path;
+   ROMEString clsName;
+   ROMEString clsDescription;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+
+   ROMEString format;
+   int iSub = 0;
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sConfig3.cpp",outDir.Data(),shortCut.Data());
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   clsName.SetFormatted("%sConfig", shortCut.Data());
+   clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   buffer.AppendFormatted("\n");
+
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#include <Windows4Root.h>\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <typeinfo>\n");
+   buffer.AppendFormatted("#include \"ROME.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && numOfValue[i] > 0 && !folderSupport[i]) {
+         if (folderUserCode[i])
+            buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         else
+            buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
+   }
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
+   }
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
+   for (i=0;i<numOfDB;i++)
+      buffer.AppendFormatted("#include \"databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
+
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
+   if (sql)
+      buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+
+   buffer.AppendFormatted("\nClassImp(%sConfig)\n",shortCut.Data());
+
+   // Set Configuration
+   buffer.AppendFormatted("\n// Set Configuration\n");
+   buffer.AppendFormatted("Bool_t %sConfig::SetConfiguration(Int_t modIndex,Int_t index) {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n",shortCut.Data());
+   buffer.AppendFormatted("   %sConfig::ConfigData *modConfigData = fConfigData[modIndex];\n",shortCut.Data());
+   buffer.AppendFormatted("   int ii[100];\n");
+   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   char* cstop;\n");
+   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   ROMEString path = \"\";\n");
+   buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
+   buffer.AppendFormatted("   int ind;\n");
+   buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   fActiveConfiguration = index;\n");
+   iSub = 0;
+   WriteConfigSet(buffer,mainParGroup,1,"","",&iSub);
+   // end
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Write File
+   WriteFile(cppFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteConfig4Cpp() {
+   int i;
+   ROMEString str;
+   ROMEString pointer;
+   ROMEString path;
+   ROMEString clsName;
+   ROMEString clsDescription;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+
+   ROMEString format;
+   int iSub = 0;
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sConfig4.cpp",outDir.Data(),shortCut.Data());
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   clsName.SetFormatted("%sConfig", shortCut.Data());
+   clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   buffer.AppendFormatted("\n");
+
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#include <Windows4Root.h>\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <typeinfo>\n");
+   buffer.AppendFormatted("#include \"ROME.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && numOfValue[i] > 0 && !folderSupport[i]) {
+         if (folderUserCode[i])
+            buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         else
+            buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
+   }
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
+   }
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
+   for (i=0;i<numOfDB;i++)
+      buffer.AppendFormatted("#include \"databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
+
+   buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
+   if (sql)
+      buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+
+   buffer.AppendFormatted("\nClassImp(%sConfig)\n",shortCut.Data());
 
    // Write Configuration
    buffer.AppendFormatted("\n// Write Configuration\n");
