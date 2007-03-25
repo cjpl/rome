@@ -100,13 +100,34 @@ ifeq ($(NEED_TARRAYL64), yes)
 INCLUDE += -Iinclude/array64
 endif
 
+NTARGETS_FILE := obj/ntargets
 ROMEVERBOSEMAKE ?= 1
 ifeq ($(ROMEVERBOSEMAKE), 1)
-   Q =
-   echoing =
-else
+   ifndef NTARGETS_STOP
+      DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))
+      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
+                          grep NTARGETS_MAGIC | wc -l)
+      NTARGETS_TOTLEN := $(shell echo $(NTARGETS_TOTAL) | wc -c)
+      NTARGETS_TOTLEN := $(shell expr $(NTARGETS_TOTLEN) - 1 )
+      CREATE_TARGETS_FILE := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
+                               grep NTARGETS_MAGIC | \
+                               awk '{printf("\"%$(NTARGETS_TOTLEN)d\":%s\n", \
+                               $(NTARGETS_TOTAL)-NR+1,$$0);}' > \
+                               $(NTARGETS_FILE))
+      NTARGETS = $(shell grep -m 1 $(subst .,\.,$1) $(NTARGETS_FILE) | cut -d ':' -f 1)
+   endif
    Q = @
-   echoing = @echo $1
+   define romeechoing
+      @if [ -e $(NTARGETS_FILE) ]; then \
+         echo [$(NTARGETS)/$(NTARGETS_TOTAL)] $1; \
+         set NTARGETS_MAGIC=yes; \
+      else \
+         echo $1; \
+      fi;
+   endef
+else
+   Q =
+   romeechoing =
 endif
 
 -include Makefile.arch
@@ -267,6 +288,7 @@ endif
 
 all: $(TARGET)
 	@./bin/updateVersionH.exe
+	@$(RM) $(NTARGETS_FILE)
 
 obj:
 	@if [ ! -d  obj ] ; then \
@@ -277,28 +299,28 @@ obj:
 dict: $(DICTIONARIES)
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(call echoing, "linking   $@")
+	$(call romeechoing, "linking   $@")
 	$(Q)$(CXXLD) $(LDFLAGS) $(ROMEBLD_FLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
-	$(call echoing, "linking   $@")
+	$(call romeechoing, "linking   $@")
 	$(Q)$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
-	$(call echoing, "linking   $@")
+	$(call romeechoing, "linking   $@")
 	$(Q)$(CXXLD) $(LDFLAGS) -W -Wall $(INCLUDE) -o $@ $< $(LIBRARY)
 
 include/ROMEVersion.h: bin/updateVersionH.exe
-	$(call echoing, "creating  $@")
+	$(call romeechoing, "creating  $@")
 	@./bin/updateVersionH.exe
 
 librome.a: Makefile $(LibObjects)
-	$(call echoing, "creating  $@")
+	$(call romeechoing, "creating  $@")
 	-$(Q)$(RM) $@
 	$(Q)$(AR) -rcs $@ $(LibObjects)
 
 librome.so: Makefile $(LibObjects)
-	$(call echoing, "creating  $@")
+	$(call romeechoing, "creating  $@")
 ifeq ($(OSTYPE),darwin)
 	$(Q)$(CXXLD) $(ROMELIB_FLAGS) $(SOFLAGS) -o $(ROMESYS)/librome.dylib $(LibObjects)
 	-$(Q)$(RM) librome.so
@@ -307,48 +329,48 @@ else
 	$(Q)$(CXXLD) $(ROMELIB_FLAGS) $(SOFLAGS) -o $(ROMESYS)/librome.so $(LibObjects)
 endif
 
-ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
-	$(call echoing, "creating  $@")
+ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders) Makefile
+	$(call romeechoing, "creating  $@")
 	$(Q)$(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(INCLUDE) $(LibDictHeaders)
 
-ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
-	$(call echoing, "creating  $@")
+ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) Makefile
+	$(call romeechoing, "creating  $@")
 	$(Q)$(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(INCLUDE) $(BldDictHeaders)
 
-UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
-	$(call echoing, "creating  $@")
+UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders) Makefile
+	$(call romeechoing, "creating  $@")
 	$(Q)$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CC) $(CFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CC) $(CFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/TArrayL64.o: src/TArrayL64.cpp include/array64/TArrayL64.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMEPICOPT) -O0 -MMD -MP -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMEBLD_FLAGS) $(ROMEPICDEF) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(call echoing, "compiling $@")
+	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMELIB_FLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -c -o $@ $<
 
 
@@ -357,7 +379,8 @@ clean:
 	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) obj/*.d\
 	ROMELibDict.h ROMELibDict.cpp \
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
-	UpdateVersionHDict.h UpdateVersionHDict.cpp
+	UpdateVersionHDict.h UpdateVersionHDict.cpp \
+	$(NTARGETS_FILE)
 
 SkipDepInclude = no
 
