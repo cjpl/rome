@@ -286,21 +286,24 @@ void mxml_decode(char *str)
          *(p++) = '<';
          strcpy(p, p+3);
       }
-      if (strncmp(p, "&gt;", 4) == 0) {
+      else if (strncmp(p, "&gt;", 4) == 0) {
          *(p++) = '>';
          strcpy(p, p+3);
       }
-      if (strncmp(p, "&amp;", 5) == 0) {
+      else if (strncmp(p, "&amp;", 5) == 0) {
          *(p++) = '&';
          strcpy(p, p+4);
       }
-      if (strncmp(p, "&quot;", 6) == 0) {
+      else if (strncmp(p, "&quot;", 6) == 0) {
          *(p++) = '\"';
          strcpy(p, p+5);
       }
-      if (strncmp(p, "&apos;", 6) == 0) {
+      else if (strncmp(p, "&apos;", 6) == 0) {
          *(p++) = '\'';
          strcpy(p, p+5);
+      }
+      else {
+         p++; // skip unknown entity
       }
    }
 /*   if (str[0] == '\"' && str[strlen(str)-1] == '\"') {
