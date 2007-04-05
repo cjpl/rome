@@ -11625,7 +11625,8 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
+      if (numOfHistos[i]>0 || numOfGraphs[i]>0)
+         buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());

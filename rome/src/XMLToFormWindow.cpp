@@ -666,7 +666,7 @@ XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLT
    fFirstEdit = true;
    fExitID = exitButtonID;
    fMaximalWindowWidth = windowWidth;
-   fListTreeWidth = 200;
+   fListTreeWidth = 300;
    fListTreeHeight = 200;
    fMainFrame = frame;
    fMainWindow = main;
