@@ -102,7 +102,7 @@ endif
 
 NTARGETS_FILE := obj/ntargets
 ROMEVERBOSEMAKE ?= 1
-ifeq ($(ROMEVERBOSEMAKE), 1)
+ifeq ($(ROMEVERBOSEMAKE), 0)
    ifndef NTARGETS_STOP
       DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))
       NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
