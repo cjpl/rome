@@ -4022,10 +4022,10 @@ Bool_t ROMEBuilder::WriteBaseTabH()
 
       // Header
       buffer.AppendFormatted("#include <RConfig.h>\n");
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   #endif // R__VISUAL_CPLUSPLUS
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include <TGMenu.h>\n");
       buffer.AppendFormatted("#include <TThread.h>\n");
       buffer.AppendFormatted("#include <TRootEmbeddedCanvas.h>\n");
@@ -4042,9 +4042,9 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       if (numOfSteering[iTab+numOfTask+1] > 0) {
          buffer.AppendFormatted("#include <TString.h>\n"); // TString is often used for steering parameter.
       }
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
-   #endif // R__VISUAL_CPLUSPLUS
+#endif // R__VISUAL_CPLUSPLUS
 
       if (tabObjectDisplay[iTab])
          buffer.AppendFormatted("#include \"ArgusHistoDisplay.h\"\n");
@@ -4846,6 +4846,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   if (!ret)\n");
    buffer.AppendFormatted("      cerr<<\"Please modify your configuration XML file.\"<<endl;\n");
    buffer.AppendFormatted("   return ret;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Check tree filename
+   buffer.AppendFormatted("Bool_t %sAnalyzer::CheckTreeFileNames()\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("// Check tree filenames\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   if (!((ROMETree*)fTreeObjects->At(%d))->CheckConfiguration(fInputDir.Data(), fOutputDir.Data()))\n",i);
+      buffer.AppendFormatted("      return kFALSE;\n");
+   }
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n\n");
 
    // DAQ Access Methods
@@ -5666,9 +5677,13 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   // Storage\n");
    buffer.AppendFormatted("   void FillObjectStorage();\n");
 
-   // Storage
+   // check dependence
    buffer.AppendFormatted("   // Check dependence\n");
    buffer.AppendFormatted("   Bool_t CheckDependences();\n");
+
+   // Check tree names
+   buffer.AppendFormatted("   // Check tree names\n");
+   buffer.AppendFormatted("   Bool_t CheckTreeFileNames();\n");
 
    // Set size
    for (i=0;i<numOfFolder;i++) {
@@ -8679,18 +8694,27 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
             subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(((Long_t)##.ToInteger()));",i);
             subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
             subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
-   #else
+#else
             subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%lld\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
-   #endif
+#endif
+            // TreeInputFileName
+            subsubSubGroup->AddParameter(new ROMEConfigParameter("TreeInputFileName"));
+            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigInputFileName(##);",i);
+            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigInputFileName().Data();",i);
+
             // TreeOutputFileName
             subsubSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
             subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
             subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
+            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigOutputFileName(##);",i);
             subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data();",i);
+            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigOutputFileName().Data();",i);
+
             // SaveConfiguration
             subsubSubGroup->AddParameter(new ROMEConfigParameter("SaveConfiguration", "1", "CheckButton"));
             subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
@@ -13176,7 +13200,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 
    // get tree file names
    buffer.AppendFormatted("// Get Tree File Names\n");
-   buffer.AppendFormatted("void %sEventLoop::GetTreeFileName(ROMEString& buffer,Int_t treeIndex) {\n",shortCut.Data());
+   buffer.AppendFormatted("void %sEventLoop::GetTreeFileName(ROMEString& buffer, Int_t treeIndex, Bool_t inputFile) {\n",shortCut.Data());
    if (numOfTree>0) {
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
       buffer.AppendFormatted("   switch (treeIndex) {\n");
@@ -13184,7 +13208,10 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("      case %d:\n",i);
       buffer.AppendFormatted("         romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
-      buffer.AppendFormatted("         buffer = romeTree->GetConfigFileName();\n");
+      buffer.AppendFormatted("         if (inputFile)\n");
+      buffer.AppendFormatted("            buffer = romeTree->GetConfigInputFileName();\n");
+      buffer.AppendFormatted("         else\n");
+      buffer.AppendFormatted("            buffer = romeTree->GetConfigOutputFileName();\n");
       buffer.AppendFormatted("         if (buffer.Length()==0) {\n");
       if (treeFileName[i].Length()==0)
          buffer.AppendFormatted("            buffer.SetFormatted(\"%s#.root\");\n",treeName[i].Data());
@@ -13201,6 +13228,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    if (numOfTree<=0) {
       buffer.AppendFormatted("   WarningSuppression(buffer);\n");
       buffer.AppendFormatted("   WarningSuppression(treeIndex);\n");
+      buffer.AppendFormatted("   WarningSuppression(inputFile);\n");
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -13399,7 +13427,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("   // Tree Methodes\n");
    buffer.AppendFormatted("   void InitTrees();\n");
    buffer.AppendFormatted("   void FillTrees();\n");
-   buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,Int_t treeIndex);\n");
+   buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,Int_t treeIndex, Bool_t inputFile = kFALSE);\n");
    buffer.AppendFormatted("   void WriteRunHeaders();\n");
    buffer.AppendFormatted("   void ReadRunHeaders();\n");
    buffer.AppendFormatted("\n");

@@ -182,12 +182,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          if (this->isRunning()) {
             // Hot Links
-   #if defined( HAVE_MIDAS )
+#if defined( HAVE_MIDAS )
             if (ROMEEventLoop::fHotLinksChanged) {
                this->UpdateHotLinks();
                ROMEEventLoop::fHotLinksChanged = false;
             }
-   #endif // HAVE_MIDAS
+#endif // HAVE_MIDAS
 
             if(!gROME->CheckDependences())
                return;
@@ -212,11 +212,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
             // Output
             if (gROME->IsShowRunStat()) {
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
                ROMEPrint::Print("\n\nRun %I64d started\n",gROME->GetCurrentRunNumber());
-   #else
+#else
                ROMEPrint::Print("\n\nRun %lld started\n",gROME->GetCurrentRunNumber());
-   #endif
+#endif
             }
          }
       }
@@ -592,7 +592,7 @@ Bool_t ROMEEventLoop::DAQInit()
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
             tree = romeTree->GetTree();
-            GetTreeFileName(filename,j);
+            GetTreeFileName(filename,j,kFALSE);
             filename.Insert(0,gROME->GetOutputDir());
             romeTree->SetFileName(filename);
             for(k = 0; k < j; k++) {
@@ -694,7 +694,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
          if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
-            GetTreeFileName(filename,j);
+            GetTreeFileName(filename,j,kFALSE);
             filename.Insert(0,gROME->GetOutputDir());
             if (filename == romeTree->GetFileName()) {
                for(k = 0; k < j; k++) {

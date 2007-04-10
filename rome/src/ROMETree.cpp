@@ -23,10 +23,15 @@
 
 ClassImp(ROMETree)
 
-ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, TFile* file, Int_t fileOption, Bool_t read, Bool_t write, Bool_t fill, Bool_t saveConfig, Int_t compressionLevel, Long64_t maxEntries) {
+ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileName,
+                   ROMEString configOutputFileName, TFile* file, Int_t fileOption,
+                   Bool_t read, Bool_t write, Bool_t fill, Bool_t saveConfig, Int_t compressionLevel,
+                   Long64_t maxEntries)
+{
    fTree = tree;
    fFileName = fileName;
-   fConfigFileName = configFileName;
+   fConfigInputFileName = configInputFileName;
+   fConfigOutputFileName = configOutputFileName;
    fFile = file;
    fFileOption = fileOption;
    fSwitches.fRead = read;
@@ -99,5 +104,18 @@ Bool_t ROMETree::LoadConfig(TString &xml, const char* filename) {
    if (!config)
       return kFALSE;
    xml = config->GetTitle();
+   return kTRUE;
+}
+
+Bool_t ROMETree::CheckConfiguration(const char* inDir, const char* outDir) {
+   if (fSwitches.fRead &&
+       fSwitches.fWrite &&
+       fConfigInputFileName == fConfigOutputFileName &&
+       strcmp(inDir,outDir) == 0) {
+      Error("CheckConfiguration", "It is not possible to read and write one file.\n"
+            "Please use different <InputFilePath> and <OutputFilePath> or different <TreeInputFileName> and <TreeOutputFileName> "
+            "for '%s' tree.\n", fName.Data());
+      return kFALSE;
+   }
    return kTRUE;
 }

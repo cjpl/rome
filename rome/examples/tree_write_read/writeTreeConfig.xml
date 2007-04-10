@@ -58,6 +58,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Fill>true</Fill>
           <CompressionLevel>1</CompressionLevel>
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
+          <TreeInputFileName></TreeInputFileName>
           <TreeOutputFileName></TreeOutputFileName>
           <SaveConfiguration>false</SaveConfiguration>
           <Branch>
@@ -73,6 +74,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Fill>true</Fill>
           <CompressionLevel>1</CompressionLevel>
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
+          <TreeInputFileName></TreeInputFileName>
           <TreeOutputFileName></TreeOutputFileName>
           <SaveConfiguration>false</SaveConfiguration>
           <Branch>

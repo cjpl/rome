@@ -229,7 +229,7 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd taskhierarchydependence; ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1
 
-	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1
+#	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1
 
 	cd macros; ./mcranalyzer.exe -i romeConfig.xml -q
 
