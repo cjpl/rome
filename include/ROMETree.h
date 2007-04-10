@@ -36,18 +36,23 @@ private:
 protected:
    TTree      *fTree;              //    Tree
    ROMEString  fFileName;          //!   Name of the File for the Tree Object
-   ROMEString  fConfigFileName;    //!   Name of the File for the Tree Object in the romeConfig file
+   ROMEString  fConfigInputFileName;  //!   Name of the File for the Tree Object in the romeConfig file
+   ROMEString  fConfigOutputFileName; //!   Name of the File for the Tree Object in the romeConfig file
    TFile*      fFile;              //!   File Handle for the Tree Object
    Int_t       fFileOption;        //!   File Option for the Tree Object
 
 public:
-   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=0,Int_t compressionLevel=0,Long64_t maxEntries=0);
+   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configInputFileName="",
+            ROMEString configOUtputFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,
+            Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=0,
+            Int_t compressionLevel=0,Long64_t maxEntries=0);
    virtual ~ROMETree();
 
    void        AllocateBranchActive(Int_t n);
    TTree      *GetTree() { return fTree; }
    ROMEString &GetFileName() { return fFileName; }
-   ROMEString &GetConfigFileName() { return fConfigFileName; }
+   ROMEString &GetConfigInputFileName() { return fConfigInputFileName; }
+   ROMEString &GetConfigOutputFileName() { return fConfigOutputFileName; }
    void        UpdateFilePointer() { fFile = fTree->GetCurrentFile(); }
    TFile      *GetFile() { return fFile; }
    Bool_t      IsFileOverWrite() { return fFileOption==kOverWrite; }
@@ -73,7 +78,8 @@ public:
    Bool_t      GetBranchActiveAt(Int_t i) { return fBranchActive[i]; }
    void        SetTree(TTree *tree) { fTree = tree; }
    void        SetFileName(ROMEString &fileName) { fFileName = fileName; }
-   void        SetConfigFileName(ROMEString &configFileName) { fConfigFileName = configFileName; }
+   void        SetConfigInputFileName(ROMEString &configFileName) { fConfigInputFileName = configFileName; }
+   void        SetConfigOutputFileName(ROMEString &configFileName) { fConfigOutputFileName = configFileName; }
    void        SetFile(TFile *file) { fFile = file; fTree->SetDirectory((TDirectory*)file); }
    void        SetFileOverWrite() { fFileOption = kOverWrite; }
    void        SetFileUpdate() { fFileOption = kUpdate; }
@@ -96,6 +102,7 @@ public:
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }
    Bool_t      SaveConfig(const char* xml, const char* filename = 0);
    Bool_t      LoadConfig(TString &xml, const char* filename = 0);
+   Bool_t      CheckConfiguration(const char* inDir, const char* outDir);
 
    ClassDef(ROMETree,0) // TTree container for ROME
 };

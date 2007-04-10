@@ -260,6 +260,11 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    if (!CheckDependences()) return false;
 
+   if (!gROME->IsFileNameBasedIO() && !gROME->IsRunNumberAndFileNameBasedIO()) {
+      // check of tree file name when <InputFileNames> is specified is not implemented yet.
+      if (!CheckTreeFileNames()) return false;
+   }
+
    gSystem->MakeDirectory(this->GetOutputDir());
 
    static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();
@@ -1483,6 +1488,7 @@ void ROMEAnalyzer::SetDataBase(Int_t i,ROMEDataBase *dataBase)
       fDataBaseHandle[i] = dataBase;
    }
 }
+
 Bool_t ROMEAnalyzer::IsProgramTerminated()
 {
    if (gROME->IsROMEMonitor())

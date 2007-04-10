@@ -640,6 +640,7 @@ protected:
    Bool_t          ConnectSocketClient();
    virtual Bool_t  ConnectSocketClientNetFolder() = 0;
    virtual void    StartNetFolderServer() = 0;
+   virtual Bool_t  CheckTreeFileNames() = 0;
 
    ClassDef(ROMEAnalyzer,0) // Base analyzer class
 };

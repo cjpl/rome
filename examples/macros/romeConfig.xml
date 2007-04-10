@@ -90,6 +90,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <CompressionLevel>1</CompressionLevel>
           <!-- If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0. -->
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
+          <!-- The name of the trees input file. This value overwrites the value specified in the definition file. (optional) -->
+          <TreeInputFileName></TreeInputFileName>
           <!-- The name of the trees output file. This value overwrites the value specified in the definition file. (optional) -->
           <TreeOutputFileName></TreeOutputFileName>
           <!-- If this is true, content of configuration XML file will be saved in the output file. Default is false -->
