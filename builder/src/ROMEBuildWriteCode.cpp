@@ -423,15 +423,13 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("\n");
             }
             else if (isFolder(valueType[iFold][i].Data())) {
-               tmp = valueType[iFold][i];
-               tmp.ReplaceAll("*","");
                buffer.AppendFormatted("void %s::Set%sSize(Int_t number)\n",clsName.Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   int i;\n");
-               buffer.AppendFormatted("   if (%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
-               buffer.AppendFormatted("   for (i=0;i<number;i++) {\n");
-               buffer.AppendFormatted("      new((*%s)[i]) %s();\n",valueName[iFold][i].Data(),tmp.Data());
-               buffer.AppendFormatted("   }\n");
+               buffer.AppendFormatted("   if (!%s || number < 0)\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   if (%s->GetEntriesFast() == number)\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   %s->ExpandCreate(number);\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
@@ -4644,23 +4642,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]!="1") {
          buffer.AppendFormatted("void %sAnalyzer::Set%sSize(Int_t number) {\n",shortCut.Data(),folderName[i].Data());
-         buffer.AppendFormatted("   int i;\n");
-         buffer.AppendFormatted("   if (f%sFolders) f%sFolders->Delete();\n",folderName[i].Data(),folderName[i].Data());
-         buffer.AppendFormatted("   for (i=0;i<number;i++) {\n");
-         buffer.AppendFormatted("      new((*f%sFolders)[i]) %s%s(",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-         for (j=0;j<numOfValue[i];j++) {
-            if (isFolder(valueType[i][j].Data()))
-               continue;
-            if (valueIsTObject[i][j] && !isPointerType(valueType[i][j].Data())
-               && !valueType[i][j].Contains("TRef") && !valueType[i][j].Contains("TString"))
-            continue;
-            if (valueDimension[i][j]==0) {
-               buffer.AppendFormatted("%s(%s)%s",separator.Data(),valueType[i][j].Data(),valueInit[i][j].Data());
-               separator = ", ";
-            }
-         }
-         buffer.AppendFormatted(" );\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (!f%sFolders || number < 0)\n",folderName[i].Data());
+         buffer.AppendFormatted("      return;\n");
+         buffer.AppendFormatted("   f%sFolders->ExpandCreate(number);\n",folderName[i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
@@ -12754,9 +12738,8 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("%s%s* %sAnalyzer::Get%sAt(Int_t index) {\n",shortCut.Data(),folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   if (IsROMEMonitor())\n");
          buffer.AppendFormatted("      f%sFolders = (TClonesArray*)(GetSocketClientNetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("   if (f%sFolders->GetEntries()<=index)\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("         new((*f%sFolders)[i]) %s%s();\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+         buffer.AppendFormatted("   if (f%sFolders->GetEntries() <= index)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sFolders->ExpandCreate(index);\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   return (%s%s*)f%sFolders->At(index);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
