@@ -180,6 +180,9 @@
 				RelativePath=".\include\mxml.h">
 			</File>
 			<File
+				RelativePath=".\include\ROME.h">
+			</File>
+			<File
 				RelativePath=".\builder\include\ROMEBuilder.h">
 			</File>
 			<File
