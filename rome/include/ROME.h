@@ -49,10 +49,11 @@
 //     if(i != 3) dbgcout<<"i="<<i<<endl;
 //  }
 #if defined( R__VISUAL_CPLUSPLUS )
-#   define dbgprintf(...) printf("%s:%u in %s:",__FILE__,__LINE__,__FUNCTION__);printf(" "__VA_ARGS__)
+// The next line does not compile
+//#   define dbgprintf(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__FUNCTION__),printf(" "__VA_ARGS__))
 #   define dbgcout cout<<__FILE__<<":"<<__LINE__<<" in "<<__FUNCTION__<<": "
 #else
-#   define dbgprintf(...) printf("%s:%u in %s:",__FILE__,__LINE__,__func__);printf(" "__VA_ARGS__)
+#   define dbgprintf(...) (printf("%s:%u in %s:",__FILE__,__LINE__,__func__),printf(" "__VA_ARGS__))
 #   define dbgcout cout<<__FILE__<<":"<<__LINE__<<" in "<<__func__<<": "
 #endif
 
