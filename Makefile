@@ -103,28 +103,30 @@ endif
 NTARGETS_FILE := obj/ntargets
 ROMEVERBOSEMAKE ?= 1
 ifeq ($(ROMEVERBOSEMAKE), 0)
-   ifndef NTARGETS_STOP
-      DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))
-      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
-                          grep NTARGETS_MAGIC | wc -l)
-      NTARGETS_TOTLEN := $(shell echo $(NTARGETS_TOTAL) | wc -c)
-      NTARGETS_TOTLEN := $(shell expr $(NTARGETS_TOTLEN) - 1 )
-      CREATE_TARGETS_FILE := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
-                               grep NTARGETS_MAGIC | \
-                               awk '{printf("\"%$(NTARGETS_TOTLEN)d\":%s\n", \
-                               $(NTARGETS_TOTAL)-NR+1,$$0);}' > \
-                               $(NTARGETS_FILE))
-      NTARGETS = $(shell grep -m 1 $(subst .,\.,$1) $(NTARGETS_FILE) | cut -d ':' -f 1)
-   endif
+#   ifndef NTARGETS_STOP
+#      DELETE_TARGETS_FILE := $(shell $(RM) $(NTARGETS_FILE))
+#      NTARGETS_TOTAL := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
+#                          grep NTARGETS_MAGIC | wc -l)
+#      NTARGETS_TOTLEN := $(shell echo $(NTARGETS_TOTAL) | wc -c)
+#      NTARGETS_TOTLEN := $(shell expr $(NTARGETS_TOTLEN) - 1 )
+#      CREATE_TARGETS_FILE := $(shell $(MAKE) NTARGETS_STOP=yes -n $(MAKECMDGOALS) | \
+#                               grep NTARGETS_MAGIC | \
+#                               awk '{printf("\"%$(NTARGETS_TOTLEN)d\":%s\n", \
+#                               $(NTARGETS_TOTAL)-NR+1,$$0);}' > \
+#                               $(NTARGETS_FILE))
+#      NTARGETS = $(shell grep -m 1 $(subst .,\.,$1) $(NTARGETS_FILE) | cut -d ':' -f 1)
+#   endif
+#   Q = @
+#   define romeechoing
+#      @if [ -e $(NTARGETS_FILE) ]; then \
+#         echo [$(NTARGETS)/$(NTARGETS_TOTAL)] $1; \
+#         set NTARGETS_MAGIC=yes; \
+#      else \
+#         echo $1; \
+#      fi;
+#   endef
    Q = @
-   define romeechoing
-      @if [ -e $(NTARGETS_FILE) ]; then \
-         echo [$(NTARGETS)/$(NTARGETS_TOTAL)] $1; \
-         set NTARGETS_MAGIC=yes; \
-      else \
-         echo $1; \
-      fi;
-   endef
+   romeechoing = @echo $1
 else
    Q =
    romeechoing =
