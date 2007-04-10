@@ -4621,6 +4621,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    buffer.AppendFormatted("   SafeDelete(fWindow);\n");
    buffer.AppendFormatted("   SafeDelete(fConfiguration);\n");
+   buffer.AppendFormatted("   SafeDelete(fDBAccess);\n");
    // End of Destructor
    buffer.AppendFormatted("}\n\n");
 
@@ -6550,9 +6551,9 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
    buffer.AppendFormatted("      for (j=0;j<fNumberOfValues[i];j++) {\n");
    buffer.AppendFormatted("         SafeDelete(fDBCode[i][j]);\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      SafeDelete(fDBName[i]);\n");
-   buffer.AppendFormatted("      SafeDelete(fDBPath[i]);\n");
-   buffer.AppendFormatted("      SafeDelete(fDBCode[i]);\n");
+   buffer.AppendFormatted("      SafeDeleteArray(fDBName[i]);\n");
+   buffer.AppendFormatted("      SafeDeleteArray(fDBPath[i]);\n");
+   buffer.AppendFormatted("      SafeDeleteArray(fDBCode[i]);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
