@@ -52,11 +52,11 @@
 //  }
 #if defined( R__VISUAL_CPLUSPLUS )
 // The next line does not compile
-//#   define dbgprintf(...) (printf("%s:%u in %s:",gSystem->BaseName(__FILE__),__LINE__,__FUNCTION__),printf(" "__VA_ARGS__))
-#   define dbgcout cout<<gSystem->BaseName(__FILE__)<<":"<<__LINE__<<" in "<<__FUNCTION__<<": "
+//#   define dbgprintf(...) (printf("=== %s:%u in %s:",gSystem->BaseName(__FILE__),__LINE__,__FUNCTION__),printf(" "__VA_ARGS__))
+#   define dbgcout cout<<"=== "<<gSystem->BaseName(__FILE__)<<":"<<__LINE__<<" in "<<__FUNCTION__<<": "
 #else
-#   define dbgprintf(...) (printf("%s:%u in %s:",gSystem->BaseName(__FILE__),__LINE__,__func__),printf(" "__VA_ARGS__))
-#   define dbgcout cout<<gSystem->BaseName(__FILE__)<<":"<<__LINE__<<" in "<<__func__<<": "
+#   define dbgprintf(...) (printf("=== %s:%u in %s:",gSystem->BaseName(__FILE__),__LINE__,__func__),printf(" "__VA_ARGS__))
+#   define dbgcout cout<<"==== "<<gSystem->BaseName(__FILE__)<<":"<<__LINE__<<" in "<<__func__<<": "
 #endif
 
 #endif   // ROME_H
