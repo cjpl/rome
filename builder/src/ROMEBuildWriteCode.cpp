@@ -2648,7 +2648,8 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,level,histoSuffix,histoFolder) {}\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s(const char *name = 0,const char *title = 0,int level = 0,const char *histoSuffix = 0,TFolder *histoFolder = 0)\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   :%sT%s_Base(name,title,level,histoSuffix,histoFolder) {}\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("   virtual ~%sT%s() {}\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
@@ -3926,7 +3927,7 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("public:\n");
 
       // Constructor
-      buffer.AppendFormatted("   %sT%s(%sWindow* window):%sT%s_Base(window)\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   %sT%s(%sWindow* window = 0):%sT%s_Base(window)\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   {\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
@@ -10946,6 +10947,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
                buffer.AppendFormatted("         gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
          }
       }
+      buffer.AppendFormatted("         gROOT->cd();\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
@@ -13002,6 +13004,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                buffer.AppendFormatted("            gAnalyzer->Get%ss()->Write(\"%s\", TObject::kOverwrite | TObject::kSingleKey);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
          }
       }
+      buffer.AppendFormatted("            gROOT->cd();\n");
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("      }\n");
    }
