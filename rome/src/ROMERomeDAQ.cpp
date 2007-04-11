@@ -69,6 +69,7 @@ Bool_t ROMERomeDAQ::Init() {
             filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
             gROME->ReplaceWithRunAndEventNumber(filename);
             fRootFiles[i] = new TFile(filename.Data(),"READ");
+            gROOT->cd();
             if (fRootFiles[i]->IsZombie()) {
                ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
                return false;
@@ -135,6 +136,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                }
                gSystem->ExpandPathName(filename);
                fRootFiles[j] = new TFile(filename.Data(),"READ");
+               gROOT->cd();
                if (fRootFiles[j]->IsZombie()) {
                   ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
                   return false;
