@@ -136,7 +136,6 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                }
                gSystem->ExpandPathName(filename);
                fRootFiles[j] = new TFile(filename.Data(),"READ");
-               gROOT->cd();
                if (fRootFiles[j]->IsZombie()) {
                   ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
                   return false;
@@ -144,6 +143,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                ROMEPrint::Print("Reading %s\n", filename.Data());
                tree->Read(romeTree->GetName());
                romeTree->SetFile(fRootFiles[j]);
+               gROOT->cd();
             } else if (gROME->IsFileNameBasedIO()) {
                if (fTreeIndex>0) {
                   if (fTreeIndex>=fRootFiles[fInputFileNameIndex]->GetNkeys()) {
