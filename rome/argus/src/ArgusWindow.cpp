@@ -153,7 +153,10 @@ Bool_t ArgusWindow::Start()
    gSystem->Sleep(500);
    MapWindow();
    fCurrentTabID = 1;
+
+   Int_t oldFPE = gSystem->SetFPEMask(kNoneMask);
    ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
+   oldFPE = gSystem->SetFPEMask(oldFPE);
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    fWatchAll.Stop();
