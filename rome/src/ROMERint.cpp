@@ -34,21 +34,19 @@ Bool_t ROMEInterruptHandler::Notify()
 {
    static Int_t nNotified = 0;
    nNotified++;
-   gROME->ss_getchar(1);
-   gROME->restoreOutput();
-   if (strcmp(gROME->GetActiveDAQ()->GetName(), "midas") == 0
-       && gROME->isOnline()) {
-#if defined( HAVE_MIDAS )
-      cm_disconnect_experiment();
-#endif
-   }
+   gROME->Cleaning();
+
    if (gROME->GetApplication()->isUseRintInterruptHandler())
       return gROME->GetApplication()->GetRintInterruptHandler()->Notify();
 
-   if (nNotified >= 2)
+#if defined( HAVE_MIDAS )
+      cm_disconnect_experiment();
+#endif
+   if (nNotified >= 2) {
       gSystem->Abort();
-   else
+   } else {
       gROME->GetApplication()->Terminate(0);
+   }
    return kTRUE;
 }
 

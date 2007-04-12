@@ -191,7 +191,6 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEPath.o \
               obj/ROMERomeDAQ.o \
               obj/ROMETask.o \
-              obj/ROMERint.o \
               obj/ROMETextDataBase.o \
               obj/ROMEUtilities.o \
               obj/ROMEXMLDataBase.o \
@@ -224,7 +223,6 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMEPrint.h \
                   include/ROMEXML.h \
                   include/ROMETask.h \
-                  include/ROMERint.h \
                   include/ROMETreeInfo.h \
                   include/ROMENetFolder.h \
                   include/ROMENetFolderServer.h \
