@@ -8448,6 +8448,73 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       }
 
+      // Floating point exception trap
+      {
+         subsubGroup = new ROMEConfigParameterGroup("FloatingPointExeptionTrap");
+         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subsubGroup);
+         // Invalid
+         subsubGroup->AddParameter(new ROMEConfigParameter("Invalid","1","CheckButton"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEInvalid(true);");
+         subsubGroup->GetLastParameter()->AddSetLine("else");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEInvalid(false);");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subsubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetApplication()->GetFPEInvalid())");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subsubGroup->GetLastParameter()->AddWriteLine("else");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // DivByZero
+         subsubGroup->AddParameter(new ROMEConfigParameter("DivByZero","1","CheckButton"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEDivByZero(true);");
+         subsubGroup->GetLastParameter()->AddSetLine("else");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEDivByZero(false);");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subsubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetApplication()->GetFPEDivByZero())");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subsubGroup->GetLastParameter()->AddWriteLine("else");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Overflow
+         subsubGroup->AddParameter(new ROMEConfigParameter("Overflow","1","CheckButton"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEOverflow(true);");
+         subsubGroup->GetLastParameter()->AddSetLine("else");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEOverflow(false);");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subsubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetApplication()->GetFPEOverflow())");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subsubGroup->GetLastParameter()->AddWriteLine("else");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Underflow
+         subsubGroup->AddParameter(new ROMEConfigParameter("Underflow","1","CheckButton"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEUnderflow(true);");
+         subsubGroup->GetLastParameter()->AddSetLine("else");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEUnderflow(false);");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subsubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetApplication()->GetFPEUnderflow())");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subsubGroup->GetLastParameter()->AddWriteLine("else");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Inexact
+         subsubGroup->AddParameter(new ROMEConfigParameter("Inexact","1","CheckButton"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEInexact(true);");
+         subsubGroup->GetLastParameter()->AddSetLine("else");
+         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetApplication()->SetFPEInexact(false);");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subsubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetApplication()->GetFPEInexact())");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subsubGroup->GetLastParameter()->AddWriteLine("else");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      }
+
       // SocketServer
       {
          subsubGroup = new ROMEConfigParameterGroup("SocketServer");

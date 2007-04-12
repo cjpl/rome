@@ -623,6 +623,7 @@ public:
    Bool_t          toBool(Int_t value);
    void            redirectOutput();
    void            restoreOutput();
+   void            Cleaning();
 
    void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
    virtual Bool_t  CheckDependences() { return kTRUE; }

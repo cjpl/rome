@@ -190,8 +190,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
-   ss_getchar(1);
-   restoreOutput();
+   Cleaning();
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
    SafeDelete(fRomeOutputFile);
@@ -1080,6 +1079,16 @@ void ROMEAnalyzer::redirectOutput() {
 void ROMEAnalyzer::restoreOutput() {
    if (fOldbuf)
       cout.rdbuf(fOldbuf);
+}
+
+void ROMEAnalyzer::Cleaning() {
+   ss_getchar(1);
+   restoreOutput();
+   if (fActiveDAQ && strcmp(fActiveDAQ->GetName(), "midas") == 0 && isOnline()) {
+#if defined( HAVE_MIDAS )
+      cm_disconnect_experiment();
+#endif
+   }
 }
 
 Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)

@@ -151,6 +151,38 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="FloatingPointExceptionTrapDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the settings of floating point exception trap.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Invalid" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, trap invalid operation. (NaNS, INF-INF, INF/INF, 0/0, INF*0, sqrt(Negative) and so on)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DivByZero" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, trap division by zero.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Overflow" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, trap overflow.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Underflow" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, trap underflow.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Inexact" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, trap inexact operations.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="SocketServerDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the socket server. External programs can access the objects inside the framework over a root socket interface.</xs:documentation>
@@ -411,6 +443,11 @@
 			<xs:element name="Settings" type="SettingsDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the common settings of the framework. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Settings" type="FloatingPointExceptionTrapDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the settings of floating point exception trap. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="SocketServer" type="SocketServerDesc" minOccurs="0">
