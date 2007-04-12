@@ -52,9 +52,17 @@ Bool_t ROMEInterruptHandler::Notify()
    return kTRUE;
 }
 
+static void cleaning()
+{
+   // cleaning at exit the program
+   if (gROME) {
+      gROME->Cleaning();
+   }
+}
+
 ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
                    void *options, Int_t numOptions, Bool_t noLogo)
-   : TRint(appClassName, argc, argv, options, numOptions,noLogo)
+: TRint(appClassName, argc, argv, options, numOptions,noLogo)
 {
    fRunning = false;
    fRintInterruptHandler = gSystem->RemoveSignalHandler(GetSignalHandler());
@@ -62,6 +70,11 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    fROMEInterruptHandler->Add();
    SetSignalHandler(fROMEInterruptHandler);
    fUseRintInterruptHandler = kFALSE;
+
+   fFPEMaskOriginal  = gSystem->GetFPEMask();
+   fFPEMask  = fFPEMaskOriginal;
+
+   atexit((void (*)(void))cleaning);
 }
 
 ROMERint::~ROMERint()
