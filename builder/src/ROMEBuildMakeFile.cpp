@@ -167,6 +167,8 @@ void ROMEBuilder::AddRomeDictHeaders()
    romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEODBOnlineDataBase.h");
    romeLinkDefSuffix->Add("");
+   romeDictHeaders->Add("$(ROMESYS)/include/ROMERint.h");
+   romeLinkDefSuffix->Add("");
    if (numOfEvent>0) {
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
       romeLinkDefSuffix->Add("");
@@ -177,8 +179,6 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMERint.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
       romeLinkDefSuffix->Add("");
@@ -277,6 +277,7 @@ void ROMEBuilder::AddRomeSources()
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
+   romeSources->Add("$(ROMESYS)/src/ROMERint.cpp");
    if (numOfEvent>0)
       romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");
    if (!librome) {
@@ -297,7 +298,6 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEString.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEPrint.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETask.cpp");
-      romeSources->Add("$(ROMESYS)/src/ROMERint.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETextDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEUtilities.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEXML.cpp");
