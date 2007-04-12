@@ -1084,11 +1084,6 @@ void ROMEAnalyzer::restoreOutput() {
 void ROMEAnalyzer::Cleaning() {
    ss_getchar(1);
    restoreOutput();
-   if (fActiveDAQ && strcmp(fActiveDAQ->GetName(), "midas") == 0 && isOnline()) {
-#if defined( HAVE_MIDAS )
-      cm_disconnect_experiment();
-#endif
-   }
 }
 
 Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)

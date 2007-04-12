@@ -84,6 +84,9 @@ Bool_t ROMEMidasDAQ::Init() {
          return false;
       }
 
+      // regesters a disconnection to be executed when the program terminates normally.
+      atexit((void (*)(void))cm_disconnect_experiment);
+
       // open the "system" buffer, 1M size
       bm_open_buffer((char*)gROME->GetOnlineMemoryBuffer(), 2*MAX_EVENT_SIZE, &fMidasOnlineBuffer);
 
