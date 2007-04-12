@@ -8,6 +8,7 @@
 #ifndef ROMEBuilder_H
 #define ROMEBuilder_H
 
+#include <RVersion.h>
 #include "ROMEXML.h"
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
