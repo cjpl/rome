@@ -3,7 +3,7 @@
 #  Name:         Makefile
 #  Created by:   Matthias Schneebeli
 #
-# $Id: Makefile 1521 2006-11-08 23:07:05Z sawada $
+# $Id$
 #
 #####################################################################
 
