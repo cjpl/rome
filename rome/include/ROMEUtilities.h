@@ -31,12 +31,16 @@ namespace ROMEUtilities {
    inline void ByteSwap(ULong64_t *aValue);
    inline void ByteSwap(Long64_t *aValue);
    inline void ByteSwap(Double_t *aValue);
+
    inline Int_t GetFPEMask() { return gSystem->GetFPEMask(); }
    inline Int_t SetFPEMask(const Int_t mask);
+
    void GetMidasTID(ROMEString *buf,Char_t *type);
    void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
+
    const char* FastCrypt(const char *str);
    const char* FastDecrypt(const char *str);
+
 #if !defined(__CINT__)
    const char* GetFormat(const type_info &t);
 #endif

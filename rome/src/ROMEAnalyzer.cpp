@@ -174,14 +174,12 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fNetFolderName = 0;
    fNetFolderHost = 0;
    fNetFolderRoot = 0;
-   fOldbuf = 0;
    fSocketClient = 0;
    fSocketClientNetFolder = 0;
    fSocketClientHost = "localhost";
    fSocketClientPort = 9090;
    fHistoRead = false;
    fHistoRun = 0;
-   fRomeOutputFile = 0;
    fWindow = 0;
    fWindowUpdateFrequency = 0;
    fNetFolderServer = 0;
@@ -192,11 +190,11 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fObjectStorageUpdated = kFALSE;
 }
 
-ROMEAnalyzer::~ROMEAnalyzer() {
+ROMEAnalyzer::~ROMEAnalyzer()
+{
    Cleaning();
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
-   SafeDelete(fRomeOutputFile);
    SafeDelete(fSocketClient);
    SafeDelete(fSocketClientNetFolder);
    SafeDelete(fTaskObjects);
@@ -277,7 +275,8 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (!ConnectNetFolders())
       return false;
 
-   gROME->ss_getchar(0);
+   if (!this->isDaemonMode() && !this->isBatchMode())
+      gROME->ss_getchar(0);
 
    if (IsStandAloneROME() || IsROMEAndARGUS()) {
       consoleStartScreen();
@@ -308,7 +307,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    fMainTask->ExecuteTask("start");
 
-   gROME->ss_getchar(1);
+   ss_getchar(1);
 
    if (fTerminate) return false;
 
@@ -721,7 +720,8 @@ void ROMEAnalyzer::DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr)
       arr.AddAtAndExpand(str,num);
 }
 
-Bool_t ROMEAnalyzer::toBool(Int_t value) {
+Bool_t ROMEAnalyzer::toBool(Int_t value)
+{
    return value!=0;
 }
 
@@ -781,8 +781,6 @@ UInt_t ROMEAnalyzer::ss_kbhit()
 
 Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 {
-   if (this->isDaemonMode() || this->isBatchMode())
-      return 0;
 #if defined( R__UNIX )
 
    // do nothing when STDIN is redirected
@@ -1079,20 +1077,29 @@ Bool_t ROMEAnalyzer::strtobool(const char* str)
    return strtol(str,&cstop,10)!=0;
 }
 
-void ROMEAnalyzer::redirectOutput() {
-   if (!fOldbuf)
-      fOldbuf = cout.rdbuf();
-   if (!fRomeOutputFile)
-      fRomeOutputFile = new ofstream("romeOutput.txt");
-   cout.rdbuf(fRomeOutputFile->rdbuf());
+// stream
+void ROMEAnalyzer::redirectOutput(Bool_t redirect)
+{
+   static ofstream *romeOutputFile = 0;
+   static streambuf *oldbuf = 0;
+   if (redirect) {
+      // redirect
+      if (!oldbuf)
+         oldbuf = cout.rdbuf();
+      if (!romeOutputFile)
+         romeOutputFile = new ofstream("romeOutput.txt");
+      cout.rdbuf(romeOutputFile->rdbuf());
+   } else {
+      // restore
+      if (oldbuf)
+         cout.rdbuf(oldbuf);
+   }
 }
 
-void ROMEAnalyzer::restoreOutput() {
-   if (fOldbuf)
-      cout.rdbuf(fOldbuf);
-}
-
-void ROMEAnalyzer::Cleaning() {
+void ROMEAnalyzer::Cleaning()
+{
+   // cleaning at exit.
+   // all functions should be static
    ss_getchar(1);
    restoreOutput();
 }
@@ -1244,7 +1251,8 @@ Bool_t ROMEAnalyzer::StartWindow()
    return fWindow->Start();
 }
 
-Bool_t ROMEAnalyzer::IsWindowBusy() {
+Bool_t ROMEAnalyzer::IsWindowBusy()
+{
    Bool_t busy = false;
    for (int i=0;i<fWindow->GetTabObjectEntries();i++)
       if (fWindow->GetTabObjectAt(i)->IsBusy())
