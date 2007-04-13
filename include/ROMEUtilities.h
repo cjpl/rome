@@ -10,22 +10,29 @@
 #include <typeinfo>
 #include <RConfig.h>
 #include <Bytes.h>
+#include <TSystem.h>
 #if defined( R__MACOSX )
 #   include <libkern/OSByteOrder.h>
+#endif
+
+#if defined( R__VISUAL_CPLUSPLUS )
+#   include <float.h>
 #endif
 
 class ROMEString;
 class ROMEStrArray;
 
 namespace ROMEUtilities {
-   inline void ByteSwap( UShort_t *aValue );
-   inline void ByteSwap( Short_t *aValue );
-   inline void ByteSwap( UInt_t *aValue );
-   inline void ByteSwap( Int_t *aValue );
-   inline void ByteSwap( Float_t *aValue );
-   inline void ByteSwap( ULong64_t *aValue );
-   inline void ByteSwap( Long64_t *aValue );
-   inline void ByteSwap( Double_t *aValue );
+   inline void ByteSwap(UShort_t *aValue);
+   inline void ByteSwap(Short_t *aValue);
+   inline void ByteSwap(UInt_t *aValue);
+   inline void ByteSwap(Int_t *aValue);
+   inline void ByteSwap(Float_t *aValue);
+   inline void ByteSwap(ULong64_t *aValue);
+   inline void ByteSwap(Long64_t *aValue);
+   inline void ByteSwap(Double_t *aValue);
+   inline Int_t GetFPEMask() { return gSystem->GetFPEMask(); }
+   inline Int_t SetFPEMask(const Int_t mask);
    void GetMidasTID(ROMEString *buf,Char_t *type);
    void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
    const char* FastCrypt(const char *str);
@@ -38,7 +45,7 @@ namespace ROMEUtilities {
 //
 // Byte swapping big endian <-> little endian
 //
-inline void ROMEUtilities::ByteSwap( UShort_t *x )
+inline void ROMEUtilities::ByteSwap(UShort_t *x)
 {
 #if defined( R__USEASMSWAP )
    *x = Rbswap_16(*x);
@@ -50,12 +57,12 @@ inline void ROMEUtilities::ByteSwap( UShort_t *x )
 #endif
 }
 
-inline void ROMEUtilities::ByteSwap( Short_t *x )
+inline void ROMEUtilities::ByteSwap(Short_t *x)
 {
-    ByteSwap( (UShort_t *)x );
+    ByteSwap((UShort_t *)x);
 }
 
-inline void ROMEUtilities::ByteSwap( UInt_t *x )
+inline void ROMEUtilities::ByteSwap(UInt_t *x)
 {
 #if defined( R__USEASMSWAP )
    *x = Rbswap_32(*x);
@@ -69,17 +76,17 @@ inline void ROMEUtilities::ByteSwap( UInt_t *x )
 #endif
 }
 
-inline void ROMEUtilities::ByteSwap( Int_t *x )
+inline void ROMEUtilities::ByteSwap(Int_t *x)
 {
-    ByteSwap( (UInt_t *)x );
+    ByteSwap((UInt_t *)x);
 }
 
-inline void ROMEUtilities::ByteSwap( Float_t *x )
+inline void ROMEUtilities::ByteSwap(Float_t *x)
 {
-    ByteSwap( (UInt_t *)x );
+    ByteSwap((UInt_t *)x);
 }
 
-inline void ROMEUtilities::ByteSwap( ULong64_t *x )
+inline void ROMEUtilities::ByteSwap(ULong64_t *x)
 {
 #if defined( R__USEASMSWAP )
    *x = Rbswap_64(*x);
@@ -106,15 +113,42 @@ inline void ROMEUtilities::ByteSwap( ULong64_t *x )
 #endif
 }
 
-inline void ROMEUtilities::ByteSwap( Long64_t *x )
+inline void ROMEUtilities::ByteSwap(Long64_t *x)
 {
-    ByteSwap( (ULong64_t *)x );
+    ByteSwap((ULong64_t *)x);
 }
 
-inline void ROMEUtilities::ByteSwap( Double_t *x )
+inline void ROMEUtilities::ByteSwap(Double_t *x)
 {
-    ByteSwap( (ULong64_t *)x );
+    ByteSwap((ULong64_t *)x);
 }
 
+inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+#if 0    // not yet tested
+   Int_t old = GetFPEMask();
+
+   UInt_t newm = 0;
+   if (mask & kInvalid  )   newm |= _EM_INVALID;
+   if (mask & kDivByZero)   newm |= _EM_ZERODIVIDE;
+   if (mask & kOverflow )   newm |= _EM_OVERFLOW;
+   if (mask & kUnderflow)   newm |= _EM_UNDERFLOW;
+   if (mask & kInexact  )   newm |= _EM_INEXACT;
+
+   UInt_t cm;
+   /* could use _controlfp */
+   cm = _control87(0,0) & MCW_EM;
+   cm &= ~newm;
+   _control87(cm,MCW_EM);
+
+   return old;
+#else
+   return 0;
+#endif
+#else // UNIX
+   return gSystem->SetFPEMask(mask);
+#endif
+}
 
 #endif // ROMEUtilities_H

@@ -17,6 +17,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
+#include "ROMEUtilities.h"
 
 class ROMERint : public TRint {
 private:
@@ -105,19 +106,19 @@ inline void ROMERint::SetFPEInexact(Bool_t flag)
 
 inline void ROMERint::EnableFPETrap(){
    // Enable FPE trap with the mask set by GETFPE??? functions in this class
-   gSystem->SetFPEMask(fFPEMask);
+   ROMEUtilities::SetFPEMask(fFPEMask);
 }
 
 inline void ROMERint::DisableFPETrap()
 {
    // Diable all FPE trap
-   gSystem->SetFPEMask(kNoneMask);
+   ROMEUtilities::SetFPEMask(kNoneMask);
 }
 
 inline void ROMERint::RestoreFPETrap()
 {
    // Restore FPE trap mode to original one when this instance is created
-   gSystem->SetFPEMask(fFPEMaskOriginal);
+   ROMEUtilities::SetFPEMask(fFPEMaskOriginal);
 }
 
 #endif   // ROMERint_H

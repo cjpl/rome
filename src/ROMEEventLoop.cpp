@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "ROMEUtilities.h"
 #include "ROMETreeInfo.h"
 #include "ROMERint.h"
 #include "ROMEConfig.h"
@@ -865,9 +866,9 @@ Bool_t ROMEEventLoop::Update()
          }
          gROME->GetWindow()->ClearEventHandlingRequest();
       }
-      oldFPE = gSystem->SetFPEMask(kNoneMask);
+      oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
       gSystem->ProcessEvents();
-      gSystem->SetFPEMask(oldFPE);
+      ROMEUtilities::SetFPEMask(oldFPE);
       gSystem->Sleep(10);
    }
 
@@ -1114,9 +1115,9 @@ Bool_t ROMEEventLoop::UserInput()
 
       if (wait) {
          StoreEvent(true);
-         oldFPE = gSystem->SetFPEMask(kNoneMask);
+         oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
          gSystem->ProcessEvents();
-         gSystem->SetFPEMask(oldFPE);
+         ROMEUtilities::SetFPEMask(oldFPE);
          gSystem->Sleep(10);
       }
 
