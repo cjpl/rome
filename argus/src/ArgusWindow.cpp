@@ -155,9 +155,7 @@ Bool_t ArgusWindow::Start()
    MapWindow();
    fCurrentTabID = 1;
 
-   Int_t oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
    ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
-   oldFPE = ROMEUtilities::SetFPEMask(oldFPE);
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    fWatchAll.Stop();
@@ -253,7 +251,9 @@ void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sl
    if (mode==2) {
       fStatusBar->GetBarPart(0)->SetBackgroundColor(GetDefaultFrameBackground());
    }
+   Int_t oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
    gSystem->ProcessEvents();
+   oldFPE = ROMEUtilities::SetFPEMask(oldFPE);
    gSystem->Sleep(sleepingTime);
    return;
 }
