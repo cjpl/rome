@@ -69,7 +69,7 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    SetSignalHandler(fROMEInterruptHandler);
    fUseRintInterruptHandler = kFALSE;
 
-   fFPEMaskOriginal  = gSystem->GetFPEMask();
+   fFPEMaskOriginal  = ROMEUtilities::GetFPEMask();
    fFPEMask  = fFPEMaskOriginal;
 
    atexit((void (*)(void))cleaning);

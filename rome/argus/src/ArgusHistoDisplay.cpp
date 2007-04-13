@@ -49,6 +49,7 @@
 #endif
 
 #include "ArgusWindow.h"
+#include "ROMEUtilities.h"
 #include "ROMEStrArray.h"
 #include "ROMEAnalyzer.h"
 #include "ArgusHistoDisplay.h"
@@ -520,9 +521,9 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
 
    Int_t oldFPE;
    if (processEvents) {
-      oldFPE = gSystem->SetFPEMask(kNoneMask);
+      oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
       gSystem->ProcessEvents();
-      oldFPE = gSystem->SetFPEMask(oldFPE);
+      oldFPE = ROMEUtilities::SetFPEMask(oldFPE);
       gSystem->Sleep(10);
    }
 }

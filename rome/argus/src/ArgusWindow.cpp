@@ -24,6 +24,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
+#include "ROMEUtilities.h"
 #include "ROMEString.h"
 #include "ArgusWindow.h"
 #include "ArgusTab.h"
@@ -154,9 +155,9 @@ Bool_t ArgusWindow::Start()
    MapWindow();
    fCurrentTabID = 1;
 
-   Int_t oldFPE = gSystem->SetFPEMask(kNoneMask);
+   Int_t oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
    ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
-   oldFPE = gSystem->SetFPEMask(oldFPE);
+   oldFPE = ROMEUtilities::SetFPEMask(oldFPE);
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    fWatchAll.Stop();
