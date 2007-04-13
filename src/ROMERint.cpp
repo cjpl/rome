@@ -53,9 +53,8 @@ Bool_t ROMEInterruptHandler::Notify()
 static void cleaning()
 {
    // cleaning at exit the program
-   if (gROME) {
-      gROME->Cleaning();
-   }
+   // all functions should be static
+   ROMEAnalyzer::Cleaning();
 }
 
 ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,

@@ -245,12 +245,6 @@ protected:
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
 
-#ifndef __CINT__
-   // stream
-   streambuf     *fOldbuf;                       //! original buffer of stdout
-   ofstream      *fRomeOutputFile;               //! Redirected output currently not used
-#endif // __CINT__
-
 public:
    ROMEAnalyzer() {}
    ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);
@@ -613,7 +607,7 @@ public:
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;
 
-   Int_t           ss_getchar(UInt_t reset);
+   static Int_t    ss_getchar(UInt_t reset);
    UInt_t          ss_kbhit();
    Int_t           ss_daemon_init(Bool_t keep_stdout);
    Int_t           ss_batch_init();
@@ -621,9 +615,9 @@ public:
 
    Int_t           stricmp(const char*,const char*);
    Bool_t          toBool(Int_t value);
-   void            redirectOutput();
-   void            restoreOutput();
-   void            Cleaning();
+   static void     redirectOutput(Bool_t redirect = kTRUE);
+   static void     restoreOutput() { redirectOutput(kFALSE); }
+   static void     Cleaning();
 
    void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
    virtual Bool_t  CheckDependences() { return kTRUE; }
