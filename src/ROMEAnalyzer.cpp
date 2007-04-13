@@ -102,6 +102,9 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fDaemonMode = daemon;
    fNoGraphics = batch || daemon || nographics;
    fQuitMode = batch || daemon;
+#if defined( R__UNIX )
+   fQuitMode = fQuitMode || !isatty(fileno(stdout));
+#endif
    fSplashScreen = !nographics;
    fGraphicalConfigEdit = true;
    fPreserveConfig = false;
@@ -600,6 +603,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    }
    fNoGraphics = fBatchMode || fDaemonMode || fNoGraphics;
    fQuitMode = fBatchMode || fDaemonMode || fQuitMode;
+#if defined( R__UNIX )
+   fQuitMode = fQuitMode || !isatty(fileno(stdout));
+#endif
    fSplashScreen =  fSplashScreen && !fNoGraphics;
 
    return true;
@@ -778,6 +784,11 @@ Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
    if (this->isDaemonMode() || this->isBatchMode())
       return 0;
 #if defined( R__UNIX )
+
+   // do nothing when STDIN is redirected
+   if(!isatty(fileno(stdout)))
+      return 0;
+
    static unsigned long int init = 0;
    static struct termios save_termios;
    struct termios buf;
