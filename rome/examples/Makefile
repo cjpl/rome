@@ -255,6 +255,7 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 clean :
 	find $(ROMESYS)/examples -name "*.o" -exec rm {} \;
+	$(MAKE) -C romedbwrapper clean
 
 depclean :
 	find $(ROMESYS)/examples -name "*.d" -exec rm {} \;

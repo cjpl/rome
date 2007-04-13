@@ -4490,9 +4490,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!isNoGraphics()) {\n");
    buffer.AppendFormatted("      fWindow = new %sWindow(gClient->GetRoot(),kTRUE);\n",shortCut.Data());
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("   } else {\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,4))
+   // Due to change at revision 1.29 of TGWindow.cxx, there is a problem to create TGCompositFrame in batch mode.
+   // Following line is a work around to avoid the problem.
+   buffer.AppendFormatted("      if (!gClient) new TGClient();\n");
+#endif
    buffer.AppendFormatted("      fWindow = new %sWindow();\n",shortCut.Data());
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   ROMEString name;\n");
    buffer.AppendFormatted("   name.SetFormatted(\"ARGUS - %%s\", GetProgramName());\n");
    buffer.AppendFormatted("   fWindow->SetWindowName(name.Data());\n");
@@ -5051,11 +5056,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   Int_t i;\n");
    buffer.AppendFormatted("   i = 0;\n");
    buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))
    buffer.AppendFormatted("   TBufferFile *buffer = new TBufferFile(TBuffer::kWrite,bufsize);\n");
-   buffer.AppendFormatted("#else\n");
+#else
    buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
    buffer.AppendFormatted("   bypassOld = kFALSE;\n"); // to suppress unused warning
    buffer.AppendFormatted("   Bool_t bypassStorageOld;\n");
@@ -6164,7 +6169,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("         if (fCurrentTabID != f%s%sTabID && param1 == f%s%sTabID) {\n", tabName[i].Data(), tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("            fCurrentTabID = param1;\n");
       if (tabNumOfChildren[i])
-         buffer.AppendFormatted("            ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), %d + f%s%sTabSubTab->GetCurrent(), 0);;\n", 1000 * i, tabName[i].Data(), tabSuffix[i].Data());
+         buffer.AppendFormatted("            ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), %d + f%s%sTabSubTab->GetCurrent(), 0);\n", 1000 * i, tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("            f%s%sTab->TabSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("         }\n");
    }
@@ -10932,6 +10937,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
+   buffer.AppendFormatted("#include <TROOT.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -11691,12 +11697,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TMutex.h>\n");
    buffer.AppendFormatted("#include <TSocket.h>\n");
    buffer.AppendFormatted("#include <TServerSocket.h>\n");
    buffer.AppendFormatted("#include <TMessage.h>\n");
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
-   buffer.AppendFormatted("#   include <TThread.h>\n");
-   buffer.AppendFormatted("#endif // ROOT_VERSION\n");
+   buffer.AppendFormatted("#include <TThread.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -11816,7 +11821,6 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int %sNetFolderServer::ResponseFunction(TSocket *socket) {\n",shortCut.Data());
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
    buffer.AppendFormatted("      return 0;\n");
    buffer.AppendFormatted("\n");
@@ -11828,12 +11832,10 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("      return 0;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return CheckCommand(socket,str);\n");
-   buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("   return 1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int %sNetFolderServer::CheckCommand(TSocket *socket,char *str) {\n",shortCut.Data());
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("\n");
@@ -11953,13 +11955,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    }
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return ROMENetFolderServer::CheckCommand(socket,str);\n");
-   buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("   return 1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("THREADTYPE %sNetFolderServer::Server(void *arg)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("   TSocket *socket = (TSocket *) arg;\n");
    buffer.AppendFormatted("   %sNetFolderServer* localThis = static_cast<%sNetFolderServer*>(gAnalyzer->GetNetFolderServer());\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -11974,13 +11974,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   {}\n");
    buffer.AppendFormatted("   localThis->DestructObjects(socket);\n");
    buffer.AppendFormatted("   localThis->UnRegister(socket);\n");
-   buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("   return THREADRETURN;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("THREADTYPE %sNetFolderServer::ServerLoop(void *arg)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("// Server loop listening for incoming network connections on port\n");
    buffer.AppendFormatted("// specified by command line option -s. Starts a searver_thread for\n");
    buffer.AppendFormatted("// each connection.\n");
@@ -12011,20 +12009,17 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("      thread->Run();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   } while (1);\n");
-   buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("   return THREADRETURN;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("void %sNetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("// start Socket server loop\n");
    buffer.AppendFormatted("   fApplication = app;\n");
    buffer.AppendFormatted("   fPort = port;\n");
    buffer.AppendFormatted("   fServerName = serverName;\n");
    buffer.AppendFormatted("   TThread *thread = new TThread(\"server_loop\", %sNetFolderServer::ServerLoop, &fPort);\n",shortCut.Data());
    buffer.AppendFormatted("   thread->Run();\n");
-   buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("Bool_t %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
@@ -12035,11 +12030,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   TFile *filsav = gFile;\n");
    buffer.AppendFormatted("   gFile = 0;\n");
    buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
-   buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))
    buffer.AppendFormatted("   TBufferFile *buffer = new TBufferFile(TBuffer::kWrite,bufsize);\n");
-   buffer.AppendFormatted("#else\n");
+#else
    buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
    buffer.AppendFormatted("   Bool_t bypassOrgOld;\n");
    buffer.AppendFormatted("   bypassOrgOld = kFALSE;\n"); // to suppress unused warning
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
@@ -13218,7 +13213,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          if (folderArray[iFold]!="1") {
             buffer.AppendFormatted("   int i;\n");
             buffer.AppendFormatted("   int nentry;\n");
-            breaking = true;;
+            breaking = true;
          }
       }
    }
@@ -13675,9 +13670,12 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   bool daemon = false;\n");
    buffer.AppendFormatted("   bool interactive = false;\n");
    buffer.AppendFormatted("   int argn = 1;\n");
-   buffer.AppendFormatted("   char arg[1][100];\n");
-   buffer.AppendFormatted("   char *argp = &arg[0][0];\n");
-   buffer.AppendFormatted("   strcpy(arg[0],argv[0]);\n");
+   buffer.AppendFormatted("   char progname[512];\n");
+   buffer.AppendFormatted("   char batchopt[] = \"-b\";\n");
+   buffer.AppendFormatted("   char *argp[2];\n");
+   buffer.AppendFormatted("   argp[0] = progname;\n");
+   buffer.AppendFormatted("   argp[1] = batchopt;\n");
+   buffer.AppendFormatted("   strcpy(argp[0],argv[0]);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   for (i=1;i<argc;i++) {\n");
    buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\"))\n");
@@ -13701,10 +13699,12 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("      intapp->Run();\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   else {\n");
+   buffer.AppendFormatted("      if (nographics || batch || daemon) {\n");
+   buffer.AppendFormatted("         argn++;\n");
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      gROOT->SetBatch(nographics || batch || daemon);\n");
+   buffer.AppendFormatted("      ROMERint *app = new ROMERint(\"App\", &argn, argp,NULL,0,true);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      ROMERint *app = new ROMERint(\"App\", &argn, &argp,NULL,0,true);\n");
    buffer.AppendFormatted("      if (!gClient || gClient->IsZombie())\n");
    buffer.AppendFormatted("         nographics = true;\n");
    buffer.AppendFormatted("\n");

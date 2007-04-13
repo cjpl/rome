@@ -15,9 +15,7 @@
 #include <TSocket.h>
 #include <TServerSocket.h>
 #include <TMessage.h>
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-#   include <TThread.h>
-#endif // ROOT_VERSION
+#include <TThread.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -39,7 +37,6 @@ ROMENetFolderServer::ROMENetFolderServer()
 }
 
 int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    if (!socket->IsValid())
       return 0;
 
@@ -51,12 +48,9 @@ int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
       return 0;
    }
    return CheckCommand(socket,str);
-#endif // ROOT_VERSION
-   return 1;
 }
 
 int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    if (!socket->IsValid())
       return 1;
 
@@ -138,13 +132,10 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
       return 1;
    }
    return TNetFolderServer::CheckCommand(socket,str);
-#endif // ROOT_VERSION
-   return 1;
 }
 
 THREADTYPE ROMENetFolderServer::Server(void *arg)
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TSocket *socket = (TSocket *) arg;
    ROMENetFolderServer* localThis = gROME->GetNetFolderServer();
 
@@ -159,15 +150,12 @@ THREADTYPE ROMENetFolderServer::Server(void *arg)
    {}
    localThis->DestructObjects(socket);
    localThis->UnRegister(socket);
-
-#endif // ROOT_VERSION
    return THREADRETURN;
 }
 
 
 THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // Server loop listening for incoming network connections on port
 // specified by command line option -s. Starts a searver_thread for
 // each connection.
@@ -198,20 +186,17 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
       thread->Run();
 
    } while (1);
-#endif // ROOT_VERSION
    return THREADRETURN;
 }
 
 void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // start Socket server loop
    fApplication = app;
    fPort = port;
    fServerName = serverName;
    TThread *thread = new TThread("server_loop", ROMENetFolderServer::ServerLoop, &fPort);
    thread->Run();
-#endif // ROOT_VERSION
 }
 
 void ROMENetFolderServer::SetCopyAll(bool copyAll) 

@@ -42,6 +42,14 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
 
+      <FloatingPointExeptionTrap>
+        <Invalid>false</Invalid>
+        <DivByZero>false</DivByZero>
+        <Overflow>false</Overflow>
+        <Underflow>false</Underflow>
+        <Inexact>false</Inexact>
+      </FloatingPointExeptionTrap>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>

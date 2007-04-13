@@ -87,12 +87,10 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
 
 ROMEEventLoop::~ROMEEventLoop()
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    if (fNetFolderServerUpdateThread) {
       TThread::Delete(fNetFolderServerUpdateThread);
       fNetFolderServerUpdateThread = 0;
    }
-#endif
    SafeDelete(fHistoFile);
 }
 
@@ -512,7 +510,6 @@ Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
       const ULong_t kInterval = 10; // this should be changed to parameter
       if ((ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
          if (gROME->GetObjectStorageMutex()->TryLock()==0) {
             fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
             gROME->FillObjectStorage();
@@ -529,7 +526,6 @@ Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
                gROME->GetObjectStorageMutex()->UnLock();
             }
          }
-#endif
       }
    }
    return kTRUE;

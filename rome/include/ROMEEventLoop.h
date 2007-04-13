@@ -22,9 +22,7 @@
 class ROMETreeInfo;
 class TFile;
 class TTime;
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 class TThread;
-#endif
 
 class ROMEEventLoop : public ROMETask {
 protected:
@@ -84,11 +82,7 @@ protected:
 
    // NetFolderServer update
    ULong_t       fLastNetFolderServerUpdateTime;    //! Time of the last NetFolderServers update
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TThread      *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
-#else
-   void         *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
-#endif
 
 public:
    // Static Hot Links

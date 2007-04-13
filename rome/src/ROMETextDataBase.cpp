@@ -189,9 +189,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
    Ssiz_t     ps,pe;
    TArrayI    fieldLen;
 
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,0,0))
    fTime->Set();
-#endif
 
    // extract value name and file name
    fileName = dataBasePath;

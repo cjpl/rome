@@ -17,7 +17,9 @@
 #include <TGNumberEntry.h>
 #include <TGButton.h>
 #include <TGLabel.h>
-#include <TImage.h>
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,2,0))
+#   include <TImage.h>
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -27,11 +29,12 @@
 #include "ROMEEventLoop.h"
 #include "ROMENetFolder.h"
 #include "ROMETreeInfo.h"
-
-#include "../icons/previous.xpm"
-#include "../icons/play.xpm"
-#include "../icons/stop.xpm"
-#include "../icons/next.xpm"
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,2,0))
+#   include "../icons/previous.xpm"
+#   include "../icons/play.xpm"
+#   include "../icons/stop.xpm"
+#   include "../icons/next.xpm"
+#endif
 
 
 ClassImp(ArgusAnalyzerController)
@@ -59,6 +62,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    // Horizontal frame which contains picture buttons
    fHorizontalFrame[0] = new TGHorizontalFrame(this, 32 * 4 + 4, 32 + 4);
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,2,0))
    TImage *previousImage = TImage::Create();
    TImage *playImage = TImage::Create();
    TImage *stopImage = TImage::Create();
@@ -78,6 +82,14 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
                                      gClient->GetPicturePool()->GetPicture("next", nextImage->GetPixmap(), nextImage->GetMask()), B_Next);
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
+#else
+   fPreviousButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/previous.xpm"), B_Previous);
+   fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
+   fStopButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/stop.xpm"), B_Stop);
+   fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
+   // comment out until way to go to EndOfRun is implemented
+   //   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
+#endif
 
    fPlayButton->AllowStayDown(kTRUE);
    if (static_cast<ROMEEventLoop*>(gROME->GetMainTask())->isContinuousMode()) {
