@@ -45,11 +45,11 @@ public:
 
    Int_t           GetFPEMask()           { return  fFPEMask; }
    Int_t           GetFPEMaskOriginal()   { return  fFPEMaskOriginal; }
-   Bool_t          GetFPEInvalid()        { return  fFPEMask & kInvalid; }
-   Bool_t          GetFPEDivByZero()      { return  fFPEMask & kDivByZero; }
-   Bool_t          GetFPEOverflow()       { return  fFPEMask & kOverflow; }
-   Bool_t          GetFPEUnderflow()      { return  fFPEMask & kUnderflow; }
-   Bool_t          GetFPEInexact()        { return  fFPEMask & kInexact; }
+   Bool_t          GetFPEInvalid()        { return  (fFPEMask & kInvalid)!=0; }
+   Bool_t          GetFPEDivByZero()      { return  (fFPEMask & kDivByZero)!=0; }
+   Bool_t          GetFPEOverflow()       { return  (fFPEMask & kOverflow)!=0; }
+   Bool_t          GetFPEUnderflow()      { return  (fFPEMask & kUnderflow)!=0; }
+   Bool_t          GetFPEInexact()        { return  (fFPEMask & kInexact)!=0; }
 
    void            EnableFPETrap();
    void            DisableFPETrap();
