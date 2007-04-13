@@ -254,12 +254,12 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd ..; ./fomonitor.exe -i argusConfig.xml -q
 
 clean :
-	find $(ROMESYS)/examples -name "*.o" -exec rm {} \;
+	find $(ROMESYS)/examples -name "*.o" -exec $(RM) {} \;
 	$(MAKE) -C romedbwrapper clean
 
 depclean :
-	find $(ROMESYS)/examples -name "*.d" -exec rm {} \;
+	find $(ROMESYS)/examples -name "*.d" -exec $(RM) {} \;
 
 remove :
-	rm $(ROMEProjects) $(ARGUSProjects) romedbwrapper/test_c romedbwrapper/test_f
+	$(RM) $(ROMEProjects) $(ARGUSProjects) romedbwrapper/test_c romedbwrapper/test_f
 
