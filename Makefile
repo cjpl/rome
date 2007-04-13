@@ -55,9 +55,33 @@ INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
+# Required ROOT version
+ROOT_MAJOR_MIN = 4
+ROOT_MINOR_MIN = 02
+ROOT_PATCH_MIN = 00
+
+# Local ROOT version
+ROOT_VERSION := $(shell root-config --version)
 ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
 ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
 ROOT_PATCH := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f2)
+
+ROOT_VERSION_ERROR := no
+ifeq ($(shell expr $(ROOT_MAJOR) \< $(ROOT_MAJOR_MIN)), 1)
+  ROOT_VERSION_ERROR := yes
+else
+  ifeq ($(ROOT_MAJOR), $(ROOT_MAJOR_MIN))
+    ifeq ($(shell expr $(ROOT_MINOR) \< $(ROOT_MINOR_MIN)), 1)
+      ROOT_VERSION_ERROR := yes
+    else
+      ifeq ($(ROOT_MINOR), $(ROOT_MINOR_MIN))
+        ifeq ($(shell expr $(ROOT_PATCH) \< $(ROOT_PATCH_MIN)), 1)
+          ROOT_VERSION_ERROR := yes
+        endif
+      endif
+    endif
+  endif
+endif
 
 # reset when ROMEDEBUG or ROMEOPTIMIZE is yes
 ifeq ($(ROMEDEBUG), yes)
@@ -263,7 +287,7 @@ endif
 # Compile and linking
 #
 
-all: $(TARGET)
+all: checkenv-rootversion $(TARGET)
 	@./bin/updateVersionH.exe
 
 obj:
@@ -370,4 +394,11 @@ endif
 
 ifeq ($(SkipDepInclude), no)
 -include obj/*.d
+endif
+
+checkenv-rootversion:
+ifeq ($(ROOT_VERSION_ERROR), yes)
+	@echo ROOT $(ROOT_VERSION) is not supported.
+	@echo Please update to $(ROOT_MAJOR_MIN).$(ROOT_MINOR_MIN)/$(ROOT_PATCH_MIN) or later
+	@exit 1
 endif
