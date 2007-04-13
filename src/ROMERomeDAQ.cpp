@@ -15,6 +15,7 @@
 #   pragma warning( disable : 4800)
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
+#include <TROOT.h>
 #include <TBranchElement.h>
 #include <TMath.h>
 #if defined( R__VISUAL_CPLUSPLUS )

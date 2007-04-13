@@ -20,6 +20,8 @@ public:
    Bool_t Event(Long64_t event);
    Bool_t EndOfRun();
    Bool_t Terminate();
+
+   ClassDef(SMDmydaqDAQ, 0)
 };
 
 #endif   // SMDmydaqDAQ_H

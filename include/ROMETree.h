@@ -95,9 +95,7 @@ public:
    void        SetMaxEntries(Long64_t maxEntries) {
                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
 		  /* note: use 4byte integer for odb */
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
                   if (maxEntries>0) fTree->SetCircular(maxEntries);
-#endif
                }
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }
    Bool_t      SaveConfig(const char* xml, const char* filename = 0);

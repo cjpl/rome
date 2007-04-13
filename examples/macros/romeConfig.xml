@@ -66,6 +66,14 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
 
+      <FloatingPointExeptionTrap>
+        <Invalid>false</Invalid>
+        <DivByZero>false</DivByZero>
+        <Overflow>false</Overflow>
+        <Underflow>false</Underflow>
+        <Inexact>false</Inexact>
+      </FloatingPointExeptionTrap>
+
       <SocketServer>
         <!-- Description of the socket server. External programs can access the objects inside the framework over a root socket interface. -->
         <!-- The socket server is per default not available. This flag activates it. Default is false. -->

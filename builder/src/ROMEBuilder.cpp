@@ -775,24 +775,6 @@ Bool_t ROMEBuilder::StartBuilder()
 // Documentation
    if (makeOutput) cout << "\nWrite HTML Documentation." << endl;
    WriteHTMLDoku();
-#if (ROOT_VERSION_CODE < ROOT_VERSION(4,0,0))
-   cout << endl << endl;
-   cout << "******************* WARNING *******************" << endl;
-   cout << "You are using a version of ROOT which does not" << endl;
-   cout << "provide all the functionality that ROME needs!" << endl;
-   cout << endl;
-   cout << "However, ROME will work fine." << endl;
-   cout << "But you can not use the following features:" << endl;
-#if (ROOT_VERSION_CODE < ROOT_VERSION(4,1,0))
-   cout << endl;
-   cout << " - Circular trees (e.g. MaxNumberOfEntries>0)" << endl;
-   cout << " - The socket interface" << endl;
-   cout << endl;
-   cout << " --> All of the above are available with version 4.01/00" << endl;
-   cout << endl;
-#endif // 4.01/00
-   cout << endl;
-#endif // ROOT_VERSION
    return true;
 }
 

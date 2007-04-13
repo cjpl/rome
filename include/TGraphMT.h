@@ -18,7 +18,9 @@ public:
    TGraphMT(Int_t n, const Float_t *x, const Float_t *y):TGraph(n,x,y){}
    TGraphMT(Int_t n, const Double_t *x, const Double_t *y):TGraph(n,x,y){}
    TGraphMT(const TGraph &gr):TGraph(gr){}
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,11,4))
    TGraphMT(const TVectorF &vx, const TVectorF &vy):TGraph(vx,vy){}
+#endif
    TGraphMT(const TVectorD &vx, const TVectorD &vy):TGraph(vx,vy){}
    TGraphMT(const TH1 *h):TGraph(h){}
    TGraphMT(const TF1 *f, Option_t *option=""):TGraph(f,option){}
