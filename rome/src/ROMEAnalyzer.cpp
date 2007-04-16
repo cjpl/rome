@@ -1095,6 +1095,10 @@ void ROMEAnalyzer::redirectOutput(Bool_t redirect)
       // restore
       if (oldbuf)
          cout.rdbuf(oldbuf);
+      if (romeOutputFile) {
+         romeOutputFile->close();
+         SafeDelete(romeOutputFile);
+      }
    }
 }
 
