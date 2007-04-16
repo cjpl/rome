@@ -30,9 +30,10 @@ protected:
    int            fEventID;            // TriggerID for event method
    ROMEString     fCurrentEventMethod; // Current event method name
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
+   Long64_t       fSkippedEvents;      //! Number of events skipped filling tree by this task
 
 public:
-   ROMETask() { fHistoFolder = 0; }
+   ROMETask() { fHistoFolder = 0; fSkippedEvents = 0;}
    ROMETask(const char *name,const char *title,int level);
    virtual ~ROMETask() { SafeDelete(fHistoFolder); }
    void         Exec(Option_t *option="");
