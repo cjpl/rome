@@ -5076,15 +5076,15 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("void %sAnalyzer::FillConfigParametersFolder() \n", shortCut.Data());
    buffer.AppendFormatted("{\n");
    // Config file name and content
-   buffer.AppendFormatted("   fConfigParametersFolder->SetConfigFileName(fConfiguration->GetConfigFileName());\n");
-   buffer.AppendFormatted("   fConfigParametersFolder->SetConfigString(fConfiguration->GetConfigContent());\n");
+   buffer.AppendFormatted("   f%sConfigParametersFolder->SetConfigFileName(fConfiguration->GetConfigFileName());\n",mainProgName.Data());
+   buffer.AppendFormatted("   f%sConfigParametersFolder->SetConfigString(fConfiguration->GetConfigContent());\n",mainProgName.Data());
    // Task active flag
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       tmp.SetFormatted("%s%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-      buffer.AppendFormatted("   fConfigParametersFolder->Set%sTaskActive(((%sT%s_Base*)GetTaskObjectAt(%d))->IsActive());\n",
-                             tmp.Data(),shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
+      buffer.AppendFormatted("   f%sConfigParametersFolder->Set%sTaskActive(((%sT%s_Base*)GetTaskObjectAt(%d))->IsActive());\n",
+                             mainProgName.Data(),tmp.Data(),shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -5092,7 +5092,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Save Config Parameters Folder
    buffer.AppendFormatted("void %sAnalyzer::SaveConfigParametersFolder() \n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   fConfigParametersFolder->Write(\"ConfigParameters\", TObject::kOverwrite);\n");
+   buffer.AppendFormatted("   f%sConfigParametersFolder->Write(\"%sConfigParameters\", TObject::kOverwrite);\n",mainProgName.Data(),mainProgName.Data());
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
