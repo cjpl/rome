@@ -1121,7 +1121,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    ROMEString csStr; // check sum string;
 
    // initialisation
-   folderName[numOfFolder] = "ConfigParameters";
+   folderName[numOfFolder].SetFormatted("%sConfigParameters",mainProgName.Data());
    numOfFolderAffiliations[numOfFolder] = 0;
    folderUsed[numOfFolder] = true;
    folderTitle[numOfFolder] = "ConfigParameters added by romebuilder";
