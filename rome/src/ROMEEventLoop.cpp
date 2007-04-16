@@ -223,9 +223,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       // Start ARGUS
       //-------------
       if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
-         ROMEPrint::Print("Starting argus monitor ...                            \r");
-         gROME->StartWindow();
-         ROMEPrint::Print("Argus monitor running                                 \n");
+         if (IsTerminal()) {
+            ROMEPrint::Print("Starting argus monitor ...                            \r");
+            gROME->StartWindow();
+            ROMEPrint::Print("Argus monitor running                                 \n");
+         }
          fWindowFirstDraw = kTRUE;
       }
 
@@ -257,13 +259,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
+            if (IsTerminal()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
-            ROMEPrint::Print("%I64d events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
+               ROMEPrint::Print("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
+               ROMEPrint::Print("%I64d events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
 #else
-            ROMEPrint::Print("Run %lld stopped                                             \n",gROME->GetCurrentRunNumber());
-            ROMEPrint::Print("%lld events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
+               ROMEPrint::Print("Run %lld stopped                                             \n",gROME->GetCurrentRunNumber());
+               ROMEPrint::Print("%lld events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
 #endif
+            }
          }
 
          // End of Run Tasks
@@ -839,13 +843,14 @@ Bool_t ROMEEventLoop::Update()
    if (!gROME->isBatchMode() &&
        ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+         if (IsTerminal()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
-         ROMEPrint::Debug("\n");
+            ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
 #else
-         ROMEPrint::Print("processed event number %lld                                               \r",gROME->GetCurrentEventNumber());
-         ROMEPrint::Debug("\n");
+            ROMEPrint::Print("processed event number %lld                                              \r",gROME->GetCurrentEventNumber());
 #endif
+            ROMEPrint::Debug("\n");
+         }
       }
       fProgressWrite = false;
    }
@@ -884,6 +889,9 @@ Bool_t ROMEEventLoop::Update()
 Bool_t ROMEEventLoop::UserInput()
 {
    if (gROME->isDaemonMode() || gROME->isBatchMode())
+      return kTRUE;
+
+   if (!IsTerminal())
       return kTRUE;
 
    // Looks for user input. Called before the Event tasks.
@@ -935,15 +943,17 @@ Bool_t ROMEEventLoop::UserInput()
             ch = getchar();
          }
          if (ch == 'q' || ch == 'Q' || gROME->IsUserEventQ()) {
-            ROMEPrint::Print("                                  \r");
-            ROMEPrint::Print("Do you really want to quit [y/n] ?");
-            ch = 0;
-            while (ch==0) {
-               while (gROME->ss_kbhit()) {
-                  ch = gROME->ss_getchar(0);
+            if (IsTerminal()) {
+               ROMEPrint::Print("\r                                                                      \r");
+               ROMEPrint::Print("Do you really want to quit [y/n] ?");
+               ch = 0;
+               while (ch==0) {
+                  while (gROME->ss_kbhit()) {
+                     ch = gROME->ss_getchar(0);
+                  }
                }
+               ROMEPrint::Print("\r                                  \r");
             }
-            ROMEPrint::Print("\r                                                                                \r");
             if (ch == 'y' || ch == 'Y') {
                return false;
             }
@@ -995,7 +1005,6 @@ Bool_t ROMEEventLoop::UserInput()
             }
          }
          if (ch == 'r' || ch == 'R' || gROME->IsUserEventR()) {
-
             if (fContinuous) {
                ROMEPrint::Print("                                  \r");
                fProgressDelta = 1000;
@@ -1030,7 +1039,7 @@ Bool_t ROMEEventLoop::UserInput()
                   ROMEPrint::Print("%c", ch);
                   number += ch;
                }
-               ROMEPrint::Print("                                  \r");
+               ROMEPrint::Print("\r                                                                      \r");
                inumber = strtol(number.Data(),&cstop,10);
                if (inumber != 0) {
                   GotoEvent(inumber);
@@ -1049,7 +1058,7 @@ Bool_t ROMEEventLoop::UserInput()
                char *cstop;
                ROMEString number;
                // run number
-               ROMEPrint::Print("                                  \r");
+               ROMEPrint::Print("\r                                                                      \r");
                ROMEPrint::Print("Run number :");
                while (true) {
                   ch = gROME->ss_getchar(0);
@@ -1060,7 +1069,7 @@ Bool_t ROMEEventLoop::UserInput()
                   ROMEPrint::Print("%c", ch);
                   number += ch;
                }
-               ROMEPrint::Print("                                  \r");
+               ROMEPrint::Print("\r                                                                      \r");
                inumber = strtol(number.Data(),&cstop,10);
                if (inumber!=0) {
                   fStopAtRun = inumber;
@@ -1069,7 +1078,7 @@ Bool_t ROMEEventLoop::UserInput()
                }
                // event number
                number.Resize(0);
-               ROMEPrint::Print("                                  \r");
+               ROMEPrint::Print("\r                                                                      \r");
                ROMEPrint::Print("Event number :");
                while (true) {
                   ch = gROME->ss_getchar(0);
@@ -1080,7 +1089,7 @@ Bool_t ROMEEventLoop::UserInput()
                   ROMEPrint::Print("%c", ch);
                   number += ch;
                }
-               ROMEPrint::Print("                                  \r");
+               ROMEPrint::Print("\r                                                                      \r");
                inumber = strtol(number.Data(),&cstop,10);
                if (inumber!=0) {
                   fStopAtEvent = inumber;
