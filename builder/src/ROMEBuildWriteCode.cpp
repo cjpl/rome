@@ -5083,7 +5083,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       tmp.SetFormatted("%s%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-      buffer.AppendFormatted("   fConfigParametersFolder->Set%sActive(((%sT%s_Base*)GetTaskObjectAt(%d))->IsActive());\n",
+      buffer.AppendFormatted("   fConfigParametersFolder->Set%sTaskActive(((%sT%s_Base*)GetTaskObjectAt(%d))->IsActive());\n",
                              tmp.Data(),shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
    }
    buffer.AppendFormatted("}\n");
