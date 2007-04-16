@@ -192,7 +192,6 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
 
 ROMEAnalyzer::~ROMEAnalyzer()
 {
-   Cleaning();
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
    SafeDelete(fSocketClient);
@@ -257,6 +256,9 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
+
+   if (gROME->isNoGraphics())
+       SetStandAloneROME();
 
    if (!CheckDependences()) return false;
 
@@ -1102,6 +1104,7 @@ void ROMEAnalyzer::Cleaning()
    // all functions should be static
    ss_getchar(1);
    restoreOutput();
+   cout<<"\n"<<endl;
 }
 
 Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
@@ -1356,6 +1359,7 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
 
 void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 {
+// replace ### with PID.
 // replace ## with event number.
 // replace # with run number
 // format can be specified like "file#(%05d).root"
@@ -1366,6 +1370,15 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
    Int_t endForm = 0;
    ROMEString format;
    ROMEString insertStr;
+
+   // PID
+   while((startStr = buffer.Index("###", strlen("###"), endStr, TString::kExact)) != -1) {
+      endStr = startStr + strlen("###");
+      buffer.Remove(startStr, endStr - startStr);
+      insertStr.SetFormatted("%d", gSystem->GetPid());
+      buffer.Insert(startStr, insertStr);
+      endStr = startStr + insertStr.Length();
+   }
 
    // event number
    while((startStr = buffer.Index("##", strlen("##"), endStr, TString::kExact)) != -1) {
