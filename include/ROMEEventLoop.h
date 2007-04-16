@@ -157,6 +157,7 @@ protected:
    Bool_t       Update();
    Bool_t       DAQEndOfRun();
    Bool_t       DAQTerminate();
+   Bool_t       IsTerminal();
 
    // virtual methods
    virtual void InitSingleFolders() = 0;
@@ -180,5 +181,14 @@ protected:
 
    ClassDef(ROMEEventLoop, 0) // Base event loop class
 };
+
+inline Bool_t ROMEEventLoop::IsTerminal()
+{
+#if defined ( R__UNIX )
+   return isatty(fileno(stdout)) && isatty(fileno(stderr));
+#else
+   return kTRUE;
+#endif
+}
 
 #endif   // ROMEEventLoop_H
