@@ -308,6 +308,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             ROMEPrint::Print(gROME->GetWindow()->GetTimeStatisticsString(str));
          ROMEPrint::Print("\n");
       }
+      ExecuteTasks("PrintSkipped");
    }
    if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
       fUpdateWindow = false;

@@ -59,8 +59,9 @@ void ROMETask::Exec(Option_t *option)
       Terminate();
       fWatchUser.Stop();
    }
-   if (gROME->isTerminationFlag() || gROME->IsSkipEvent())
+   if (gROME->isTerminationFlag() || gROME->IsSkipEvent()) {
       return;
+   }
    fWatchAll.Start(false);
    if (!strncmp(option,"Init",4)) {
       fCurrentEventMethod = "Init";
@@ -70,9 +71,9 @@ void ROMETask::Exec(Option_t *option)
       fWatchUser.Start(false);
       Init();
       fWatchUser.Stop();
-   }
-   else if (!strncmp(option,"BeginOfRun",10)) {
+   } else if (!strncmp(option,"BeginOfRun",10)) {
       fCurrentEventMethod = "BeginOfRun";
+      fSkippedEvents = 0;
       ReBookHisto();
       ReBookGraph();
       ResetHisto();
@@ -81,15 +82,13 @@ void ROMETask::Exec(Option_t *option)
       fWatchUser.Start(false);
       BeginOfRun();
       fWatchUser.Stop();
-   }
-   else if (!strncmp(option,"EndOfRun",8)) {
+   } else if (!strncmp(option,"EndOfRun",8)) {
       fCurrentEventMethod = "EndOfRun";
       ROMEPrint::Debug("Executing %s::EndOfRun\n", ClassName());
       fWatchUser.Start(false);
       EndOfRun();
       fWatchUser.Stop();
-   }
-   else if (!strncmp(option,"Time",4)) {
+   } else if (!strncmp(option,"Time",4)) {
       int i;
       ROMEString name;
       int nchars;
@@ -99,14 +98,14 @@ void ROMETask::Exec(Option_t *option)
       if (fLevel==1) {
          ROMEPrint::Print("Task ");
          nchars = 5;
-      }
-      else if (fLevel>1) {
+      } else if (fLevel>1) {
          ROMEPrint::Print("SubTask ");
          nchars = 8;
       }
       name = fName;
-      if (name.Last('_')>0)
+      if (name.Last('_')>0) {
          name = name(0,name.Last('_'));
+      }
       ROMEPrint::Print(name.Data());
       for (i=0;i<30-name.Length()-fLevel-nchars;i++)
          ROMEPrint::Print(".");
@@ -117,20 +116,38 @@ void ROMETask::Exec(Option_t *option)
          if (fWatchUserEvent.RealTime()>0) {
             ROMEPrint::Print("  ");
             ROMEPrint::Print("%s\n", GetTimeOfUserEvents());
-         }
-         else
+         } else {
             ROMEPrint::Print("\n");
-      }
-      else
+         }
+      } else {
          ROMEPrint::Print("\n");
-   }
-   else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1 || strtol(option+5,&cstop,10)==-1)) {
+      }
+   } else if (!strncmp(option,"PrintSkipped",12)) {
+      ROMEString name;
+      name = fName;
+      if (name.Last('_') > 0) {
+         name = name(0, name.Last('_'));
+      }
+      if (fSkippedEvents) {
+#if defined ( R__UNIX )
+         ROMEPrint::Print("%8lld events were skipped filling trees by %s.\n", fSkippedEvents, name.Data());
+#else
+         ROMEPrint::Print("%8I64d events were skipped filling trees by %s.\n", fSkippedEvents, name.Data());
+#endif
+         fSkippedEvents = 0;
+      }
+   } else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID ||
+                                             fEventID==-1 || strtol(option+5,&cstop,10)==-1)) {
       fCurrentEventMethod = "Event";
       ROMEPrint::Debug("Executing %s::Event\n", ClassName());
       fWatchUser.Start(false);
+      Bool_t fillEventOld = gROME->isFillEvent();
       fWatchUserEvent.Start(false);
       Event();
       fWatchUserEvent.Stop();
+      if (fillEventOld && !gROME->isFillEvent()) {
+         fSkippedEvents++;
+      }
       fWatchUser.Stop();
    }
    fWatchAll.Stop();
@@ -143,8 +160,9 @@ void ROMETask::StartRootInterpreter(const char* message) {
    ROMEPrint::Print("\nIn method %s of task %s of event number %lld of run number %lld\n",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
 #endif
 
-   if (message)
+   if (message) {
       ROMEPrint::Print("%s\n", message);
+   }
    ROMEString prompt = gROME->GetProgramName();
    prompt.ToLower();
    prompt += " [%d]";
