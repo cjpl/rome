@@ -1192,10 +1192,11 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      tmp.SetFormatted("%s%sActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      tmp.SetFormatted("%s%sTaskActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
       valueName[numOfFolder][numOfValue[numOfFolder]] = tmp;
       valueType[numOfFolder][numOfValue[numOfFolder]] = "Bool_t";
-      valueComment[numOfFolder][numOfValue[numOfFolder]].SetFormatted("On/Off flag of %s task",taskHierarchyName[i].Data());
+      valueComment[numOfFolder][numOfValue[numOfFolder]].SetFormatted("Active flag of %s task",
+                                                                      taskHierarchyName[i].Data());
       valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
       valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
       valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
