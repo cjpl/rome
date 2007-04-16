@@ -551,6 +551,7 @@ Bool_t ROMEEventLoop::DAQInit()
    this->InitHotLinks();
 #endif // HAVE_MIDAS
    this->InitSingleFolders();
+   gROME->FillConfigParametersFolder();
 
    // Check IO System
    if (gROME->GetNumberOfRunNumbers()>0 && gROME->GetNumberOfInputFileNames()>0) {
@@ -1172,7 +1173,6 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    const Int_t nTree = gROME->GetTreeObjectEntries();
    Int_t k;
    Bool_t identicalFileNameFound;
-   gROME->FillConfigParametersFolder();
    for (int j=0;j<nTree;j++) {
       identicalFileNameFound = kFALSE;
       romeTree = gROME->GetTreeObjectAt(j);
@@ -1234,7 +1234,6 @@ Bool_t ROMEEventLoop::DAQTerminate()
    const Int_t nTree = gROME->GetTreeObjectEntries();
    Int_t k;
    Bool_t identicalFileNameFound;
-   gROME->FillConfigParametersFolder();
    for (int j=0;j<nTree;j++) {
       identicalFileNameFound = kFALSE;
       romeTree = gROME->GetTreeObjectAt(j);
