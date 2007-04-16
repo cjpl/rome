@@ -518,6 +518,9 @@ public:
    Bool_t          IsObjectStorageUpdated();
    void            SetObjectStorageUpdated();
 
+   virtual void    FillConfigParametersFolder() = 0;
+   virtual void    SaveConfigParametersFolder() = 0;
+
    // Socket Client
    const char     *GetSocketClientHost() { return fSocketClientHost.Data(); }
    Int_t           GetSocketClientPort() { return fSocketClientPort; }

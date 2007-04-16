@@ -60,51 +60,6 @@ void ROMETree::AllocateBranchActive(Int_t n) {
    for(int i=0;i<n;i++) fBranchActive[i]=kTRUE;
 }
 
-Bool_t ROMETree::SaveConfig(const char* xml, const char* filename) {
-   if(!fFile->cd())
-      return kFALSE;
-   TDirectory *configDir;
-   fFile->GetObject("configuration", configDir);
-   if (!configDir)
-      gDirectory->mkdir("configuration", "directory for configuration XML file");
-   gDirectory->cd("configuration");
-   TNamed *config;
-   TString filename_mod = filename;
-   filename_mod.ReplaceAll(".xml", "");
-   if (!filename) {
-      filename_mod = "config";
-   }
-   else {
-      filename_mod = gSystem->BaseName(filename);
-      filename_mod.ReplaceAll(".xml", "");
-   }
-   config = new TNamed(filename_mod.Data(), xml);
-   config->Write(config->GetName(), TObject::kOverwrite);
-   delete config;
-   return kTRUE;
-}
-
-Bool_t ROMETree::LoadConfig(TString &xml, const char* filename) {
-   if(!fFile)
-      return kFALSE;
-   TNamed *config;
-   TString path = "configuration/";
-   TString name = filename;
-   if (!name.Length()) {
-      fFile->cd();
-      gDirectory->cd("configuration");
-      if(!gDirectory->GetNkeys())
-         return kFALSE;
-      name = gDirectory->GetListOfKeys()->At(0)->GetName();
-   }
-   path += name;
-   fFile->GetObject(path.Data(), config);
-   if (!config)
-      return kFALSE;
-   xml = config->GetTitle();
-   return kTRUE;
-}
-
 Bool_t ROMETree::CheckConfiguration(const char* inDir, const char* outDir) {
    if (fSwitches.fRead &&
        fSwitches.fWrite &&

@@ -68,7 +68,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
           <TreeInputFileName></TreeInputFileName>
           <TreeOutputFileName></TreeOutputFileName>
-          <SaveConfiguration>false</SaveConfiguration>
+          <SaveConfiguration>true</SaveConfiguration>
           <Branch>
             <BranchName>data</BranchName>
             <Active>true</Active>
