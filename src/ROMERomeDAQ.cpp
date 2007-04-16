@@ -142,7 +142,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   return false;
                }
                ROMEPrint::Print("Reading %s\n", filename.Data());
-               tree->Read(romeTree->GetName());
+               if (!tree->Read(romeTree->GetName())) {
+                  return false;
+               }
                romeTree->SetFile(fRootFiles[j]);
                gROOT->cd();
             } else if (gROME->IsFileNameBasedIO()) {
@@ -152,7 +154,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   } else {
                      treename.SetFormatted("%s_%d",fCurrentTreeName.Data(),fTreeIndex);
                      fRootFiles[fInputFileNameIndex]->cd();
-                     tree->Read(treename.Data());
+                     if (!tree->Read(treename.Data())) {
+                        return false;
+                     }
                      romeTree->SetFile(fRootFiles[fInputFileNameIndex]);
                      fTreeIndex++;
                      tree->SetName(fCurrentTreeName.Data());
@@ -167,7 +171,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex).Data());
                   fRootFiles[fInputFileNameIndex]->cd();
                   ROMEPrint::Print("Reading %s%s\n",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
-                  tree->Read(romeTree->GetName());
+                  if (!tree->Read(romeTree->GetName())) {
+                     return false;
+                  }
                   romeTree->SetFile(fRootFiles[fInputFileNameIndex]);
                   fCurrentTreeName = romeTree->GetName();
                   fTreeIndex++;
@@ -182,7 +188,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                      if (k>0)
                         treename.AppendFormatted("_%d",k);
                      fRootFiles[i]->cd();
-                     tree->Read(treename.Data());
+                     if (!tree->Read(treename.Data())) {
+                        return false;
+                     }
                      romeTree->SetFile(fRootFiles[i]);
                      ((TBranchElement*)tree->FindBranch("Info"))->SetAddress(&fTreeInfo);
                      tree->GetBranch("Info")->GetEntry(0);
