@@ -650,6 +650,7 @@ Bool_t ROMEBuilder::StartBuilder()
    // write classes
    if (!AddConfigParameters()) return false;
    if (!CheckConfigParameters(mainParGroup)) return false;
+   if (!AddConfigParametersFolder()) return false;
    if (makeOutput)
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
@@ -1107,6 +1108,125 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    }
 
    sql = (mysql || pgsql || sqlite || sqlite3 );
+
+   return true;
+}
+
+Bool_t ROMEBuilder::AddConfigParametersFolder()
+{
+   // add configuration folder
+   ROMEString tmp;
+   int i;
+   int iDm;
+   ROMEString csStr; // check sum string;
+
+   // initialisation
+   folderName[numOfFolder] = "ConfigParameters";
+   numOfFolderAffiliations[numOfFolder] = 0;
+   folderUsed[numOfFolder] = true;
+   folderTitle[numOfFolder] = "ConfigParameters added by romebuilder";
+   folderArray[numOfFolder] = "1";
+   folderDataBase[numOfFolder] = false;
+   folderUserCode[numOfFolder] = false;
+   folderDescription[numOfFolder] = "folder for configuration parameters";
+   folderShortDescription[numOfFolder] = "";
+   folderAuthor[numOfFolder] = mainAuthor;
+   numOfFolderInclude[numOfFolder] = 0;
+   numOfValue[numOfFolder] = 0;
+   folderNoReset[numOfFolder] = true;
+   folderNoResetModified[numOfFolder] = false;
+   folderParentName[numOfFolder] = "GetMainFolder()";
+   folderSupport[numOfFolder] = false;
+
+   // Config file name
+   valueName[numOfFolder][numOfValue[numOfFolder]] = "ConfigFileName";
+   valueType[numOfFolder][numOfValue[numOfFolder]] = "TString";
+   valueComment[numOfFolder][numOfValue[numOfFolder]] = "File name of configuration file";
+   valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
+   valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
+   valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
+   valueInit[numOfFolder][numOfValue[numOfFolder]] = "\"\"";
+   for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+      valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
+   valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
+   valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
+   valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
+   valueDBIf[numOfFolder][numOfValue[numOfFolder]] = "";
+   csStr += valueName[numOfFolder][numOfValue[numOfFolder]];
+   csStr += valueType[numOfFolder][numOfValue[numOfFolder]];
+   csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
+   // count fields
+   numOfValue[numOfFolder]++;
+   if (numOfValue[numOfFolder]>=maxNumberOfValues) {
+      cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
+
+   // Config file content
+   valueName[numOfFolder][numOfValue[numOfFolder]] = "ConfigString";
+   valueType[numOfFolder][numOfValue[numOfFolder]] = "TString";
+   valueComment[numOfFolder][numOfValue[numOfFolder]] = "Content of configuration file";
+   valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
+   valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
+   valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
+   valueInit[numOfFolder][numOfValue[numOfFolder]] = "\"\"";
+   for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+      valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
+   valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
+   valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
+   valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
+   valueDBIf[numOfFolder][numOfValue[numOfFolder]] = "";
+   csStr += valueName[numOfFolder][numOfValue[numOfFolder]];
+   csStr += valueType[numOfFolder][numOfValue[numOfFolder]];
+   csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
+   // count fields
+   numOfValue[numOfFolder]++;
+   if (numOfValue[numOfFolder]>=maxNumberOfValues) {
+      cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
+
+   // Task active flag
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      tmp.SetFormatted("%s%sActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      valueName[numOfFolder][numOfValue[numOfFolder]] = tmp;
+      valueType[numOfFolder][numOfValue[numOfFolder]] = "Bool_t";
+      valueComment[numOfFolder][numOfValue[numOfFolder]].SetFormatted("On/Off flag of %s task",taskHierarchyName[i].Data());
+      valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
+      valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
+      valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
+      valueInit[numOfFolder][numOfValue[numOfFolder]] = "kFALSE";
+      for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+         valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
+      valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
+      valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
+      valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
+      valueDBIf[numOfFolder][numOfValue[numOfFolder]] = "";
+      csStr += valueName[numOfFolder][numOfValue[numOfFolder]];
+      csStr += valueType[numOfFolder][numOfValue[numOfFolder]];
+      csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
+      // count fields
+      numOfValue[numOfFolder]++;
+      if (numOfValue[numOfFolder]>=maxNumberOfValues) {
+         cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
+         cout << "Terminating program." << endl;
+         return false;
+      }
+   }
+
+   folderVersion[numOfFolder].SetFormatted("%d", csStr.Hash() % 16383 + 1);
+
+   // count folders
+   numOfFolder++;
+   if (numOfFolder > maxNumberOfFolders) {
+      cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
 
    return true;
 }

@@ -98,8 +98,6 @@ public:
                   if (maxEntries>0) fTree->SetCircular(maxEntries);
                }
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }
-   Bool_t      SaveConfig(const char* xml, const char* filename = 0);
-   Bool_t      LoadConfig(TString &xml, const char* filename = 0);
    Bool_t      CheckConfiguration(const char* inDir, const char* outDir);
 
    ClassDef(ROMETree,0) // TTree container for ROME

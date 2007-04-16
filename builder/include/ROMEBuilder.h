@@ -616,6 +616,7 @@ private:
    Bool_t  WriteConfig4Cpp();
    Bool_t  WriteConfigH();
    Bool_t  AddConfigParameters();
+   Bool_t  AddConfigParametersFolder();
    Bool_t  AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
    Bool_t  AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
    Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer);
