@@ -329,6 +329,7 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString oldFile;
    ROMEString newFile;
 
+   mainDefinitionVersion = "-1";
    tabObjectDisplaySupportedObjects.AddLast("TGraphMT");
 //   tabObjectDisplaySupportedObjects.AddLast("TGraph2D");
    tabObjectDisplaySupportedObjects.AddLast("TH1C");
@@ -1219,7 +1220,12 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
       }
    }
 
-   folderVersion[numOfFolder].SetFormatted("%d", csStr.Hash() % 16383 + 1);
+   Int_t version = mainDefinitionVersion.ToInteger();
+   if (version < 0) { // version number is not specified by user
+      folderVersion[numOfFolder].SetFormatted("%d", csStr.Hash() % 16383 + 1);
+   } else {
+      folderVersion[numOfFolder].SetFormatted("%d", version);
+   }
 
    // count folders
    numOfFolder++;

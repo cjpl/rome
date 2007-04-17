@@ -544,6 +544,11 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         xml->GetValue(mainProgName,mainProgName);
                         FormatText(mainProgName, kTRUE, " ");
                      }
+                     if (type == 1 && !strcmp((const char*)name,"ProgramDefinitionVersion")) {
+                        xml->GetValue(mainDefinitionVersion,mainDefinitionVersion);
+                        FormatText(mainDefinitionVersion, kTRUE);
+                        ParseSVNKeyword(mainDefinitionVersion);
+                     }
                      if (type == 1 && !strcmp((const char*)name,"FrameworkDescription")) {
                         xml->GetValue(mainDescription,mainDescription);
                         FormatText(mainDescription, kFALSE);
@@ -4292,8 +4297,9 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
 void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
 {
    // extract Subversion revision number from string.
-   if (!str.BeginsWith("$") || !str.EndsWith(" $")) // This isn't Subversion keyword
+   if (!str.BeginsWith("$") || !str.EndsWith(" $")) {// This isn't Subversion keyword
       return;
+   }
 
    if (str.BeginsWith("$Rev: "))                      str.Remove(0, 6);
    else if (str.BeginsWith("$Revision: "))            str.Remove(0, 11);

@@ -2,6 +2,7 @@
 	<Experiment>
 		<ExperimentShortCut>TWR</ExperimentShortCut>
 		<ProgramName>Sample</ProgramName>
+		<ProgramDefinitionVersion>$Rev$</ProgramDefinitionVersion>
 	</Experiment>
 	<Folders>
 		<Folder>
