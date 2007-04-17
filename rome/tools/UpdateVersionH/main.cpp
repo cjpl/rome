@@ -125,6 +125,9 @@ int main()
          // Matthias
          user[nEntry] == "schneebeli_m" ||
          user[nEntry] == "egger_j" ||
+         // Shuei
+         user[nEntry] == "shuei" ||
+         user[nEntry] == "yamada" ||
          // Meg
          user[nEntry] == "meg" ||
          user[nEntry] == "Administrator"
