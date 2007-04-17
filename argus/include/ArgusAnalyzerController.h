@@ -50,6 +50,7 @@ protected:
    TGPictureButton    *fPlayButton;
    TGPictureButton    *fPreviousButton;
    TGPictureButton    *fNextButton;
+   TGPictureButton    *fUpdateButton;
    TGPictureButton    *fStopButton;
 //   TGPictureButton  *fFrwdButton;
    Bool_t              fOnDisplay;
@@ -59,6 +60,7 @@ protected:
       B_Play,
       B_Previous,
       B_Next,
+      B_Update,
       B_Stop,
       B_Frwd,
       T_RunNumber,
