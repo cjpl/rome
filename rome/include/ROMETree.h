@@ -44,7 +44,7 @@ protected:
 public:
    ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configInputFileName="",
             ROMEString configOUtputFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,
-            Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=0,
+            Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=kTRUE,
             Int_t compressionLevel=0,Long64_t maxEntries=0);
    virtual ~ROMETree();
 
