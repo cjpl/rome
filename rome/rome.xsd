@@ -114,6 +114,11 @@
 					<xs:documentation>Name of the executable. The executable will be named as  [Shortcut][ProgramName].exe. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ProgramDefinitionVersion" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Version number of the program definition. This number is used as the version number of [ProgramName]ConfigParameters folder. Please increment it when you change any definition of the program. If this field does not exist, version number will be created automatically from 1 to 16838. When this field is missing, there is a small possibility that two different versions have the same version number, and it causes error when reading [ProgramName]ConfigParameters folder. If you use SVN, you can put '$Rev$' in this field. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="FrameworkDescription" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Description of the framework. It will be displayed in the automatically created html documentation of the framework. (optional)</xs:documentation>
@@ -355,7 +360,7 @@
 				</xs:element>
 				<xs:element name="FolderVersion" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>The version of the folder. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1.</xs:documentation>
+						<xs:documentation>The version of the folder. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1. If you use SVN, you can put '$Rev$' in this field.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="FolderDescription" type="xs:string" minOccurs="0">
@@ -716,7 +721,7 @@
 				</xs:element>
 				<xs:element name="TaskVersion" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>The version of the task. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1.</xs:documentation>
+						<xs:documentation>The version of the task. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1. If you use SVN, you can put '$Rev$' in this field.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="TaskDescription" type="xs:string" minOccurs="0">
@@ -965,7 +970,7 @@
 				</xs:element>
 				<xs:element name="TabVersion" type="xs:string" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>The version of the Tab. The version is used for the ROOT dictionary as the ROOT ClassVersionID.</xs:documentation>
+						<xs:documentation>The version of the Tab. The version is used for the ROOT dictionary as the ROOT ClassVersionID. If you use SVN, you can put '$Rev$' in this field.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="TabDescription" type="xs:string" minOccurs="0">

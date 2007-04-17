@@ -485,6 +485,7 @@ protected:
    ROMEString    mainCollaboration;
    ROMEString    mainEmail;
    ROMEString    mainProgName;
+   ROMEString    mainDefinitionVersion;
    ROMEString    mainDescription;
    ROMEString    styleSheet;
 
