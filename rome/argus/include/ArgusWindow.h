@@ -66,6 +66,7 @@ protected:
    Bool_t                   fRequestEventHandling; //! Event handling request flag
    Long64_t                 fCurrentEvent;         //! Currently displayed event
    Long64_t                 fCurrentRun;           //! Currently displayed run
+   Bool_t                   fUpdateButtonClicked ; //! Flag to check status of update button
 
    enum CommandIdentifiers{
       M_FILE_NEW_WINDOW,
@@ -139,6 +140,10 @@ public:
    void            SetCurrentEvent(Long64_t event) { fCurrentEvent = event; };
    Long64_t        GetCurrentRun() { return fCurrentRun; };
    void            SetCurrentRun(Long64_t run) { fCurrentRun = run; };
+
+   // Update Button
+   Bool_t          IsUpdateButtonClicked() const { return fUpdateButtonClicked; }
+   void            SetUpdateButtonClicked(Bool_t flag) {fUpdateButtonClicked = flag; }
 
 protected:
    void            InitArgus(Bool_t tabWindow);

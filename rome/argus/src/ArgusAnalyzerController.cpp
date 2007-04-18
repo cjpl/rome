@@ -303,7 +303,9 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             break;
 
          case B_Update:
+            gROME->GetWindow()->SetUpdateButtonClicked(kTRUE);
             gROME->GetWindow()->TriggerEventHandler();
+            gROME->GetWindow()->SetUpdateButtonClicked(kFALSE);
             break;
          case B_Stop:
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {

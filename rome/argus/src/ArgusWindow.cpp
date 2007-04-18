@@ -67,6 +67,7 @@ void ArgusWindow::InitArgus(Bool_t tabWindow)
    fProgress = 0;
    fCurrentEvent = -1;
    fCurrentRun = -1;
+   fUpdateButtonClicked = kFALSE;
 
    fSubWindows = new TObjArray(0);
    fSubWindowRunning = new TArrayI();
