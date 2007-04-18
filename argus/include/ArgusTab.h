@@ -25,13 +25,15 @@ class ArgusWindow;
 class ArgusTab : public TGCompositeFrame {
 
 protected:
-   ArgusWindow   *fWindow;               //! The window holding the tab
+   ArgusWindow   *fWindow;                //! The window holding the tab
    ROMEString     fTitle;                 //! Tab Title
    Bool_t         fTabActive;             //! is Active
    Bool_t         fBusy;                  //! Busy flag
    Bool_t         fForeground;            //! Flag if foreground
-   ROMEStopwatch  fWatchAll;             //! Records time used by tab
-   ROMEString     fTimeAllString;        //! Elapsed Time of all in a readable format
+   Long64_t       fCurrentRun;            //! Records current run# displayed in the tab 
+   Long64_t       fCurrentEvent;          //! Records current event# displayed in the tab 
+   ROMEStopwatch  fWatchAll;              //! Records time used by tab
+   ROMEString     fTimeAllString;         //! Elapsed Time of all in a readable format
    ROMEStopwatch  fWatchUser;             //! Records time used by user
    ROMEString     fTimeUserString;        //! Elapsed Time of user in a readable format
    ROMEStopwatch  fWatchUserEvent;        //! Records time used by user events
