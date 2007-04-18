@@ -4353,7 +4353,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
 
-   ROMEString tmp;
+   ROMEString tmp, tmp2;
    ROMEString format;
    int nameLen = -1;
    int typeLen = 12;
@@ -4854,8 +4854,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]] || !taskDependence[taskHierarchyClassIndex[i]].Length())
          continue;
+      tmp2.SetFormatted("Task(%s)",taskHierarchyName[i].Data());
+      ParseDependences(tmp2, tmp);
+      buffer.AppendFormatted("   if ((%s) &&\n",tmp.Data());
       ParseDependences(taskDependence[taskHierarchyClassIndex[i]], tmp);
-      buffer.AppendFormatted("   if ((GetTaskObjectAt(%d)->IsActive() && analyzer) &&\n",taskHierarchyObjectIndex[i]);
       buffer.AppendFormatted("       !(%s)) {\n", tmp.Data());
       buffer.AppendFormatted("      cerr<<\"Error: Dependence for the '%s' task is not satisfied.\"<<endl;\n",taskHierarchyName[i].Data());
       buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n", taskDependence[taskHierarchyClassIndex[i]].Data());
@@ -4865,8 +4867,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<numOfTab;i++) {
       if (!tabUsed[i] || !tabDependence[i].Length())
          continue;
+      tmp2.SetFormatted("Tab(%s)", tabName[i].Data());
+      ParseDependences(tmp2, tmp);
+      buffer.AppendFormatted("   if ((%s) &&\n",tmp.Data());
       ParseDependences(tabDependence[i], tmp);
-      buffer.AppendFormatted("   if ((GetWindow()->GetTabSwitches()->%s%s && monitor) &&\n",tabName[i].Data(),tabSuffix[i].Data());
       buffer.AppendFormatted("       !(%s)) {\n", tmp.Data());
       buffer.AppendFormatted("      cerr<<\"Error: Dependence for the '%s' tab is not satisfied.\"<<endl;\n",tabName[i].Data());
       buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n", tabDependence[i].Data());
