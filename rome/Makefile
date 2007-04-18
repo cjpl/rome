@@ -121,7 +121,7 @@ NEED_TARRAYL64 = yes
 endif
 
 ifeq ($(NEED_TARRAYL64), yes)
-INCLUDE += -Iinclude/array64
+INCLUDE += -DNEED_TARRAYL64 -Iinclude/array64
 endif
 
 ROMEVERBOSEMAKE ?= 1

@@ -192,7 +192,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
       romeDictHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
-      romeLinkDefSuffix->Add("+");
+      romeLinkDefSuffix->Add("-");
 #endif
       romeDictHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
       romeLinkDefSuffix->Add("+");

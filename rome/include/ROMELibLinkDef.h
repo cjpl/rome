@@ -52,4 +52,7 @@
 #pragma link C++ class ArgusAnalyzerController;
 #pragma link C++ class ArgusTab;
 #pragma link C++ class ArgusHistoDisplay;
+#if defined(NEED_TARRAYL64)
+#pragma link C++ class TArrayL64-;
+#endif
 #endif
