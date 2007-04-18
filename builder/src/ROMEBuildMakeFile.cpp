@@ -1551,6 +1551,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted("ifdef DictionaryHeaders\n");
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.cpp ]; then $(RM) dict/%sUserDict.cpp; fi;\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then $(RM) dict/%sUserDict.h; fi;\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t$(call %sechoing, \"creating dict/%sUserDict.h dict/%sUserDict.cpp\")\n",shortCut.ToLower(tmp),shortCut.Data(),shortCut.Data());
 #endif
    ROMEString arguments;
    ROMEString includedirs;
