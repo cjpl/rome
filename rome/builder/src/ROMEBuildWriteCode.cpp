@@ -8504,7 +8504,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
       // Floating point exception trap
       {
-         subsubGroup = new ROMEConfigParameterGroup("FloatingPointExeptionTrap");
+         subsubGroup = new ROMEConfigParameterGroup("FloatingPointExceptionTrap");
          subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
          subGroup->AddSubGroup(subsubGroup);
          // Invalid
