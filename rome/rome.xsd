@@ -119,6 +119,11 @@
 					<xs:documentation>Version number of the program definition. This number is used as the version number of [ProgramName]ConfigParameters folder. Please increment it when you change the task hierarchy (adding task, deleting task, changing task name and changing execution order). If this field does not exist, version number will be created automatically from 1 to 16838. When this field is missing, there is a small possibility that two different versions have the same version number, and it causes error when reading [ProgramName]ConfigParameters folder. If you use SVN, you can put '$Rev$' in this field. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="DictionaryType" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Default type of streamer was changed during development of ROME-2.9. This change is not backward compatible, data created by old ROME program can not read by new ROME program by default. When this value is 0, ROMEBuilder generates compatible code with old streamer type. Default is 1. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="FrameworkDescription" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Description of the framework. It will be displayed in the automatically created html documentation of the framework. (optional)</xs:documentation>
