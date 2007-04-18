@@ -72,6 +72,12 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
          fCurrentEvent = gROME->GetCurrentEventNumber();
          return kTRUE;
       }
+      if(gROME->GetWindow()->IsUpdateButtonClicked()) {
+         // behave as if new event when update button was clicked
+         fCurrentRun   = gROME->GetCurrentRunNumber();
+         fCurrentEvent = gROME->GetCurrentEventNumber();
+         return kTRUE;
+      }
    }
    return kFALSE;
 }
