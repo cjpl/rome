@@ -445,7 +445,7 @@
 					<xs:documentation>Describes the common settings of the framework. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Settings" type="FloatingPointExceptionTrapDesc" minOccurs="0">
+			<xs:element name="FloatingPointExceptionTrap" type="FloatingPointExceptionTrapDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the settings of floating point exception trap. (optional)</xs:documentation>
 				</xs:annotation>
@@ -920,6 +920,11 @@
 					<xs:documentation>Tells the tab to activate the pad configuration. This tag is only used for tabs with display objects.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ObjectDisplay" type="ObjectDisplayDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes an object display.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a steering parameter field of a task.</xs:documentation>
@@ -933,11 +938,6 @@
 			<xs:element name="Tab" type="TabDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a sub-tab.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="ObjectDisplay" type="ObjectDisplayDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes an object display.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
