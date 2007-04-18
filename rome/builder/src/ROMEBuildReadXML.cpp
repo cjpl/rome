@@ -409,6 +409,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
 
    // user makefile
    mfDictHeaderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictHeaders));
+   mfDictHeaderLinkDefSuffix = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictHeaders));
    numOfMFDictHeaderAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfMFDictHeaders));
    mfDictHeaderAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFDictHeaders,maxNumberOfAffiliations));
    mfDictHeaderUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFDictHeaders));
@@ -3985,6 +3986,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                numOfMFDictHeaderAffiliations[numOfMFDictHeaders] = 0;
                mfDictHeaderName[numOfMFDictHeaders] = "";
                mfDictHeaderUsed[numOfMFDictHeaders] = true;
+               mfDictHeaderLinkDefSuffix[numOfMFDictHeaders] = "+";
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -4012,6 +4014,11 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      affiliationList.SetAt("Class", i, affiliationList.GetEntriesAt(i));
                      affiliationList.SetAt(mfDictHeaderName[numOfMFDictHeaders], i, affiliationList.GetEntriesAt(i));
                      numOfMFDictHeaderAffiliations[numOfMFDictHeaders]++;
+                  }
+                  // linkDef suffix
+                  if (type == 1 && !strcmp((const char*)name,"LinkDefSuffix")) {
+                     xml->GetValue(mfDictHeaderLinkDefSuffix[numOfMFDictHeaders],mfDictHeaderLinkDefSuffix[numOfMFDictHeaders]);
+                     FormatText(mfDictHeaderLinkDefSuffix[numOfMFDictHeaders], kTRUE);
                   }
                   if (type == 15 && !strcmp((const char*)name,"Header")) {
                      if (affiliations.GetEntriesFast()>0) {

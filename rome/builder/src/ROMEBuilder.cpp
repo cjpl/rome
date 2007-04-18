@@ -293,6 +293,7 @@ ROMEBuilder::~ROMEBuilder()
 
    // user makefile
    delete [] mfDictHeaderName;
+   delete [] mfDictHeaderLinkDefSuffix;
    delete [] numOfMFDictHeaderAffiliations;
    delete [] mfDictHeaderAffiliation;
    delete [] mfDictHeaderUsed;
@@ -730,7 +731,6 @@ Bool_t ROMEBuilder::StartBuilder()
 
 // Linking
    WriteMakefile();
-   if (!WriteLinkDefHs()) return false;
 #if defined( R__UNIX )
    if (noLink) {
       ROMEString tempStr;

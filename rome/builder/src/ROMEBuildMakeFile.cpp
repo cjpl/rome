@@ -175,13 +175,13 @@ void ROMEBuilder::AddRomeDictHeaders()
    }
    if (!librome) {
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEGraph.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
@@ -192,18 +192,18 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
       romeDictHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
 #endif
       romeDictHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEPrint.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigGraph.h");
@@ -223,7 +223,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEXML.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETree.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEPath.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStopwatch.h");
@@ -483,7 +483,7 @@ void ROMEBuilder::AddGeneratedDictHeaders()
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
             generatedDictHeaders->AddFormatted("include/generated/%s.h",rootBranchClassName[i][j].Data());
-            generatedLinkDefSuffix->Add("");
+            generatedLinkDefSuffix->Add("+");
          }
       }
    }
@@ -500,11 +500,11 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders()
       if (numOfValue[i] > 0 && !folderSupport[i]) {
          if (folderUserCode[i]) {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
-            generatedFolderLinkDefSuffix->Add("");
+            generatedFolderLinkDefSuffix->Add("+");
          }
         else {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
-            generatedFolderLinkDefSuffix->Add("");
+            generatedFolderLinkDefSuffix->Add("+");
          }
       }
    }
@@ -521,11 +521,11 @@ void ROMEBuilder::AddGeneratedSupportFolderDictHeaders()
       if (numOfValue[i] > 0 && folderSupport[i]) {
          if (folderUserCode[i]) {
             generatedSupportFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
-            generatedSupportFolderLinkDefSuffix->Add("");
+            generatedSupportFolderLinkDefSuffix->Add("+");
          }
         else {
             generatedSupportFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
-            generatedSupportFolderLinkDefSuffix->Add("");
+            generatedSupportFolderLinkDefSuffix->Add("+");
          }
       }
    }
@@ -620,7 +620,7 @@ void ROMEBuilder::AddFolderHeaders()
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
             folderHeaders->AddFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[i].Data());
-            folderLinkDefSuffix->Add("");
+            folderLinkDefSuffix->Add("+");
          }
       }
    }
@@ -706,10 +706,12 @@ void ROMEBuilder::AddDAQHeaders()
 {
    int i;
    daqHeaders = new ROMEStrArray(TMath::Max(numOfDAQ,0));
+   daqLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfDAQ,0));
    for (i=0;i<numOfDAQ;i++) {
       if (!daqUsed[i])
          continue;
       daqHeaders->AddFormatted("include/daqs/%s%sDAQ.h",shortCut.Data(),daqName[i].Data());
+      daqLinkDefSuffix->Add("");
    }
 }
 
@@ -731,8 +733,10 @@ void ROMEBuilder::AddDatabaseHeaders()
 {
    int i;
    databaseHeaders = new ROMEStrArray(TMath::Max(numOfDB,0));
+   databaseLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfDB,0));
    for (i=0;i<numOfDB;i++) {
       databaseHeaders->AddFormatted("include/databases/%s%sDataBase.h",shortCut.Data(),dbName[i].Data());
+      databaseLinkDefSuffix->Add("");
    }
 }
 
@@ -1399,7 +1403,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // Dependencies
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
    buffer.AppendFormatted(" $(%sionaryDep)", dictionaryName);
-   buffer.AppendFormatted(" Makefile\n");
+   buffer.AppendFormatted(" include/generated/%sLinkDef.h\n", dictionaryName);
 
    // Echo
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -1423,6 +1427,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 #endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
+   buffer.AppendFormatted(" include/generated/%sLinkDef.h",dictionaryName);
    buffer.AppendFormatted("\n\n\n");
 
    GetDictHeaderString(bufferT,headers,";");
@@ -1539,7 +1544,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    dictionaryOutputs->AddFormatted(bufferT.Data());
 
    // Dependencies
-   buffer.AppendFormatted(" $(DictionaryHeaders) Makefile\n");
+   buffer.AppendFormatted(" $(DictionaryHeaders) include/generated/%sUserDictLinkDef.h\n",shortCut.Data());
 
    // Command
 #if defined( R__UNIX )
@@ -1560,6 +1565,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 #endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(DictionaryHeaders)");
+   buffer.AppendFormatted(" include/generated/%sUserDictLinkDef.h", shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");
@@ -1992,7 +1998,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDictionaryList(buffer,shortCut+"DBDict",databaseHeaders);
    buffer.AppendFormatted("DictionaryIncludes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
 #if defined( R__VISUAL_CPLUSPLUS )
-   GetIncludeDirString(tmp," ","-");
+   GetIncludeDirString(tmp," ","");
    buffer.Append(tmp);
    if (this->midas)
       buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
@@ -2253,6 +2259,25 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileUserDictionary(buffer);
    buffer.AppendFormatted("\n");
 
+// LinkDef.h
+   if (!librome)
+      WriteLinkDefH(romeDictHeaders,romeLinkDefSuffix,"ROMEDict");
+   else
+      WriteLinkDefH(romeDictHeaders,romeLinkDefSuffix,"ROMESDict");
+   WriteLinkDefH(argusHeaders,argusLinkDefSuffix,"ARGUSDict");
+   WriteLinkDefH(generatedDictHeaders,generatedLinkDefSuffix,shortCut+"GeneratedDict");
+   WriteLinkDefH(generatedFolderDictHeaders,generatedFolderLinkDefSuffix,shortCut+"GeneratedFolderDict");
+   WriteLinkDefH(generatedSupportFolderDictHeaders,generatedSupportFolderLinkDefSuffix,shortCut+"GeneratedSupportFolderDict");
+   WriteLinkDefH(generatedTaskDictHeaders,generatedTaskLinkDefSuffix,shortCut+"GeneratedTaskDict");
+   WriteLinkDefH(generatedTabDictHeaders,generatedTabLinkDefSuffix,shortCut+"GeneratedTabDict");
+   WriteLinkDefH(folderHeaders,folderLinkDefSuffix,shortCut+"FolderDict");
+   WriteLinkDefH(taskHeaders,taskLinkDefSuffix,shortCut+"TaskDict");
+   WriteLinkDefH(tabHeaders,tabLinkDefSuffix,shortCut+"TabDict");
+   WriteLinkDefH(daqHeaders,daqLinkDefSuffix,shortCut+"DAQDict");
+   WriteLinkDefH(databaseHeaders,databaseLinkDefSuffix,shortCut+"DBDict");
+   WriteUserLinkDefH();
+
+
    buffer.AppendFormatted("## Rebuild rules\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEString str;
@@ -2422,4 +2447,70 @@ void ROMEBuilder::WriteUserMakeFile()
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
 #endif
+}
+
+Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,const char* dictionaryName)
+{
+   ROMEString buffer;
+   ROMEString classname;
+   int i;
+   ROMEString filename;
+   if (!dictionaryName)
+      return false;
+
+   filename.SetFormatted("include/generated/%sLinkDef.h", dictionaryName);
+
+   WriteHeader(buffer, mainAuthor, true);
+
+   buffer.SetFormatted("#ifdef __CINT__\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#pragma link off all globals;\n");
+   buffer.AppendFormatted("#pragma link off all classes;\n");
+   buffer.AppendFormatted("#pragma link off all functions;\n");
+   buffer.AppendFormatted("\n");
+   if (headers->GetEntriesFast()>0) {
+      for (i=0;i<headers->GetEntriesFast();i++) {
+         classname = gSystem->BaseName(headers->At(i).Data());
+         classname.Resize(classname.Length()-2); // remove ".h"
+         if (ldsuffix->At(i).Length()>0)
+            buffer.AppendFormatted("#pragma link C++ class %s%s;\n", classname.Data(), ldsuffix->At(i).Data());
+         else
+            buffer.AppendFormatted("#pragma link C++ class %s;\n", classname.Data());
+      }
+      buffer.AppendFormatted("#endif\n");
+      WriteFile(filename.Data(), buffer.Data(), 6);
+   }
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteUserLinkDefH()
+{
+   ROMEString buffer;
+   ROMEString classname;
+   int i;
+   ROMEString filename;
+   filename.SetFormatted("include/generated/%sUserDictLinkDef.h", shortCut.Data());
+
+   WriteHeader(buffer, mainAuthor, true);
+
+   buffer.SetFormatted("#ifdef __CINT__\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#pragma link off all globals;\n");
+   buffer.AppendFormatted("#pragma link off all classes;\n");
+   buffer.AppendFormatted("#pragma link off all functions;\n");
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfMFDictHeaders;i++) {
+      if (mfDictHeaderUsed[i]) {
+         classname = gSystem->BaseName(mfDictHeaderName[i]);
+         classname.Resize(classname.Length()-2); // remove ".h"
+         if (mfDictHeaderLinkDefSuffix[i].Length()>0)
+            buffer.AppendFormatted("#pragma link C++ class %s%s;\n", classname.Data(), mfDictHeaderLinkDefSuffix[i].Data());
+         else
+            buffer.AppendFormatted("#pragma link C++ class %s;\n", classname.Data());
+      }
+   }
+   buffer.AppendFormatted("#endif\n");
+   WriteFile(filename.Data(), buffer.Data(), 6);
+   return true;
 }
