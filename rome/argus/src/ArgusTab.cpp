@@ -38,6 +38,8 @@ ArgusTab::ArgusTab(ArgusWindow* window):TGCompositeFrame(NULL,1,1) {
 void ArgusTab::ArgusInit() {
    // Init EventHandler
    fWatchAll.Start(false);
+   fCurrentRun   = -1;
+   fCurrentEvent = -1;
    BaseInit();
    fWatchAll.Stop();
 }
@@ -59,11 +61,17 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
    gROME->GetWindow()->SetCurrentRun(gROME->GetCurrentRunNumber());
    gROME->GetWindow()->SetCurrentEvent(gROME->GetCurrentEventNumber());
    if (gROME->IsROMEMonitor()) {
+      fCurrentRun   = gROME->GetCurrentRunNumber();
+      fCurrentEvent = gROME->GetCurrentEventNumber();
       return gROME->GetSocketClientNetFolder()->RequestNewEvent(oldRunNumber,oldEventNumber);
    }
    else {
-      if (oldRunNumber!=gROME->GetCurrentRunNumber() || oldEventNumber!=gROME->GetCurrentEventNumber())
+      if (oldRunNumber!=gROME->GetCurrentRunNumber()
+          || oldEventNumber!=gROME->GetCurrentEventNumber()) {
+         fCurrentRun   = gROME->GetCurrentRunNumber();
+         fCurrentEvent = gROME->GetCurrentEventNumber();
          return kTRUE;
+      }
    }
    return kFALSE;
 }

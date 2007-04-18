@@ -3473,7 +3473,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler() {\n", shortCut.Data(), tabName[iTab].Data());
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   int ii;\n");
-         buffer.AppendFormatted("   if (RequestNewEvent(fWindow->GetCurrentRun(),fWindow->GetCurrentEvent())) {\n");
+         buffer.AppendFormatted("   if (RequestNewEvent(fCurrentRun, fCurrentEvent)) {\n");
          buffer.AppendFormatted("      for (ii=0;ii<fNumberOfDisplayTypes;ii++)\n");
          buffer.AppendFormatted("         fDisplayObjLoaded->AddAt(0,ii);\n");
          buffer.AppendFormatted("   }\n");
@@ -3481,7 +3481,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("      return;\n");
       }
       else {
-         buffer.AppendFormatted("   if (!RequestNewEvent(fWindow->GetCurrentRun(),fWindow->GetCurrentEvent()))\n");
+         buffer.AppendFormatted("   if (!RequestNewEvent(fCurrentRun, fCurrentEvent))\n");
          buffer.AppendFormatted("      return;\n");
       }
       if (tabObjectDisplay[iTab]) {
