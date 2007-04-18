@@ -14833,69 +14833,6 @@ Bool_t ROMEBuilder::WriteVersionH()
    return true;
 }
 
-Bool_t ROMEBuilder::WriteLinkDefHs()
-{
-   ROMEString filename;
-
-/*
-   filename = "dict/ROMELinkDef.h";
-   if (!WriteLinkDefH(romeDictHeaders, romeLinkDefSuffix, filename.Data()))
-      return false;
-   filename = "dict/ARGUSLinkDef.h";
-   if (!WriteLinkDefH(argusHeaders, argusLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sGeneratedLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(generatedDictHeaders, generatedLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sGeneratedFolderLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(generatedFolderDictHeaders, generatedFolderLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sGeneratedSupportFolderLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(generatedSupportFolderDictHeaders, generatedSupportFolderLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sGeneratedTaskLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(generatedTaskDictHeaders, generatedTaskLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sGeneratedTabLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(generatedTabDictHeaders, generatedTabLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sFolderLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(folderHeaders, folderLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sTaskLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(taskHeaders, taskLinkDefSuffix, filename.Data()))
-      return false;
-   filename.SetFormatted("dict/%sTabLinkDef.h",shortCut.Data());
-   if (!WriteLinkDefH(tabHeaders, tabLinkDefSuffix, filename.Data()))
-      return false;
-*/
-
-   return true;
-}
-
-Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix, const char* filename)
-{
-   ROMEString buffer;
-   ROMEString classname;
-   int i;
-
-   buffer.SetFormatted("#ifdef __CINT__\n");
-   if (headers->GetEntriesFast()>0) {
-      for (i=0;i<headers->GetEntriesFast();i++) {
-         classname = gSystem->BaseName(headers->At(i).Data());
-         classname.Resize(classname.Length()-2); // remove ".h"
-         if (ldsuffix->At(i).Length()>0)
-            buffer.AppendFormatted("#pragma link C++ class %s%s;\n", classname.Data(), ldsuffix->At(i).Data());
-         else
-            buffer.AppendFormatted("#pragma link C++ class %s;\n", classname.Data());
-      }
-      buffer.AppendFormatted("#endif\n");
-      WriteFile(filename, buffer.Data(), 6);
-   }
-
-   return true;
-}
-
 Bool_t ROMEBuilder::WritePrecompiledHeaders()
 {
    // Write XXXVersion.h

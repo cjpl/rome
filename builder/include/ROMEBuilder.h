@@ -442,6 +442,7 @@ protected:
 // user makefile
    Int_t         numOfMFDictHeaders;
    ROMEString   *mfDictHeaderName;
+   ROMEString   *mfDictHeaderLinkDefSuffix;
    Int_t        *numOfMFDictHeaderAffiliations;
    ROMEString  **mfDictHeaderAffiliation;
    Bool_t       *mfDictHeaderUsed;
@@ -525,8 +526,10 @@ protected:
    ROMEStrArray* tabLinkDefSuffix;
    ROMEStrArray* daqHeaders;
    ROMEStrArray* daqSources;
+   ROMEStrArray* daqLinkDefSuffix;
    ROMEStrArray* databaseHeaders;
    ROMEStrArray* databaseSources;
+   ROMEStrArray* databaseLinkDefSuffix;
    ROMEStrArray* rootLibraries;
    ROMEStrArray* mysqlLibraries;
    ROMEStrArray* daqLibraries;
@@ -647,8 +650,8 @@ private:
    Bool_t  WriteMain();
    Bool_t  WriteReadTreesC();
    Bool_t  WriteVersionH();
-   Bool_t  WriteLinkDefHs();
-   Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* filename);
+   Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* dictionaryName);
+   Bool_t  WriteUserLinkDefH();
    Bool_t  WritePrecompiledHeaders();
 
    // Makefile Methods
