@@ -4324,12 +4324,6 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
       return;
    }
    str.Remove(str.Length()-2, 2);
-   Int_t revision = str.ToInteger();
-   // class version can not be larger than 16838
-   if (revision != 0) {
-      revision = revision % 16383 + 1;
-   }
-   str.SetFormatted("%d", revision);
    return;
 }
 
