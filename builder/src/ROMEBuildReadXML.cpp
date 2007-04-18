@@ -454,6 +454,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    bool finished = false;
    bool inputok = false;
    int type;
+   ROMEString tmp;
 
    experimentName = "";
    styleSheet = "";
@@ -463,6 +464,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    mainAuthor = "";
    mainInstitute = "";
    mainCollaboration = "";
+   dictionaryType = 1;
    mainEmail = "";
    usedCLO = ROMECommandLineOptions;
 
@@ -544,6 +546,12 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      if (type == 1 && !strcmp((const char*)name,"ProgramName")) {
                         xml->GetValue(mainProgName,mainProgName);
                         FormatText(mainProgName, kTRUE, " ");
+                     }
+                     if (type == 1 && !strcmp((const char*)name,"DictionaryType")) {
+                        xml->GetValue(tmp,tmp);
+                        if (tmp.ToInteger() == 0) {
+                           dictionaryType = 0;
+                        }
                      }
                      if (type == 1 && !strcmp((const char*)name,"ProgramDefinitionVersion")) {
                         xml->GetValue(mainDefinitionVersion,mainDefinitionVersion);

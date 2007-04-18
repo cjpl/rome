@@ -1427,7 +1427,9 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 #endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
-   buffer.AppendFormatted(" include/generated/%sLinkDef.h",dictionaryName);
+   if (dictionaryType > 0) {
+      buffer.AppendFormatted(" include/generated/%sLinkDef.h",dictionaryName);
+   }
    buffer.AppendFormatted("\n\n\n");
 
    GetDictHeaderString(bufferT,headers,";");
@@ -1566,7 +1568,9 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 #endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(DictionaryHeaders)");
-   buffer.AppendFormatted(" include/generated/%sUserDictLinkDef.h", shortCut.Data());
+   if (dictionaryType > 0) {
+      buffer.AppendFormatted(" include/generated/%sUserDictLinkDef.h", shortCut.Data());
+   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");

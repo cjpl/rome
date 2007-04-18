@@ -489,6 +489,7 @@ protected:
    ROMEString    mainDefinitionVersion;
    ROMEString    mainDescription;
    ROMEString    styleSheet;
+   Int_t         dictionaryType;
 
 // Makefile
    ROMEStrArray* dictionaryNames;
