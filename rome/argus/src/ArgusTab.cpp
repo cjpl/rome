@@ -58,8 +58,6 @@ void ArgusTab::ArgusEventHandler() {
 }
 
 Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) {
-   gROME->GetWindow()->SetCurrentRun(gROME->GetCurrentRunNumber());
-   gROME->GetWindow()->SetCurrentEvent(gROME->GetCurrentEventNumber());
    if (gROME->IsROMEMonitor()) {
       fCurrentRun   = gROME->GetCurrentRunNumber();
       fCurrentEvent = gROME->GetCurrentEventNumber();
@@ -83,8 +81,8 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
 }
 
 Bool_t ArgusTab::RequestEvent() {
-   gROME->GetWindow()->SetCurrentRun(gROME->GetCurrentRunNumber());
-   gROME->GetWindow()->SetCurrentEvent(gROME->GetCurrentEventNumber());
+   fCurrentRun   = gROME->GetCurrentRunNumber();
+   fCurrentEvent = gROME->GetCurrentEventNumber();
    if (gROME->IsROMEMonitor()) {
       return gROME->GetSocketClientNetFolder()->RequestEvent();
    }

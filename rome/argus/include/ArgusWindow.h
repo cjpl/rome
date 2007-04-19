@@ -64,8 +64,6 @@ protected:
    ROMENetFolder           *fControllerNetFolder;  //!
    Float_t                  fWindowScale;          //! Window scale
    Bool_t                   fRequestEventHandling; //! Event handling request flag
-   Long64_t                 fCurrentEvent;         //! Currently displayed event
-   Long64_t                 fCurrentRun;           //! Currently displayed run
    Bool_t                   fUpdateButtonClicked ; //! Flag to check status of update button
 
    enum CommandIdentifiers{
@@ -134,12 +132,6 @@ public:
 
    // Event Handler
    virtual void    TriggerEventHandler() = 0;
-
-   // Event & Run Numbers
-   Long64_t        GetCurrentEvent() { return fCurrentEvent; };
-   void            SetCurrentEvent(Long64_t event) { fCurrentEvent = event; };
-   Long64_t        GetCurrentRun() { return fCurrentRun; };
-   void            SetCurrentRun(Long64_t run) { fCurrentRun = run; };
 
    // Update Button
    Bool_t          IsUpdateButtonClicked() const { return fUpdateButtonClicked; }
