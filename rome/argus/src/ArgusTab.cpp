@@ -81,8 +81,6 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
 }
 
 Bool_t ArgusTab::RequestEvent() {
-   fCurrentRun   = gROME->GetCurrentRunNumber();
-   fCurrentEvent = gROME->GetCurrentEventNumber();
    if (gROME->IsROMEMonitor()) {
       return gROME->GetSocketClientNetFolder()->RequestEvent();
    }
