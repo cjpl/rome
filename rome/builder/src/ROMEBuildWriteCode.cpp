@@ -14805,7 +14805,11 @@ Bool_t ROMEBuilder::WriteVersionH()
 */
    ROMEString prog;
    ROMEString format;
-   prog.SetFormatted("%s%s",shortCut.Data(),mainProgName.Data());
+   if (revNumber == "0") {
+      prog.SetFormatted("%s%s",shortCut.Data(),mainProgName.Data());
+   } else {
+      prog.SetFormatted("%s%s (rev.%s)",shortCut.Data(),mainProgName.Data(),revNumber.Data());
+   }
    int len1 = (int)((39-(double)prog.Length())/2+0.5);
    int len2 = (int)((39-(double)prog.Length())/2);
    buffer.AppendFormatted("const char* const %sLogo =\n", shortCut.Data());
