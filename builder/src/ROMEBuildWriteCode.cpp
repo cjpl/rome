@@ -6027,8 +6027,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("   window->SetControllerActive(fControllerActive);\n");
    buffer.AppendFormatted("   window->SetWindowScale(fWindowScale);\n");
    buffer.AppendFormatted("   window->ClearEventHandlingRequest();\n");
-   buffer.AppendFormatted("   window->SetCurrentEvent(fCurrentEvent);\n");
-   buffer.AppendFormatted("   window->SetCurrentRun(fCurrentRun);\n");
    buffer.AppendFormatted("\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
