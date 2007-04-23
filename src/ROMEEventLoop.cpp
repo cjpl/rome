@@ -587,6 +587,7 @@ Bool_t ROMEEventLoop::DAQInit()
    Int_t k;
    Bool_t identicalFileNameFound;
    TFile *identicalFilePointer;
+   TFile* file;
    for (j=0;j<nTree;j++) {
       identicalFileNameFound = kFALSE;
       identicalFilePointer = 0;
@@ -605,7 +606,11 @@ Bool_t ROMEEventLoop::DAQInit()
                }
             }
             if (!identicalFileNameFound) { // file is not open yet
-               romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+               file = new TFile(filename.Data(),"RECREATE");
+               if (!file || file->IsZombie()) {
+                  return false;
+               }
+               romeTree->SetFile(file);
                gROOT->cd();
             } else { // file is already open
                romeTree->SetFile(identicalFilePointer);
@@ -689,6 +694,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    Int_t k;
    Bool_t identicalFileNameFound;
    TFile *identicalFilePointer;
+   TFile *file;
    const Int_t nTree = gROME->GetTreeObjectEntries();
    for (int j=0;j<nTree;j++) {
       identicalFileNameFound = kFALSE;
@@ -726,7 +732,11 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
                   }
                }
                if (!identicalFileNameFound) { // file is not open yet
-                  romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+                  file = new TFile(filename.Data(),"RECREATE");
+                  if (!file || file->IsZombie()) {
+                     return false;
+                  }
+                  romeTree->SetFile(file);
                   gROOT->cd();
                } else { // file is already open
                   romeTree->SetFile(identicalFilePointer);
@@ -1158,13 +1168,15 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
 
    filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
    fHistoFile = new TFile(filename.Data(),"RECREATE");
-   fHistoFile->cd();
-   TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
-   folder->Write();
-   fHistoFile->Write();
-   fHistoFile->Close();
-   SafeDelete(fHistoFile);
-   gROOT->cd();
+   if (fHistoFile || fHistoFile->IsZombie()) {
+      fHistoFile->cd();
+      TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
+      folder->Write();
+      fHistoFile->Write();
+      fHistoFile->Close();
+      SafeDelete(fHistoFile);
+      gROOT->cd();
+   }
 
    // Write trees
    ROMEString treename;
