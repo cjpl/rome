@@ -150,3 +150,9 @@
   <Directory>/scratch0/yamada/rome/trunk</Directory>
   <LastCompile>Wed, 18 Apr 2007 16:51:13 +0000 (GMT) +339434000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>lcmeg05</Host>
+  <Directory>/data/disk3/users/sawada/rome-trunk</Directory>
+  <LastCompile>Sat, 21 Apr 2007 01:29:47 +0000 (GMT) + 88781000 nsec</LastCompile>
+</Entry>
