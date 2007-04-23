@@ -1168,7 +1168,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
 
    filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
    fHistoFile = new TFile(filename.Data(),"RECREATE");
-   if (fHistoFile || fHistoFile->IsZombie()) {
+   if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
       TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
       folder->Write();
