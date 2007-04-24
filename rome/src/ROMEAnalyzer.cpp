@@ -352,7 +352,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (!strcmp(argv[i],"-docu")) {
          THtml html;
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2))
-         html.SetProduct(fProgramName.Data());
+         html.SetProductName(fProgramName.Data());
 #endif
          html.MakeAll(false);
          return false;
