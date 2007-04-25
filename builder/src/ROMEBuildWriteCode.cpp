@@ -14680,14 +14680,14 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                }
                else {
                   if (valueDimension[iFold][iValue] > 0 ) {
-                     buffer.AppendFormatted("//       cout<<\"   //%s/%s/%s\t\"<<%s->Get%sAt(",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
+                     buffer.AppendFormatted("//       cout<<\"   //%s/%s/%s\\t\"<<%s->Get%sAt(",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
                      for (iDm = 0; iDm < valueDimension[iFold][iValue]; iDm++)
                         buffer.AppendFormatted("0, ");
                      buffer.Resize(buffer.Length()-2);
                      buffer.AppendFormatted(")<<endl;\n");
                   }
                   else {
-                     buffer.AppendFormatted("         cout<<\"   //%s/%s/%s\t\"<<%s->Get%s()<<endl;\n",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
+                     buffer.AppendFormatted("         cout<<\"   //%s/%s/%s\\t\"<<%s->Get%s()<<endl;\n",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
                   }
                }
             }
@@ -14700,14 +14700,14 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                }
                else {
                   if (valueDimension[iFold][iValue] > 0 ) {
-                     buffer.AppendFormatted("//          cout<<\"   //%s/%s/%s\t\"<<((%s%s*) %s->At(0))->Get%sAt(",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), shortCut.Data(), folderName[iFold].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
+                     buffer.AppendFormatted("//          cout<<\"   //%s/%s/%s\\t\"<<((%s%s*) %s->At(0))->Get%sAt(",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), shortCut.Data(), folderName[iFold].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
                      for (iDm = 0; iDm < valueDimension[iFold][iValue]; iDm++)
                         buffer.AppendFormatted("0, ");
                      buffer.Resize(buffer.Length()-2);
                      buffer.AppendFormatted(")<<endl;\n");
                   }
                   else {
-                     buffer.AppendFormatted("            cout<<\"   //%s/%s/%s\t\"<<((%s%s*) %s->At(0))->Get%s()<<endl;\n",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), shortCut.Data(), folderName[iFold].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
+                     buffer.AppendFormatted("            cout<<\"   //%s/%s/%s\\t\"<<((%s%s*) %s->At(0))->Get%s()<<endl;\n",treeName[iTree].Data(), branchName[iTree][iBranch].Data(), valueName[iFold][iValue].Data(), shortCut.Data(), folderName[iFold].Data(), folderName[iFold].Data(), valueName[iFold][iValue].Data());
                   }
                }
             }
