@@ -254,7 +254,9 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd ..; ./fomonitor.exe -i argusConfig.xml -q
 
 clean :
-	find $(ROMESYS)/examples -name "*.o" -exec $(RM) {} \;
+	find $(ROMESYS)/examples -name "*.o" | xargs $(RM)
+	find $(ROMESYS)/examples -name "*Dict*.cpp" | xargs $(RM)
+	find $(ROMESYS)/examples -name "*Dict*.h" | xargs $(RM)
 	$(MAKE) -C romedbwrapper clean
 
 depclean :

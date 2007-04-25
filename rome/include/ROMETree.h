@@ -94,7 +94,7 @@ public:
                }
    void        SetMaxEntries(Long64_t maxEntries) {
                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
-		  /* note: use 4byte integer for odb */
+                  /* note: use 4byte integer for odb */
                   if (maxEntries>0) fTree->SetCircular(maxEntries);
                }
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }

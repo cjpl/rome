@@ -1423,7 +1423,7 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size)
                      return read_error(HERE, "Unexpected end of file");
                   if (*p != '\"' && *p != '\'')
                      return read_error(HERE, "Expect \" or \' here");
-		            quote = *p;
+                  quote = *p;
                   p++;
 
                   /* extract attribute value */
