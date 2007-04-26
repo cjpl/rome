@@ -156,3 +156,9 @@
   <Directory>/data/disk3/users/sawada/rome-trunk</Directory>
   <LastCompile>Sat, 21 Apr 2007 01:29:47 +0000 (GMT) + 88781000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>shuei</User>
+  <Host>garland</Host>
+  <Directory>/home/shuei/rome/trunk</Directory>
+  <LastCompile>Thu, 26 Apr 2007 19:08:48 +0000 (GMT) + 39494000 nsec</LastCompile>
+</Entry>
