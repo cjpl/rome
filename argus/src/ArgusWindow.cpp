@@ -69,6 +69,7 @@ void ArgusWindow::InitArgus(Bool_t tabWindow)
 
    fSubWindows = new TObjArray(0);
    fSubWindowRunning = new TArrayI();
+   SafeDelete(fSubWindowRunning);
    fSubWindowTimeString = new ROMEStrArray();
 
    fWatchAll.Reset();
