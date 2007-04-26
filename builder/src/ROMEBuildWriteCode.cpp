@@ -252,7 +252,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("\n");
             }
             else if (isTArrayType(valueType[iFold][i])) {
-               buffer.AppendFormatted("void %s::Get%sCopy(Int_t n,%s* arrayToCopy)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
+               buffer.AppendFormatted("void %s::Get%sCopy(Int_t n, %s* arrayToCopy)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!%s%sGetSize() || !n) return;\n",valueName[iFold][i].Data(),relation.Data());
                buffer.AppendFormatted("   if (!arrayToCopy) arrayToCopy = new %s[n];\n",TArray2StandardType(valueType[iFold][i],tempBuffer));
@@ -455,7 +455,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
                buffer.AppendFormatted("   void Set%sSize(Int_t number);\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("void %s::Set%sCopy(Int_t n,%s* array)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
+               buffer.AppendFormatted("void %s::Set%sCopy(Int_t n, const %s* array)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!array || !n) return;\n");
                if (valueType[iFold][i].Contains("*"))
@@ -500,7 +500,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
-               buffer.AppendFormatted("void %s::Set%sCopy(Int_t n,%s* array)\n",clsName.Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("void %s::Set%sCopy(Int_t n, const %s* array)\n",clsName.Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!array || n<=0) return;\n");
                buffer.AppendFormatted("   if (%sActualSize<n) Set%sSize(n);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
@@ -531,7 +531,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
 
-               buffer.AppendFormatted("void %s::Set%sCopy(Int_t n,%s* array)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
+               buffer.AppendFormatted("void %s::Set%sCopy(Int_t n, const %s* array)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!array || !n) return;\n");
                buffer.AppendFormatted("   memcpy(%s,array,n*sizeof(%s));\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
@@ -1249,7 +1249,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted("      %s%sSet(number);\n",valueName[iFold][i].Data(),relation.Data());
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   }\n");
-               format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n,%%s* array);\n",typeLen);
+               format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n, const %%s* array);\n",typeLen);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
             }
             else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
@@ -1262,7 +1262,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds* %%s_value%%%ds) { %%s = %%s_value%%%ds;%%%ds SetModified(true); }\n",lb,typeLen-1,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
                buffer.AppendFormatted("   void Set%sSize(Int_t number);\n",valueName[iFold][i].Data());
-               format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n,%%s* array);\n",typeLen);
+               format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n, const %%s* array);\n",typeLen);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),valueType[iFold][i].Data());
             }
             else {
@@ -1272,7 +1272,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
                format.SetFormatted("%%-%ds %%s_value);\n",typeLen);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
-               format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n,%%s* array);\n",typeLen);
+               format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n, const %%s* array);\n",typeLen);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
             }
          }
