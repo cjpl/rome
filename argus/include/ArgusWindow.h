@@ -64,7 +64,7 @@ protected:
    ROMENetFolder           *fControllerNetFolder;  //!
    Float_t                  fWindowScale;          //! Window scale
    Bool_t                   fRequestEventHandling; //! Event handling request flag
-   Bool_t                   fUpdateButtonClicked ; //! Flag to check status of update button
+   Bool_t                   fForceEventHandling;   //! Force event handling even if it is the same event
 
    enum CommandIdentifiers{
       M_FILE_NEW_WINDOW,
@@ -116,6 +116,9 @@ public:
    void            RequestEventHandling();
    void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
    Bool_t          IsEventHandlingRequested() { return fRequestEventHandling; }
+   void            ForceEventHandling() { fForceEventHandling = true; }
+   void            ClearEventHandlingForced() { fForceEventHandling = false; }
+   Bool_t          IsEventHandlingForced() { return fForceEventHandling; }
 
    // Menu
    TGMenuBar*      GetMenuBar() { return fMenuBar; }
@@ -132,10 +135,6 @@ public:
 
    // Event Handler
    virtual void    TriggerEventHandler() = 0;
-
-   // Update Button
-   Bool_t          IsUpdateButtonClicked() const { return fUpdateButtonClicked; }
-   void            SetUpdateButtonClicked(Bool_t flag) {fUpdateButtonClicked = flag; }
 
 protected:
    void            InitArgus(Bool_t tabWindow);
