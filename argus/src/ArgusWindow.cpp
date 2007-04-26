@@ -96,7 +96,7 @@ Bool_t ArgusWindow::Start()
    fWatchAll.Start(false);
    ROMEPrint::Debug("ArgusWindow::Start()\n");
    // Initialize Analyzer Controller
-   if (fControllerActive)
+   if (fTabWindow && fControllerActive)
       fController = new ArgusAnalyzerController(gClient->GetRoot(),this,100,100,fControllerNetFolder);
 
    // Create status bar
@@ -113,16 +113,21 @@ Bool_t ArgusWindow::Start()
    fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
    fMenuFile = new TGPopupMenu (fClient->GetRoot());
    fMenuFile->Associate(this);
+
    if (fTabWindow) {
       fMenuFile->AddEntry("New Window", M_FILE_NEW_WINDOW);
    }
-   if (AddMenuNetFolder(fMenuNetFolder))
+   if (AddMenuNetFolder(fMenuNetFolder)) {
       fMenuFile->AddPopup("&Connect NetFolder", fMenuNetFolder);
-   fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
-   if (fTabWindow)
+   }
+   if (fTabWindow) {
+      fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
+   }
+   if (fTabWindow) {
       fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
-   else
+   } else {
       fMenuFile->AddEntry("C&lose", M_FILE_EXIT);
+   }
    fMenuNetFolder->Associate(this);
    fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
