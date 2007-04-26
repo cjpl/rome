@@ -57,7 +57,14 @@ void ArgusTab::ArgusEventHandler() {
    fWatchAll.Stop();
 }
 
-Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) {
+Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber) {
+
+   Bool_t forced = kFALSE;
+   if(gROME->GetWindow()->IsEventHandlingForced()) {
+      forced = kTRUE;
+      gROME->GetWindow()->ClearEventHandlingForced();
+   }
+
    if (gROME->IsROMEMonitor()) {
       fCurrentRun   = gROME->GetCurrentRunNumber();
       fCurrentEvent = gROME->GetCurrentEventNumber();
@@ -65,13 +72,9 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
    }
    else {
       if (oldRunNumber!=gROME->GetCurrentRunNumber()
-          || oldEventNumber!=gROME->GetCurrentEventNumber()) {
-         fCurrentRun   = gROME->GetCurrentRunNumber();
-         fCurrentEvent = gROME->GetCurrentEventNumber();
-         return kTRUE;
-      }
-      if(gROME->GetWindow()->IsUpdateButtonClicked()) {
-         // behave as if new event when update button was clicked
+          || oldEventNumber!=gROME->GetCurrentEventNumber()
+          || forced ) {
+         // if new run#/event# or event handling is forced
          fCurrentRun   = gROME->GetCurrentRunNumber();
          fCurrentEvent = gROME->GetCurrentEventNumber();
          return kTRUE;
