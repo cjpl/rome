@@ -139,7 +139,6 @@ inline void ROMEUtilities::ByteSwap(Double_t *x)
 inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
 {
 #if defined( R__VISUAL_CPLUSPLUS )
-#if 0    // not yet tested
    Int_t old = GetFPEMask();
 
    UInt_t newm = 0;
@@ -156,9 +155,6 @@ inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    _control87(cm,MCW_EM);
 
    return old;
-#else
-   return 0;
-#endif
 #else // UNIX
    return gSystem->SetFPEMask(mask);
 #endif
