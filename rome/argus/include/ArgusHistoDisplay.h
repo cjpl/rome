@@ -87,6 +87,10 @@ protected:
    Int_t                fNumberOfPadsX;            //!
    Int_t                fNumberOfPadsY;            //!
 
+   Bool_t               fLogScaleX;        //!
+   Bool_t               fLogScaleY;        //!
+   Bool_t               fLogScaleZ;        //!
+
    Bool_t               fStatisticBoxFlag; //!
 
    TRootEmbeddedCanvas *fCanvas;                   //!
@@ -119,6 +123,13 @@ public:
    int  GetNumberOfPadsY() { return fNumberOfPadsY; };
    void   SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
    Bool_t IsPadConfigActive() { return fPadConfigActive; };
+
+   void   SetLogScaleX(Bool_t flag=true) { fLogScaleX = flag; };
+   Bool_t IsLogScaleX() { return fLogScaleX; };
+   void   SetLogScaleY(Bool_t flag=true) { fLogScaleY = flag; };
+   Bool_t IsLogScaleY() { return fLogScaleY; };
+   void   SetLogScaleZ(Bool_t flag=true) { fLogScaleZ = flag; };
+   Bool_t IsLogScaleZ() { return fLogScaleZ; };
 
    virtual void RegisterObjects() = 0;
    virtual void UnRegisterObjects() = 0;

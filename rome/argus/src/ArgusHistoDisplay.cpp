@@ -455,6 +455,9 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 
       for (i=0 ; i<fNumberOfPads ; i++) {
          fPad[i] = (TPad*)fCanvas->GetCanvas()->GetPad(i+1);
+         fPad[i]->SetLogx(fLogScaleX);
+         fPad[i]->SetLogy(fLogScaleY);
+         fPad[i]->SetLogz(fLogScaleZ);
          fPad[i]->SetGridx();
          fPad[i]->SetGridy();
          fPad[i]->SetLeftMargin(0.08f);

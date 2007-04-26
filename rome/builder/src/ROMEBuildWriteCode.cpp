@@ -4339,7 +4339,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
 
 Bool_t ROMEBuilder::WriteAnalyzerCpp()
 {
-   int i,j,index;
+   int i,j,k,index;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -4350,6 +4350,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    ROMEString buf;
    ROMEString str;
    ROMEString pointer;
+   bool treeFolder;
 
    if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
 
@@ -4630,7 +4631,20 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
-      if (!folderSupport[i]) {
+      treeFolder = false;
+      for (j=0;j<numOfTree && !treeFolder;j++) {
+         for (k=0;k<numOfBranch[j] && !treeFolder;k++) {
+            if (branchFolder[j][k]==folderName[i])
+               treeFolder = true;
+         }
+      }
+      for (j=0;j<numOfTree && !treeFolder;j++) {
+         for (k=0;k<numOfRunHeader[j] && !treeFolder;k++) {
+            if (runHeaderFolder[j][k]==folderName[i])
+               treeFolder = true;
+         }
+      }
+      if (!folderSupport[i] && !treeFolder) {
          if (numOfValue[i] > 0) {
             if (folderArray[i]=="1") {
                buffer.AppendFormatted("   SafeDelete(f%sFolder);\n",folderName[i].Data());
@@ -9449,6 +9463,39 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
          subGroup->GetLastParameter()->AddSetLine("else");
          subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetPadConfigActive(kFALSE);", tabName[i].Data(),tabSuffix[i].Data());
          subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->Get%s%sTab()->IsPadConfigActive())", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subGroup->GetLastParameter()->AddWriteLine("else");
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Logarithmic scale X
+         subGroup->AddParameter(new ROMEConfigParameter("LogScaleX","1","CheckButton"));
+         subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+         subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleX(kTRUE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddSetLine("else");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleX(kFALSE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleX())", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subGroup->GetLastParameter()->AddWriteLine("else");
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Logarithmic scale Y
+         subGroup->AddParameter(new ROMEConfigParameter("LogScaleY","1","CheckButton"));
+         subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+         subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleY(kTRUE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddSetLine("else");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleY(kFALSE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleY())", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subGroup->GetLastParameter()->AddWriteLine("else");
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Logarithmic scale Z
+         subGroup->AddParameter(new ROMEConfigParameter("LogScaleZ","1","CheckButton"));
+         subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+         subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleZ(kTRUE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddSetLine("else");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleZ(kFALSE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleZ())", tabName[i].Data(),tabSuffix[i].Data());
          subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
          subGroup->GetLastParameter()->AddWriteLine("else");
          subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
