@@ -66,13 +66,13 @@ protected:
    Bool_t                   fRequestEventHandling; //! Event handling request flag
    Bool_t                   fForceEventHandling;   //! Force event handling even if it is the same event
 
-   enum CommandIdentifiers{
+public:
+   enum CommandIdentifiers {
       M_FILE_NEW_WINDOW,
       M_FILE_CONTROLLER,
       M_FILE_EXIT
    };
 
-public:
    ArgusWindow();
    ArgusWindow(const TGWindow* p,Bool_t tabWindow=kTRUE);
    virtual ~ArgusWindow();
