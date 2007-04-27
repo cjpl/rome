@@ -42,6 +42,14 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
 
+      <FloatingPointExceptionTrap>
+        <Invalid>false</Invalid>
+        <DivByZero>false</DivByZero>
+        <Overflow>false</Overflow>
+        <Underflow>false</Underflow>
+        <Inexact>true</Inexact>
+      </FloatingPointExceptionTrap>
+
       <SocketServer>
         <Active>false</Active>
         <PortNumber>9090</PortNumber>
@@ -91,6 +99,26 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Tab>
           <TabName>GeneratedHisto</TabName>
           <Active>true</Active>
+          <SingleObject>
+            <SingleObjectName>MyHisto</SingleObjectName>
+            <LogScaleX>true</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
+
+          <SingleObject>
+            <SingleObjectName>MyOtherHisto</SingleObjectName>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
+
+          <SingleObject>
+            <SingleObjectName>MyGraph</SingleObjectName>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
         </Tab>
       </Tabs>
     </Monitor>

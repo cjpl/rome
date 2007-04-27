@@ -106,9 +106,23 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
    fObjects = new TObjArray();
    fUserLines = new TObjArray();
    fLines = new TObjArray();
-   fDrawOption = new ROMEStrArray();
 }
-
+void ArgusHistoDisplay::InitHistoDisplay() 
+{
+   int i;
+   fDisplayObjLoaded = new TArrayI(fNumberOfDisplayTypes);
+   fDrawOption = new ROMEStrArray();
+   fLogScaleX = new TArrayI(fNumberOfDisplayTypes);
+   fLogScaleY = new TArrayI(fNumberOfDisplayTypes);
+   fLogScaleZ = new TArrayI(fNumberOfDisplayTypes);
+   for (i=0;i<fNumberOfDisplayTypes;i++) {
+      fDisplayObjLoaded->AddAt(0,i);
+      fDrawOption->AddLast("");
+      fLogScaleX->AddAt(0,i);
+      fLogScaleY->AddAt(0,i);
+      fLogScaleZ->AddAt(0,i);
+   }
+}
 ArgusHistoDisplay::~ArgusHistoDisplay()
 {
    Int_t i,j,k;
@@ -171,8 +185,6 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
       delete(fLines->At(i));
    }
    SafeDelete(fLines);
-   // DrawOption
-   SafeDelete(fDrawOption);
 }
 
 TGraphMT* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
@@ -218,19 +230,8 @@ TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
    return NULL;
 }
 
-void ArgusHistoDisplay::SetDrawOptionAt(Int_t displayTypeIndex,const char* option)
-{
-   fDrawOption->AddAt(option,displayTypeIndex);
-}
-
-const char* ArgusHistoDisplay::GetDrawOptionAt(Int_t displayTypeIndex)
-{
-   return fDrawOption->At(displayTypeIndex);
-}
-
 void ArgusHistoDisplay::BaseInit()
 {
-   int i;
    ROMEString str;
 
    /* Create an embedded canvas and add to the main frame, centered in x and y */
@@ -244,9 +245,6 @@ void ArgusHistoDisplay::BaseInit()
    SetSize(GetDefaultSize());
    fChannelNumber = 0;
    fDisplayTypeOld = -1;
-   fDisplayObjLoaded = new TArrayI(fNumberOfDisplayTypes);
-   for (i=0;i<fNumberOfDisplayTypes;i++)
-      fDisplayObjLoaded->AddAt(0,i);
    MapSubwindows();
    MapWindow();
    SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
@@ -435,6 +433,9 @@ void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
 void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
    Int_t i,k;
+   if (fDisplayObjIndex>=fNumberOfDisplayTypes)
+      return;
+
    Bool_t clear = true;
    if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fCurrentDisplayType)
       clear = false;
@@ -455,15 +456,15 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 
       for (i=0 ; i<fNumberOfPads ; i++) {
          fPad[i] = (TPad*)fCanvas->GetCanvas()->GetPad(i+1);
-         fPad[i]->SetLogx(fLogScaleX);
-         fPad[i]->SetLogy(fLogScaleY);
-         fPad[i]->SetLogz(fLogScaleZ);
          fPad[i]->SetGridx();
          fPad[i]->SetGridy();
          fPad[i]->SetLeftMargin(0.08f);
          fPad[i]->SetRightMargin(0.01f);
          fPad[i]->SetTopMargin(1.0f);
          fPad[i]->SetBottomMargin(1.0f);
+         fPad[i]->SetLogx(fLogScaleX->At(fDisplayObjIndex));
+         fPad[i]->SetLogy(fLogScaleY->At(fDisplayObjIndex));
+         fPad[i]->SetLogz(fLogScaleZ->At(fDisplayObjIndex));
          fPad[i]->cd();
          if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT"))
             ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw("A L");

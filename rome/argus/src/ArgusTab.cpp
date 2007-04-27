@@ -33,6 +33,10 @@ ArgusTab::ArgusTab(ArgusWindow* window):TGCompositeFrame(NULL,1,1) {
    fWatchUser.Reset();
    fWatchUserEvent.Reset();
    fRegisteringActive = true;
+   fDrawOption = 0;
+   fLogScaleX = 0;
+   fLogScaleY = 0;
+   fLogScaleZ = 0;
 }
 
 void ArgusTab::ArgusInit() {
@@ -45,11 +49,15 @@ void ArgusTab::ArgusInit() {
 }
 
 ArgusTab::~ArgusTab() {
+   SafeDelete(fDrawOption);
+   SafeDelete(fLogScaleX);
+   SafeDelete(fLogScaleY);
+   SafeDelete(fLogScaleZ);
 }
 
 void ArgusTab::ArgusEventHandler() {
-   if (fBusy)
-      return;
+   while (fBusy)
+      gSystem->Sleep(10);
    fWatchAll.Start(false);
    fBusy = true;
    BaseEventHandler();

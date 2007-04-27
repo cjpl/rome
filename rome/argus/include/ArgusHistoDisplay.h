@@ -78,7 +78,6 @@ protected:
    Int_t                fNumberOfObjects; //!
    TObjArray           *fUserLines;       //!
    TObjArray           *fLines;           //!
-   ROMEStrArray        *fDrawOption;      //!
    Int_t                fNumberOfUserTGraph;//!
    Int_t                fNumberOfUserLines;//!
    Int_t                fNumberOfLines;   //!
@@ -86,10 +85,6 @@ protected:
    Int_t                fNumberOfPads;             //!
    Int_t                fNumberOfPadsX;            //!
    Int_t                fNumberOfPadsY;            //!
-
-   Bool_t               fLogScaleX;        //!
-   Bool_t               fLogScaleY;        //!
-   Bool_t               fLogScaleZ;        //!
 
    Bool_t               fStatisticBoxFlag; //!
 
@@ -106,6 +101,7 @@ protected:
 public:
    ArgusHistoDisplay(ArgusWindow* window);
    virtual ~ArgusHistoDisplay();
+   void InitHistoDisplay();
 
    void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
    TGraphMT* GetUserTGraphAt(Int_t index);
@@ -114,8 +110,6 @@ public:
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
    Int_t GetNumberOfUserLines() { return fNumberOfUserLines; };
    TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
-   void SetDrawOptionAt(Int_t displayTypeIndex,const char* option);
-   const char* GetDrawOptionAt(Int_t displayTypeIndex);
 
    void SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
    int  GetNumberOfPadsX() { return fNumberOfPadsX; };
@@ -123,13 +117,6 @@ public:
    int  GetNumberOfPadsY() { return fNumberOfPadsY; };
    void   SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
    Bool_t IsPadConfigActive() { return fPadConfigActive; };
-
-   void   SetLogScaleX(Bool_t flag=true) { fLogScaleX = flag; };
-   Bool_t IsLogScaleX() { return fLogScaleX; };
-   void   SetLogScaleY(Bool_t flag=true) { fLogScaleY = flag; };
-   Bool_t IsLogScaleY() { return fLogScaleY; };
-   void   SetLogScaleZ(Bool_t flag=true) { fLogScaleZ = flag; };
-   Bool_t IsLogScaleZ() { return fLogScaleZ; };
 
    virtual void RegisterObjects() = 0;
    virtual void UnRegisterObjects() = 0;

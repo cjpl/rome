@@ -12,12 +12,13 @@
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif
+#include <TArrayI.h>
 #include <TGFrame.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
 #include "ROME.h"
-#include "ROMEString.h"
+#include "ROMEStrArray.h"
 #include "ROMEStopwatch.h"
 
 class ArgusWindow;
@@ -40,6 +41,12 @@ protected:
    ROMEString     fTimeUserEventString;   //! Elapsed Time of user events in a readable format
    Bool_t         fRegisteringActive;     //! Registering active flag
 
+   // General Histo/Graph parameters (object displays, single objects)
+   ROMEStrArray        *fDrawOption;      //!
+   TArrayI             *fLogScaleX;       //!
+   TArrayI             *fLogScaleY;       //!
+   TArrayI             *fLogScaleZ;       //!
+
 public:
    ArgusTab(ArgusWindow* window);
    virtual ~ArgusTab();
@@ -53,6 +60,17 @@ public:
    const char *GetTimeOfAll();
    const char *GetTimeOfUser();
    const char *GetTimeOfUserEvents();
+
+   // General Histo/Graph parameter methods (object displays, single objects)
+   void  SetLogScaleXAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleX->AddAt(flag,displayTypeIndex); };
+   Int_t IsLogScaleXAt(Int_t displayTypeIndex) { return fLogScaleX->At(displayTypeIndex); };
+   void  SetLogScaleYAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleY->AddAt(flag,displayTypeIndex); };
+   Int_t IsLogScaleYAt(Int_t displayTypeIndex) { return fLogScaleY->At(displayTypeIndex); };
+   void  SetLogScaleZAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleZ->AddAt(flag,displayTypeIndex); };
+   Int_t IsLogScaleZAt(Int_t displayTypeIndex) { return fLogScaleZ->At(displayTypeIndex); };
+
+   void SetDrawOptionAt(Int_t displayTypeIndex,const char* option) { fDrawOption->AddAt(option,displayTypeIndex); };
+   const char* GetDrawOptionAt(Int_t displayTypeIndex) { return fDrawOption->At(displayTypeIndex); };
 
    // User Methods
    const char* GetTitle() const { return fTitle.Data(); }
