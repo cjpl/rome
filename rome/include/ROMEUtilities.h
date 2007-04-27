@@ -53,7 +53,10 @@ namespace ROMEUtilities {
 #if !defined(__CINT__)
    const char* GetFormat(const type_info &t);
 #endif
+
 }
+
+const char kFalseTrueString[2][10] = {"false", "true"};
 
 //
 // Byte swapping big endian <-> little endian
