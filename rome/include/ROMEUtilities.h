@@ -32,17 +32,17 @@ class ROMEString;
 class ROMEStrArray;
 
 namespace ROMEUtilities {
-   inline void ByteSwap(UShort_t *aValue);
-   inline void ByteSwap(Short_t *aValue);
-   inline void ByteSwap(UInt_t *aValue);
-   inline void ByteSwap(Int_t *aValue);
-   inline void ByteSwap(Float_t *aValue);
-   inline void ByteSwap(ULong64_t *aValue);
-   inline void ByteSwap(Long64_t *aValue);
-   inline void ByteSwap(Double_t *aValue);
+   void ByteSwap(UShort_t *aValue);
+   void ByteSwap(Short_t *aValue);
+   void ByteSwap(UInt_t *aValue);
+   void ByteSwap(Int_t *aValue);
+   void ByteSwap(Float_t *aValue);
+   void ByteSwap(ULong64_t *aValue);
+   void ByteSwap(Long64_t *aValue);
+   void ByteSwap(Double_t *aValue);
 
-   inline Int_t GetFPEMask() { return gSystem->GetFPEMask(); }
-   inline Int_t SetFPEMask(const Int_t mask);
+   Int_t GetFPEMask();
+   Int_t SetFPEMask(const Int_t mask);
 
    void GetMidasTID(ROMEString *buf,Char_t *type);
    void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
@@ -136,6 +136,25 @@ inline void ROMEUtilities::ByteSwap(Double_t *x)
     ByteSwap((ULong64_t *)x);
 }
 
+inline Int_t ROMEUtilities::GetFPEMask()
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+   UInt_t oldmask;
+   Int_t mask = 0;
+   oldmask = _control87_(0, 0) & MCW_EM;
+
+   if (oldmask & _EM_INVALID  )   mask |= kInvalid;
+   if (oldmask & _EM_ZERODIVIDE)  mask |= kDivByZero;
+   if (oldmask & _EM_OVERFLOW )   mask |= kOverflow;
+   if (oldmask & _EM_UNDERFLOW)   mask |= kUnderflow;
+   if (oldmask & _EM_INEXACT  )   mask |= kInexact;
+
+   return static_cast<Int_t>(mask);
+#else
+ return gSystem->GetFPEMask();
+#endif
+}
+
 inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -150,9 +169,9 @@ inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
 
    UInt_t cm;
    /* could use _controlfp */
-   cm = _control87(0,0) & MCW_EM;
+   cm = _control87(0, 0) & MCW_EM;
    cm &= ~newm;
-   _control87(cm,MCW_EM);
+   _control87(cm, MCW_EM);
 
    return old;
 #else // UNIX
