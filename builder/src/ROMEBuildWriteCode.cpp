@@ -39,7 +39,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
    ROMEString format;
    Int_t iDm;
 
-   if (makeOutput) cout << "\n   Output CPP-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output CPP-Files:"<<endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
       if (!folderUsed[iFold])
          continue;
@@ -167,12 +167,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             else if (valueArray[iFold][i][0]=="variable") {
                buffer.AppendFormatted("   if (%s > 0) {\n",valueArraySpecifier[iFold][i].Data());
                buffer.AppendFormatted("      %s = new %s[%s];\n",valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueArraySpecifier[iFold][i].Data());
-               buffer.AppendFormatted("      %sActualSize = %s;\n",valueName[iFold][i].Data(),valueArraySpecifier[iFold][i].Data());
                buffer.AppendFormatted("      %sSize = %s;\n",valueName[iFold][i].Data(),valueArraySpecifier[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   else {\n");
                buffer.AppendFormatted("      %s = NULL;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %sActualSize = 0;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      %sSize = 0;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
             }
@@ -454,7 +452,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
             else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
-               buffer.AppendFormatted("   void Set%sSize(Int_t number);\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("void %s::Set%sCopy(Int_t n, const %s* array)\n",clsName.Data(),valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!array || !n) return;\n");
@@ -481,19 +478,21 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
 
-               buffer.AppendFormatted("void %s::Set%sSize(Int_t number)\n",clsName.Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("void %s::Set%sSize(Int_t number, Bool_t copyOldData)\n",clsName.Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (number==%sSize) return;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("   if (number<0) return;\n");
-               buffer.AppendFormatted("   if (number>%sActualSize) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %s *tmp = %s;\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (number == %sSize) return;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (number < 0) return;\n");
+               buffer.AppendFormatted("   %s *tmp = %s;\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (number != 0) {\n");
                buffer.AppendFormatted("      %s = new %s[number];\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
-               buffer.AppendFormatted("      memcpy(%s,tmp,%sSize*sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
-               buffer.AppendFormatted("      delete [] tmp;\n");
-               buffer.AppendFormatted("      %sActualSize = number;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if (copyOldData)\n");
+               buffer.AppendFormatted("         memcpy(%s, tmp, TMath::Min(%sSize, number) * sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("   } else {\n");
+               buffer.AppendFormatted("      %s = 0;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
+               buffer.AppendFormatted("   delete [] tmp;\n");
                buffer.AppendFormatted("   %sSize = number;\n",valueName[iFold][i].Data());
-#if 0 // Maybe, this should be taken care of users rather than framework.
+#if 0 // Maybe, this should be taken care of by users rather than framework.
                if (valueArraySpecifier[iFold][i].Length())
                   buffer.AppendFormatted("   %s = number;\n",valueArraySpecifier[iFold][i].Data());
 #endif
@@ -503,7 +502,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("void %s::Set%sCopy(Int_t n, const %s* array)\n",clsName.Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!array || n<=0) return;\n");
-               buffer.AppendFormatted("   if (%sActualSize<n) Set%sSize(n);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (%sSize<n) Set%sSize(n, kFALSE);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   memcpy(%s,array,n*sizeof(%s));\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("   return;\n");
@@ -911,7 +910,7 @@ Bool_t ROMEBuilder::WriteFolderH()
    ROMEString tempBuffer;
    ROMEString tmp;
 
-   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output H-Files:"<<endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
       if (!folderUsed[iFold])
          continue;
@@ -1033,7 +1032,7 @@ Bool_t ROMEBuilder::WriteFolderH()
          if (isFolder(valueType[iFold][i].Data()) && valueDimension[iFold][i]>0) {
             if (valueDimension[iFold][i]>1) {
                cout<<"You can not have multiple dimensional array of support folders."<<endl;
-               cout << "Terminating program." << endl;
+               cout<<"Terminating program."<<endl;
                return false;
             }
             format.SetFormatted("   TClonesArray*%%%ds %%s;%%%ds %%s\n",typeLen-13,nameLen-valueName[iFold][i].Length());
@@ -1043,8 +1042,6 @@ Bool_t ROMEBuilder::WriteFolderH()
             format.SetFormatted("   %%-%ds* %%s;%%%ds %%s\n",typeLen-1,nameLen-valueName[iFold][i].Length());
             buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",ProcessCommentCPP(valueComment[iFold][i],tmp).Data());
             format.SetFormatted("   %%-%ds %%sSize;%%%ds // ! number of elements of %%s\n",typeLen,nameLen-valueName[iFold][i].Length()-4);
-            buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
-            format.SetFormatted("   %%-%ds %%sActualSize;%%%ds // ! actual size of %%s allocated in memory\n",typeLen,nameLen-valueName[iFold][i].Length()-10);
             buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
          }
          else {
@@ -1245,7 +1242,8 @@ Bool_t ROMEBuilder::WriteFolderH()
             else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
                format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) { %%s%%sAddAt(%%s_value,index)%%%ds;%%%ds SetModified(true); }\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),relation.Data(),valueName[iFold][i].Data(),"","");               buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),relation.Data(),valueName[iFold][i].Data(),"","");
+               buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      %s%sSet(number);\n",valueName[iFold][i].Data(),relation.Data());
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   }\n");
@@ -1261,7 +1259,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data());
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds* %%s_value%%%ds) { %%s = %%s_value%%%ds;%%%ds SetModified(true); }\n",lb,typeLen-1,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
-               buffer.AppendFormatted("   void Set%sSize(Int_t number);\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   void Set%sSize(Int_t number, Bool_t copyOldData = kFALSE);\n",valueName[iFold][i].Data());
                format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n, const %%s* array);\n",typeLen);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),valueType[iFold][i].Data());
             }
@@ -1515,7 +1513,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
    ROMEString discript;
    ROMEString str;
 
-   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-Files:"<<endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (!taskUsed[iTask])
          continue;
@@ -1564,13 +1562,15 @@ Bool_t ROMEBuilder::WriteTaskCpp()
                first = false;
             }
             if (!folderUsed[j]) {
-/*                  cout << "Error : Task " << taskName[iTask].Data() << " tries to access folder " << folderName[j].Data() << endl;
-               cout << "        but this folder is currently not linked into the project." << endl << endl;
-               cout << "        Please check the affiliations of the task and the folder," << endl;
-               cout << "        or modify the source code of the task." << endl;
-               cout << "Terminating program." << endl;
+/*
+               cout<<"Error : Task "<<taskName[iTask].Data()<<" tries to access folder "<<folderName[j].Data()<<endl;
+               cout<<"        but this folder is currently not linked into the project."<<endl<<endl;
+               cout<<"        Please check the affiliations of the task and the folder,"<<endl;
+               cout<<"        or modify the source code of the task."<<endl;
+               cout<<"Terminating program."<<endl;
                return false;
-*/                  clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
+*/
+               clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
             }
          }
       }
@@ -1684,7 +1684,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
    ROMEString str;
    bool array;
 
-   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-Files:"<<endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (!taskUsed[iTask])
          continue;
@@ -2649,7 +2649,7 @@ Bool_t ROMEBuilder::WriteTaskH()
    ROMEString clsName;
    ROMEString clsDescription;
 
-   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output H-Files:"<<endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (!taskUsed[iTask])
          continue;
@@ -2706,7 +2706,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
    ROMEString clsDescription;
    int i;
 
-   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output H-Files:"<<endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (!taskUsed[iTask])
          continue;
@@ -2962,7 +2962,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
    TArrayI equal;
 
    if (makeOutput)
-      cout << "\n   Output Cpp-Files:" << endl;
+      cout<<"\n   Output Cpp-Files:"<<endl;
    for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
       if (!tabUsed[iTab])
          continue;
@@ -3158,7 +3158,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
    fstream *fileStream;
 
    if (makeOutput)
-      cout << "\n   Output Cpp-Files:" << endl;
+      cout<<"\n   Output Cpp-Files:"<<endl;
    for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
       if (!tabUsed[iTab])
          continue;
@@ -3944,7 +3944,7 @@ Bool_t ROMEBuilder::WriteTabH()
 
    Int_t i;
    if (makeOutput)
-      cout << "\n   Output H-Files:" << endl;
+      cout<<"\n   Output H-Files:"<<endl;
 
    for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
       if (!tabUsed[iTab])
@@ -4018,8 +4018,8 @@ Bool_t ROMEBuilder::WriteTabH()
       str.SetFormatted(" %sT%s()",shortCut.Data(),tabName[iTab].Data());
       if (fileBuffer.Contains(str)) {
          str.SetFormatted("Please replace %sT%s():%sT%s_Base() with %sT%s(%sWindow* window):%sT%s_Base(window).",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),shortCut.Data(),tabName[iTab].Data());
-         cout << "The parameter list of the constructor of tabs has changed." << endl;
-         cout << str.Data() << endl << endl;
+         cout<<"The parameter list of the constructor of tabs has changed."<<endl;
+         cout<<str.Data()<<endl<<endl;
       }
       if (tabObjectDisplay[iTab]) {
          str1.RemoveAll();
@@ -4299,7 +4299,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
       return true;
    }
 
-   if (makeOutput) cout << "\n   Output Files:" << endl;
+   if (makeOutput) cout<<"\n   Output Files:"<<endl;
 
    // Description
    buffer.Resize(0);
@@ -4378,7 +4378,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    ROMEString pointer;
    bool treeFolder;
 
-   if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-File:"<<endl;
 
    ROMEString tmp, tmp2;
    ROMEString format;
@@ -5220,7 +5220,7 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
    ROMEString str;
    ROMEString pointer;
 
-   if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-File:"<<endl;
 
    ROMEString tmp;
    ROMEString format;
@@ -5315,7 +5315,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    ROMEString str;
    ROMEString pointer;
 
-   if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-File:"<<endl;
 
    ROMEString tmp;
    ROMEString format;
@@ -5526,7 +5526,7 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
    ROMEString str;
    ROMEString pointer;
 
-   if (makeOutput) cout << "\n   Output Cpp-File:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-File:"<<endl;
 
    ROMEString tmp;
    ROMEString format;
@@ -5609,7 +5609,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    ROMEString bankname;
    ROMEString format;
    ROMEString tmp;
-   if (makeOutput) cout << "\n   Output H-File:" << endl;
+   if (makeOutput) cout<<"\n   Output H-File:"<<endl;
    // max folder name length
    int nameLen = -1;
    int fieldLen = -1;
@@ -10456,7 +10456,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                if (steerFieldHotLink[i][j][k]) {
                   GetSteerPath(steerPath,i,j,k,"_");
                   if (!toMidasODBType(steerFieldType[i][j][k],midType)) {
-                     cout << "Steering parameter field " << steerFieldName[i][j][k].Data() << " of task " << taskHierarchyName[i].Data() << " can not be a hot link" << endl;
+                     cout<<"Steering parameter field "<<steerFieldName[i][j][k].Data()<<" of task "<<taskHierarchyName[i].Data()<<" can not be a hot link"<<endl;
                      return false;
                   }
                   buffer.AppendFormatted("%s = %s : 0\\n",steerPath.Data(),midType.Data());
@@ -10482,7 +10482,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          for (k=0;k<numOfSteerFields[numOfTaskHierarchy][j];k++) {
             if (steerFieldHotLink[numOfTaskHierarchy][j][k]) {
                if (!toMidasODBType(steerFieldType[numOfTaskHierarchy][j][k],midType)) {
-                  cout << "General steering parameter field " << steerFieldName[numOfTaskHierarchy][j][k].Data() << " can not be a hot link" << endl;
+                  cout<<"General steering parameter field "<<steerFieldName[numOfTaskHierarchy][j][k].Data()<<" can not be a hot link"<<endl;
                   return false;
                }
                hasHotLink = true;
@@ -10513,7 +10513,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             for (k=0;k<numOfSteerFields[numOfTaskHierarchy+1+i][j];k++) {
                if (steerFieldHotLink[numOfTaskHierarchy+1+i][j][k]) {
                   if (!toMidasODBType(steerFieldType[numOfTaskHierarchy+1+i][j][k],midType)) {
-                     cout << "Steering parameter field " << steerFieldName[numOfTaskHierarchy+1+i][j][k].Data() << " of tab " << tabName[i].Data() << " can not be a hot link" << endl;
+                     cout<<"Steering parameter field "<<steerFieldName[numOfTaskHierarchy+1+i][j][k].Data()<<" of tab "<<tabName[i].Data()<<" can not be a hot link"<<endl;
                      return false;
                   }
                   GetSteerPath(steerPath,numOfTaskHierarchy+1+i,j,k,"_");
@@ -11590,7 +11590,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
    ROMEString clsName;
    ROMEString clsDescription;
 
-   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-Files:"<<endl;
    for (int iDAQ=0;iDAQ<numOfDAQ;iDAQ++) {
       if (!daqUsed[iDAQ])
          continue;
@@ -11662,7 +11662,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
    ROMEString clsName;
    ROMEString clsDescription;
 
-   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output H-Files:"<<endl;
    for (int iDAQ=0;iDAQ<numOfDAQ;iDAQ++) {
       if (!daqUsed[iDAQ])
          continue;
@@ -11724,7 +11724,7 @@ Bool_t ROMEBuilder::WriteDBCpp() {
    ROMEString clsName;
    ROMEString clsDescription;
 
-   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output Cpp-Files:"<<endl;
    for (int iDB=0;iDB<numOfDB;iDB++) {
       // File name
       cppFile.SetFormatted("%ssrc/databases/%s%sDataBase.cpp",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
@@ -11803,7 +11803,7 @@ Bool_t ROMEBuilder::WriteDBH()
    ROMEString clsName;
    ROMEString clsDescription;
 
-   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   if (makeOutput) cout<<"\n   Output H-Files:"<<endl;
    for (int iDB=0;iDB<numOfDB;iDB++) {
       // File name
       hFile.SetFormatted("%sinclude/databases/%s%sDataBase.h",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
@@ -14249,7 +14249,7 @@ void ROMEBuilder::WriteHTMLDoku()
                }
             }
             if (k>=numOfFolder) {
-               cout << "Invalid folder structure." << endl;
+               cout<<"Invalid folder structure."<<endl;
                return;
             }
             if (folderParentName[k]=="GetMainFolder()")
@@ -15057,7 +15057,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
    }
    else {
       if (!(fileStream = new fstream(filename,ios::in))) {
-         if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+         if (makeOutput) cout<<"\n\nError : Failed to open '"<<filename<<"' !!!"<<endl;
          return false;
       }
       fileBuffer.ReadFile(*fileStream);
@@ -15066,7 +15066,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
          pBuffer = fileBuffer.Index(kHeaderEndMark);
          if (pBuffer<0) {
             if (makeOutput)
-               cout << "\n\nWarning : File '" << filename << "' does not have header end mark. Builder does not modify this file." << endl;
+               cout<<"\n\nWarning : File '"<<filename<<"' does not have header end mark. Builder does not modify this file."<<endl;
             return true;
          }
          // compare old and new header
@@ -15111,10 +15111,10 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
       if (pBuffer>=0)
          buffer += fileBuffer(pBuffer+80,fileBuffer.Length());
       if (!(fileStream = new fstream(filename,ios::out | ios::trunc))) {
-         if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+         if (makeOutput) cout<<"\n\nError : Failed to open '"<<filename<<"' !!!"<<endl;
          return false;
       }
-      if (makeOutput) cout << setw(nspace) << "" << filename << endl;
+      if (makeOutput) cout<<setw(nspace)<<""<<filename<<endl;
       *fileStream<<buffer.Data();
       delete fileStream;
    }
@@ -15379,7 +15379,7 @@ Bool_t ROMEBuilder::RemoveFile(const char* filename, const char* str)
       }
       else {
          if (!(fileStream = new fstream(filename,ios::in))) {
-            if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+            if (makeOutput) cout<<"\n\nError : Failed to open '"<<filename<<"' !!!"<<endl;
             return false;
          }
          fileBuffer.ReadFile(*fileStream);
