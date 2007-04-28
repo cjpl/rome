@@ -8959,7 +8959,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          // Active
          subsubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "NetFolder");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderActive(%d, ##==\"true\"));",i);
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderActive(%d, ##==\"true\");",i);
          subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetNetFolderActive(%d)?1:0];", i);
          // Reconnect
          subsubGroup->AddParameter(new ROMEConfigParameter("Reconnect","1","CheckButton"));
