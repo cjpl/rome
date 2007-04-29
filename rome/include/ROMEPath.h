@@ -34,6 +34,10 @@ protected:
    ROMEStrArray *fConstraintField;        // Array of Constraint Fields
    ROMEStrArray *fConstraintValue;        // Array of Constraint Values
 
+private:
+   ROMEPath(const ROMEPath &path); // not implemented
+   ROMEPath &operator=(const ROMEPath &rhs); // not implemented
+
 public:
    ROMEPath();
    virtual ~ROMEPath();

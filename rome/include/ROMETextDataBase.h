@@ -20,6 +20,10 @@ protected:
    ROMEString  fDirectoryPath;
    TTimeStamp *fTime;
 
+private:
+   ROMETextDataBase(const ROMETextDataBase &db); // not implemented
+   ROMETextDataBase &operator=(const ROMETextDataBase &rhs); // not implemented
+
 public:
    ROMETextDataBase();
    virtual ~ROMETextDataBase();

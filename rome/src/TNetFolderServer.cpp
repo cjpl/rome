@@ -27,11 +27,12 @@
 #include "Riostream.h"
 #include "TNetFolderServer.h"
 
-TApplication *TNetFolderServer::fApplication;
-TString TNetFolderServer::fServerName;
+TApplication *TNetFolderServer::fApplication = 0;
+TString TNetFolderServer::fServerName = "localhost";
 
 ClassImp(TNetFolderServer)
 
+//______________________________________________________________________________
 TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 {
    if (!socket->IsValid())
@@ -46,6 +47,7 @@ TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
    return (TFolder*)p;
 }
 
+//______________________________________________________________________________
 int TNetFolderServer::ResponseFunction(TSocket *socket) {
    if (!socket->IsValid())
       return 0;
@@ -60,6 +62,7 @@ int TNetFolderServer::ResponseFunction(TSocket *socket) {
    return CheckCommand(socket,str);
 }
 
+//______________________________________________________________________________
 int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
    if (!socket->IsValid())
       return 1;
@@ -214,7 +217,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
    return 1;
 }
 
-
+//______________________________________________________________________________
 THREADTYPE TNetFolderServer::Server(void *arg)
 {
    TSocket *socket = (TSocket *) arg;
@@ -226,7 +229,7 @@ THREADTYPE TNetFolderServer::Server(void *arg)
    return THREADRETURN;
 }
 
-
+//______________________________________________________________________________
 THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 {
 // Server loop listening for incoming network connections on port
@@ -260,7 +263,7 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
    return THREADRETURN;
 }
 
-
+//______________________________________________________________________________
 void TNetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 // start Socket server loop

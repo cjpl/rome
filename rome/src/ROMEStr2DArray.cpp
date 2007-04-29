@@ -16,30 +16,54 @@
 
 ClassImp(ROMEStr2DArray)
 
+//______________________________________________________________________________
 ROMEStr2DArray::ROMEStr2DArray(Int_t sizeX,Int_t sizeY)
+:array(new TObjArray(sizeX))
+,fSizeX(sizeX)
+,fSizeY(sizeY)
 {
-   fSizeX = sizeX;
-   fSizeY = sizeY;
-   array = new TObjArray(fSizeX);
 }
 
+//______________________________________________________________________________
+ROMEStr2DArray::ROMEStr2DArray(const ROMEStr2DArray &str2darray)
+:TObject(str2darray)
+,array(str2darray.array)
+,fSizeX(str2darray.fSizeX)
+,fSizeY(str2darray.fSizeY)
+{
+}
+
+//______________________________________________________________________________
+ROMEStr2DArray& ROMEStr2DArray::operator=(const ROMEStr2DArray &rhs)
+{
+   if (this != &rhs) {
+      array = rhs.array;
+      fSizeX = rhs.fSizeX;
+      fSizeY = rhs.fSizeY;
+   }
+   return *this;
+}
+
+//______________________________________________________________________________
 ROMEStr2DArray::~ROMEStr2DArray()
 {
    this->RemoveAll();
    SafeDelete(array);
 }
 
-
+//______________________________________________________________________________
 Int_t ROMEStr2DArray::GetEntries()
 {
    return array->GetEntries();
 }
 
+//______________________________________________________________________________
 Int_t ROMEStr2DArray::GetEntriesFast()
 {
    return array->GetEntriesFast();
 }
 
+//______________________________________________________________________________
 Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx)
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -49,6 +73,7 @@ Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx)
    return ((TObjArray*)array->At(idx))->GetEntries();
 }
 
+//______________________________________________________________________________
 Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx)
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -58,11 +83,13 @@ Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx)
    return ((TObjArray*)array->At(idx))->GetEntriesFast();
 }
 
+//______________________________________________________________________________
 void ROMEStr2DArray::SetAt(TString &str, Int_t idx, Int_t idy)
 {
    this->SetAt(str.Data(),idx,idy);
 }
 
+//______________________________________________________________________________
 void ROMEStr2DArray::SetAt(const char* str, Int_t idx, Int_t idy)
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
@@ -80,6 +107,7 @@ void ROMEStr2DArray::SetAt(const char* str, Int_t idx, Int_t idy)
    subArray->AddAtAndExpand(new TObjString(str),idy);
 }
 
+//______________________________________________________________________________
 void ROMEStr2DArray::SetAt(ROMEStrArray *str, Int_t idx, Int_t idy)
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
@@ -101,6 +129,7 @@ void ROMEStr2DArray::SetAt(ROMEStrArray *str, Int_t idx, Int_t idy)
    }
 }
 
+//______________________________________________________________________________
 void ROMEStr2DArray::RemoveAt(Int_t idx, Int_t idy)
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -116,6 +145,7 @@ void ROMEStr2DArray::RemoveAt(Int_t idx, Int_t idy)
    subArray->RemoveAt(idy);
 }
 
+//______________________________________________________________________________
 void ROMEStr2DArray::RemoveAllAt(Int_t idx)
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -132,6 +162,7 @@ void ROMEStr2DArray::RemoveAllAt(Int_t idx)
    array->RemoveAt(idx);
 }
 
+//______________________________________________________________________________
 void ROMEStr2DArray::RemoveAll()
 {
    const Int_t nArray = array->GetEntriesFast();
@@ -150,6 +181,7 @@ void ROMEStr2DArray::RemoveAll()
    array->RemoveAll();
 }
 
+//______________________________________________________________________________
 TString ROMEStr2DArray::At(Int_t idx, Int_t idy)
 {
    if (idx<0||idx>=array->GetEntriesFast())

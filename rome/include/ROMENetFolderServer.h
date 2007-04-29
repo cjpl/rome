@@ -30,6 +30,10 @@ public:
 
    TSocket          *GetAcceptedSockets(Int_t i) { return fAcceptedSockets[i]; };
 
+private:
+   ROMENetFolderServer(const ROMENetFolderServer &server);
+   ROMENetFolderServer &operator=(const ROMENetFolderServer &rhs);
+
 public:
    ROMENetFolderServer();
    virtual ~ROMENetFolderServer(){}

@@ -30,19 +30,53 @@
 
 ClassImp(ROMETask)
 
-ROMETask::ROMETask(const char *name,const char *title,int level):TTask(name,title)
+//______________________________________________________________________________
+ROMETask::ROMETask()
+:TTask()
+,fLevel(1)
+,fWatchAll()
+,fWatchUser()
+,fWatchUserEvent()
+,fTimeAllString("")
+,fTimeUserString("")
+,fTimeUserEventString("")
+,fVersion(0)
+,fHasHistograms(kFALSE)
+,fHasGraphs(kFALSE)
+,fEventID(-1)
+,fCurrentEventMethod("")
+,fHistoFolder(0)
+,fSkippedEvents(0)
 {
-   // Initialisation of Class
-   fTitle = title;
-   fName = name;
-   fEventID = -1;
-   fLevel = level;
-   fHistoFolder = 0;
    fWatchAll.Reset();
    fWatchUser.Reset();
    fWatchUserEvent.Reset();
 }
 
+//______________________________________________________________________________
+ROMETask::ROMETask(const char *name,const char *title,int level)
+:TTask(name,title)
+,fLevel(level)
+,fWatchAll()
+,fWatchUser()
+,fWatchUserEvent()
+,fTimeAllString("")
+,fTimeUserString("")
+,fTimeUserEventString("")
+,fVersion(0)
+,fHasHistograms(kFALSE)
+,fHasGraphs(kFALSE)
+,fEventID(-1)
+,fCurrentEventMethod("")
+,fHistoFolder(0)
+,fSkippedEvents(0)
+{
+   fWatchAll.Reset();
+   fWatchUser.Reset();
+   fWatchUserEvent.Reset();
+}
+
+//______________________________________________________________________________
 void ROMETask::Exec(Option_t *option)
 {
    // Overrides the TTask::Exec Method to replace the Exec Method with the following Methods :
@@ -153,6 +187,7 @@ void ROMETask::Exec(Option_t *option)
    fWatchAll.Stop();
 }
 
+//______________________________________________________________________________
 void ROMETask::StartRootInterpreter(const char* message) {
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEPrint::Print("\nIn method %s of task %s of event number %I64d of run number %I64d\n",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
@@ -173,18 +208,23 @@ void ROMETask::StartRootInterpreter(const char* message) {
 }
 
 // Time methods
+//______________________________________________________________________________
 const char* ROMETask::GetTimeOfAll()
 {
    // Returns the elapsed time in a readable format
    fWatchAll.GetRealTimeString(fTimeAllString);
    return fTimeAllString.Data();
 }
+
+//______________________________________________________________________________
 const char* ROMETask::GetTimeOfUser()
 {
    // Returns the elapsed time in a readable format
    fWatchUser.GetRealTimeString(fTimeUserString);
    return fTimeUserString.Data();
 }
+
+//______________________________________________________________________________
 const char* ROMETask::GetTimeOfUserEvents()
 {
    // Returns the elapsed time in a readable format

@@ -11,19 +11,33 @@
 #include "ROMEXML.h"
 #include "ROMEConfigParameter.h"
 
+//______________________________________________________________________________
 ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, ROMEString widgetType)
+:TNamed(name.Data(), "")
+,fArraySize(arraySize)
+,fWidgetType(widgetType)
+,fComment("")
+,fCommentLevel(0)
+,fReadModifiedTrueLines(new ROMEStrArray(1))
+,fSetLines(new ROMEStrArray(1))
+,fWriteLines(new ROMEStrArray(1))
+,fAdditionalWriteLines(new ROMEStrArray(1))
+,fComboBoxEntries(new ROMEStrArray(1))
+,fWriteLinesAlways(kTRUE)
 {
-   SetName(name);
-   fArraySize = arraySize;
-   fWidgetType = widgetType;
-   fReadModifiedTrueLines = new ROMEStrArray(1);
-   fSetLines = new ROMEStrArray(1);
-   fWriteLines = new ROMEStrArray(1);
-   fAdditionalWriteLines = new ROMEStrArray(1);
-   fComboBoxEntries = new ROMEStrArray(1);
-   fWriteLinesAlways = true;
 }
 
+//______________________________________________________________________________
+ROMEConfigParameter::~ROMEConfigParameter()
+{
+   SafeDelete(fComboBoxEntries);
+   SafeDelete(fAdditionalWriteLines);
+   SafeDelete(fWriteLines);
+   SafeDelete(fSetLines);
+   SafeDelete(fReadModifiedTrueLines);
+}
+
+//______________________________________________________________________________
 void ROMEConfigParameter::ReadComment(Int_t level, const char* parentName, const char* path)
 {
    // Read comment from romeConfig.xsd
@@ -39,6 +53,7 @@ void ROMEConfigParameter::ReadComment(Int_t level, const char* parentName, const
    configXSD->GetPathValue(pathString, fComment, "");
 }
 
+//______________________________________________________________________________
 void ROMEConfigParameter::AddSetLine(const char* va_(fmt),...) {
    if (va_(fmt)==NULL)
       return;
@@ -48,6 +63,7 @@ void ROMEConfigParameter::AddSetLine(const char* va_(fmt),...) {
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEConfigParameter::AddWriteLine(const char* va_(fmt),...) {
    if (va_(fmt)==NULL)
       return;
@@ -57,6 +73,7 @@ void ROMEConfigParameter::AddWriteLine(const char* va_(fmt),...) {
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEConfigParameter::AddAdditionalWriteLine(const char* va_(fmt),...) {
    if (va_(fmt)==NULL)
       return;
@@ -66,6 +83,7 @@ void ROMEConfigParameter::AddAdditionalWriteLine(const char* va_(fmt),...) {
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEConfigParameter::AddComboBoxEntry(const char* va_(fmt),...) {
    if (va_(fmt)==NULL)
       return;
@@ -75,34 +93,60 @@ void ROMEConfigParameter::AddComboBoxEntry(const char* va_(fmt),...) {
    va_end(ap);
 }
 
-ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize,ROMEString groupIdentifier,ROMEString nameIdentifier,ROMEString arrayIdentifier,ROMEString tagName,int multiplicity,Bool_t emptyline)
+//______________________________________________________________________________
+ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName, ROMEString arraySize,
+                                                   ROMEString groupIdentifier, ROMEString nameIdentifier,
+                                                   ROMEString arrayIdentifier, ROMEString tagName,
+                                                   Int_t multiplicity, Bool_t emptyline)
+:TObject()
+,fGroupName(groupName)
+,fArraySize(arraySize)
+,fGroupIdentifier(groupIdentifier)
+,fNameIdentifier("")
+,fArrayIdentifier("")
+,fTagName("")
+,fComment("")
+,fCommentLevel(0)
+,fMultiplicity(multiplicity)
+,fParameters(new TObjArray(10))
+,fSubGroups(new TObjArray(10))
+,fReadGroupArrayInitLines(new ROMEStrArray(1))
+,fWriteStartLines(new ROMEStrArray(1))
+,fWriteEndLines(new ROMEStrArray(1))
+,fHierarchyLevel(0)
+,fWriteAlways(kFALSE)
+,fWriteEmptyLine(emptyline)
 {
-   fGroupName = groupName;
-   fArraySize = arraySize;
-   fGroupIdentifier = groupIdentifier;
-   if (nameIdentifier.Length()==0)
+   if (nameIdentifier.Length()==0) {
       fNameIdentifier = fGroupIdentifier+"Name";
-   else
+   } else {
       fNameIdentifier = nameIdentifier;
-   if (arrayIdentifier.Length()==0)
+   }
+
+   if (arrayIdentifier.Length()==0) {
       fArrayIdentifier = arrayIdentifier;
-   else
+   } else {
       fArrayIdentifier = arrayIdentifier+"=";
-   if (tagName.Length()==0)
+   }
+
+   if (tagName.Length()==0) {
       fTagName = fGroupName;
-   else
+   } else {
       fTagName = tagName;
-   fMultiplicity = multiplicity;
-   fParameters = new TObjArray(10);
-   fSubGroups = new TObjArray(10);
-   fReadGroupArrayInitLines = new ROMEStrArray(1);
-   fWriteStartLines = new ROMEStrArray(1);
-   fWriteEndLines = new ROMEStrArray(1);
-   fHierarchyLevel = 0;
-   fWriteAlways = false;
-   fWriteEmptyLine = emptyline;
+   }
 }
 
+//______________________________________________________________________________
+ROMEConfigParameterGroup::~ROMEConfigParameterGroup()
+{
+   SafeDelete(fWriteEndLines);
+   SafeDelete(fWriteStartLines);
+   SafeDelete(fReadGroupArrayInitLines);
+   SafeDelete(fSubGroups);
+   SafeDelete(fParameters);
+}
+
+//______________________________________________________________________________
 void ROMEConfigParameterGroup::ReadComment(Int_t level, const char* tag, const char* path)
 {
    // Read comment from romeConfig.xsd

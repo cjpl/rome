@@ -19,17 +19,21 @@
 
 ClassImp(ROMEODBOnlineDataBase)
 
+//______________________________________________________________________________
 ROMEODBOnlineDataBase::ROMEODBOnlineDataBase() {
 }
 
+//______________________________________________________________________________
 ROMEODBOnlineDataBase::~ROMEODBOnlineDataBase() {
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOnlineDataBase::Init(const char* name,const char* /*path*/,const char* /*connection*/) {
    fName = name;
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
 #if defined ( HAVE_MIDAS )
@@ -86,6 +90,7 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
    WarningSuppression(eventNumber);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
 #if defined ( HAVE_MIDAS )

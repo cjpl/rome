@@ -25,17 +25,21 @@
 
 ClassImp(ROMENetFolderServer)
 
+//______________________________________________________________________________
 ROMENetFolderServer::ROMENetFolderServer()
+:TNetFolderServer()
+,fCopyAll(kFALSE)
+,fEventStorageAvailable(kFALSE)
+,fAllDataAvailable(kFALSE)
 {
    Int_t i;
    for (i = 0; i < kMaxSocketClients; i++) {
       fAcceptedSockets[i] = 0;
       fSocketClientRead[i] = false;
    }
-   fCopyAll = false;
-   fEventStorageAvailable = false;
 }
 
+//______________________________________________________________________________
 int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
    if (!socket->IsValid())
       return 0;
@@ -50,6 +54,7 @@ int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
    return CheckCommand(socket,str);
 }
 
+//______________________________________________________________________________
 int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
    if (!socket->IsValid())
       return 1;
@@ -134,6 +139,7 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
    return TNetFolderServer::CheckCommand(socket,str);
 }
 
+//______________________________________________________________________________
 THREADTYPE ROMENetFolderServer::Server(void *arg)
 {
    TSocket *socket = (TSocket *) arg;
@@ -153,7 +159,7 @@ THREADTYPE ROMENetFolderServer::Server(void *arg)
    return THREADRETURN;
 }
 
-
+//______________________________________________________________________________
 THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
 {
 // Server loop listening for incoming network connections on port
@@ -189,6 +195,7 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
    return THREADRETURN;
 }
 
+//______________________________________________________________________________
 void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 // start Socket server loop
@@ -199,6 +206,7 @@ void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* s
    thread->Run();
 }
 
+//______________________________________________________________________________
 void ROMENetFolderServer::SetCopyAll(bool copyAll) 
 { 
    Int_t i;

@@ -23,6 +23,7 @@
 #include "ROMEConfig.h"
 #include "ROMEConfigParameter.h"
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteFolderCpp()
 {
    ROMEString cppFile;
@@ -896,6 +897,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteFolderH()
 {
    ROMEString hFile;
@@ -1470,6 +1472,7 @@ Bool_t ROMEBuilder::WriteFolderH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAllFoldersH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -1499,6 +1502,7 @@ Bool_t ROMEBuilder::WriteAllFoldersH() {
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteTaskCpp()
 {
    ROMEString cppFile;
@@ -1670,6 +1674,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteBaseTaskCpp()
 {
    int i,j;
@@ -2642,6 +2647,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteTaskH()
 {
    ROMEString hFile;
@@ -2698,6 +2704,7 @@ Bool_t ROMEBuilder::WriteTaskH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteBaseTaskH()
 {
    ROMEString hFile;
@@ -2944,6 +2951,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteTabCpp()
 {
    ROMEString cppFile;
@@ -3143,6 +3151,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteBaseTabCpp()
 {
    ROMEString cppFile;
@@ -3929,6 +3938,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteTabH()
 {
    ROMEString hFile;
@@ -4044,6 +4054,7 @@ Bool_t ROMEBuilder::WriteTabH()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteBaseTabH()
 {
    Int_t i, j;
@@ -4284,6 +4295,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
 {
    ROMEString hFile;
@@ -4364,6 +4376,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAnalyzerCpp()
 {
    int i,j,k,index;
@@ -5207,6 +5220,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
 {
    int i;
@@ -5302,6 +5316,7 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
 {
    int i,j;
@@ -5513,6 +5528,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
 {
    int i;
@@ -5598,6 +5614,7 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAnalyzerH()
 {
    int i,j,k;
@@ -5943,6 +5960,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,const char *objectActivePointer,bool bypass)
 {
    buffer.AppendFormatted("   for(i=0;i<kMaxSocketClients;i++) {\n");
@@ -5963,6 +5981,8 @@ Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *
    buffer.AppendFormatted("\n");
    return true;
 }
+
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteWindowCpp()
 {
    Int_t i, j;
@@ -6368,6 +6388,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteWindow2Cpp()
 {
    Int_t i;
@@ -6428,6 +6449,7 @@ Bool_t ROMEBuilder::WriteWindow2Cpp()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteWindowH()
 {
    Int_t i, j, k;
@@ -6609,6 +6631,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDBAccessCpp()
 {
    int i,j,num;
@@ -6732,7 +6755,10 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
             if (valueDimension[i][j]>1)
                continue;
             buffer.AppendFormatted("               case %d:\n",j);
-            buffer.AppendFormatted("                  path.SetFormatted(%s);\n",valueDBPath[i][j].Data());
+            if (valueDBPath[i][j].Length())
+               buffer.AppendFormatted("                  path.SetFormatted(%s);\n",valueDBPath[i][j].Data());
+            else
+               buffer.AppendFormatted("                  path = \"\";\n");
             buffer.AppendFormatted("                  return path.Data();\n");
          }
          buffer.AppendFormatted("               default:\n");
@@ -6838,6 +6864,7 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDBAccessH()
 {
    int i;
@@ -6912,6 +6939,7 @@ Bool_t ROMEBuilder::WriteDBAccessH()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
 {
    Int_t j,k;
@@ -7008,6 +7036,8 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
    i = j;
    return kTRUE;
 }
+
+//______________________________________________________________________________
 Bool_t ROMEBuilder::InitTabDefault(ROMEString &buffer, Int_t &i)
 {
    Int_t j,depth;
@@ -7028,6 +7058,7 @@ Bool_t ROMEBuilder::InitTabDefault(ROMEString &buffer, Int_t &i)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset)
 {
    Int_t k;
@@ -7051,6 +7082,7 @@ Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHer
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    int i;
    ROMEString cppFile;
@@ -7195,6 +7227,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString tabPointer,ROMEString configPointer,int level,int tab)
 {
    int i,j;
@@ -7323,6 +7356,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer,int level,int tab,ROMEString indexes)
 {
    int i,j;
@@ -7438,6 +7472,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigToFormH() {
    int i,j,k;
    ROMEString hFile;
@@ -7501,6 +7536,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigCpp() {
    int i;
    ROMEString str;
@@ -7802,6 +7838,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfig2Cpp() {
    int i;
    ROMEString str;
@@ -7902,6 +7939,7 @@ Bool_t ROMEBuilder::WriteConfig2Cpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfig3Cpp() {
    int i;
    ROMEString str;
@@ -8010,6 +8048,7 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfig4Cpp() {
    int i;
    ROMEString str;
@@ -8124,6 +8163,7 @@ Bool_t ROMEBuilder::WriteConfig4Cpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -8206,6 +8246,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddConfigParameters()
 {
    int i,j;
@@ -9052,6 +9093,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex)
 {
    int i,j;
@@ -9269,6 +9311,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex)
 {
    int i,j,k;
@@ -9403,6 +9446,7 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer)
 {
    int i;
@@ -9510,6 +9554,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
 {
    int i;
@@ -9527,6 +9572,7 @@ Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab)
 {
    int i;
@@ -9679,6 +9725,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes,Int_t *iSub)
 {
    int i,j;
@@ -9791,6 +9838,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub)
 {
    int i,j;
@@ -9924,6 +9972,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer,Int_t* iSub)
 {
    int i,j,tabT;
@@ -9994,6 +10043,7 @@ Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer,Int_t* iSub)
 {
    int i,j,tabT;
@@ -10137,6 +10187,7 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    int i,j,k;
 
@@ -10599,6 +10650,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteMidasDAQH() {
    int i,j,k;
 
@@ -10893,6 +10945,7 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    int i ,j;
 
@@ -11016,6 +11069,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteRomeDAQH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -11073,6 +11127,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteRootDAQCpp() {
    int i,j;
 
@@ -11171,6 +11226,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteRootDAQH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -11277,6 +11333,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteRootDAQClassesH() {
    int i,j;
    for (i=0;i<numOfRootTree;i++) {
@@ -11289,6 +11346,7 @@ Bool_t ROMEBuilder::WriteRootDAQClassesH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    ROMEString hFile;
    ROMEString buffer;
@@ -11365,6 +11423,7 @@ Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDAQCpp() {
    ROMEString cppFile;
    ROMEString buffer;
@@ -11437,6 +11496,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDAQH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -11499,6 +11559,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDBCpp() {
    ROMEString cppFile;
    ROMEString buffer;
@@ -11577,6 +11638,7 @@ Bool_t ROMEBuilder::WriteDBCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDBH()
 {
    ROMEString hFile;
@@ -11655,6 +11717,7 @@ Bool_t ROMEBuilder::WriteDBH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    ROMEString cppFile;
    ROMEString buffer;
@@ -12095,6 +12158,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteNetFolderServerH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -12206,6 +12270,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteUpdateObjectsObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass)
 {
    if (bypass) {
@@ -12221,6 +12286,8 @@ Bool_t ROMEBuilder::WriteUpdateObjectsObject(ROMEString &buffer,const char *obje
    }
    return true;
 }
+
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t numTask,Int_t tab)
 {
    ROMEString format;
@@ -12406,6 +12473,7 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteSteeringReadParameters(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer)
 {
    ROMEString pointerT;
@@ -12472,6 +12540,7 @@ Bool_t ROMEBuilder::WriteSteeringReadParameters(ROMEString &buffer,Int_t numStee
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer)
 {
    ROMEString pointerT;
@@ -12517,6 +12586,7 @@ Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numStee
    return true;
 }
 
+//______________________________________________________________________________
 Int_t ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& path1,ROMEString& path2,Int_t tab)
 {
    ROMEString path1T;
@@ -12558,6 +12628,7 @@ Int_t ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNum
    return codeNumber;
 }
 
+//______________________________________________________________________________
 Int_t ROMEBuilder::WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& steerPointer,Int_t tab)
 {
    ROMEString steerPointerT;
@@ -12593,6 +12664,7 @@ Int_t ROMEBuilder::WriteSteeringInterpreterValue(ROMEString &buffer,const char* 
    return codeNumber;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName)
 {
    int i,j;
@@ -12635,6 +12707,7 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
    buffer.AppendFormatted("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int_t type)
 {
    int j,k;
@@ -12749,6 +12822,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
    buffer.AppendFormatted("   delete values;\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
@@ -12771,6 +12845,7 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteFolderSetterInclude(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
@@ -12786,6 +12861,7 @@ void ROMEBuilder::WriteFolderSetterInclude(ROMEString &buffer,Int_t numFolder)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
@@ -12869,6 +12945,7 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteFolderSetterSource(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
@@ -12895,6 +12972,7 @@ void ROMEBuilder::WriteFolderSetterSource(ROMEString &buffer,Int_t numFolder)
    }
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteEventLoopCpp()
 {
    int i;
@@ -13423,6 +13501,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteEventLoopH()
 {
    ROMEString hFile;
@@ -13505,6 +13584,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteMain()
 {
    ROMEString cppFile;
@@ -13723,6 +13803,7 @@ Bool_t ROMEBuilder::WriteMain()
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteHTMLDoku()
 {
    int i=0,j=0,k=0;
@@ -14390,6 +14471,7 @@ void ROMEBuilder::WriteHTMLDoku()
 */
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group)
 {
    int k;
@@ -14415,6 +14497,7 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numT
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer)
 {
       buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff; }\n");
@@ -14428,6 +14511,7 @@ void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer)
       buffer.AppendFormatted("   tr.odd { background-color: #f0f0f0; }\n");
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteReadTreesC()
 {
    // Write sample macro to read output trees
@@ -14663,6 +14747,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteVersionH()
 {
    // Write XXXVersion.h
@@ -14771,6 +14856,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WritePrecompiledHeaders()
 {
    // Write XXXVersion.h
@@ -14810,6 +14896,7 @@ Bool_t ROMEBuilder::WritePrecompiledHeaders()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,const char* str1, const char* str2,const char* condition, bool replaceWhenFound)
 {
    ROMEStrArray arr1;
@@ -14823,6 +14910,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
    return ReplaceHeader(filename,header,body,nspace,arr1,arr2,cond,rep);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,ROMEStrArray &arr1, ROMEStrArray &arr2, ROMEStrArray &condition, TArrayI &replaceWhenFound)
 {
    int i;
@@ -14903,6 +14991,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::BackUpFile(const char* filename)
 {
    // return true when backup file is created.
@@ -14934,6 +15023,7 @@ Bool_t ROMEBuilder::BackUpFile(const char* filename)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
 {
    if (folderSupport[numFolder])
@@ -14988,6 +15078,8 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
 
    return false;
 }
+
+//______________________________________________________________________________
 Bool_t ROMEBuilder::accessHisto(ROMEString &fileBuffer, Int_t numTask, Int_t numHisto)
 {
    ROMEString str;
@@ -15010,6 +15102,8 @@ Bool_t ROMEBuilder::accessHisto(ROMEString &fileBuffer, Int_t numTask, Int_t num
    }
    return false;
 }
+
+//______________________________________________________________________________
 Bool_t ROMEBuilder::accessGraph(ROMEString &fileBuffer, Int_t numTask, Int_t numGraph)
 {
    ROMEString str;
@@ -15033,6 +15127,7 @@ Bool_t ROMEBuilder::accessGraph(ROMEString &fileBuffer, Int_t numTask, Int_t num
    return false;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite)
 {
    if (author && strlen(author))
@@ -15047,6 +15142,7 @@ void ROMEBuilder::WriteHeader(ROMEString& buffer, const char* author, Bool_t ove
 }
 
 #define ALIGN_DESC // align description 80 chars.
+//______________________________________________________________________________
 void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark)
 {
    const Int_t nc = 80;
@@ -15144,6 +15240,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
    }
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::RemoveFile(const char* filename, const char* str)
 {
    // Remove file if exists.
@@ -15182,6 +15279,7 @@ Bool_t ROMEBuilder::RemoveFile(const char* filename, const char* str)
    return false;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::RemoveDepFiles(const char* str)
 {
    // Remove .d files in 'obj' directory
@@ -15204,6 +15302,7 @@ void ROMEBuilder::RemoveDepFiles(const char* str)
    return;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::ProcessCommentCPP(ROMEString& org, ROMEString& result)
 {
    result = org;
@@ -15213,6 +15312,7 @@ ROMEString& ROMEBuilder::ProcessCommentCPP(ROMEString& org, ROMEString& result)
    return result;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::ProcessCommentHTML(ROMEString& org, ROMEString& result)
 {
    result = org;
@@ -15220,6 +15320,7 @@ ROMEString& ROMEBuilder::ProcessCommentHTML(ROMEString& org, ROMEString& result)
    return result;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& result)
 {
    result = org;
@@ -15228,6 +15329,7 @@ ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& resul
    return result;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::GetSteerPath(ROMEString& steerPath,int iTask,int iSteer,int iField,const char* seperator)
 {
    steerPath.SetFormatted("%s",steerFieldName[iTask][iSteer][iField].Data());
@@ -15238,6 +15340,7 @@ ROMEString& ROMEBuilder::GetSteerPath(ROMEString& steerPath,int iTask,int iSteer
    return steerPath;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
 {
    int i;

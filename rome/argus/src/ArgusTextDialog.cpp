@@ -24,11 +24,24 @@
 
 ClassImp(ArgusTextDialog)
 
-ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, Char_t *label, Char_t *ret_str, UInt_t options):TGTransientFrame(p, main, w, h, options)
+//______________________________________________________________________________
+ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h,
+                                 Char_t *label, Char_t *ret_str, UInt_t options)
+:TGTransientFrame(p, main, w, h, options)
+,fF1(0)
+,fF2(0)
+,fOkButton(0)
+,fCancelButton(0)
+,fL1(0)
+,fL5(0)
+,fL6(0)
+,fL21(0)
+,fText(0)
+,fBLabel(0)
+,fLabel(0)
+,fRetStr(ret_str)
 {
    // Create a dialog to enter a single line text entry
-   fRetStr = ret_str;
-
    ChangeOptions((GetOptions() & ~kVerticalFrame) | kHorizontalFrame);
 
    fF1 = new TGCompositeFrame(this, 60, 20, kVerticalFrame | kFixedWidth);
@@ -98,6 +111,7 @@ ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t
    fClient->WaitFor(this);
 }
 
+//______________________________________________________________________________
 ArgusTextDialog::~ArgusTextDialog()
 {
    // Clean up text dialog
@@ -115,6 +129,7 @@ ArgusTextDialog::~ArgusTextDialog()
 #endif
 }
 
+//______________________________________________________________________________
 void ArgusTextDialog::CloseWindow()
 {
    // Close the dialog. On close the dialog will be deleted and cannot be
@@ -122,6 +137,7 @@ void ArgusTextDialog::CloseWindow()
    DeleteWindow();
 }
 
+//______________________________________________________________________________
 Bool_t ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
    const Char_t *string;

@@ -37,7 +37,7 @@ protected:
    ROMEString fConfigContent;
 
 public:
-   ROMEConfig() { fCommentLevel = kCommentLevelSP; }
+   ROMEConfig():fCommentLevel(kCommentLevelSP),fConfigFileName(""),fConfigContent("") {}
    virtual ~ROMEConfig() {}
 
    void           SetCommentLevel(Int_t level) { fCommentLevel = level; }
@@ -49,6 +49,7 @@ public:
    virtual Bool_t CheckConfiguration(Long64_t runNumber) = 0;
    virtual Bool_t CheckConfiguration(const char *file) = 0;
    virtual Bool_t CheckConfigurationModified(Int_t index) = 0;
+
 protected:
    Bool_t ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto);
    Bool_t CheckHistoConfigurationModified(ROMEConfigHisto* configHisto);

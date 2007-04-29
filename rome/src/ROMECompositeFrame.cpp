@@ -13,6 +13,7 @@
 
 ClassImp(ROMECompositeFrame)
 
+//______________________________________________________________________________
 void ROMECompositeFrame::HideFrame(TGFrame *f)
 {
    // Hide sub frame.

@@ -23,6 +23,7 @@
 
 ClassImp(ROMELabel)
 
+//______________________________________________________________________________
 void ROMELabel::SetToolTipText(const char *text, Long_t delayms)
 {
    // Set tool tip text associated with this label. The delay is in
@@ -39,6 +40,7 @@ void ROMELabel::SetToolTipText(const char *text, Long_t delayms)
    AddInput(kEnterWindowMask | kLeaveWindowMask);
 }
 
+//______________________________________________________________________________
 Bool_t ROMELabel::HandleCrossing(Event_t *event)
 {
    // Handle mouse crossing event.

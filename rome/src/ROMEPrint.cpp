@@ -20,6 +20,7 @@ ClassImp(ROMEPrint)
 
 Int_t ROMEPrint::fgVerboseLevel = ROMEPrint::kNormal;
 
+//______________________________________________________________________________
 void ROMEPrint::PrintAlways(const char* va_(fmt),...)
 {
 // Print always independently of verbose level
@@ -32,6 +33,7 @@ void ROMEPrint::PrintAlways(const char* va_(fmt),...)
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEPrint::Debug(const char* va_(fmt),...)
 {
 // Print when verbose level >= kDebug
@@ -46,6 +48,7 @@ void ROMEPrint::Debug(const char* va_(fmt),...)
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEPrint::Print(const char* va_(fmt),...)
 {
 // Print when verbose level >= kNormal
@@ -60,6 +63,7 @@ void ROMEPrint::Print(const char* va_(fmt),...)
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEPrint::Info(const char* va_(fmt),...)
 {
 // Print when verbose level >= kNormal
@@ -80,6 +84,7 @@ void ROMEPrint::Info(const char* va_(fmt),...)
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEPrint::Warning(const char* va_(fmt),...)
 {
 // Print when verbose level >= kErrorAndWarning
@@ -100,6 +105,7 @@ void ROMEPrint::Warning(const char* va_(fmt),...)
    va_end(ap);
 }
 
+//______________________________________________________________________________
 void ROMEPrint::Error(const char* va_(fmt),...)
 {
 // Print when verbose level >= kError

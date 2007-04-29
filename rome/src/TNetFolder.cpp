@@ -23,26 +23,34 @@
 
 ClassImp(TNetFolder)
 
-TNetFolder::TNetFolder():TNamed()
+//______________________________________________________________________________
+TNetFolder::TNetFolder()
+:TNamed()
+,fSocket(0)
+,fFolder(0)
+,fReconnect(kTRUE)
+,fHost("localhost")
+,fPort(9090)
 {
-   fSocket = 0;
-   fFolder = 0;
-   fReconnect = kTRUE;
 }
 
-TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Bool_t reconnect):TNamed(name, title)
+//______________________________________________________________________________
+TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Bool_t reconnect)
+:TNamed(name, title)
+,fSocket(socket)
+,fFolder(GetPointer())
+,fReconnect(reconnect)
+,fHost(socket->GetUrl())
+,fPort(socket->GetPort())
 {
-   fSocket = socket;
-   fFolder = GetPointer();
-   fReconnect = reconnect;
-   fHost = fSocket->GetUrl();
-   fPort = fSocket->GetPort();
 }
 
+//______________________________________________________________________________
 TNetFolder::~TNetFolder()
 {
 }
 
+//______________________________________________________________________________
 void TNetFolder::Reconnect()
 {
    Warning("Reconnect", "can not make socket connection to %s on port %d.\nprogram sleeps for 5s and tries again.", fHost.Data(), fPort);
@@ -51,6 +59,7 @@ void TNetFolder::Reconnect()
    fSocket = new TSocket (fHost.Data(), fPort);
 }
 
+//______________________________________________________________________________
 Bool_t TNetFolder::Send(const TMessage &mess)
 {
    if (fSocket->Send(mess) == -1) {
@@ -63,6 +72,7 @@ Bool_t TNetFolder::Send(const TMessage &mess)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t TNetFolder::Send(const char *mess, Int_t kind)
 {
    if (fSocket->Send(mess, kind) == -1) {
@@ -75,6 +85,7 @@ Bool_t TNetFolder::Send(const char *mess, Int_t kind)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t TNetFolder::Recv(TMessage *&mess)
 {
    if (fSocket->Recv(mess) == -1) {
@@ -87,6 +98,7 @@ Bool_t TNetFolder::Recv(TMessage *&mess)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 size_t TNetFolder::GetPointer()
 {
 // Get Pointer to the Servers Folder
@@ -108,6 +120,7 @@ size_t TNetFolder::GetPointer()
    return p;
 }
 
+//______________________________________________________________________________
 void TNetFolder::GetServerName(char* serverName,int serverNameSize)
 {
 // Get the Name of the Server
@@ -126,10 +139,11 @@ void TNetFolder::GetServerName(char* serverName,int serverNameSize)
       delete m;
       return;
    }
-   *m->ReadString(serverName,serverNameSize);
+   m->ReadString(serverName,serverNameSize);
    delete m;
 }
 
+//______________________________________________________________________________
 TObjArray *TNetFolder::GetListOfFolders()
 {
 // Get List of Folders
@@ -152,6 +166,7 @@ TObjArray *TNetFolder::GetListOfFolders()
    return 0;
 }
 
+//______________________________________________________________________________
 TObject *TNetFolder::FindObject(const char *name) const
 {
 // search object identified by name in the tree of folders inside
@@ -193,6 +208,7 @@ TObject *TNetFolder::FindObject(const char *name) const
    return obj;
 }
 
+//______________________________________________________________________________
 TObject *TNetFolder::FindObjectAny(const char *name) const
 {
 // return a pointer to the first object with name starting at this folder
@@ -223,6 +239,7 @@ TObject *TNetFolder::FindObjectAny(const char *name) const
    return obj;
 }
 
+//______________________________________________________________________________
 const char *TNetFolder::FindFullPathName(const char *name)
 {
 // return the full pathname corresponding to subpath name
@@ -253,6 +270,7 @@ const char *TNetFolder::FindFullPathName(const char *name)
    return path;
 }
 
+//______________________________________________________________________________
 Int_t TNetFolder::Occurence(const TObject *obj)
 {
 // Return occurence number of object in the list of objects of this folder.
@@ -288,6 +306,7 @@ Int_t TNetFolder::Occurence(const TObject *obj)
    return retValue;
 }
 
+//______________________________________________________________________________
 void TNetFolder::ExecuteCommand(const char *line)
 {
    // The line is executed by the CINT of the server

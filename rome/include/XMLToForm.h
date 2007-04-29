@@ -32,8 +32,12 @@ protected:
    ROMEStrArray     *fSubstitutes;
    ROMEStrArray     *fPlaceHolders;
 
+private:
+   XMLToForm(const XMLToForm &form); // not implemented
+   XMLToForm &operator=(const XMLToForm &rhs); // not implemented
+
 public:
-   XMLToForm() {}
+   XMLToForm();
    XMLToForm(const char* xmlFileName,ROMEStrArray* substitutes=NULL);
    XMLToForm(const TGWindow* p,const TGWindow* main,const char* xmlFileName,Int_t *exitButtonID,ROMEStrArray* substitutes=NULL);
    virtual ~XMLToForm();

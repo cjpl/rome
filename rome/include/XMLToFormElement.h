@@ -2,6 +2,7 @@
 #ifndef XMLToFormElement_H
 #define XMLToFormElement_H
 
+#include <TNamed.h>
 #include <TString.h>
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
@@ -19,12 +20,11 @@ class TGComboBox;
 class TGCheckButton;
 class TGRadioButton;
 
-class XMLToFormElement : public TObject
+class XMLToFormElement : public TNamed
 {
 private:
    // Widget Data Fields
    ROMEString              fType;          //!
-   ROMEString              fTitle;         //!
    ROMEString              fValue;         //!
    ROMEString              fPath;          //!
    Int_t                   fWidth;         //!
@@ -69,18 +69,20 @@ public:
    TGRadioButton          *fRadioButton;       //!
    TGLayoutHints          *fLRadioButton;      //!
 
+private:
+   XMLToFormElement(const XMLToFormElement &elem); // not implemented
+   XMLToFormElement &operator=(const XMLToFormElement &rhs); // not implemented
+
 public:
-   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
-      Init(type,title,value,path,width,NULL,0,toolTip,signal);
-   }
-   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,Int_t buttonID,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
-      Init(type,title,value,path,width,NULL,buttonID,toolTip,signal);
-   }
-   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
-      Init(type,title,value,path,width,entries,0,toolTip,signal);
-   }
-   void Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,const char* toolTip,XMLToFormElementSignal* signal);
+   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,
+                    const char* toolTip = "",XMLToFormElementSignal* signal = NULL);
+   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,
+                    Int_t buttonID,const char* toolTip = "",XMLToFormElementSignal* signal = NULL);
+   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,
+                    ROMEStrArray *entries,const char* toolTip = "",XMLToFormElementSignal* signal = NULL);
    virtual ~XMLToFormElement();
+
+   void Init(const char* value, ROMEStrArray *entries);
 
    // Widget Data Getters
    TString GetType() { return fType; }

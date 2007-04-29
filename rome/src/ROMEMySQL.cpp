@@ -14,15 +14,23 @@
 
 ClassImp(ROMEMySQL)
 
-ROMEMySQL::ROMEMySQL() {
+//______________________________________________________________________________
+ROMEMySQL::ROMEMySQL()
+:ROMESQL()
+,mysql()
+,result(0)
+,row()
+{
    mysql_init(&mysql);
 }
 
+//______________________________________________________________________________
 ROMEMySQL::~ROMEMySQL() {
    FreeResult();
    DisConnect();
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
    if (!mysql_real_connect(&mysql, server, user, passwd, database,atoi(port), NULL, 0)) {
@@ -32,12 +40,14 @@ Bool_t ROMEMySQL::Connect(const char *server,const char *user,const char *passwd
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::DisConnect()
 {
    mysql_close(&mysql);
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
 {
    if (strlen(query) < 2048)
@@ -55,16 +65,19 @@ Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::StoreResult() {
    if(!(result = mysql_store_result(&mysql)))
       return false;
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEMySQL::FreeResult(){
    mysql_free_result(result);
 }
 
+//______________________________________________________________________________
 Int_t ROMEMySQL::GetNumberOfRows() {
    if( !result ) {
       ROMEPrint::Error("GetNumberOfRows error : no query result.\n");
@@ -73,6 +86,7 @@ Int_t ROMEMySQL::GetNumberOfRows() {
    return (int)mysql_num_rows(result);
 }
 
+//______________________________________________________________________________
 Int_t ROMEMySQL::GetNumberOfFields() {
    if( !this->row ) {
       ROMEPrint::Error("GetFieldCount error : no query result.\n");
@@ -81,6 +95,7 @@ Int_t ROMEMySQL::GetNumberOfFields() {
    return mysql_num_fields(result);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::DataSeek(my_ulonglong offset) {
    if( !result ) {
       ROMEPrint::Error("DataSeek error : no query result");
@@ -98,6 +113,7 @@ Bool_t ROMEMySQL::DataSeek(my_ulonglong offset) {
    return true;
 }
 
+//______________________________________________________________________________
 char* ROMEMySQL::GetField(Int_t fieldNumber) {
    if( !row ) {
       ROMEPrint::Error("GetField error : no query result.\n");
@@ -110,6 +126,7 @@ char* ROMEMySQL::GetField(Int_t fieldNumber) {
    return this->row[fieldNumber];
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::NextRow() {
    if( !result ) {
       ROMEPrint::Error("NextRow error : no query result.\n");
@@ -122,14 +139,17 @@ Bool_t ROMEMySQL::NextRow() {
    return true;
 }
 
+//______________________________________________________________________________
 Int_t ROMEMySQL::GetErrorCode() {
    return mysql_errno(&mysql);
 }
 
+//______________________________________________________________________________
 char* ROMEMySQL::GetErrorMessage() {
    return (char*) mysql_error(&mysql);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::StartTransaction( const char* option ){
    TString sqlQuery = "START TRANSACTION ";
    sqlQuery += option;
@@ -138,6 +158,7 @@ Bool_t ROMEMySQL::StartTransaction( const char* option ){
 
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::CommitTransaction( const char* option ){
    TString sqlQuery = "COMMIT ";
    sqlQuery += option;
@@ -145,6 +166,7 @@ Bool_t ROMEMySQL::CommitTransaction( const char* option ){
    return MakeQuery(sqlQuery.Data(),false);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMySQL::RollbackTransaction( const char* option ){
    TString sqlQuery = "ROLLBACK ";
    sqlQuery += option;

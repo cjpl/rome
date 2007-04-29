@@ -14,9 +14,14 @@
 
 ClassImp(ROMEDataBaseDAQ)
 
-ROMEDataBaseDAQ::ROMEDataBaseDAQ() {
+//______________________________________________________________________________
+ROMEDataBaseDAQ::ROMEDataBaseDAQ()
+:ROMEDAQSystem()
+,fTimeStamp(0)
+{
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDataBaseDAQ::Init() {
    if (gROME->isOnline()) {
       ROMEPrint::Warning("Database mode is not supported for online analysis.\n");
@@ -28,6 +33,7 @@ Bool_t ROMEDataBaseDAQ::Init() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDataBaseDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
       gROME->SetCurrentEventNumber(1);
@@ -37,6 +43,7 @@ Bool_t ROMEDataBaseDAQ::BeginOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDataBaseDAQ::Event(Long64_t event) {
    if (gROME->isOffline()) {
       gROME->SetCurrentEventNumber(event);
@@ -45,12 +52,14 @@ Bool_t ROMEDataBaseDAQ::Event(Long64_t event) {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDataBaseDAQ::EndOfRun() {
    if (gROME->isOffline()) {
    }
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDataBaseDAQ::Terminate() {
    if (gROME->isOffline()) {
    }

@@ -25,9 +25,14 @@ protected:
    Int_t           numOfFields;
    Int_t           currentRow;
 
+private:
+   ROMESQLite(const ROMESQLite &sql); // not implemented
+   ROMESQLite &operator=(const ROMESQLite &rhs); // not implemented
+
 public:
    ROMESQLite();
    virtual ~ROMESQLite();
+
    Bool_t  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
    Bool_t  DisConnect();
    Bool_t  MakeQuery(const char* query,Bool_t store);

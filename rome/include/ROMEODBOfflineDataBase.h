@@ -16,6 +16,10 @@ class ROMEODBOfflineDataBase : public ROMEDataBase
 protected:
    ROMEXML      *xml;
 
+private:
+   ROMEODBOfflineDataBase(const ROMEODBOfflineDataBase &db); // not implemented
+   ROMEODBOfflineDataBase &operator=(const ROMEODBOfflineDataBase &rhs); // not implemented
+
 public:
    ROMEODBOfflineDataBase();
    virtual ~ROMEODBOfflineDataBase();

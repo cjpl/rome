@@ -47,6 +47,10 @@ protected:
    TArrayI             *fLogScaleY;       //!
    TArrayI             *fLogScaleZ;       //!
 
+private:
+   ArgusTab(const ArgusTab &tab); // not implemented
+   ArgusTab &operator=(const ArgusTab &rhs); // not implemented
+
 public:
    ArgusTab(ArgusWindow* window);
    virtual ~ArgusTab();

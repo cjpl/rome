@@ -25,20 +25,31 @@
 
 ClassImp(ArgusTab)
 
-ArgusTab::ArgusTab(ArgusWindow* window):TGCompositeFrame(NULL,1,1) {
-   fWindow  = window;
-   fTabActive  = kFALSE;
-   fBusy = false;
-   fWatchAll.Reset();
-   fWatchUser.Reset();
-   fWatchUserEvent.Reset();
-   fRegisteringActive = true;
-   fDrawOption = 0;
-   fLogScaleX = 0;
-   fLogScaleY = 0;
-   fLogScaleZ = 0;
+//______________________________________________________________________________
+ArgusTab::ArgusTab(ArgusWindow* window)
+:TGCompositeFrame(NULL,1,1)
+,fWindow(window)
+,fTitle("")
+,fTabActive(kFALSE)
+,fBusy(kFALSE)
+,fForeground(kFALSE)
+,fCurrentRun(-1)
+,fCurrentEvent(-1)
+,fWatchAll()
+,fTimeAllString("")
+,fWatchUser()
+,fTimeUserString("")
+,fWatchUserEvent()
+,fTimeUserEventString("")
+,fRegisteringActive(kTRUE)
+,fDrawOption(0)
+,fLogScaleX(0)
+,fLogScaleY(0)
+,fLogScaleZ(0)
+{
 }
 
+//______________________________________________________________________________
 void ArgusTab::ArgusInit() {
    // Init EventHandler
    fWatchAll.Start(false);
@@ -48,6 +59,7 @@ void ArgusTab::ArgusInit() {
    fWatchAll.Stop();
 }
 
+//______________________________________________________________________________
 ArgusTab::~ArgusTab() {
    SafeDelete(fDrawOption);
    SafeDelete(fLogScaleX);
@@ -55,6 +67,7 @@ ArgusTab::~ArgusTab() {
    SafeDelete(fLogScaleZ);
 }
 
+//______________________________________________________________________________
 void ArgusTab::ArgusEventHandler() {
    while (fBusy)
       gSystem->Sleep(10);
@@ -65,6 +78,7 @@ void ArgusTab::ArgusEventHandler() {
    fWatchAll.Stop();
 }
 
+//______________________________________________________________________________
 Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber) {
 
    Bool_t forced = kFALSE;
@@ -91,6 +105,7 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber)
    return kFALSE;
 }
 
+//______________________________________________________________________________
 Bool_t ArgusTab::RequestEvent() {
    if (gROME->IsROMEMonitor()) {
       return gROME->GetSocketClientNetFolder()->RequestEvent();
@@ -99,6 +114,7 @@ Bool_t ArgusTab::RequestEvent() {
 }
 
 // Time methods
+//______________________________________________________________________________
 const char* ArgusTab::GetTimeStatisticsString(ROMEString& string)
 {
    string = "";
@@ -118,18 +134,23 @@ const char* ArgusTab::GetTimeStatisticsString(ROMEString& string)
    return string;
 }
 
+//______________________________________________________________________________
 const char* ArgusTab::GetTimeOfAll()
 {
    // Returns the elapsed time in a readable format
    fWatchAll.GetRealTimeString(fTimeAllString);
    return fTimeAllString.Data();
 }
+
+//______________________________________________________________________________
 const char* ArgusTab::GetTimeOfUser()
 {
    // Returns the elapsed time in a readable format
    fWatchUser.GetRealTimeString(fTimeUserString);
    return fTimeUserString.Data();
 }
+
+//______________________________________________________________________________
 const char* ArgusTab::GetTimeOfUserEvents()
 {
    // Returns the elapsed time in a readable format

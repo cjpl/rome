@@ -14,6 +14,7 @@
 
 ClassImp(ROMEDAQSystem)
 
+//______________________________________________________________________________
 Bool_t ROMEDAQSystem::InitDAQ()
 {
    fWatchEvent.Reset();
@@ -21,6 +22,7 @@ Bool_t ROMEDAQSystem::InitDAQ()
    return Init();
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDAQSystem::BeginOfRunDAQ()
 {
    Bool_t ret;
@@ -30,6 +32,7 @@ Bool_t ROMEDAQSystem::BeginOfRunDAQ()
    return ret;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDAQSystem::EventDAQ(Long64_t event)
 {
    Bool_t ret;
@@ -42,6 +45,7 @@ Bool_t ROMEDAQSystem::EventDAQ(Long64_t event)
    return ret;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDAQSystem::EndOfRunDAQ()
 {
    Bool_t ret;
@@ -51,11 +55,13 @@ Bool_t ROMEDAQSystem::EndOfRunDAQ()
    return ret;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDAQSystem::TerminateDAQ()
 {
    return Terminate();
 }
 
+//______________________________________________________________________________
 Bool_t ROMEDAQSystem::TimeDAQ()
 {
    int i;

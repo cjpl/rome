@@ -23,17 +23,28 @@
 
 ClassImp(ROMETree)
 
+//______________________________________________________________________________
 ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileName,
                    ROMEString configOutputFileName, TFile* file, Int_t fileOption,
                    Bool_t read, Bool_t write, Bool_t fill, Bool_t saveConfig, Int_t compressionLevel,
                    Long64_t maxEntries)
+:TNamed()
+,fSwitches()
+,fSwitchesString("Read = BOOL : 0\n"
+                 "Write = BOOL : 0\n"
+                 "Fill = BOOL : 0\n"
+                 "Save Config = BOOL : 0\n"
+                 "Compression Level = INT : 0\n"
+                 "Max Entries = INT : 0\n")
+,fBranchActive(0)
+,fNBranchActive(0)
+,fTree(tree)
+,fFileName(fileName)
+,fConfigInputFileName(configInputFileName)
+,fConfigOutputFileName(configOutputFileName)
+,fFile(file)
+,fFileOption(fileOption)
 {
-   fTree = tree;
-   fFileName = fileName;
-   fConfigInputFileName = configInputFileName;
-   fConfigOutputFileName = configOutputFileName;
-   fFile = file;
-   fFileOption = fileOption;
    fSwitches.fRead = read;
    fSwitches.fWrite = write;
    fSwitches.fFill = fill;
@@ -43,16 +54,17 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
    /* note: use 4byte integer for odb */
    if (maxEntries>0) fTree->SetCircular(maxEntries);
    TObjArray *branches = fTree->GetListOfBranches();
-   for (Int_t i=0;i<branches->GetEntriesFast();i++)
+   for (Int_t i=0;i<branches->GetEntriesFast();i++) {
       ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
-   fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nSave Config = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n";
-   fBranchActive = 0;
+   }
 }
 
+//______________________________________________________________________________
 ROMETree::~ROMETree() {
    SafeDeleteArray(fBranchActive);
 }
 
+//______________________________________________________________________________
 void ROMETree::AllocateBranchActive(Int_t n) {
    fNBranchActive = n;
    SafeDeleteArray(fBranchActive);
@@ -60,6 +72,7 @@ void ROMETree::AllocateBranchActive(Int_t n) {
    for(int i=0;i<n;i++) fBranchActive[i]=kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMETree::CheckConfiguration(const char* inDir, const char* outDir) {
    if (fSwitches.fRead &&
        fSwitches.fWrite &&

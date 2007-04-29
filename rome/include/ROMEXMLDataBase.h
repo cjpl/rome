@@ -31,6 +31,11 @@ protected:
 
    Bool_t WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex);
    Int_t  SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber,Bool_t write);
+
+private:
+   ROMEXMLDataBase(const ROMEXMLDataBase &db);
+   ROMEXMLDataBase &operator=(const ROMEXMLDataBase &rhs);
+
 public:
    ROMEXMLDataBase();
    virtual ~ROMEXMLDataBase();

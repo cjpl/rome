@@ -47,28 +47,42 @@ void ProcessMessage(Int_t /*hBuf*/, Int_t /*id*/, EVENT_HEADER * /*pheader*/, vo
 
 ClassImp(ROMEMidasDAQ)
 
-ROMEMidasDAQ::ROMEMidasDAQ() {
-   int i;
-   fCurrentRawDataEvent = 0;
-   fEventFilePositions = new TArrayL(kEventFilePositionsResizeIncrement);
+//______________________________________________________________________________
+ROMEMidasDAQ::ROMEMidasDAQ()
+:ROMEDAQSystem()
 #if defined( R__BYTESWAP )
-   fByteSwap = false;
+ ,fByteSwap(kFALSE)
 #else
-   fByteSwap = true;
+ ,fByteSwap(kTRUE)
 #endif
-   fOdbOffline = 0;
-   fRequestAll = false;
-   for (i=0;i<kMaxMidasEventTypes;i++) {
+ ,fCurrentRawDataEvent(0)
+ ,fNumberOfEventRequests(0)
+ ,fMidasOnlineBuffer(0)
+ ,fMidasFileHandle(0)
+ ,fMidasGzFileHandle()
+ ,fGZippedMidasFile(kFALSE)
+ ,fRequestAll(kFALSE)
+ ,fOdbOffline(0)
+ ,fTimeStamp(0)
+ ,fEventFilePositions(new TArrayL(kEventFilePositionsResizeIncrement))
+ ,fValidEventFilePositions(0)
+ ,fCurrentPosition(0)
+ ,fMaxDataEvent(0)
+{
+   int i;
+   for (i = 0;i < kMaxMidasEventTypes; i++) {
       fEventRequestRate[i] = 2;
       fEventRequestMask[i] = -1;
    }
 }
 
+//______________________________________________________________________________
 ROMEMidasDAQ::~ROMEMidasDAQ() {
    SafeDelete(fOdbOffline);
    SafeDelete(fEventFilePositions);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMidasDAQ::Init() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
@@ -208,6 +222,7 @@ Bool_t ROMEMidasDAQ::Init() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMidasDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
       ROMEString filename;
@@ -252,6 +267,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMidasDAQ::Event(Long64_t event) {
    // Switch Raw Data Buffer
    this->SwitchRawDataBuffer();
@@ -419,6 +435,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
    return true;
 }
 
+//______________________________________________________________________________
 Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
    if (event < 0) {
 #if defined(R__UNIX)
@@ -535,6 +552,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
    return -1;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMidasDAQ::EndOfRun() {
    if (gROME->isOffline()) {
       if(!fGZippedMidasFile)
@@ -545,6 +563,7 @@ Bool_t ROMEMidasDAQ::EndOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMidasDAQ::Terminate() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
@@ -554,6 +573,7 @@ Bool_t ROMEMidasDAQ::Terminate() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEMidasDAQ::ReadODBOffline() {
    if (gROME->isOffline()) {
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
@@ -643,6 +663,7 @@ analyzer which has different byte ordering.
 is only swapped if it is in the wrong format.
 @return 1==event has been swap, 0==event has not been swapped.
 */
+//______________________________________________________________________________
 INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
 {
    BANK_HEADER  *pbh;
@@ -736,11 +757,13 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
 #endif
 
 #if !defined( HAVE_MIDAS )
+//______________________________________________________________________________
 BOOL ROMEMidasDAQ::bk_is32(void *event)
 {
    return ((((BANK_HEADER *) event)->flags & BANK_FORMAT_32BIT) > 0);
 }
 
+//______________________________________________________________________________
 INT ROMEMidasDAQ::bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata)
 {
    Int_t tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};

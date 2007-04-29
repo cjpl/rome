@@ -9,6 +9,7 @@
 #include "ROMEBuilder.h"
 #include "Riostream.h"
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectSln(Int_t version,ROMEString& projectGUID)
 {
    ROMEString buffer;
@@ -73,6 +74,7 @@ void ROMEBuilder::WriteVisualProjectSln(Int_t version,ROMEString& projectGUID)
    WriteFile(fileName.Data(),buffer.Data(),6);
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROMEString& projectGUID)
 {
    int i;
@@ -299,6 +301,7 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    xml->EndElement();
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,const char* folderName,const char* filter)
 {
    int i;
@@ -330,6 +333,7 @@ void ROMEBuilder::WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,c
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjFileDictCreators(ROMEXML *xml)
 {
    int i;
@@ -367,6 +371,7 @@ void ROMEBuilder::WriteVisualProjectProjFileDictCreators(ROMEXML *xml)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjFileROMEBuilder(ROMEXML *xml)
 {
    ROMEString name;
@@ -394,6 +399,7 @@ void ROMEBuilder::WriteVisualProjectProjFileROMEBuilder(ROMEXML *xml)
    xml->EndElement();
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
 {
    int i,j,k;
@@ -458,6 +464,7 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml)
 {
    int i,j,k;
@@ -508,6 +515,7 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const char *warningLevel,const char* preCompiledHeaderFile)
 {
    ROMEString str;
@@ -527,6 +535,7 @@ void ROMEBuilder::WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const cha
    xml->EndElement();
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteVisualProjects(Int_t version)
 {
    int i,j,k;
@@ -671,6 +680,7 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    delete xml;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::RelativeWindowsPath(ROMEString &path,const char *referencePath)
 {
    int ind,inde,i,equalChars;

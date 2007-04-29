@@ -15,16 +15,21 @@
 
 ClassImp(ROMERootDAQ)
 
-ROMERootDAQ::ROMERootDAQ() {
-   fRootFiles = 0;
-   fTrees = new TObjArray(1);
+//______________________________________________________________________________
+ROMERootDAQ::ROMERootDAQ()
+:ROMEDAQSystem()
+,fRootFiles(0)
+,fTrees(new TObjArray(1))
+{
 }
 
+//______________________________________________________________________________
 ROMERootDAQ::~ROMERootDAQ() {
    SafeDelete(fTrees);
    SafeDeleteArray(fRootFiles);
 }
 
+//______________________________________________________________________________
 Bool_t ROMERootDAQ::Init() {
    if (gROME->isOnline()) {
       ROMEPrint::Error("Root mode is not supported for online analysis.\n");
@@ -38,6 +43,7 @@ Bool_t ROMERootDAQ::Init() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERootDAQ::BeginOfRun() {
    int i;
    ROMEString filename;
@@ -58,6 +64,7 @@ Bool_t ROMERootDAQ::BeginOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERootDAQ::Event(Long64_t event) {
    int j;
    // read event
@@ -71,6 +78,7 @@ Bool_t ROMERootDAQ::Event(Long64_t event) {
    return true;
 }
 
+//______________________________________________________________________________
 Long64_t ROMERootDAQ::Seek(Long64_t event) {
    Bool_t found = kTRUE;
 
@@ -98,6 +106,7 @@ Long64_t ROMERootDAQ::Seek(Long64_t event) {
    return event;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERootDAQ::EndOfRun() {
    int i;
    ROMEString filename;
@@ -109,6 +118,7 @@ Bool_t ROMERootDAQ::EndOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERootDAQ::Terminate() {
    return true;
 }

@@ -16,6 +16,10 @@ protected:
    TFile       **fRootFiles;                //! Input Root files
    TObjArray    *fTrees;                    //! Array of Trees
 
+private:
+   ROMERootDAQ(const ROMERootDAQ &daq); // not implemented
+   ROMERootDAQ &operator=(const ROMERootDAQ &rhs); // not implemented
+
 public:
    ROMERootDAQ();
    virtual ~ROMERootDAQ();

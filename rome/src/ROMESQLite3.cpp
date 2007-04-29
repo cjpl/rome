@@ -15,17 +15,26 @@
 
 ClassImp(ROMESQLite3)
 
-ROMESQLite3::ROMESQLite3() {
-   db   = NULL;
-   stmt = NULL;
+//______________________________________________________________________________
+ROMESQLite3::ROMESQLite3()
+:ROMESQL()
+,db(0)
+,stmt(0)
+,result()
+,numOfFields(0)
+,numOfRows(0)
+,currentRow(0)
+{
    FreeResult();
 }
 
+//______________________________________________________________________________
 ROMESQLite3::~ROMESQLite3() {
    FreeResult();
    DisConnect();
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::Connect(const char *server,const char * /*user*/,const char * /*passwd*/,const char *database,const char * /*port*/)
 {
    TString filename = server;
@@ -41,6 +50,7 @@ Bool_t ROMESQLite3::Connect(const char *server,const char * /*user*/,const char 
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::DisConnect()
 {
    if (db)
@@ -48,6 +58,7 @@ Bool_t ROMESQLite3::DisConnect()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
 {
    if (strlen(query) < 2048) {
@@ -76,6 +87,7 @@ Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::StoreResult()
 {
    int i=0;
@@ -104,6 +116,7 @@ Bool_t ROMESQLite3::StoreResult()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::NextRow() {
    if(currentRow+1 >= GetNumberOfRows()){
       ROMEPrint::Error("NextRow error : You have tried nonexistent row.\n");
@@ -113,7 +126,7 @@ Bool_t ROMESQLite3::NextRow() {
    return true;
 }
 
-
+//______________________________________________________________________________
 char* ROMESQLite3::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
       ROMEPrint::Error("GetField error : field number out of bounds\n");
@@ -122,6 +135,7 @@ char* ROMESQLite3::GetField(Int_t fieldNumber) {
    return (char*) result.At(fieldNumber,currentRow).Data();
 }
 
+//______________________________________________________________________________
 void ROMESQLite3::FreeResult() {
    if(stmt){
       sqlite3_finalize(stmt);
@@ -132,6 +146,7 @@ void ROMESQLite3::FreeResult() {
    result.RemoveAll();
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::StartTransaction( const char* option ){
    TString sqlQuery = "BEGIN ";
    sqlQuery += option;
@@ -139,6 +154,7 @@ Bool_t ROMESQLite3::StartTransaction( const char* option ){
    return MakeQuery(sqlQuery.Data(),false);
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::CommitTransaction( const char* option ){
    TString sqlQuery = "COMMIT ";
    sqlQuery += option;
@@ -146,6 +162,7 @@ Bool_t ROMESQLite3::CommitTransaction( const char* option ){
    return MakeQuery(sqlQuery.Data(),false);
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLite3::RollbackTransaction( const char* option ){
    TString sqlQuery = "ROLLBACK ";
    sqlQuery += option;

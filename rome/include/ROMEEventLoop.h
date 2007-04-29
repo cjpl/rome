@@ -90,10 +90,15 @@ public:
    static Bool_t fHotLinksChanged;                  //! Flags Changing in Hot Links
 #endif // HAVE_MIDAS
 
+private:
+   ROMEEventLoop(const ROMEEventLoop &loop); // not implemented
+   ROMEEventLoop &operator=(const ROMEEventLoop &rhs); // not implemented
+
 public:
    ROMEEventLoop();
-   virtual ~ROMEEventLoop();
    ROMEEventLoop(const char *name,const char *title);
+   virtual ~ROMEEventLoop();
+
    void         ExecuteTask(Option_t *option="");
    void         BookHisto() {}
    void         ReBookHisto() {}

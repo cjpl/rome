@@ -10,12 +10,11 @@
 #include <TObject.h>
 #include "ROMEString.h"
 
-class ROMEGraph : public TObject {
+class ROMEGraph : public TNamed {
 private:
    char*      fCstop; //!
 protected:
    Bool_t     fActive;                  // Active flag
-   ROMEString fTitle;                   // Title
    ROMEString fTitleOrig;               // Title Original
    ROMEString fFolderTitle;             // Title of the Folder
    ROMEString fFolderTitleOrig;         // Title of the Folder Original
@@ -42,9 +41,13 @@ protected:
    ROMEString fZmax;                    // Maximum value on the Z axis
    Double_t   fZmaxOrig;                // Maximum value on the Z axis Original
 
+private:
+   ROMEGraph(const ROMEGraph &graph); // not implemented
+   ROMEGraph &operator=(const ROMEGraph &rhs); // not implemented
+
 public:
    ROMEGraph();
-   ~ROMEGraph() {};
+   virtual ~ROMEGraph() {};
 
    void SetActive(bool value) { fActive = value; };
    void SetTitle(const char* value) { fTitle = value; };

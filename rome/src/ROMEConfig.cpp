@@ -19,6 +19,7 @@
 
 ClassImp(ROMEConfig)
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto)
 {
    ROMEString fullPath;
@@ -169,6 +170,7 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
 {
     if (configHisto->fHistActiveModified ||
@@ -194,6 +196,7 @@ Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
       return false;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* configHisto)
 {
    // fHistActive
@@ -277,6 +280,7 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,Int_t commentLevel,ROMEStrArray& comment)
 {
    // fHistActive
@@ -390,6 +394,7 @@ Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configH
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConfigGraph* configGraph)
 {
    ROMEString fullPath;
@@ -460,6 +465,7 @@ Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConf
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
 {
     if (configGraph->fGraphActiveModified ||
@@ -475,6 +481,7 @@ Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
       return false;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* configGraph)
 {
    // fGraphActive
@@ -515,6 +522,7 @@ Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* confi
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,Int_t commentLevel,ROMEStrArray& comment)
 {
    // fGraphActive

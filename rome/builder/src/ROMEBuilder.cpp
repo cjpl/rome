@@ -20,6 +20,425 @@
 
 ROMEXML* configXSD;
 
+//______________________________________________________________________________
+ROMEBuilder::ROMEBuilder()
+:romeVersion("")
+,romeRevisionCode(0)
+,romeStable(kTRUE)
+,makeFlag("")
+,histoParameters(0)
+,histoParameterTypes(0)
+,histoParameterWidgetTypes(0)
+,graphParameters(0)
+,graphParameterTypes(0)
+,graphParameterWidgetTypes(0)
+,outDir("")
+,xmlFile("")
+,xsdFile("")
+,makeOutput(kFALSE)
+,noLink(kFALSE)
+,midas(kFALSE)
+,orca(kFALSE)
+,sql(kFALSE)
+,mysql(kFALSE)
+,pgsql(kFALSE)
+,sqlite(kFALSE)
+,sqlite3(kFALSE)
+,noVP(kFALSE)
+,librome(kFALSE)
+,dynamicLink(kFALSE)
+,pch(kFALSE)
+,minRebuild(kFALSE)
+,quietMake(kFALSE)
+,flags()
+,affiliations()
+,affiliationList()
+,xml(0)
+,shortCut("")
+,experimentName("")
+,readExperiment(kFALSE)
+,readGlobalSteeringParameters(kFALSE)
+,hasStructuredBank(kFALSE)
+,maxNumberOfTasks(0)
+,maxNumberOfFolders(0)
+,maxNumberOfTrees(0)
+,maxNumberOfDAQ(0)
+,maxNumberOfDB(0)
+,maxNumberOfEvents(0)
+,maxNumberOfRootTrees(0)
+,maxNumberOfMFDictHeaders(0)
+,maxNumberOfMFDictIncDirs(0)
+,maxNumberOfMFWinLibs(0)
+,maxNumberOfMFUnixLibs(0)
+,maxNumberOfMFIncDirs(0)
+,maxNumberOfMFPreDefs(0)
+,maxNumberOfMFSources(0)
+,maxNumberOfTabs(0)
+,maxNumberOfNetFolders(0)
+,parent(0)
+,recursiveDepth(0)
+,recursiveSteerDepth(0)
+,actualSteerIndex(0)
+,fNumberOfInterpreterCodes(0)
+,recursiveTabDepth(0)
+,recursiveMenuDepth(0)
+,daqNameArray(0)
+,daqTypeArray(0)
+,daqDirArray(0)
+,numOfFolder(0)
+,numOfValue(0)
+,numOfFolderInclude(0)
+,numOfFolderAffiliations(0)
+,folderAffiliation(0)
+,folderUsed(0)
+,folderName(0)
+,folderDescription(0)
+,folderShortDescription(0)
+,folderParentName(0)
+,folderTitle(0)
+,folderArray(0)
+,folderAuthor(0)
+,folderVersion(0)
+,folderInclude(0)
+,folderLocalFlag(0)
+,folderDataBase(0)
+,folderUserCode(0)
+,folderSupport(0)
+,folderNoReset(0)
+,folderNoResetModified(0)
+,hasFolderUserCode(kFALSE)
+,hasFolderGenerated(kFALSE)
+,hasSupportFolderGenerated(kFALSE)
+,hasTaskGenerated(kFALSE)
+,valueName(0)
+,valueType(0)
+,valueInit(0)
+,valueComment(0)
+,valueDimension(0)
+,valueArray(0)
+,valueArraySpecifier(0)
+,valueDBName(0)
+,valueDBPath(0)
+,valueDBIf(0)
+,valueNoBoundChech(0)
+,valueIsTObject(0)
+,numOfNetFolder(0)
+,netFolderName(0)
+,netFolderTitle(0)
+,netFolderHost(0)
+,netFolderPort(0)
+,netFolderRoot(0)
+,numOfTask(0)
+,taskName(0)
+,numOfTaskAffiliations(0)
+,taskAffiliation(0)
+,taskUsed(0)
+,taskEventID(0)
+,taskDescription(0)
+,taskShortDescription(0)
+,taskUsage(0)
+,taskStatus(0)
+,taskToDo(0)
+,taskKnownProblems(0)
+,taskAuthor(0)
+,taskAuthorInstitute(0)
+,taskAuthorCollaboration(0)
+,taskAuthorEmail(0)
+,taskVersion(0)
+,taskDependence(0)
+,numOfTaskInclude(0)
+,taskInclude(0)
+,taskLocalFlag(0)
+,numOfTaskAccessedFolder(0)
+,taskAccessedFolder(0)
+,numOfHistos(0)
+,histoName(0)
+,histoTitle(0)
+,histoFolderName(0)
+,histoFolderTitle(0)
+,histoType(0)
+,histoArraySize(0)
+,histoArrayStartIndex(0)
+,histoXLabel(0)
+,histoYLabel(0)
+,histoZLabel(0)
+,histoXNbins(0)
+,histoXmin(0)
+,histoXmax(0)
+,histoYNbins(0)
+,histoYmin(0)
+,histoYmax(0)
+,histoZNbins(0)
+,histoZmin(0)
+,histoZmax(0)
+,numOfHistoSingleObjectTabs(0)
+,histoSingleObjectTabName(0)
+,histoSingleObjectTabIndex(0)
+,histoSingleObjectTabArrayIndex(0)
+,numOfGraphs(0)
+,graphName(0)
+,graphTitle(0)
+,graphFolderName(0)
+,graphFolderTitle(0)
+,graphType(0)
+,graphArraySize(0)
+,graphArrayStartIndex(0)
+,graphXLabel(0)
+,graphYLabel(0)
+,graphZLabel(0)
+,graphXmin(0)
+,graphXmax(0)
+,graphYmin(0)
+,graphYmax(0)
+,graphZmin(0)
+,graphZmax(0)
+,numOfGraphSingleObjectTabs(0)
+,graphSingleObjectTabName(0)
+,graphSingleObjectTabIndex(0)
+,graphSingleObjectTabArrayIndex(0)
+,numOfTaskHierarchy(0)
+,taskHierarchyName(0)
+,taskHierarchyParentIndex(0)
+,taskHierarchyClassIndex(0)
+,taskHierarchyMultiplicity(0)
+,taskHierarchyLevel(0)
+,taskHierarchyObjectIndex(0)
+,taskHierarchySuffix(0)
+,numOfSteering(0)
+,numOfSteerFields(0)
+,numOfSteerChildren(0)
+,steerName(0)
+,steerArraySize(0)
+,steerParent(0)
+,steerChildren(0)
+,numOfSteerAffiliations(0)
+,steerAffiliation(0)
+,steerUsed(0)
+,steerFieldName(0)
+,steerFieldType(0)
+,steerFieldFormat(0)
+,steerFieldArraySize(0)
+,steerFieldInit(0)
+,steerFieldComment(0)
+,steerFieldShortDescription(0)
+,steerFieldCLOption(0)
+,steerFieldCLDescription(0)
+,numOfSteerFieldAffiliations(0)
+,steerFieldAffiliation(0)
+,steerFieldUsed(0)
+,steerFieldHotLink(0)
+,haveSteerFieldHotLinks(0)
+,numOfGSPInclude(0)
+,gspInclude(0)
+,gspLocalFlag(0)
+,usedCLO("")
+,numOfTab(0)
+,tabName(0)
+,tabSuffix(0)
+,tabTitle(0)
+,tabObjectDisplay(0)
+,numOfTabAffiliations(0)
+,tabAffiliation(0)
+,tabUsed(0)
+,tabDescription(0)
+,tabShortDescription(0)
+,tabUsage(0)
+,tabStatus(0)
+,tabToDo(0)
+,tabKnownProblems(0)
+,tabAuthor(0)
+,tabAuthorInstitute(0)
+,tabAuthorCollaboration(0)
+,tabAuthorEmail(0)
+,tabVersion(0)
+,tabDependence(0)
+,tabHeredity(0)
+,tabHeredityIndex(0)
+,tabParentIndex(0)
+,tabNumOfChildren(0)
+,numOfMenu(0)
+,numOfMenuItem(0)
+,menuTitle(0)
+,menuDepth(0)
+,menuItemChildMenuIndex(0)
+,menuItemEnumName(0)
+,menuItemTitle(0)
+,numOfTabSingleObjects(0)
+,tabSingleObjectName(0)
+,tabSingleObjectIndex(0)
+,tabSingleObjectArrayIndexStart(0)
+,tabSingleObjectArrayIndexEnd(0)
+,tabSingleObjectTaskHierarchyIndex(0)
+,tabSingleObjectTaskIndex(0)
+,tabSingleObjectObjectIndex(0)
+,tabSingleObjectType(0)
+,tabSingleObjectIndexMax(0)
+,numOfTabObjectDisplays(0)
+,tabObjectDisplayName(0)
+,tabObjectDisplayTitle(0)
+,tabObjectDisplayObject(0)
+,tabObjectDisplayType(0)
+,tabObjectDisplayTaskHierarchyIndex(0)
+,tabObjectDisplayTaskIndex(0)
+,tabObjectDisplayObjectIndex(0)
+,tabObjectDisplayTaskHierarchyNumber(0)
+,tabObjectDisplaySupportedObjects()
+,tabObjectDisplayObjectTypeIndex(0)
+,numOfTabObjectDisplayObjectTypes(0)
+,tabObjectDisplayObjectType(0)
+,numOfTree(0)
+,numOfBranch(0)
+,numOfRunHeader(0)
+,treeName(0)
+,treeTitle(0)
+,treeFileName(0)
+,treeDescription(0)
+,branchName(0)
+,branchFolder(0)
+,branchBufferSize(0)
+,branchSplitLevel(0)
+,runHeaderName(0)
+,runHeaderFolder(0)
+,runHeaderFolderIndex(0)
+,numOfThreadFunctions(0)
+,numOfThreadFunctionArguments(0)
+,threadFunctionName(0)
+,threadFunctionArgument(0)
+,numOfDAQ(0)
+,daqName(0)
+,numOfDAQAffiliations(0)
+,daqAffiliation(0)
+,daqUsed(0)
+,numOfDB(0)
+,dbName(0)
+,dbDescription(0)
+,numOfEvent(0)
+,numOfBank(0)
+,numOfStructFields(0)
+,eventName(0)
+,eventID(0)
+,eventTriggerMask(0)
+,eventSamplingRate(0)
+,bankName(0)
+,bankType(0)
+,bankArraySize(0)
+,bankArrayStart(0)
+,bankArrayDigit(0)
+,structFieldName(0)
+,structFieldType(0)
+,structFieldSize(0)
+,bankFieldArraySize(0)
+,bankHasHeader(kFALSE)
+,bankHeaderFolder("")
+,bankHeaderEventID("")
+,bankHeaderTriggerMask("")
+,bankHeaderSerialNumber("")
+,bankHeaderTimeStamp("")
+,numOfRootTree(0)
+,numOfRootBranch(0)
+,numOfRootBranchField(0)
+,rootTreeName(0)
+,rootBranchName(0)
+,rootBranchType(0)
+,rootBranchArraySize(0)
+,rootBranchClassName(0)
+,rootBranchClassVersion(0)
+,rootBranchFieldName(0)
+,rootBranchFieldType(0)
+,rootBranchFieldArraySize(0)
+,numOfMFDictHeaders(0)
+,mfDictHeaderName(0)
+,mfDictHeaderLinkDefSuffix(0)
+,numOfMFDictHeaderAffiliations(0)
+,mfDictHeaderAffiliation(0)
+,mfDictHeaderUsed(0)
+,numOfIncludeDirectories(0)
+,numOfMFDictIncDirs(0)
+,mfDictIncDir(0)
+,numOfMFWinLibs(0)
+,mfWinLibName(0)
+,numOfMFWinLibFlags(0)
+,mfWinLibFlag(0)
+,numOfMFUnixLibs(0)
+,mfUnixLibName(0)
+,numOfMFUnixLibFlags(0)
+,mfUnixLibFlag(0)
+,numOfMFIncDirs(0)
+,mfIncDir(0)
+,numOfMFPreDefs(0)
+,mfPreDefName(0)
+,numOfMFSources(0)
+,mfSourceFileName(0)
+,mfSourceFilePath(0)
+,mfSourceFileObjPath(0)
+,mfHeaderFileName(0)
+,mfHeaderFilePath(0)
+,numOfMFSourceFlags(0)
+,mfSourceFileFlag(0)
+,numOfMFSourceAffiliations(0)
+,mfSourceFileAffiliation(0)
+,mfSourceFileUsed(0)
+,objDirList()
+,mainAuthor("")
+,mainInstitute("")
+,mainCollaboration("")
+,mainEmail("")
+,mainProgName("")
+,mainDefinitionVersion("")
+,mainDescription("")
+,styleSheet("")
+,dictionaryType(0)
+,dictionaryNames(0)
+,dictionaryOutputs(0)
+,dictionaryDependencies(0)
+,dictionaryCommands(0)
+,includeDirectories(0)
+,romeHeaders(0)
+,romeDictHeaders(0)
+,romeSources(0)
+,romeLinkDefSuffix(0)
+,argusHeaders(0)
+,argusSources(0)
+,argusLinkDefSuffix(0)
+,generatedHeaders(0)
+,generatedDictHeaders(0)
+,generatedLinkDefSuffix(0)
+,generatedFolderDictHeaders(0)
+,generatedFolderLinkDefSuffix(0)
+,generatedSupportFolderDictHeaders(0)
+,generatedSupportFolderLinkDefSuffix(0)
+,generatedTaskDictHeaders(0)
+,generatedTaskLinkDefSuffix(0)
+,generatedTabDictHeaders(0)
+,generatedTabLinkDefSuffix(0)
+,generatedSources(0)
+,folderHeaders(0)
+,folderSources(0)
+,folderLinkDefSuffix(0)
+,taskHeaders(0)
+,taskSources(0)
+,taskLinkDefSuffix(0)
+,tabHeaders(0)
+,tabSources(0)
+,tabLinkDefSuffix(0)
+,daqHeaders(0)
+,daqSources(0)
+,daqLinkDefSuffix(0)
+,databaseHeaders(0)
+,databaseSources(0)
+,databaseLinkDefSuffix(0)
+,rootLibraries(0)
+,mysqlLibraries(0)
+,daqLibraries(0)
+,daqFlags(0)
+,precompiledHeaders(0)
+,precompiledIncludeHeaders(0)
+,mainParGroup(0)
+,maxConfigParameterHierarchyLevel(0)
+{
+}
+
+//______________________________________________________________________________
 ROMEBuilder::~ROMEBuilder()
 {
    // Free memory
@@ -321,6 +740,7 @@ ROMEBuilder::~ROMEBuilder()
    delete precompiledIncludeHeaders;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::StartBuilder()
 {
 
@@ -780,6 +1200,7 @@ Bool_t ROMEBuilder::StartBuilder()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 {
    makeOutput = false;
@@ -1113,6 +1534,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AddConfigParametersFolder()
 {
    // add configuration folder
@@ -1232,6 +1654,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::CheckFileAndPath()
 {
    if (gSystem->AccessPathName(xmlFile.Data(),kFileExists)) {
@@ -1251,6 +1674,7 @@ Bool_t ROMEBuilder::CheckFileAndPath()
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::Usage()
 {
    cout << "  -i        Inputfile" << endl;
@@ -1275,6 +1699,7 @@ void ROMEBuilder::Usage()
    cout << "  -makeflag Options for make command executed in romebuilder" << endl;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile)
 {
    Ssiz_t ind;
@@ -1293,6 +1718,7 @@ void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMESt
    }
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace, Bool_t backup)
 {
    // return true when backup file is created
@@ -1320,6 +1746,7 @@ Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace
    return backupCreated;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *source,const char *type,Int_t version)
 {
    buf->Resize(0);
@@ -1396,6 +1823,8 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
          buf->AppendFormatted("%s",source);
    }
 }
+
+//______________________________________________________________________________
 bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
 {
    // converts c++ types to midas odb compatible types
@@ -1418,6 +1847,7 @@ bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::isNumber(const char* str)
 {
    if (strcmp(str,"float")&&strcmp(str,"Float_t")&&
@@ -1434,6 +1864,7 @@ Bool_t ROMEBuilder::isNumber(const char* str)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::isFloatingType(const char *type)
 {
    if (
@@ -1451,6 +1882,7 @@ Bool_t ROMEBuilder::isFloatingType(const char *type)
    return false;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::isBoolType(const char *type)
 {
    if (
@@ -1461,6 +1893,7 @@ Bool_t ROMEBuilder::isBoolType(const char *type)
    return false;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::isIntType(const char *type)
 {
 // check if the type is valid for array length specifier in TTree.
@@ -1471,6 +1904,7 @@ Bool_t ROMEBuilder::isIntType(const char *type)
       );
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer)
 {
    int type = 0;
@@ -1521,6 +1955,7 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
    return stringBuffer;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::isFolder(const char *type)
 {
    int j;
@@ -1538,6 +1973,7 @@ Bool_t ROMEBuilder::isFolder(const char *type)
    return false;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::isTArrayType(const char *type)
 {
    int j;
@@ -1561,6 +1997,7 @@ Bool_t ROMEBuilder::isTArrayType(const char *type)
    return false;
 }
 
+//______________________________________________________________________________
 const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standardType)
 {
    int j;
@@ -1588,6 +2025,7 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
    return type;
 }
 
+//______________________________________________________________________________
 template <class T>
 void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
 {
@@ -1650,18 +2088,22 @@ void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, 
    return 0;
 }
 
+//______________________________________________________________________________
 void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
    return AllocateArray(static_cast<Int_t*>(0), x1, x2, x3, x4, x5, x6);
 }
 
+//______________________________________________________________________________
 void* ROMEBuilder::AllocateBool(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
    return AllocateArray(static_cast<Bool_t*>(0), x1, x2, x3, x4, x5, x6);
 }
 
+//______________________________________________________________________________
 void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
    return AllocateArray(static_cast<ROMEString*>(0), x1, x2, x3, x4, x5, x6);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
 {
    fstream *fileStreamI;

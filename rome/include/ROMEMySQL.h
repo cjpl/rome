@@ -25,9 +25,14 @@ protected:
    MYSQL_ROW  row;
 #endif // __CINT__
 
+private:
+   ROMEMySQL(const ROMEMySQL &sql); // not implemented
+   ROMEMySQL &operator=(const ROMEMySQL &rhs); // not implemented
+
 public:
    ROMEMySQL();
    virtual ~ROMEMySQL();
+
    Bool_t  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
    Bool_t  DisConnect();
    Bool_t  MakeQuery(const char* query,Bool_t store);

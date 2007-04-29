@@ -6,6 +6,7 @@ using std::endl;
 bool convertConfig(PMXML_NODE configNode,bool runConfig);
 void deleteComments(PMXML_NODE node);
 
+//______________________________________________________________________________
 int main(int argc, char *argv[])
 {
    char *inputFile;

@@ -49,25 +49,46 @@ public:
    Bool_t       fHistZmaxModified;
    ROMEString   fHistAccumulate;
    Bool_t       fHistAccumulateModified;
-   ROMEConfigHisto() {
-      fHistActiveModified = false;
-      fHistTitleModified = false;
-      fHistFolderTitleModified = false;
-      fHistArraySizeModified = false;
-      fHistArrayStartIndexModified = false;
-      fHistXLabelModified = false;
-      fHistYLabelModified = false;
-      fHistZLabelModified = false;
-      fHistXNbinsModified = false;
-      fHistXminModified = false;
-      fHistXmaxModified = false;
-      fHistYNbinsModified = false;
-      fHistYminModified = false;
-      fHistYmaxModified = false;
-      fHistZNbinsModified = false;
-      fHistZminModified = false;
-      fHistZmaxModified = false;
-      fHistAccumulateModified = false;
+
+   ROMEConfigHisto()
+   :TObject()
+   ,fHistActive("false")
+   ,fHistActiveModified(kFALSE)
+   ,fHistTitle("")
+   ,fHistTitleModified(kFALSE)
+   ,fHistFolderTitle("")
+   ,fHistFolderTitleModified(kFALSE)
+   ,fHistArraySize("1")
+   ,fHistArraySizeModified(kFALSE)
+   ,fHistArrayStartIndex("0")
+   ,fHistArrayStartIndexModified(kFALSE)
+   ,fHistXLabel("X")
+   ,fHistXLabelModified(kFALSE)
+   ,fHistYLabel("Y")
+   ,fHistYLabelModified(kFALSE)
+   ,fHistZLabel("Z")
+   ,fHistZLabelModified(kFALSE)
+   ,fHistXNbins("1")
+   ,fHistXNbinsModified(kFALSE)
+   ,fHistXmin("0")
+   ,fHistXminModified(kFALSE)
+   ,fHistXmax("1")
+   ,fHistXmaxModified(kFALSE)
+   ,fHistYNbins("1")
+   ,fHistYNbinsModified(kFALSE)
+   ,fHistYmin("0")
+   ,fHistYminModified(kFALSE)
+   ,fHistYmax("1")
+   ,fHistYmaxModified(kFALSE)
+   ,fHistZNbins("1")
+   ,fHistZNbinsModified(kFALSE)
+   ,fHistZmin("0")
+   ,fHistZminModified(kFALSE)
+   ,fHistZmax("1")
+   ,fHistZmaxModified(kFALSE)
+   ,fHistAccumulate("false")
+   ,fHistAccumulateModified(kFALSE)
+   {
    }
    virtual ~ROMEConfigHisto() {}
 

@@ -18,7 +18,7 @@ protected:
    Int_t    time;           // Time Stamp
 
 public:
-   ROMETreeInfo() { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); }
+   ROMETreeInfo():TObject(),run(0),event(0),time(0) { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); }
    virtual ~ROMETreeInfo() {};
 
    Long64_t GetRunNumber()      { return run; }

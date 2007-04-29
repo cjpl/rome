@@ -98,6 +98,10 @@ protected:
    Bool_t               fPadConfigActive;                    //!
    Int_t                fPadConfigChannel[kMaxNumberOfPads]; //!
 
+private:
+   ArgusHistoDisplay(const ArgusHistoDisplay &tab); // not implemented
+   ArgusHistoDisplay &operator=(const ArgusHistoDisplay &rhs); // not implemented
+
 public:
    ArgusHistoDisplay(ArgusWindow* window);
    virtual ~ArgusHistoDisplay();
