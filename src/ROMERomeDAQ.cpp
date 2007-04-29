@@ -28,17 +28,24 @@
 
 ClassImp(ROMERomeDAQ)
 
-ROMERomeDAQ::ROMERomeDAQ() {
-   fTreeInfo = new ROMETreeInfo();
-   fTreeIndex = 0;
-   fInputFileNameIndex = -1;
-   fRootFiles = 0;
-   fROMETrees = 0;
-   fTreePosition = 0;
-   fTreePositionArray = 0;
-   fTreeNEntries = 0;
+//______________________________________________________________________________
+ROMERomeDAQ::ROMERomeDAQ()
+:ROMEDAQSystem()
+,fRootFiles(0)
+,fROMETrees(0)
+,fTreeIndex(0)
+,fInputFileNameIndex(-1)
+,fCurrentTreeName("")
+,fMaxEventNumber(0)
+,fTreeInfo(new ROMETreeInfo())
+,fTreePositionArray(0)
+,fTreePosition(0)
+,fTreeNEntries(0)
+,fTimeStamp(0)
+{
 }
 
+//______________________________________________________________________________
 ROMERomeDAQ::~ROMERomeDAQ() {
    SafeDelete(fTreeInfo);
    SafeDeleteArray(fTreePosition);
@@ -54,6 +61,7 @@ ROMERomeDAQ::~ROMERomeDAQ() {
    }
 }
 
+//______________________________________________________________________________
 Bool_t ROMERomeDAQ::Init() {
    if (gROME->isOnline()) {
       ROMEPrint::Error("Rome mode is not supported for online analysis.\n");
@@ -92,6 +100,7 @@ Bool_t ROMERomeDAQ::Init() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERomeDAQ::BeginOfRun() {
    const Int_t nTree = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
@@ -263,6 +272,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERomeDAQ::Event(Long64_t event) {
    if (gROME->isOffline()) {
       int j;
@@ -306,6 +316,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
    return true;
 }
 
+//______________________________________________________________________________
 Long64_t ROMERomeDAQ::Seek(Long64_t event)
 {
    if (gROME->isOffline()) {
@@ -323,6 +334,7 @@ Long64_t ROMERomeDAQ::Seek(Long64_t event)
    return event;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERomeDAQ::EndOfRun() {
    if (gROME->isOffline()) {
       const Int_t nTree = gROME->GetTreeObjectEntries();
@@ -346,6 +358,7 @@ Bool_t ROMERomeDAQ::EndOfRun() {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMERomeDAQ::Terminate() {
    if (gROME->isOffline()) {
    }

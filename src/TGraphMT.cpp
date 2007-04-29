@@ -14,6 +14,7 @@
 
 ClassImp(TGraphMT)
 
+//______________________________________________________________________________
 void TGraphMT::SetPoint(Int_t i, Double_t x, Double_t y)
 {
    // Set x and y values for point number i.

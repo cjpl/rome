@@ -30,6 +30,7 @@ public:
    Bool_t  Notify();
 };
 
+//______________________________________________________________________________
 Bool_t ROMEInterruptHandler::Notify()
 {
    static Int_t nNotified = 0;
@@ -50,6 +51,7 @@ Bool_t ROMEInterruptHandler::Notify()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 static void cleaning()
 {
    // cleaning at exit the program
@@ -57,11 +59,17 @@ static void cleaning()
    ROMEAnalyzer::Cleaning();
 }
 
+//______________________________________________________________________________
 ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
                    void *options, Int_t numOptions, Bool_t noLogo)
-: TRint(appClassName, argc, argv, options, numOptions,noLogo)
+:TRint(appClassName, argc, argv, options, numOptions,noLogo)
+,fRunning(kFALSE)
+,fUseRintInterruptHandler(kFALSE)
+,fRintInterruptHandler(0)
+,fROMEInterruptHandler(0)
+,fFPEMaskOriginal(0)
+,fFPEMask(0)
 {
-   fRunning = false;
    fRintInterruptHandler = gSystem->RemoveSignalHandler(GetSignalHandler());
    fROMEInterruptHandler = new ROMEInterruptHandler();
    fROMEInterruptHandler->Add();
@@ -74,11 +82,13 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    atexit((void (*)(void))cleaning);
 }
 
+//______________________________________________________________________________
 ROMERint::~ROMERint()
 {
    SafeDelete(fROMEInterruptHandler);
 }
 
+//______________________________________________________________________________
 Bool_t ROMERint::HandleTermInput()
 {
    if (fRunning)
@@ -86,6 +96,7 @@ Bool_t ROMERint::HandleTermInput()
    return true;
 }
 
+//______________________________________________________________________________
 void ROMERint::Run(Bool_t retrn)
 {
    fRunning = true;

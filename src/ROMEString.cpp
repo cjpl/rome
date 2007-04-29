@@ -20,6 +20,7 @@
 
 ClassImp(ROMEString)
 
+//______________________________________________________________________________
 ROMEString& ROMEString::AppendFormatted(const char* va_(fmt),...)
 {
    if (va_(fmt)==NULL)
@@ -31,6 +32,7 @@ ROMEString& ROMEString::AppendFormatted(const char* va_(fmt),...)
    return *this;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* va_(fmt),...)
 {
    if (va_(fmt)==NULL)
@@ -42,6 +44,7 @@ ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* va_(fmt),...
    return *this;
 }
 
+//______________________________________________________________________________
 ROMEString& ROMEString::SetFormatted(const char* va_(fmt),...)
 {
    if (va_(fmt)==NULL)
@@ -53,20 +56,23 @@ ROMEString& ROMEString::SetFormatted(const char* va_(fmt),...)
    return *this;
 }
 
+//______________________________________________________________________________
 void ROMEString::Write() {
    cout << Data();
 }
 
-
+//______________________________________________________________________________
 void ROMEString::WriteLine() {
    cout << Data() << endl;
 }
 
+//______________________________________________________________________________
 Int_t ROMEString::NumberOfOccurrence(ROMEString& subString)
 {
    return NumberOfOccurrence(subString.Data());
 }
 
+//______________________________________________________________________________
 Int_t ROMEString::NumberOfOccurrence(const char* subString)
 {
    Int_t numberOfOccurrence = 0;
@@ -80,6 +86,7 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString)
    return numberOfOccurrence;
 }
 
+//______________________________________________________________________________
 istream& ROMEString::ReadFile(istream& str) {
    Resize(0);
    char *buffer;
@@ -96,6 +103,7 @@ istream& ROMEString::ReadFile(istream& str) {
    return str;
 }
 
+//______________________________________________________________________________
 istream& ROMEString::ReadLine(istream& str) {
    Resize(0);
    char *buffer;
@@ -112,29 +120,35 @@ istream& ROMEString::ReadLine(istream& str) {
    return str;
 }
 
+//______________________________________________________________________________
 Int_t ROMEString::ToInteger()
 {
    char *cstop;
    return strtol(Data(),&cstop,10);
 }
 
+//______________________________________________________________________________
 Long_t ROMEString::ToLong()
 {
    char *cstop;
    return strtol(Data(),&cstop,10);
 }
 
+//______________________________________________________________________________
 Double_t ROMEString::ToDouble()
 {
    char *cstop;
    return strtod(Data(),&cstop);
 }
 
+//______________________________________________________________________________
 Float_t ROMEString::ToFloat()
 {
    char *cstop;
    return (Float_t)strtod(Data(),&cstop);
 }
+
+//______________________________________________________________________________
 Bool_t ROMEString::ToBool()
 {
    if (CompareTo("true",TString::kIgnoreCase))
@@ -144,10 +158,12 @@ Bool_t ROMEString::ToBool()
    return ToInteger()!=0;
 }
 
+//______________________________________________________________________________
 void ROMEString::ToLower() {
    ((TString*)this)->ToLower();
 }
 
+//______________________________________________________________________________
 const char* ROMEString::ToLower(ROMEString& destination)
 {
    destination = Data();
@@ -155,10 +171,12 @@ const char* ROMEString::ToLower(ROMEString& destination)
    return destination.Data();
 }
 
+//______________________________________________________________________________
 void ROMEString::ToUpper() {
    ((TString*)this)->ToUpper();
 }
 
+//______________________________________________________________________________
 const char* ROMEString::ToUpper(ROMEString& destination)
 {
    destination = Data();
@@ -166,8 +184,9 @@ const char* ROMEString::ToUpper(ROMEString& destination)
    return destination.Data();
 }
 
-// Strip space,tab and new line at both sides
+//______________________________________________________________________________
 ROMEString& ROMEString::StripSpaces(){
+// Strip space,tab and new line at both sides
    Ssiz_t start = 0;             // Index of first character
    Ssiz_t end = Length();        // One beyond last character
    const char *direct = Data();  // Avoid a dereference w dumb compiler
@@ -196,6 +215,7 @@ namespace {
    char *gEndbuf = &gFormbuf[cb_size-1];
 }
 
+//______________________________________________________________________________
 char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
 {
    // Format a string in a formatting buffer (using a printf style
@@ -233,6 +253,7 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
    return slowBuffer;
 }
 
+//______________________________________________________________________________
 char* ROMEString::Format(const char *format, va_list ap)
 {
    // Format a string in a circular formatting buffer (using a printf style

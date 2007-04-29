@@ -32,11 +32,14 @@ protected:
    ROMEString fFileName;
    ROMEString fFullFileName;
    ROMEString fPath;
-
-   // write
-   MXML_WRITER *writer;
+   MXML_WRITER *writer;   // write
 
    Int_t   IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode);
+
+private:
+   ROMEXML(const ROMEXML &xml); // not implemented
+   ROMEXML &operator=(const ROMEXML &rhs); // not implemented
+
 public:
    ROMEXML();
    virtual ~ROMEXML();

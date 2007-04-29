@@ -17,14 +17,27 @@
 
 ClassImp(ROMEXMLDataBase)
 
-ROMEXMLDataBase::ROMEXMLDataBase() {
-   xml = new ROMEXML();
+//______________________________________________________________________________
+ROMEXMLDataBase::ROMEXMLDataBase()
+:ROMEDataBase()
+,fDirectoryPath("")
+,fDataBaseName("")
+,fOrderTableIDs()
+,fOrderTableIndex(0)
+,fIDX()
+,fPointerArray()
+,xml(new ROMEXML())
+,fXMLBase("")
+,fFileName("")
+{
 }
 
+//______________________________________________________________________________
 ROMEXMLDataBase::~ROMEXMLDataBase() {
    delete xml;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEXMLDataBase::Init(const char* name,const char* path,const char* connection) {
    fDirectoryPath = path;
    fDataBaseName = connection;
@@ -32,7 +45,7 @@ Bool_t ROMEXMLDataBase::Init(const char* name,const char* path,const char* conne
    return true;
 }
 
-
+//______________________________________________________________________________
 Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber,Bool_t write) {
    int i,j;
    ROMEString value;
@@ -246,6 +259,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
    return 2;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
    int i,ii,j,k,index;
@@ -367,6 +381,7 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex)
 {
    int i;
@@ -421,6 +436,7 @@ Bool_t ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& baseP
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
    int i,j;

@@ -17,15 +17,26 @@
 
 ClassImp(ROMEPath)
 
-ROMEPath::ROMEPath() {
-   fOrderArray = false;
-   fFieldArray = false;
-   fTableAbsolutePaths = new ROMEStrArray();
-   fTableNames = new ROMEStrArray();
-   fTableConstraints = new ROMEStrArray();
-   fTableDBConstraints = new ROMEStrArray();
-   fTableIDName = new ROMEStrArray();
-   fTableIDXName = new ROMEStrArray();
+//______________________________________________________________________________
+ROMEPath::ROMEPath()
+:fTableNames(new ROMEStrArray())
+,fTableAbsolutePaths(new ROMEStrArray())
+,fTableConstraints(new ROMEStrArray())
+,fTableDBConstraints(new ROMEStrArray())
+,fTableIDName(new ROMEStrArray())
+,fTableIDXName(new ROMEStrArray())
+,fOrderTableName("")
+,fOrderFieldName("")
+,fOrderIndex()
+,fOrderArray(kFALSE)
+,fFieldName("")
+,fFieldConstraints("")
+,fFieldIndex()
+,fFieldArray(kFALSE)
+,fConstraintField(new ROMEStrArray())
+,fConstraintValue(new ROMEStrArray())
+{
+   // decode
    fFieldIndex.Set(3);
    fOrderIndex.Set(3);
    SetOrderIndexAt(0,0);
@@ -34,11 +45,9 @@ ROMEPath::ROMEPath() {
    SetFieldIndexAt(0,0);
    SetFieldIndexAt(1,-1);
    SetFieldIndexAt(2,1);
-
-   fConstraintField = new ROMEStrArray();
-   fConstraintValue = new ROMEStrArray();
 }
 
+//______________________________________________________________________________
 ROMEPath::~ROMEPath() {
    SafeDelete(fTableNames);
    SafeDelete(fTableAbsolutePaths);
@@ -53,6 +62,7 @@ ROMEPath::~ROMEPath() {
    SafeDelete(fConstraintValue);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPath::DecodeConstraint(const char* contraint)
 {
    int istart,iend,iequal,iconst=0;
@@ -86,6 +96,7 @@ Bool_t ROMEPath::DecodeConstraint(const char* contraint)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
    SetOrderTableName("");
@@ -304,6 +315,7 @@ return false;
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEPath::Print() {
    const int nTable = GetNumberOfTables();
    ROMEPrint::Print("Tables : \n");
@@ -351,6 +363,7 @@ void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ) {
    return;
 }
 
+//______________________________________________________________________________
 Int_t ROMEPath::MinPosition(Int_t i1,Int_t i2,Int_t i3,Int_t i4) {
    if (i1==-1 && i2==-1 && i3==-1 && i4==-1)
       return -1;

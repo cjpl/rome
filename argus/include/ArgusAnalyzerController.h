@@ -69,10 +69,16 @@ protected:
       T_EventInterval
    };
 
+private:
+   ArgusAnalyzerController(const ArgusAnalyzerController &controller); // not implemented
+   ArgusAnalyzerController &operator=(const ArgusAnalyzerController &rhs); // not implemented
+
 public:
-   ArgusAnalyzerController():TGTransientFrame(NULL, NULL, 1, 1){}
-   ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,UInt_t options = kVerticalFrame);
+   ArgusAnalyzerController();
+   ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,
+                           UInt_t options = kVerticalFrame);
    virtual ~ArgusAnalyzerController();
+
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
    void           CloseWindow();
    void           Update();

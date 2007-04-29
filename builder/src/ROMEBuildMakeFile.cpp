@@ -18,6 +18,7 @@
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 
+//______________________________________________________________________________
 void ROMEBuilder::AddIncludeDirectories()
 {
    numOfIncludeDirectories = 6;
@@ -53,6 +54,7 @@ void ROMEBuilder::AddIncludeDirectories()
 #endif // R__VISUAL_CPLUSPLUS
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddPrecompiledHeaders()
 {
    precompiledHeaders->RemoveAll();
@@ -67,6 +69,7 @@ void ROMEBuilder::AddPrecompiledHeaders()
    precompiledIncludeHeaders->AddFormatted("TGraphMT.h");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddRomeHeaders()
 {
    romeHeaders = new ROMEStrArray(50);
@@ -139,6 +142,7 @@ void ROMEBuilder::AddRomeHeaders()
       romeHeaders->Add("$(ROMESYS)/include/ROMESQLite3.h");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddRomeDictHeaders()
 {
    romeDictHeaders = new ROMEStrArray(21);
@@ -271,6 +275,7 @@ void ROMEBuilder::AddRomeDictHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddRomeSources()
 {
    romeSources = new ROMEStrArray(50);
@@ -353,6 +358,7 @@ void ROMEBuilder::AddRomeSources()
 #endif // R__VISUAL_CPLUSPLUS
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddArgusHeaders()
 {
    argusHeaders = new ROMEStrArray(5);
@@ -371,6 +377,7 @@ void ROMEBuilder::AddArgusHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddArgusSources()
 {
    argusSources = new ROMEStrArray(6);
@@ -386,6 +393,7 @@ void ROMEBuilder::AddArgusSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedHeaders()
 {
    int i,j;
@@ -444,6 +452,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedDictHeaders()
 {
    int i,j;
@@ -489,6 +498,7 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedFolderDictHeaders()
 {
    int i;
@@ -510,6 +520,7 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedSupportFolderDictHeaders()
 {
    int i;
@@ -531,6 +542,7 @@ void ROMEBuilder::AddGeneratedSupportFolderDictHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedTaskDictHeaders()
 {
    int i;
@@ -544,6 +556,7 @@ void ROMEBuilder::AddGeneratedTaskDictHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedTabDictHeaders()
 {
    int i;
@@ -557,6 +570,7 @@ void ROMEBuilder::AddGeneratedTabDictHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddGeneratedSources()
 {
    int i;
@@ -609,6 +623,7 @@ void ROMEBuilder::AddGeneratedSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddFolderHeaders()
 {
    int i;
@@ -626,6 +641,7 @@ void ROMEBuilder::AddFolderHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddFolderSources()
 {
    int i;
@@ -648,6 +664,7 @@ void ROMEBuilder::AddFolderSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddTaskHeaders()
 {
    int i;
@@ -661,6 +678,7 @@ void ROMEBuilder::AddTaskHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddTaskSources()
 {
    int i;
@@ -675,6 +693,7 @@ void ROMEBuilder::AddTaskSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddTabHeaders()
 {
    int i;
@@ -688,6 +707,7 @@ void ROMEBuilder::AddTabHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddTabSources()
 {
    int i;
@@ -702,6 +722,7 @@ void ROMEBuilder::AddTabSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddDAQHeaders()
 {
    int i;
@@ -715,6 +736,7 @@ void ROMEBuilder::AddDAQHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddDAQSources()
 {
    int i;
@@ -729,6 +751,7 @@ void ROMEBuilder::AddDAQSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddDatabaseHeaders()
 {
    int i;
@@ -740,6 +763,7 @@ void ROMEBuilder::AddDatabaseHeaders()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddDatabaseSources()
 {
    int i;
@@ -752,6 +776,7 @@ void ROMEBuilder::AddDatabaseSources()
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddRootLibraries()
 {
    rootLibraries = new ROMEStrArray(30);
@@ -777,6 +802,7 @@ void ROMEBuilder::AddRootLibraries()
    rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeomPainter.lib");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddMysqlLibraries()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -787,6 +813,7 @@ void ROMEBuilder::AddMysqlLibraries()
 #endif
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddDAQLibraries()
 {
    daqLibraries = new ROMEStrArray(2);
@@ -820,6 +847,7 @@ void ROMEBuilder::AddDAQLibraries()
 #endif
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::AddDAQFlags()
 {
    daqFlags = new ROMEStrArray(2);
@@ -855,6 +883,7 @@ void ROMEBuilder::AddDAQFlags()
 #endif
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
 {
    ROMEString tmp;
@@ -894,6 +923,7 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 {
    int i,j;
@@ -1209,6 +1239,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 #endif // R__UNIX
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
 {
    ROMEString separator = " ";
@@ -1224,6 +1255,7 @@ void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefilePrecompiledHeaders(ROMEString& buffer)
 {
    ROMEString separator = " ";
@@ -1240,6 +1272,7 @@ void ROMEBuilder::WriteMakefilePrecompiledHeaders(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::GetIncludeDirString(ROMEString& buffer,const char* separator,const char* flagSign)
 {
    int i;
@@ -1256,6 +1289,7 @@ void ROMEBuilder::GetIncludeDirString(ROMEString& buffer,const char* separator,c
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
 {
    int i;
@@ -1290,6 +1324,7 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
 {
 #if defined( R__UNIX )
@@ -1316,6 +1351,7 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
 #endif // R__UNIX
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileUserDictDependFiles(ROMEString& buffer)
 {
 #if defined( R__UNIX )
@@ -1339,6 +1375,7 @@ void ROMEBuilder::WriteMakefileUserDictDependFiles(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers)
 {
    ROMEString separator = " ";
@@ -1356,6 +1393,7 @@ void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dic
    buffer.Append("\n\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath)
 {
    int i;
@@ -1372,6 +1410,7 @@ void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,c
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* /* linkDefName */)
 {
    if (!headers->GetEntriesFast())
@@ -1447,6 +1486,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    dictionaryCommands->Add(command);
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
 {
 
@@ -1457,6 +1497,7 @@ void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
    WriteFile(cppFile.Data(),buffer.Data(),6);
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
 {
    ROMEString str;
@@ -1485,6 +1526,7 @@ void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
    buffer.Append("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::GetUserDictIncludeDirString(ROMEString& buffer,const char* separator)
 {
    int i;
@@ -1502,6 +1544,7 @@ void ROMEBuilder::GetUserDictIncludeDirString(ROMEString& buffer,const char* sep
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::GetUserDictHeaderString(ROMEString& buffer,const char* separator)
 {
    int i;
@@ -1517,6 +1560,7 @@ void ROMEBuilder::GetUserDictHeaderString(ROMEString& buffer,const char* separat
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 {
    int i;
@@ -1584,6 +1628,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    dictionaryCommands->AddFormatted("$(Q)rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag,ROMEString *objdir)
 {
    int i;
@@ -1691,6 +1736,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sources)
 {
 #if defined( R__UNIX )
@@ -1713,6 +1759,7 @@ void ROMEBuilder::WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sour
 #endif // R__UNIX
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
 {
    // Write Additional Source Files Objects
@@ -1784,6 +1831,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer)
 {
    // Write Additional Source Files Objects
@@ -1831,6 +1879,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer)
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,const char* flag)
 {
    // Write Additional Source Files Compile Commands
@@ -1876,6 +1925,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString&
    }
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
 {
    ROMEString xmlbasename = gSystem->BaseName(xmlFile);
@@ -1921,6 +1971,7 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
    buffer.AppendFormatted("\n");
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
@@ -2390,6 +2441,7 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteRootCintCall(ROMEString& buffer)
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -2400,6 +2452,7 @@ void ROMEBuilder::WriteRootCintCall(ROMEString& buffer)
 #endif
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::WriteUserMakeFile()
 {
    // Write Makefile.usr
@@ -2454,6 +2507,7 @@ void ROMEBuilder::WriteUserMakeFile()
 #endif
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,const char* dictionaryName)
 {
    ROMEString buffer;
@@ -2489,6 +2543,7 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::WriteUserLinkDefH()
 {
    ROMEString buffer;

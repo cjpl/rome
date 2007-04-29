@@ -20,20 +20,19 @@
 
 ClassImp(ROMEConfigToForm)
 
+//______________________________________________________________________________
 ROMEConfigToForm::ROMEConfigToForm()
+:XMLToForm()
+,fCommentLevel(0)
 {
-   fWindow = NULL;
-   fXML = NULL;
-   fSubstitutes = NULL;
-   fPlaceHolders = NULL;
-   fMainFrame = NULL;
-   fCommentLevel = 0;
 }
 
+//______________________________________________________________________________
 ROMEConfigToForm::~ROMEConfigToForm()
 {
 }
 
+//______________________________________________________________________________
 int ROMEConfigToForm::Show(const TGWindow * p, const TGWindow * main)
 {
    int exitButtonID = 1;
@@ -45,6 +44,7 @@ int ROMEConfigToForm::Show(const TGWindow * p, const TGWindow * main)
    return exitButtonID;
 }
 
+//______________________________________________________________________________
 bool ROMEConfigToForm::Init()
 {
    // read xml
@@ -55,6 +55,7 @@ bool ROMEConfigToForm::Init()
    return true;
 }
 
+//______________________________________________________________________________
 bool ROMEConfigToForm::XMLToRootClass()
 {
    ROMEString value;
@@ -66,6 +67,7 @@ bool ROMEConfigToForm::XMLToRootClass()
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
 {
    ROMEString currentPath;
@@ -85,6 +87,8 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
    FillButtonFrame(frame->GetSubFrameAt(nFrames));
    nFrames++;
 }
+
+//______________________________________________________________________________
 void ROMEConfigToForm::FillRunModeFrame(XMLToFormFrame *frame)
 {
    XMLToFormElementSignal *signal;
@@ -122,6 +126,7 @@ void ROMEConfigToForm::FillRunModeFrame(XMLToFormFrame *frame)
    frame->AddElement(new XMLToFormElement("RadioButton","Monitor connecting to Analyzer",romemonitor.Data(),"",0,13,"Check, if you want to run a monitor connecting to a rome analyzer",signal));
 }
 
+//______________________________________________________________________________
 void ROMEConfigToForm::FillButtonFrame(XMLToFormFrame *frame)
 {
    // Ok

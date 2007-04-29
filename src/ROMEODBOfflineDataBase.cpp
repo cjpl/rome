@@ -16,23 +16,30 @@
 
 ClassImp(ROMEODBOfflineDataBase)
 
-ROMEODBOfflineDataBase::ROMEODBOfflineDataBase() {
-   xml = new ROMEXML();
+//______________________________________________________________________________
+ROMEODBOfflineDataBase::ROMEODBOfflineDataBase()
+:ROMEDataBase()
+,xml(new ROMEXML())
+{ 
 }
 
+//______________________________________________________________________________
 ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase() {
    SafeDelete(xml);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOfflineDataBase::Init(const char* name,const char* /*path*/,const char* /*connection*/) {
    fName = name;
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
    return xml->OpenBufferForPath(buffer);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
 {
    ROMEString value;
@@ -66,6 +73,7 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBaseP
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray* /*values*/,const char* /*dataBasePath*/,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
 {
    return true;

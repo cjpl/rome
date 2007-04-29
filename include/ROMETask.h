@@ -14,9 +14,8 @@
 
 class ROMETask : public TTask {
 private:
-   ROMEString     fTitle;              // Task title
-   ROMEString     fName;               // Task name
    Int_t          fLevel;              // Level in Task tree
+
 protected:
    ROMEStopwatch  fWatchAll;           //! Records time used by Task
    ROMEStopwatch  fWatchUser;          //! Records time used by the user part of the task
@@ -32,9 +31,14 @@ protected:
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
    Long64_t       fSkippedEvents;      //! Number of events skipped filling tree by this task
 
+private:
+   ROMETask(const ROMETask &task); // not implemented
+   ROMETask &operator=(const ROMETask &rhs); // not implemented
+
 public:
-   ROMETask() { fHistoFolder = 0; fSkippedEvents = 0;}
+   ROMETask();
    ROMETask(const char *name,const char *title,int level);
+
    virtual ~ROMETask() { SafeDelete(fHistoFolder); }
    void         Exec(Option_t *option="");
    Bool_t       hasHistograms()  { return fHasHistograms; }

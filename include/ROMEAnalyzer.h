@@ -112,10 +112,10 @@ protected:
    Bool_t         fBatchMode;                    //! Batch mode flag
    Bool_t         fDaemonMode;                   //! Daemon mode flag
    Bool_t         fQuitMode;                     //! Quit mode flag
-   Bool_t         fSplashScreen;                 //! Splash screen flag
    Bool_t         fGraphicalConfigEdit;          //! Configuration edit flag
    Bool_t         fPreserveConfig;              //! Flag if analyzer overwrites existing config file
    Bool_t         fNoGraphics;                   //! No graphics flag
+   Bool_t         fSplashScreen;                 //! Splash screen flag
 
    Bool_t         fDontReadNextEvent;            //! Don't read the next event from file/buffer
    Bool_t         fSkipEvent;                    //! Prevents the analyzer from analyzing the subsequent tasks of an event
@@ -245,8 +245,12 @@ protected:
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
 
+private:
+   ROMEAnalyzer(const ROMEAnalyzer &analyzer); // not implemented
+   ROMEAnalyzer &operator=(const ROMEAnalyzer &rhs); // not implemented
+
 public:
-   ROMEAnalyzer() {}
+   ROMEAnalyzer();
    ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);
    virtual ~ROMEAnalyzer();
 

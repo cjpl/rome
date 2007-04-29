@@ -38,6 +38,50 @@
 
 ClassImp(XMLToFormWindow)
 
+//______________________________________________________________________________
+XMLToFormWindow::XMLToFormWindow()
+:TGTransientFrame()
+,fMainWindow(0)
+,fExitID(0)
+,fFirstEdit(kTRUE)
+,fMaximalWindowWidth(1000)
+,fListTreeWidth(300)
+,fListTreeHeight(200)
+,fMainFrame(0)
+,fTreeListActiveFrame(0)
+,fXML(0)
+{
+}
+
+//______________________________________________________________________________
+XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLToFormFrame *frame,
+                                 int *exitButtonID, int windowWidth,ROMEXML *xml)
+:TGTransientFrame(p, main)
+,fMainWindow(main)
+,fExitID(exitButtonID)
+,fFirstEdit(kTRUE)
+,fMaximalWindowWidth(windowWidth)
+,fListTreeWidth(300)
+,fListTreeHeight(200)
+,fMainFrame(frame)
+,fTreeListActiveFrame(0)
+,fXML(xml)
+{
+   CreateForm(fMainFrame);
+
+   PlaceWindow(main);
+   SetWindowName("Please wait while the mask is building up ...");
+   HideFrame(fMainFrame);
+   SetWindowName("Please edit mask");
+   fClient->WaitFor(this);
+}
+
+//______________________________________________________________________________
+XMLToFormWindow::~XMLToFormWindow()
+{
+}
+
+//______________________________________________________________________________
 void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
 {
    int j,k;
@@ -333,6 +377,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
    }
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
 {
    int i;
@@ -399,6 +444,8 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
       }
    }
 }
+
+//______________________________________________________________________________
 void XMLToFormWindow::AddFrame(XMLToFormFrame *frame)
 {
    int j;
@@ -480,6 +527,7 @@ void XMLToFormWindow::AddFrame(XMLToFormFrame *frame)
    }
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::AddSubFrames(XMLToFormFrame *frame)
 {
    int i;
@@ -508,6 +556,7 @@ void XMLToFormWindow::AddSubFrames(XMLToFormFrame *frame)
    }
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::RemoveFrame(XMLToFormFrame *frame)
 {
    int j;
@@ -584,7 +633,7 @@ void XMLToFormWindow::RemoveFrame(XMLToFormFrame *frame)
    }
 }
 
-
+//______________________________________________________________________________
 void XMLToFormWindow::CreateFrame(XMLToFormFrame *frame)
 {
    int i;
@@ -614,6 +663,7 @@ void XMLToFormWindow::CreateFrame(XMLToFormFrame *frame)
    }
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::HideFrame(XMLToFormFrame *frame)
 {
    int i;
@@ -636,6 +686,7 @@ void XMLToFormWindow::HideFrame(XMLToFormFrame *frame)
    }
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
 {
    // Frame
@@ -651,6 +702,7 @@ void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
    frame->fIndex = 1;
 }
 
+//______________________________________________________________________________
 bool XMLToFormWindow::CreateForm(XMLToFormFrame *frame)
 {
    // build up main frame
@@ -661,31 +713,7 @@ bool XMLToFormWindow::CreateForm(XMLToFormFrame *frame)
    return true;
 }
 
-XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLToFormFrame *frame,int *exitButtonID, int windowWidth,ROMEXML *xml):TGTransientFrame(p,main)
-{
-   fFirstEdit = true;
-   fExitID = exitButtonID;
-   fMaximalWindowWidth = windowWidth;
-   fListTreeWidth = 300;
-   fListTreeHeight = 200;
-   fMainFrame = frame;
-   fMainWindow = main;
-   fTreeListActiveFrame = NULL;
-   fXML = xml;
-
-   CreateForm(fMainFrame);
-
-   PlaceWindow(main);
-   SetWindowName("Please wait while the mask is building up ...");
-   HideFrame(fMainFrame);
-   SetWindowName("Please edit mask");
-   fClient->WaitFor(this);
-}
-
-XMLToFormWindow::~XMLToFormWindow()
-{
-}
-
+//______________________________________________________________________________
 void XMLToFormWindow::PlaceWindow(const TGWindow * main)
 {
    MapSubwindows();
@@ -724,6 +752,7 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
    MapWindow();
 }
 
+//______________________________________________________________________________
 Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
    ROMEString path;
    TGListTreeItem *currentItem = item;
@@ -748,6 +777,7 @@ Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
    XMLToFormFrame *frame;
@@ -840,6 +870,7 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::SaveCurrentValues(XMLToFormFrame *frame)
 {
    int i;
@@ -877,6 +908,8 @@ void XMLToFormWindow::SaveCurrentValues(XMLToFormFrame *frame)
          SaveCurrentValues(frame->GetSubFrameAt(i));
    }
 }
+
+//______________________________________________________________________________
 void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame,ROMEXML *xml)
 {
    Int_t i,j,num;
@@ -932,6 +965,7 @@ void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame,ROMEXML *xml)
    }
 }
 
+//______________________________________________________________________________
 void XMLToFormWindow::UpdateFileSelector(const char *xmlFileName)
 {
    Int_t index;
@@ -965,6 +999,7 @@ void XMLToFormWindow::UpdateFileSelector(const char *xmlFileName)
    delete xml;
 }
 
+//______________________________________________________________________________
 XMLToFormFrame* XMLToFormWindow::SearchFrame(XMLToFormFrame *frame,const char* title,const char* label)
 {
    ROMEString titleStr;
@@ -1004,6 +1039,8 @@ XMLToFormFrame* XMLToFormWindow::SearchFrame(XMLToFormFrame *frame,const char* t
    }
    return NULL;
 }
+
+//______________________________________________________________________________
 void XMLToFormWindow::GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest)
 {
    ROMEString pathString = path;
@@ -1021,6 +1058,7 @@ void XMLToFormWindow::GetFirstPathItem(const char* path,ROMEString& firstItem,RO
    firstItem = pathString.Data();
 }
 
+//______________________________________________________________________________
 bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *index)
 {
    int i;
@@ -1074,6 +1112,8 @@ bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *index)
    }
    return false;
 }
+
+//______________________________________________________________________________
 bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *index,XMLToFormFrame* mainFrame)
 {
    int i,ind;
@@ -1108,10 +1148,14 @@ bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *
    }
    return true;
 }
+
+//______________________________________________________________________________
 void XMLToFormWindow::SignalHandler()
 {
    CheckSignals(fMainFrame);
 }
+
+//______________________________________________________________________________
 void XMLToFormWindow::CheckSignals(XMLToFormFrame *frame)
 {
    bool senderState = false;
@@ -1154,6 +1198,8 @@ void XMLToFormWindow::CheckSignals(XMLToFormFrame *frame)
       CheckSignals(frame->GetSubFrameAt(i));
    }
 }
+
+//______________________________________________________________________________
 void XMLToFormWindow::DeleteFrame(XMLToFormFrame *frame)
 {
    Int_t i;
@@ -1219,7 +1265,7 @@ void XMLToFormWindow::DeleteFrame(XMLToFormFrame *frame)
    delete frame;
 }
 
-
+//______________________________________________________________________________
 Bool_t XMLToFormWindow::ReloadValues(const char* xmlFileName)
 {
    if (fXML==NULL)
@@ -1228,6 +1274,8 @@ Bool_t XMLToFormWindow::ReloadValues(const char* xmlFileName)
       return false;
    return ReloadValues(fMainFrame);
 }
+
+//______________________________________________________________________________
 Bool_t XMLToFormWindow::ReloadValues(XMLToFormFrame *frame)
 {
    int i;

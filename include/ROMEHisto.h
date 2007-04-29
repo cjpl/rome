@@ -13,6 +13,7 @@
 class ROMEHisto : public TObject {
 private:
    char*      fCstop; //!
+
 protected:
    Bool_t     fActive;                  // Active flag
    ROMEString fTitle;                   // Title
@@ -49,9 +50,13 @@ protected:
    Double_t   fZmaxOrig;                // Maximum value on the Z axis Original
    Bool_t     fAccumulation;            // Accumulation Flag
 
+private:
+   ROMEHisto(const ROMEHisto &histo); // not implemented
+   ROMEHisto &operator=(const ROMEHisto &rhs); // not implemented
+
 public:
    ROMEHisto();
-   ~ROMEHisto() {};
+   virtual ~ROMEHisto() {};
 
    void SetActive(bool value) { fActive = value; };
    void SetTitle(const char* value) { fTitle = value; };

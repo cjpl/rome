@@ -41,6 +41,10 @@ protected:
    TFile*      fFile;              //!   File Handle for the Tree Object
    Int_t       fFileOption;        //!   File Option for the Tree Object
 
+private:
+   ROMETree(const ROMETree &tree); // not implemented
+   ROMETree &operator=(const ROMETree &rhs); // not implemented
+
 public:
    ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configInputFileName="",
             ROMEString configOUtputFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,

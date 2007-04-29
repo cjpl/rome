@@ -15,9 +15,11 @@ class ROMEDataBase
 protected:
    ROMEString fName;
    Bool_t fTreatWarningAsError;
+
 public:
-   ROMEDataBase() { fTreatWarningAsError = false; }
+   ROMEDataBase():fName(""),fTreatWarningAsError(kFALSE) {}
    virtual ~ROMEDataBase() {}
+
    const char     *GetName() { return fName.Data(); }
    void SetTreatWarningAsError(Bool_t flag) { fTreatWarningAsError = flag; };
 

@@ -28,47 +28,58 @@
 
 ClassImp(XMLToFormFrame)
 
-XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex,const char* toolTip)
+//______________________________________________________________________________
+XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame, const char* title, const char* path,
+                               Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex,const char* toolTip)
+:TObject()
+,fFrameTitle(title)
+,fFramePath(path)
+,fFrameVertical(vertical)
+,fFrameType(type)
+,fFrameVisible(visible)
+,fFrameTabIndex(tabIndex)
+,fFrameCreated(kFALSE)
+,fFrameMaxWidth(1000)
+,fFrameToolTip(toolTip)
+,fElements()
+,fNumberOfElements(0)
+,fSubFrames()
+,fNumberOfSubFrames(0)
+,fLFrame(0)
+,fLFrameExpand(0)
+,fLInnerFrame(0)
+,fLInnerCheckButtonFrame(0)
+,fLInnerRadioButtonFrame(0)
+,fParentFrame(parentFrame)
+,fFrame(0)
+,fTab(0)
+,fTitleString(0)
+,fTitleLabel(0)
+,fLTitleLabel(0)
+,fIndex(0)
+,fListTreeFrame(0)
+,fListTreeHFrame(0)
+,fListTreeCanvas(0)
+,fListTree(0)
+,fListTreeItem(0)
+,fHFrame(0)
+,fHHFrames(0)
+,fHHFrameIndex(0)
+,fVFrames(0)
+,fNumberOfHHFrames(0)
+,fNumberOfVFrames(0)
 {
-   fFrameCreated = false;
-   fFrameTitle = title;
-   fFramePath = path;
-   fFrameVertical = vertical;
-   fFrameType = type;
-   fFrameVisible = visible;
-   fFrameTabIndex = tabIndex;
-   fFrameToolTip = toolTip;
    fElements.RemoveAll();
-   fNumberOfElements = 0;
    fSubFrames.RemoveAll();
-   fNumberOfSubFrames = 0;
-   fLFrame = NULL;
-   fLFrameExpand = NULL;
-   fLInnerFrame = NULL;
-   fLInnerCheckButtonFrame = NULL;
-   fParentFrame = parentFrame;
-   fFrame = NULL;
-   fTab = NULL;
-   fListTreeFrame = NULL;
-   fListTreeHFrame = NULL;
-   fListTreeCanvas = NULL;
-   fListTree = NULL;
-   fListTreeItem = NULL;
    if (strlen(title)>0 && visible) {
-      fLTitleLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
-   }
-   else {
+      fLTitleLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad,
+                                       elementPad, elementPad);
+   } else {
       fLTitleLabel = NULL;
    }
-   fTitleLabel = NULL;
-   fHFrame = NULL;
-   fHHFrames = NULL;
-   fHHFrameIndex = NULL;
-   fVFrames = NULL;
-   fNumberOfHHFrames = 0;
-   fNumberOfVFrames = 0;
 }
 
+//______________________________________________________________________________
 XMLToFormFrame::~XMLToFormFrame()
 {
 #if 0 // deleting GUI objects may cause error

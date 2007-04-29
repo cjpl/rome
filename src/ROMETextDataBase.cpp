@@ -55,14 +55,20 @@ const Int_t numbering = 10;
 
 ClassImp(ROMETextDataBase)
 
-ROMETextDataBase::ROMETextDataBase() {
-   fTime = new TTimeStamp();
+//______________________________________________________________________________
+ROMETextDataBase::ROMETextDataBase()
+:ROMEDataBase()
+,fDirectoryPath("")
+,fTime(new TTimeStamp())
+{
 }
 
+//______________________________________________________________________________
 ROMETextDataBase::~ROMETextDataBase() {
    SafeDelete(fTime);
 }
 
+//______________________________________________________________________________
 Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* /*connection*/) {
    // set directory
    // "connection" has no mean for this class.
@@ -79,6 +85,7 @@ Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* /*co
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/) {
    Ssiz_t     ps,pe;
    Int_t      iRow;
@@ -176,6 +183,7 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/) {
    fstream*   fileStream;
    ROMEString fileBuffer;
@@ -289,6 +297,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
    return true;
 }
 
+//______________________________________________________________________________
 void ROMETextDataBase::RemoveComment(ROMEString &buffer,Bool_t initialize) {
    static Bool_t inComment;
    Ssiz_t ps,pe;
@@ -329,6 +338,7 @@ void ROMETextDataBase::RemoveComment(ROMEString &buffer,Bool_t initialize) {
    return;
 }
 
+//______________________________________________________________________________
 Bool_t ROMETextDataBase::ContainsData(const char* buffer) {
    // return true if "buffer" contains non-space characters
    if(!buffer)
@@ -344,18 +354,21 @@ Bool_t ROMETextDataBase::ContainsData(const char* buffer) {
    return false;
 }
 
+//______________________________________________________________________________
 const char* ROMETextDataBase::StartMark(const char* valueName) {
    static ROMEString mark;
    mark.SetFormatted("<%s>",valueName);
    return mark.Data();
 }
 
+//______________________________________________________________________________
 const char* ROMETextDataBase::EndMark(const char* valueName) {
    static ROMEString mark;
    mark.SetFormatted("</%s>",valueName);
    return mark.Data();
 }
 
+//______________________________________________________________________________
 void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
    ROMEString filename = fileName;
    ROMEString tmp;
@@ -404,6 +417,7 @@ void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
    return;
 }
 
+//______________________________________________________________________________
 void ROMETextDataBase::RemoveHeader(ROMEString &buffer) {
    Ssiz_t pBuffer = buffer.Index(EndOfHeader,strlen(EndOfHeader),0,TString::kExact);
    if(pBuffer>=0)

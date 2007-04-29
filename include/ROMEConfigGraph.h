@@ -41,21 +41,38 @@ public:
    Bool_t       fGraphZminModified;
    ROMEString   fGraphZmax;
    Bool_t       fGraphZmaxModified;
-   ROMEConfigGraph() {
-      fGraphActiveModified = false;
-      fGraphTitleModified = false;
-      fGraphFolderTitleModified = false;
-      fGraphArraySizeModified = false;
-      fGraphArrayStartIndexModified = false;
-      fGraphXLabelModified = false;
-      fGraphYLabelModified = false;
-      fGraphZLabelModified = false;
-      fGraphXminModified = false;
-      fGraphXmaxModified = false;
-      fGraphYminModified = false;
-      fGraphYmaxModified = false;
-      fGraphZminModified = false;
-      fGraphZmaxModified = false;
+
+   ROMEConfigGraph()
+   :TObject()
+   ,fGraphActive("false")
+   ,fGraphActiveModified(kFALSE)
+   ,fGraphTitle("")
+   ,fGraphTitleModified(kFALSE)
+   ,fGraphFolderTitle("")
+   ,fGraphFolderTitleModified(kFALSE)
+   ,fGraphArraySize("1")
+   ,fGraphArraySizeModified(kFALSE)
+   ,fGraphArrayStartIndex("0")
+   ,fGraphArrayStartIndexModified(kFALSE)
+   ,fGraphXLabel("X")
+   ,fGraphXLabelModified(kFALSE)
+   ,fGraphYLabel("Y")
+   ,fGraphYLabelModified(kFALSE)
+   ,fGraphZLabel("Z")
+   ,fGraphZLabelModified(kFALSE)
+   ,fGraphXmin("0")
+   ,fGraphXminModified(kFALSE)
+   ,fGraphXmax("1")
+   ,fGraphXmaxModified(kFALSE)
+   ,fGraphYmin("0")
+   ,fGraphYminModified(kFALSE)
+   ,fGraphYmax("1")
+   ,fGraphYmaxModified(kFALSE)
+   ,fGraphZmin("0")
+   ,fGraphZminModified(kFALSE)
+   ,fGraphZmax("1")
+   ,fGraphZmaxModified(kFALSE)
+   {
    }
    virtual ~ROMEConfigGraph() {}
 

@@ -9,7 +9,6 @@
 /////////////////////////////////////----///////////////////////////////////////
 // $Id$
 
-
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
@@ -36,6 +35,63 @@
 
 ClassImp(XMLToForm)
 
+//______________________________________________________________________________
+XMLToForm::XMLToForm(const char* xmlFileName, ROMEStrArray* substitutes)
+:TObject()
+,fWindow(0)
+,fMaximalWindowWidth(1000)
+,fXML(0)
+,fXMLFileName("")
+,fMainFrame(0)
+,fSubstitutes(0)
+,fPlaceHolders(0)
+{
+   Init(xmlFileName,substitutes);
+}
+
+//______________________________________________________________________________
+XMLToForm::XMLToForm()
+:TObject()
+,fWindow(0)
+,fMaximalWindowWidth(1000)
+,fXML(0)
+,fXMLFileName("")
+,fMainFrame(0)
+,fSubstitutes(0)
+,fPlaceHolders(0)
+{
+}
+
+//______________________________________________________________________________
+XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFileName,
+                     Int_t *exitButtonID,ROMEStrArray* substitutes)
+:TObject()
+,fWindow(0)
+,fMaximalWindowWidth(1000)
+,fXML(0)
+,fXMLFileName("")
+,fMainFrame(0)
+,fSubstitutes(0)
+,fPlaceHolders(0)
+{
+   if (!Init(xmlFileName,substitutes))
+      return;
+//   PrintFrame(fMainFrame);
+   fWindow = new XMLToFormWindow(p,main,fMainFrame,exitButtonID,fMaximalWindowWidth,fXML);
+}
+
+//______________________________________________________________________________
+XMLToForm::~XMLToForm()
+{
+   if (fMainFrame != NULL) {
+      fWindow->DeleteFrame(fMainFrame);
+   }
+   SafeDelete(fSubstitutes);
+   SafeDelete(fPlaceHolders);
+   SafeDelete(fXML);
+}
+
+//______________________________________________________________________________
 void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
    Int_t i;
    ROMEString value;
@@ -142,6 +198,8 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
    if (frame->GetNumberOfSubFrames()>0 && !visible)
       frame->SetFrameVisible(false);
 }
+
+//______________________________________________________________________________
 void XMLToForm::XMLToClass(XMLToFormFrame *frame)
 {
    Int_t j,k,ind;
@@ -364,6 +422,7 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
    InitSubFrames(frame);
 }
 
+//______________________________________________________________________________
 Bool_t XMLToForm::XMLToRootClass()
 {
    Bool_t vertical;
@@ -390,34 +449,42 @@ Bool_t XMLToForm::XMLToRootClass()
    return true;
 }
 
+//______________________________________________________________________________
 void XMLToForm::SaveForm()
 {
    fWindow->SaveFrame(fMainFrame,fXML);
    fXML->WritePathFile(fXML->GetFullFileName());
 }
 
-
-
+//______________________________________________________________________________
 Bool_t XMLToForm::GetBoolValue(const char* label)
 {
    if (!strcmp(GetValue(label),"true"))
       return true;
    return false;
 }
+
+//______________________________________________________________________________
 Int_t XMLToForm::GetIntValue(const char* label)
 {
    char *cstop;
    return strtol(GetValue(label),&cstop,10);
 }
+
+//______________________________________________________________________________
 double XMLToForm::GetDoubleValue(const char* label)
 {
    char *cstop;
    return strtod(GetValue(label),&cstop);
 }
+
+//______________________________________________________________________________
 Int_t XMLToForm::GetSelectedIndex(const char* label)
 {
    return GetIndex(label);
 }
+
+//______________________________________________________________________________
 Bool_t XMLToForm::IsChecked(const char* label)
 {
    if (!strcmp(GetValue(label),"true"))
@@ -425,6 +492,7 @@ Bool_t XMLToForm::IsChecked(const char* label)
    return false;
 }
 
+//______________________________________________________________________________
 const char* XMLToForm::GetValue(const char* label)
 {
    Int_t index = 0;
@@ -433,6 +501,8 @@ const char* XMLToForm::GetValue(const char* label)
       return "";
    return frame->GetElementAt(index)->GetValue().Data();
 }
+
+//______________________________________________________________________________
 Int_t XMLToForm::GetIndex(const char* label)
 {
    Int_t index = 0;
@@ -441,6 +511,8 @@ Int_t XMLToForm::GetIndex(const char* label)
       return -1;
    return frame->GetElementAt(index)->GetSelectedEntry();
 }
+
+//______________________________________________________________________________
 void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
 {
    Int_t i,ind;
@@ -467,6 +539,8 @@ void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
       }
    }
 }
+
+//______________________________________________________________________________
 Bool_t XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute) {
    Int_t i;
    ROMEString tempValue;
@@ -488,6 +562,8 @@ Bool_t XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute) {
    substitute = placeHolder;
    return true;
 }
+
+//______________________________________________________________________________
 void XMLToForm::FillClass(XMLToFormFrame *frame)
 {
    Int_t i;
@@ -502,7 +578,7 @@ void XMLToForm::FillClass(XMLToFormFrame *frame)
    }
 }
 
-
+//______________________________________________________________________________
 Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
 {
    fXMLFileName = xmlFileName;
@@ -517,41 +593,7 @@ Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
    return true;
 }
 
-XMLToForm::XMLToForm(const char* xmlFileName,ROMEStrArray* substitutes)
-{
-   fWindow = NULL;
-   fXML = NULL;
-   fSubstitutes = NULL;
-   fPlaceHolders = NULL;
-   fMainFrame = NULL;
-   Init(xmlFileName,substitutes);
-}
-
-XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFileName, Int_t *exitButtonID,ROMEStrArray* substitutes)
-{
-   fWindow = NULL;
-   fXML = NULL;
-   fSubstitutes = NULL;
-   fPlaceHolders = NULL;
-   fMainFrame = NULL;
-   if (!Init(xmlFileName,substitutes))
-      return;
-//   PrintFrame(fMainFrame);
-   fWindow = new XMLToFormWindow(p,main,fMainFrame,exitButtonID,fMaximalWindowWidth,fXML);
-}
-
-XMLToForm::~XMLToForm()
-{
-   if (fMainFrame != NULL) {
-      fWindow->DeleteFrame(fMainFrame);
-   }
-   SafeDelete(fSubstitutes);
-   SafeDelete(fPlaceHolders);
-   SafeDelete(fXML);
-}
-
-
-
+//______________________________________________________________________________
 void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab)
 {
    Int_t i;

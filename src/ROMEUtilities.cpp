@@ -24,6 +24,7 @@
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 
+//______________________________________________________________________________
 void ROMEUtilities::GetMidasTID(ROMEString *buf, Char_t *type)
 {
    buf->Resize(0);
@@ -88,6 +89,7 @@ void ROMEUtilities::GetMidasTID(ROMEString *buf, Char_t *type)
       buf->Append("TID_STRING");        //< zero terminated string
 }
 
+//______________________________________________________________________________
 void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath)
 {
    // search XML files which has 'xmlpath' from 'filepath' directory
@@ -116,6 +118,7 @@ void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, co
    return;
 }
 
+//______________________________________________________________________________
 const char* ROMEUtilities::FastCrypt(const char *str)
 {
 // Easy cription. Please do not use for important passwords.
@@ -132,6 +135,7 @@ const char* ROMEUtilities::FastCrypt(const char *str)
    return result;
 }
 
+//______________________________________________________________________________
 const char* ROMEUtilities::FastDecrypt(const char *str)
 {
 // Easy cription. Please do not use for important passwords.
@@ -149,6 +153,7 @@ const char* ROMEUtilities::FastDecrypt(const char *str)
 }
 
 #if !defined(__CINT__)
+//______________________________________________________________________________
 const char* ROMEUtilities::GetFormat(const type_info &t)
 {
    // get the format specifier (like '%s') of a declaration type

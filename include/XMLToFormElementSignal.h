@@ -15,13 +15,19 @@ private:
    ROMEStrArray fReceiverPath;      //!
    ROMEStrArray fReceiverType;      //!
    Int_t        fNumberOfReceivers; //!
+
 public:
-   XMLToFormElementSignal(const char* signal,const char* senderType) {
-      fSignal = signal;
-      fSenderType = senderType;
-      fNumberOfReceivers = 0;
+   XMLToFormElementSignal(const char* signal,const char* senderType)
+   :TObject()
+   ,fSignal(signal)
+   ,fSenderType(senderType)
+   ,fReceiverPath()
+   ,fReceiverType()
+   ,fNumberOfReceivers(0)
+   {
    }
    virtual ~XMLToFormElementSignal() {}
+
    void AddReceiver(const char* receiverPath,const char* receiverType) {
       fReceiverPath.Add(receiverPath);
       fReceiverType.Add(receiverType);

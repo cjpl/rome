@@ -28,9 +28,141 @@
 
 ClassImp(XMLToFormElement)
 
-void XMLToFormElement::Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,const char* toolTip,XMLToFormElementSignal* signal)
+//______________________________________________________________________________
+XMLToFormElement::XMLToFormElement(const char* type, const char* title, const char* value,
+                                   const char* path, Int_t width, const char* toolTip,
+                                   XMLToFormElementSignal* signal)
+:TNamed("", title)
+,fType(type)
+,fValue(value)
+,fPath(path)
+,fWidth(width)
+,fSignal(signal)
+,fParentFrameIndex(0)
+,fToolTip(toolTip)
+,fEntry()
+,fSelectedEntry(0)
+,fButtonID(0)
+,fButtonChecked(kFALSE)
+,fWidgetTitle(0)
+,fEditVFrames(0)
+,fEditLabel(0)
+,fLEditLabel(0)
+,fEditBox(0)
+,fEditBoxBuffer(0)
+,fLEditBox(0)
+,fButton(0)
+,fLButton(0)
+,fComboVFrames(0)
+,fComboLabel(0)
+,fLComboLabel(0)
+,fComboBox(0)
+,fLComboBox(0)
+,fCheckButtonVFrames(0)
+,fCheckButtonLabel(0)
+,fLCheckButtonLabel(0)
+,fCheckButton(0)
+,fLCheckButton(0)
+,fRadioButtonVFrames(0)
+,fRadioButtonLabel(0)
+,fLRadioButtonLabel(0)
+,fRadioButton(0)
+,fLRadioButton(0)
 {
-   fType = type; fTitle = title; fValue = value; fPath = path; fSignal = signal; fButtonID = buttonID; fWidth = width; fToolTip = toolTip;
+   Init(value, 0);
+}
+
+//______________________________________________________________________________
+XMLToFormElement::XMLToFormElement(const char* type, const char* title, const char* value,
+                                   const char* path, Int_t width, Int_t buttonID, const char* toolTip,
+                                   XMLToFormElementSignal* signal)
+:TNamed("", title)
+,fType(type)
+,fValue(value)
+,fPath(path)
+,fWidth(width)
+,fSignal(signal)
+,fParentFrameIndex(0)
+,fToolTip(toolTip)
+,fEntry()
+,fSelectedEntry(0)
+,fButtonID(buttonID)
+,fButtonChecked(kFALSE)
+,fWidgetTitle(0)
+,fEditVFrames(0)
+,fEditLabel(0)
+,fLEditLabel(0)
+,fEditBox(0)
+,fEditBoxBuffer(0)
+,fLEditBox(0)
+,fButton(0)
+,fLButton(0)
+,fComboVFrames(0)
+,fComboLabel(0)
+,fLComboLabel(0)
+,fComboBox(0)
+,fLComboBox(0)
+,fCheckButtonVFrames(0)
+,fCheckButtonLabel(0)
+,fLCheckButtonLabel(0)
+,fCheckButton(0)
+,fLCheckButton(0)
+,fRadioButtonVFrames(0)
+,fRadioButtonLabel(0)
+,fLRadioButtonLabel(0)
+,fRadioButton(0)
+,fLRadioButton(0)
+{
+   Init(value, 0);
+}
+
+//______________________________________________________________________________
+XMLToFormElement::XMLToFormElement(const char* type, const char* title, const char* value,
+                                   const char* path, Int_t width, ROMEStrArray *entries, const char* toolTip,
+                                   XMLToFormElementSignal* signal)
+:TNamed("", title)
+,fType(type)
+,fValue(value)
+,fPath(path)
+,fWidth(width)
+,fSignal(signal)
+,fParentFrameIndex(0)
+,fToolTip(toolTip)
+,fEntry()
+,fSelectedEntry(0)
+,fButtonID(0)
+,fButtonChecked(kFALSE)
+,fWidgetTitle(0)
+,fEditVFrames(0)
+,fEditLabel(0)
+,fLEditLabel(0)
+,fEditBox(0)
+,fEditBoxBuffer(0)
+,fLEditBox(0)
+,fButton(0)
+,fLButton(0)
+,fComboVFrames(0)
+,fComboLabel(0)
+,fLComboLabel(0)
+,fComboBox(0)
+,fLComboBox(0)
+,fCheckButtonVFrames(0)
+,fCheckButtonLabel(0)
+,fLCheckButtonLabel(0)
+,fCheckButton(0)
+,fLCheckButton(0)
+,fRadioButtonVFrames(0)
+,fRadioButtonLabel(0)
+,fLRadioButtonLabel(0)
+,fRadioButton(0)
+,fLRadioButton(0)
+{
+   Init(value, entries);
+}
+
+//______________________________________________________________________________
+void XMLToFormElement::Init(const char* value, ROMEStrArray *entries)
+{
    if (entries!=NULL) {
       for (Int_t i=0;i<entries->GetEntriesFast();i++) {
          if (entries->At(i)==value)
@@ -42,39 +174,9 @@ void XMLToFormElement::Init(const char* type,const char* title,const char* value
       fButtonChecked = true;
    else
       fButtonChecked = false;
-   fParentFrameIndex = 0;
-
-   fWidgetTitle = NULL;
-   // EditBox
-   fEditVFrames = NULL;
-   fEditLabel = NULL;
-   fLEditLabel = NULL;
-   fEditBox = NULL;
-   fEditBoxBuffer = NULL;
-   fLEditBox = NULL;
-   // Button
-   fButton = NULL;
-   fLButton = NULL;
-   // ComboBox
-   fComboVFrames = NULL;
-   fComboLabel = NULL;
-   fLComboLabel = NULL;
-   fComboBox = NULL;
-   fLComboBox = NULL;
-   // CheckButton
-   fCheckButtonVFrames = NULL;
-   fCheckButtonLabel = NULL;
-   fLCheckButtonLabel = NULL;
-   fCheckButton = NULL;
-   fLCheckButton = NULL;
-   // RadioButton
-   fRadioButtonVFrames = NULL;
-   fRadioButtonLabel = NULL;
-   fLRadioButtonLabel = NULL;
-   fRadioButton = NULL;
-   fLRadioButton = NULL;
 }
 
+//______________________________________________________________________________
 XMLToFormElement::~XMLToFormElement()
 {
 #if 0 // deleting GUI objects may cause error

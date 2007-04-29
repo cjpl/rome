@@ -36,10 +36,15 @@ protected:
    XMLToFormFrame *fTreeListActiveFrame;
    ROMEXML        *fXML;
 
+private:
+   XMLToFormWindow(const XMLToFormWindow &window); // not implemented
+   XMLToFormWindow &operator=(const XMLToFormWindow &rhs); // not implemented
+
 public:
-   XMLToFormWindow() {}
+   XMLToFormWindow();
    XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, Int_t *exitButtonID, Int_t windowWidth=200,ROMEXML *xml=NULL);
    virtual ~ XMLToFormWindow();
+
    void   SignalHandler();
    Bool_t SearchWidget(const char* path,XMLToFormFrame** frame,Int_t *index,XMLToFormFrame* mainFrame);
    Bool_t SearchWidget(Int_t id,XMLToFormFrame** frame,Int_t *index);

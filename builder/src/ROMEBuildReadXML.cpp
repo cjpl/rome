@@ -9,6 +9,7 @@
 #include "ROMEBuilder.h"
 #include "ROMEXML.h"
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::AllocateMemorySpace()
 {
    xml = new ROMEXML();
@@ -447,6 +448,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLDefinitionFile()
 {
    int i,j;
@@ -885,6 +887,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLFolder()
 {
    // read the folder definitions out of the xml file
@@ -1329,6 +1332,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLNetFolder()
 {
    // read the net folder definitions out of the xml file
@@ -1398,6 +1402,7 @@ Bool_t ROMEBuilder::ReadXMLNetFolder()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLTask()
 {
    // read the task definitions out of the xml file
@@ -2021,6 +2026,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLTab()
 {
    // read the tab definitions out of the xml file
@@ -2521,6 +2527,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
 {
    Int_t type, i, j;
@@ -2679,6 +2686,7 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLTree()
 {
    char *name;
@@ -2885,6 +2893,7 @@ Bool_t ROMEBuilder::ReadXMLTree()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLDAQ()
 {
    char *name;
@@ -2974,6 +2983,7 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLDB()
 {
    char *name;
@@ -3041,6 +3051,7 @@ Bool_t ROMEBuilder::ReadXMLDB()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLMidasBanks()
 {
    char *name;
@@ -3451,6 +3462,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLRootDAQ()
 {
    char *name;
@@ -3644,6 +3656,7 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
 {
    // read the steering parameter definitions out of the xml file
@@ -3973,6 +3986,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLUserMakefile()
 {
    int i,j;
@@ -4309,6 +4323,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
 {
    // extract Subversion revision number from string.
@@ -4327,6 +4342,7 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
    return;
 }
 
+//______________________________________________________________________________
 void ROMEBuilder::FormatText(ROMEString& str, Bool_t stripSpace, const char* invalidCharacters)
 {
    if (stripSpace)

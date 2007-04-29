@@ -14,11 +14,16 @@
 
 ClassImp(ROMEPgSQL)
 
-ROMEPgSQL::ROMEPgSQL() {
-   connection = 0;
-   result = 0;
+//______________________________________________________________________________
+ROMEPgSQL::ROMEPgSQL()
+:ROMESQL()
+,connection(0)
+,result(0)
+,fCurrentRow(0)
+{
 }
 
+//______________________________________________________________________________
 ROMEPgSQL::~ROMEPgSQL() {
    FreeResult();
    DisConnect();
@@ -26,6 +31,7 @@ ROMEPgSQL::~ROMEPgSQL() {
    SafeDelete(result);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
    if(!strcmp(port,"0"))
@@ -38,6 +44,7 @@ Bool_t ROMEPgSQL::Connect(const char *server,const char *user,const char *passwd
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::DisConnect()
 {
    if (connection)
@@ -45,6 +52,7 @@ Bool_t ROMEPgSQL::DisConnect()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::MakeQuery(const char* query, Bool_t store)
 {
    if (strlen(query) < 2048)
@@ -61,10 +69,12 @@ Bool_t ROMEPgSQL::MakeQuery(const char* query, Bool_t store)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::StoreResult() {
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEPgSQL::FreeResult(){
    if (!result)
       return;
@@ -73,6 +83,7 @@ void ROMEPgSQL::FreeResult(){
    fCurrentRow = 0;
 }
 
+//______________________________________________________________________________
 Int_t ROMEPgSQL::GetNumberOfRows() {
    if( !result ) {
       ROMEPrint::Error("GetNumberOfRows error : no query result.\n");
@@ -81,6 +92,7 @@ Int_t ROMEPgSQL::GetNumberOfRows() {
    return (int)PQntuples(result);
 }
 
+//______________________________________________________________________________
 Int_t ROMEPgSQL::GetNumberOfFields() {
    if (!result) {
       ROMEPrint::Error("GetFieldCount error : no query result.\n");
@@ -89,6 +101,7 @@ Int_t ROMEPgSQL::GetNumberOfFields() {
    return PQnfields(result);
 }
 
+//______________________________________________________________________________
 char* ROMEPgSQL::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
       ROMEPrint::Error("GetField error : field number out of bounds\n");
@@ -97,6 +110,7 @@ char* ROMEPgSQL::GetField(Int_t fieldNumber) {
    return PQgetvalue(result, fCurrentRow, fieldNumber);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::NextRow() {
    if(fCurrentRow+1 >= GetNumberOfRows()){
       ROMEPrint::Print("NextRow error : You have tried nonexistent row.\n");
@@ -106,10 +120,12 @@ Bool_t ROMEPgSQL::NextRow() {
    return true;
 }
 
+//______________________________________________________________________________
 Int_t ROMEPgSQL::GetErrorCode() {
    return (int) PQresultStatus(result);
 }
 
+//______________________________________________________________________________
 char* ROMEPgSQL::GetErrorMessage() {
    return (char*) PQerrorMessage(connection);
 }
@@ -121,6 +137,7 @@ Bool_t ROMEPgSQL::StartTransaction( const char* option ){
    return MakeQuery(sqlQuery.Data(),false);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::CommitTransaction( const char* option ){
    TString sqlQuery = "COMMIT ";
    sqlQuery += option;
@@ -128,6 +145,7 @@ Bool_t ROMEPgSQL::CommitTransaction( const char* option ){
    return MakeQuery(sqlQuery.Data(),false);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEPgSQL::RollbackTransaction( const char* option ){
    TString sqlQuery = "ROLLBACK ";
    sqlQuery += option;

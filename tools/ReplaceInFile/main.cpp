@@ -2,7 +2,7 @@
 
   main.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include <fstream>
@@ -15,6 +15,7 @@ using namespace std;
 #define MAX_WILD_CARDS 10
 #define MAX_VETO_CHAR 100
 
+//______________________________________________________________________________
 void usage() {
    cout << "  -f        File" << endl;
    cout << "  -s        String to replace" << endl;
@@ -22,6 +23,7 @@ void usage() {
    cout << "  -v        Veto Characters in Wildcards" << endl;
 }
 
+//______________________________________________________________________________
 int main(int argc, char *argv[])
 {
    int i,j,k;

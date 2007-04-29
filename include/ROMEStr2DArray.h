@@ -18,9 +18,15 @@ protected:
    TObjArray *array;   // Array containing the ROMEStrArrays
    Int_t      fSizeX;  // Initial array size
    Int_t      fSizeY;  // Initial sub array size
+
+private:
+   ROMEStr2DArray(const ROMEStr2DArray &str2darray); // not implemented
+   ROMEStr2DArray &operator=(const ROMEStr2DArray &rhs); // not implemented
+
 public:
    ROMEStr2DArray(Int_t sizeX = TCollection::kInitCapacity, Int_t sizeY = TCollection::kInitCapacity);
    virtual          ~ROMEStr2DArray();
+
    Int_t            GetEntries();
    Int_t            GetEntriesFast();  //only OK when no gaps
    Int_t            GetEntriesAt(Int_t idx);

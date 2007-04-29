@@ -87,109 +87,116 @@
 
 ClassImp(ROMEAnalyzer)
 
-ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
+ROMEAnalyzer *gROME = 0;  // global ROMEAnalyzer Handle
 
+//______________________________________________________________________________
 ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics)
+:TObject()
+,fProgramMode(kStandAloneROME)
+,fWindowClosed(kFALSE)
+,fApplication(app)
+,fCintInitialisation("")
+,fActiveDAQ(0)
+,fAnalysisMode(kAnalyzeOffline)
+,fBatchMode(batch)
+,fDaemonMode(daemon)
+,fQuitMode(batch || daemon)
+,fGraphicalConfigEdit(kTRUE)
+,fPreserveConfig(kFALSE)
+,fNoGraphics(batch || daemon || nographics)
+,fSplashScreen(!nographics)
+,fDontReadNextEvent(kFALSE)
+,fSkipEvent(kFALSE)
+,fInputDir("./")
+,fOutputDir("./")
+,fDataBaseDir(0)
+,fConfigDir("./")
+,fCurrentRunNumber(0)
+,fRunNumber()
+,fRunNumberString("")
+,fCurrentEventNumber(0)
+,fEventNumber()
+,fEventNumberString("")
+,fCurrentInputFileName("")
+,fInputFileNames()
+,fInputFileNamesString("")
+,fIOType(kNotBased)
+,fUserEvent(kFALSE)
+,fUserEventQ(kFALSE)
+,fUserEventE(kFALSE)
+,fUserEventS(kFALSE)
+,fUserEventR(kFALSE)
+,fUserEventO(kFALSE)
+,fUserEventC(kFALSE)
+,fUserEventJ(kFALSE)
+,fUserEventJEventNumber(0)
+,fUserEventG(kFALSE)
+,fUserEventGRunNumber(0)
+,fUserEventGEventNumber(0)
+,fUserEventI(kFALSE)
+,fEventID('a')
+,fTerminate(kFALSE)
+,fProgramTerminated(kFALSE)
+,fFillEvent(kFALSE)
+,fTaskObjects(0)
+,fMainTask(0)
+,fMainFolder(0)
+,fHistoFiles(0)
+,fNetFolderServer(0)
+,fTreeObjects(new TObjArray(0))
+,fTreeAccumulation(kFALSE)
+,fMainHistoFolder(0)
+,fHistoFolders(new TObjArray(0))
+,fHistoRead(kFALSE)
+,fHistoRun(0)
+,fProgramName("rome")
+,fOnlineHost("")
+,fOnlineExperiment("")
+,fOnlineAnalyzerName("")
+,fOnlineMemoryBuffer("SYSTEM")
+,fSocketServerActive(kFALSE)
+,fSocketServerPortNumber(9090)
+,fSocketServerMutex(new TMutex())
+,fObjectStorageMutex(new TMutex())
+,fRunEventNumberMutex(new TMutex())
+,fUpdateObjectStorageMutex(new TMutex())
+,fObjectStorageUpdated(kFALSE)
+,fSocketClient(0)
+,fSocketClientNetFolder(0)
+,fSocketClientHost("localhost")
+,fSocketClientPort(9090)
+,fTriggerStatistics()
+,fScalerStatistics()
+,fDataBaseHandle(0)
+,fDataBaseName(0)
+,fDataBaseConnection(0)
+,fNumberOfDataBases(0)
+,fConfiguration(0)
+,fShowRunStat(kTRUE)
+,fEventBasedDataBase(kFALSE)
+,fNumberOfNetFolders(0)
+,fNetFolder(0)
+,fNetFolderActive(0)
+,fNetFolderReconnect(0)
+,fNetFolderSocket(0)
+,fNetFolderPort(0)
+,fNetFolderName(0)
+,fNetFolderHost(0)
+,fNetFolderRoot(0)
+,fWindow(0)
+,fWindowUpdateFrequency(1)
+,fMidasOnlineDataBase(0)
 {
 // Initialisations
-   fProgramMode = kStandAloneROME;
-   fWindowClosed = false;
-   fApplication = app;
-   fCintInitialisation = "";
-   fActiveDAQ = 0;
-   fAnalysisMode = kAnalyzeOffline;
-   fBatchMode = batch;
-   fDaemonMode = daemon;
-   fNoGraphics = batch || daemon || nographics;
-   fQuitMode = batch || daemon;
 #if defined( R__UNIX )
    fQuitMode = fQuitMode || !isatty(fileno(stdout));
 #endif
-   fSplashScreen = !nographics;
-   fGraphicalConfigEdit = true;
-   fPreserveConfig = false;
-   fDontReadNextEvent = false;
-   fSkipEvent = false;
-   fInputDir = "./";
-   fOutputDir = "./";
-   fDataBaseDir = 0;
-   fConfigDir = "./";
-   fCurrentRunNumber = 0;
    fRunNumber.Reset();
-   fRunNumberString = "";
-   fCurrentEventNumber = 0;
    fEventNumber.Reset();
-   fEventNumberString = "";
-   fCurrentInputFileName = "";
 //   fInputFileNames.Reset();
-   fInputFileNamesString = "";
-   fIOType = kNotBased;
-   fUserEvent = false;
-   fUserEventQ = false;
-   fUserEventE = false;
-   fUserEventS = false;
-   fUserEventR = false;
-   fUserEventO = false;
-   fUserEventC = false;
-   fUserEventJ = false;
-   fUserEventJEventNumber = 0;
-   fUserEventG = false;
-   fUserEventGRunNumber = 0;
-   fUserEventGEventNumber = 0;
-   fUserEventI = false;
-   fEventID = 'a';
-   fMidasOnlineDataBase = 0;
-   fTerminate = false;
-   fProgramTerminated = false;
-   fFillEvent = false;
-   fTaskObjects = 0;
-   fMainTask = 0;
-   fMainFolder = 0;
-   fHistoFiles = 0;
-   fNetFolderServer = 0;
-   fTreeObjects = new TObjArray(0);
-   fTreeAccumulation = false;
-   fMainHistoFolder = 0;
-   fHistoFolders = new TObjArray(0);
-   fProgramName = "rome";
-   fOnlineHost = "";
-   fOnlineExperiment = "";
-   fOnlineMemoryBuffer = "SYSTEM";
-   fSocketServerPortNumber = 9090;
-   fSocketServerActive = false;
-   fDataBaseHandle = 0;
-   fDataBaseName = 0;
-   fDataBaseDir = 0;
-   fDataBaseConnection = 0;
-   fNumberOfDataBases = 0;
-   fConfiguration = 0;
-   fShowRunStat = true;
-   fEventBasedDataBase = false;
-   fNumberOfNetFolders = 0;
-   fNetFolder = 0;
-   fNetFolderActive = 0;
-   fNetFolderReconnect = 0;
-   fNetFolderSocket = 0;
-   fNetFolderPort = 0;
-   fNetFolderName = 0;
-   fNetFolderHost = 0;
-   fNetFolderRoot = 0;
-   fSocketClient = 0;
-   fSocketClientNetFolder = 0;
-   fSocketClientHost = "localhost";
-   fSocketClientPort = 9090;
-   fHistoRead = false;
-   fHistoRun = 0;
-   fWindow = 0;
-   fWindowUpdateFrequency = 0;
-   fNetFolderServer = 0;
-   fSocketServerMutex = new TMutex();
-   fObjectStorageMutex = new TMutex();
-   fRunEventNumberMutex = new TMutex();
-   fUpdateObjectStorageMutex = new TMutex();
-   fObjectStorageUpdated = kFALSE;
 }
 
+//______________________________________________________________________________
 ROMEAnalyzer::~ROMEAnalyzer()
 {
    SafeDelete(fTreeObjects);
@@ -231,6 +238,7 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDeleteArray(fDataBaseHandle);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
 #if defined( HAVE_MIDAS )
@@ -316,6 +324,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    return true;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::ParameterUsage()
 {
    ROMEPrint::Print("  -i       Configuration file\n");
@@ -335,6 +344,7 @@ void ROMEAnalyzer::ParameterUsage()
    return;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
@@ -615,16 +625,19 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
 {
    return CheckNumber(eventNumber,fEventNumber);
 }
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber)
 {
    return CheckNumber(runNumber,fRunNumber);
 }
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
 {
    const int nNumbers = numbers.GetSize();
@@ -648,6 +661,7 @@ Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
    return -1;
 }
 
+//______________________________________________________________________________
 Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber)
 {
    const Int_t nRunNumber = fRunNumber.GetSize();
@@ -669,6 +683,7 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber)
    return -1;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::DecodeNumbers(ROMEString& str,TArrayL64& arr)
 {
    char cminus='-';
@@ -710,6 +725,7 @@ void ROMEAnalyzer::DecodeNumbers(ROMEString& str,TArrayL64& arr)
    arr.Set(na);
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr)
 {
    int ind,num=0;
@@ -725,11 +741,13 @@ void ROMEAnalyzer::DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr)
       arr.AddAtAndExpand(str,num);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::toBool(Int_t value)
 {
    return value!=0;
 }
 
+//______________________________________________________________________________
 UInt_t ROMEAnalyzer::ss_kbhit()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -742,6 +760,7 @@ UInt_t ROMEAnalyzer::ss_kbhit()
 #endif
 }
 
+//______________________________________________________________________________
 /*int ROMEAnalyzer::ss_sleep(int millisec)
 {
    fd_set readfds;
@@ -784,6 +803,7 @@ UInt_t ROMEAnalyzer::ss_kbhit()
 #define CH_RIGHT  (CH_EXT+8)
 #define CH_LEFT   (CH_EXT+9)
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 {
 #if defined( R__UNIX )
@@ -996,6 +1016,7 @@ Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 #endif
 }
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
 {
 #if defined( R__UNIX )   // only implemented for UNIX
@@ -1036,6 +1057,7 @@ Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::ss_batch_init()
 {
 // redirect std input.
@@ -1061,6 +1083,7 @@ Int_t ROMEAnalyzer::ss_batch_init()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Int_t ROMEAnalyzer::stricmp(const char* c1,const char* c2)
 {
 #if defined( R__UNIX )
@@ -1072,6 +1095,7 @@ Int_t ROMEAnalyzer::stricmp(const char* c1,const char* c2)
 #endif
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::strtobool(const char* str)
 {
    char *cstop;
@@ -1083,6 +1107,7 @@ Bool_t ROMEAnalyzer::strtobool(const char* str)
 }
 
 // stream
+//______________________________________________________________________________
 void ROMEAnalyzer::redirectOutput(Bool_t redirect)
 {
    static ofstream *romeOutputFile = 0;
@@ -1105,6 +1130,7 @@ void ROMEAnalyzer::redirectOutput(Bool_t redirect)
    }
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::Cleaning()
 {
    // cleaning at exit.
@@ -1114,6 +1140,7 @@ void ROMEAnalyzer::Cleaning()
    cout<<"\n"<<endl;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
@@ -1126,6 +1153,7 @@ Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
    return false;
 }
 
+//______________________________________________________________________________
 ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
 {
    ROMEString str;
@@ -1142,6 +1170,7 @@ ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
    return 0;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name)
 {
    Int_t i;
@@ -1152,6 +1181,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name)
    return ConnectNetFolder(i);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
 {
    if (!(0 <= i && i < fNumberOfNetFolders))
@@ -1178,6 +1208,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::ConnectSocketClient()
 {
    if (fSocketClient!=0) {
@@ -1198,6 +1229,7 @@ Bool_t ROMEAnalyzer::ConnectSocketClient()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::DisconnectNetFolder(const char *name)
 {
    Int_t i;
@@ -1208,6 +1240,7 @@ Bool_t ROMEAnalyzer::DisconnectNetFolder(const char *name)
    return DisconnectNetFolder(i);
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::DisconnectNetFolder(Int_t i)
 {
    if (!(0 <= i && i < fNumberOfNetFolders))
@@ -1221,6 +1254,7 @@ Bool_t ROMEAnalyzer::DisconnectNetFolder(Int_t i)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::ConnectNetFolders()
 {
    Int_t i;
@@ -1231,6 +1265,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolders()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::DisconnectNetFolders()
 {
    Int_t i;
@@ -1241,6 +1276,7 @@ Bool_t ROMEAnalyzer::DisconnectNetFolders()
    return kTRUE;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::InitNetFolders(Int_t number)
 {
    if (number < 1)
@@ -1256,11 +1292,13 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
    fNumberOfNetFolders = number;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::StartWindow()
 {
    return fWindow->Start();
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsWindowBusy()
 {
    Bool_t busy = false;
@@ -1270,6 +1308,7 @@ Bool_t ROMEAnalyzer::IsWindowBusy()
    return busy;
 }
 
+//______________________________________________________________________________
 ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
 {
    if (fActiveDAQ!=NULL)
@@ -1279,6 +1318,7 @@ ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
    return 0;
 }
 
+//______________________________________________________________________________
 ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
 {
    if(i<fNumberOfDataBases && fDataBaseHandle[i]!=0)
@@ -1288,6 +1328,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
    return 0;
 }
 
+//______________________________________________________________________________
 ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
 {
    for (Int_t i=0;i<fNumberOfDataBases;i++)
@@ -1298,6 +1339,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
    return 0;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)
 {
    for (Int_t i=0;i<fNumberOfDataBases;i++)
@@ -1306,6 +1348,7 @@ Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)
    return false;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::InitDataBases(Int_t number)
 {
    int i;
@@ -1319,16 +1362,19 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
    }
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::NextEvent()
 {
    ((ROMEEventLoop*)fMainTask)->NextEvent();
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::GotoEvent(Long64_t eventNumber)
 {
    ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber);
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format)
 {
    ROMEString form;
@@ -1348,6 +1394,7 @@ void ROMEAnalyzer::GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* 
       buffer.SetFormatted(form.Data(),fRunNumber.At(i));
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* format)
 {
    ROMEString form;
@@ -1364,6 +1411,7 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
    buffer.SetFormatted(form.Data(),fCurrentRunNumber);
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 {
 // replace ### with PID.
@@ -1439,6 +1487,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
    }
 }
 
+//______________________________________________________________________________
 THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
 {
    localThis->GetNetFolderServer()->UpdateObjects();
@@ -1447,6 +1496,7 @@ THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
    return THREADRETURN;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination)
 {
    buffer->Reset();
@@ -1463,6 +1513,7 @@ void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObje
    destination->ResetBit(kCanDelete);
 }
 
+//______________________________________________________________________________
 Long64_t ROMEAnalyzer::GetCurrentEventNumber()
 {
    Long64_t tempNumber;
@@ -1475,6 +1526,7 @@ Long64_t ROMEAnalyzer::GetCurrentEventNumber()
    return tempNumber;
 }
 
+//______________________________________________________________________________
 Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 {
    Long64_t tempNumber;
@@ -1487,6 +1539,7 @@ Long64_t ROMEAnalyzer::GetCurrentRunNumber()
    return tempNumber;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
 {
    gROME->GetRunEventNumberMutex()->Lock();
@@ -1494,6 +1547,7 @@ void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
    gROME->GetRunEventNumberMutex()->UnLock();
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
 {
    gROME->GetRunEventNumberMutex()->Lock();
@@ -1501,6 +1555,7 @@ void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
    gROME->GetRunEventNumberMutex()->UnLock();
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::UpdateObjectStorage()
 {
    gROME->GetUpdateObjectStorageMutex()->Lock();
@@ -1508,6 +1563,7 @@ void ROMEAnalyzer::UpdateObjectStorage()
    gROME->GetUpdateObjectStorageMutex()->UnLock();
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
 {
    Bool_t ret;
@@ -1517,6 +1573,7 @@ Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
    return ret;
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::SetObjectStorageUpdated()
 {
    gROME->GetUpdateObjectStorageMutex()->Lock();
@@ -1524,6 +1581,7 @@ void ROMEAnalyzer::SetObjectStorageUpdated()
    gROME->GetUpdateObjectStorageMutex()->UnLock();
 }
 
+//______________________________________________________________________________
 void ROMEAnalyzer::SetDataBase(Int_t i,ROMEDataBase *dataBase)
 {
    if(i >= 0 && i < fNumberOfDataBases) {
@@ -1532,6 +1590,7 @@ void ROMEAnalyzer::SetDataBase(Int_t i,ROMEDataBase *dataBase)
    }
 }
 
+//______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsProgramTerminated()
 {
    if (gROME->IsROMEMonitor())

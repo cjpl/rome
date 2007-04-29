@@ -29,9 +29,15 @@ protected:
    static TApplication *fApplication;
    Int_t                fPort;
    static TString       fServerName;
+
+private:
+   TNetFolderServer(const TNetFolderServer &server); // not implemented
+   TNetFolderServer &operator=(const TNetFolderServer &rhs); // not implemented
+
 public:
-   TNetFolderServer(){}
+   TNetFolderServer():fPort(9090) {}
    virtual ~TNetFolderServer(){}
+
    void               StartServer(TApplication *app,Int_t port,const char* serverName);
    static Int_t       ResponseFunction(TSocket *socket);
 protected:

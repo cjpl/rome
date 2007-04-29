@@ -9,6 +9,7 @@
 #include <Riostream.h>
 #include "ROMEVersion.h"
 
+//______________________________________________________________________________
 void help()
 {
    cout<<" Usage: rome-config [options]"<<endl;
@@ -21,6 +22,7 @@ void help()
    cout<<"  --help                     Print this message"<<endl;
 }
 
+//______________________________________________________________________________
 int main(int argc, char *argv[])
 {
    char* cstop = 0;

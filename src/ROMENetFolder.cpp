@@ -12,6 +12,7 @@
 
 ClassImp(ROMENetFolder)
 
+//______________________________________________________________________________
 Long64_t ROMENetFolder::GetCurrentRunNumber()
 {
    if (!Send("GetCurrentRunNumber"))
@@ -33,6 +34,7 @@ Long64_t ROMENetFolder::GetCurrentRunNumber()
    return retValue;
 }
 
+//______________________________________________________________________________
 Long64_t ROMENetFolder::GetCurrentEventNumber()
 {
    if (!Send("GetCurrentEventNumber"))
@@ -54,6 +56,7 @@ Long64_t ROMENetFolder::GetCurrentEventNumber()
    return retValue;
 }
 
+//______________________________________________________________________________
 Bool_t ROMENetFolder::RegisterObject(const char* name)
 {
    ROMEString str = "RegisterObject ";
@@ -63,6 +66,7 @@ Bool_t ROMENetFolder::RegisterObject(const char* name)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMENetFolder::UnRegisterObject(const char* name)
 {
    ROMEString str = "UnRegisterObject ";
@@ -72,6 +76,7 @@ Bool_t ROMENetFolder::UnRegisterObject(const char* name)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMENetFolder::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber)
 {
    ROMEString str = "RequestNewEvent ";
@@ -99,6 +104,7 @@ Bool_t ROMENetFolder::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNum
    return retValue;
 }
 
+//______________________________________________________________________________
 Bool_t ROMENetFolder::RequestEvent()
 {
    ROMEString str = "RequestEvent";
@@ -120,6 +126,8 @@ Bool_t ROMENetFolder::RequestEvent()
    delete mr;
    return retValue;
 }
+
+//______________________________________________________________________________
 Bool_t ROMENetFolder::IsProgramTerminated()
 {
    ROMEString str = "IsProgramTerminated";

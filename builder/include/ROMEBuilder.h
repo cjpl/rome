@@ -543,8 +543,12 @@ protected:
    ROMEConfigParameterGroup* mainParGroup;
    int maxConfigParameterHierarchyLevel;
 
+private:
+   ROMEBuilder(const ROMEBuilder &builder); // not implemented
+   ROMEBuilder &operator=(const ROMEBuilder &rhs); // not implemented
+
 public:
-   ROMEBuilder() { };
+   ROMEBuilder();
    ~ROMEBuilder();
 
    Bool_t  StartBuilder();

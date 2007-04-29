@@ -72,7 +72,7 @@ public:
    TGCompositeFrame   *fFrame;            //!
    TGTab              *fTab;              //!
    TGHotString        *fTitleString;      //!
-   ROMELabel            *fTitleLabel;       //!
+   ROMELabel          *fTitleLabel;       //!
    TGLayoutHints      *fLTitleLabel;      //!
    Int_t               fIndex;            //!
    TGCompositeFrame   *fListTreeFrame;    //!
@@ -88,8 +88,13 @@ public:
    Int_t               fNumberOfHHFrames; //!
    Int_t               fNumberOfVFrames;  //!
 
+private:
+   XMLToFormFrame(const XMLToFormFrame &frame); // not implemented
+   XMLToFormFrame &operator=(const XMLToFormFrame &rhs); // not implemented
+
 public:
-   XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex,const char* toolTip = "");
+   XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,
+                  Bool_t visible,Int_t tabIndex,const char* toolTip = "");
    virtual ~XMLToFormFrame();
 
    void AddSubFrame(XMLToFormFrame* subFrame) {

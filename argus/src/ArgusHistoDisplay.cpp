@@ -57,44 +57,51 @@
 
 ClassImp(ArgusHistoDisplay)
 
-ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
+//______________________________________________________________________________
+ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window)
+:ArgusTab(window)
+,fStyle(new TStyle())
+,fMenuBar(0)
+,fMenuDisplay(0)
+,fMenuView(0)
+,fMenuViewDivide(0)
+,fMenuViewSelect(0)
+,fCurrentDisplayType(0)
+,fNumberOfDisplayTypes(0)
+,fDisplayTypeOld(0)
+,fDisplayObjIndex(0)
+,fDisplayObjLoaded(0)
+,fInherited(kFALSE)
+,fInheritanceName("")
+,fTabActive(kFALSE)
+,fUserObjects(new TObjArray())
+,fObjects(new TObjArray())
+,fNumberOfObjects(0)
+,fUserLines(new TObjArray())
+,fLines(new TObjArray())
+,fNumberOfUserTGraph(0)
+,fNumberOfUserLines(0)
+,fNumberOfLines(0)
+,fNumberOfPads(0)
+,fNumberOfPadsX(1)
+,fNumberOfPadsY(1)
+,fStatisticBoxFlag(kFALSE)
+,fCanvas(0)
+,fDialog(0)
+,fChannelNumber(0)
+,fPadConfigActive(0)
 {
    Int_t i,j;
-   for (i=0;i<kMaxNumberOfPadsX;i++) {
-      for (j=0;j<kMaxNumberOfPadsY;j++) {
-         M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-400+i*kMaxNumberOfPadsY+j;
+   for (i = 0; i < kMaxNumberOfPadsX; i++) {
+      for (j = 0; j < kMaxNumberOfPadsY; j++) {
+         M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT - 400 + i * kMaxNumberOfPadsY + j;
       }
    }
-   fStyle = new TStyle();
-   fCurrentDisplayType = 0;
-   fNumberOfDisplayTypes = 0;
-   fDisplayTypeOld = 0;
-   fDisplayObjIndex = 0;
-   fInherited = false;
-   fInheritanceName = "";
-   fPadConfigActive = false;
-   fTabActive = false;
-   fNumberOfPadsX = 1;
-   fNumberOfPadsY = 1;
-   fPadConfigActive = false;
-   fNumberOfObjects = 0;
-
-   fNumberOfUserTGraph = 0;
-   fNumberOfUserLines = 0;
-   fStatisticBoxFlag = kFALSE;
-
-   fMenuBar = 0;
-   fMenuDisplay = 0;
-   fMenuView = 0;
-   fMenuViewDivide = 0;
-   fMenuViewSelect = 0;
-   for (i=0;i<10;i++) {
+   for (i = 0; i < 10; i++) {
       fMenuView100[i] = 0;
-      for (j=0;j<10;j++)
+      for (j = 0; j < 10; j++)
          fMenuView10[i][j] = 0;
    }
-   fCanvas = 0;
-   fDialog = 0;
 
    for (i = 0; i < kMaxNumberOfPadsX; i++)
       fMenuViewDivideColumn[i] = 0;
@@ -102,11 +109,9 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window) : ArgusTab(window)
    for (i = 0; i < kMaxNumberOfPads; i++) {
       fPad[i] = 0;
    }
-   fUserObjects = new TObjArray();
-   fObjects = new TObjArray();
-   fUserLines = new TObjArray();
-   fLines = new TObjArray();
 }
+
+//______________________________________________________________________________
 void ArgusHistoDisplay::InitHistoDisplay() 
 {
    int i;
@@ -123,6 +128,8 @@ void ArgusHistoDisplay::InitHistoDisplay()
       fLogScaleZ->AddAt(0,i);
    }
 }
+
+//______________________________________________________________________________
 ArgusHistoDisplay::~ArgusHistoDisplay()
 {
    Int_t i,j,k;
@@ -187,6 +194,7 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
    SafeDelete(fLines);
 }
 
+//______________________________________________________________________________
 TGraphMT* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
 {
    int i;
@@ -198,6 +206,8 @@ TGraphMT* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
    }
    return NULL;
 }
+
+//______________________________________________________________________________
 TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t index,const char* type)
 {
    int i;
@@ -210,6 +220,7 @@ TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t index,const char* type)
    return NULL;
 }
 
+//______________________________________________________________________________
 TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
 {
    int i;
@@ -222,6 +233,8 @@ TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
    }
    return NULL;
 }
+
+//______________________________________________________________________________
 TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
 {
    if (((TObjArray*)fObjects->At(fCurrentDisplayType))->GetEntriesFast()>index) {
@@ -230,6 +243,7 @@ TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
    return NULL;
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::BaseInit()
 {
    ROMEString str;
@@ -250,6 +264,7 @@ void ArgusHistoDisplay::BaseInit()
    SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
 {
    fBusy = true;
@@ -326,6 +341,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
    fBusy = false;
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::BaseTabSelected()
 {
    Int_t i,j,k;
@@ -395,6 +411,8 @@ void ArgusHistoDisplay::BaseTabSelected()
    SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);
    fChannelNumber = 0;
 }
+
+//______________________________________________________________________________
 void ArgusHistoDisplay::BaseTabUnSelected()
 {
    while (fBusy)
@@ -416,6 +434,7 @@ void ArgusHistoDisplay::BaseTabUnSelected()
    }
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
 {
    if (flag && !fStatisticBoxFlag) {
@@ -430,6 +449,7 @@ void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
    fStatisticBoxFlag = flag;
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
    Int_t i,k;
@@ -485,6 +505,7 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
    }
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::Modified(Bool_t processEvents)
 {
    Int_t i;
@@ -532,6 +553,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
    }
 }
 
+//______________________________________________________________________________
 void ArgusHistoDisplay::SetLimits(TGraphMT *g)
 {
    Int_t n = g->GetN();

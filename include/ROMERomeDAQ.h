@@ -31,6 +31,10 @@ protected:
 
    Int_t         fTimeStamp;                       //! Current time stamp
 
+private:
+   ROMERomeDAQ(const ROMERomeDAQ &daq); // not implemented
+   ROMERomeDAQ &operator=(const ROMERomeDAQ &rhs); // not implemented
+
 public:
    ROMERomeDAQ();
    virtual ~ROMERomeDAQ();

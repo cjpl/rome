@@ -35,6 +35,7 @@ const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
 
 ClassImp(ROMESQLDataBase)
 
+//______________________________________________________________________________
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = NULL;
    Int_t i;
@@ -48,6 +49,7 @@ ROMESQLDataBase::ROMESQLDataBase() {
    sprintf(fLastEventNumberString, "0");
 }
 
+//______________________________________________________________________________
 ROMESQLDataBase::~ROMESQLDataBase() {
    Int_t i;
    for (i = 0; i < kNumberOfReadCache; i++) {
@@ -55,7 +57,8 @@ ROMESQLDataBase::~ROMESQLDataBase() {
    }
 }
 
-void ROMESQLDataBase:: ResetPhrase() {
+//______________________________________________________________________________
+void ROMESQLDataBase::ResetPhrase() {
    fSelectFieldList.Resize(0);
    fInsertFieldList.Resize(0);
    fSetFieldList.Resize(0);
@@ -65,7 +68,8 @@ void ROMESQLDataBase:: ResetPhrase() {
    fAdInsertValues.Resize(0);
 }
 
-Bool_t ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,Long64_t runNumber,Long64_t eventNumber,const char* currentIdName,const char* currentIdxName) {
+//______________________________________________________________________________
+Bool_t ROMESQLDataBase::DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,Long64_t runNumber,Long64_t eventNumber,const char* currentIdName,const char* currentIdxName) {
    ROMEString value = dbConstraint;
    ROMEPath *dbpath = new ROMEPath();
    int is1,ie1,is2,ie2,is3,ie3;
@@ -191,6 +195,7 @@ Bool_t ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const c
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t eventNumber) {
    ROMEString sqlQuery;
    ROMEString sqlResult;
@@ -334,6 +339,7 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const char* connection) {
    ROMEString path = connection;
    ROMEString server;
@@ -461,6 +467,7 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const cha
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
    int iField,iOrder;
    int iLastOrder=0;
@@ -638,6 +645,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
    int iField;
    int iOrder;
@@ -791,6 +799,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
    return true;
 }
 
+//______________________________________________________________________________
 void ROMESQLDataBase::Print(Option_t *) {
    ROMEString temp = fSelectFieldList;
    temp.ReplaceAll(RSQLDB_STR,"");

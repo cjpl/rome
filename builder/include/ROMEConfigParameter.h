@@ -24,8 +24,15 @@ private:
    ROMEStrArray*         fAdditionalWriteLines;
    ROMEStrArray*         fComboBoxEntries;
    Bool_t                fWriteLinesAlways;
+
+private:
+   ROMEConfigParameter(const ROMEConfigParameter &param); // not implemented
+   ROMEConfigParameter &operator=(const ROMEConfigParameter &rhs); // not implemented
+
 public:
    ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1", ROMEString widgetType = "EditBox");
+   virtual ~ROMEConfigParameter();
+
    ROMEString&    GetComment() { return fComment; }
    Int_t          GetCommentLevel() { return fCommentLevel; }
    ROMEString&    GetArraySize() { return fArraySize; }
@@ -86,7 +93,14 @@ private:
    Bool_t             fWriteEmptyLine;
 
 public:
-   ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize = "1",ROMEString groupIdentifier = "",ROMEString nameIdentifier = "",ROMEString arrayIdentifier = "",ROMEString tagName = "",Int_t multiplicity = 1,Bool_t emptyline=kTRUE);
+   ROMEConfigParameterGroup(ROMEString groupName, ROMEString arraySize = "1",
+                            ROMEString groupIdentifier = "", ROMEString nameIdentifier = "",
+                            ROMEString arrayIdentifier = "", ROMEString tagName = "",
+                            Int_t multiplicity = 1, Bool_t emptyline=kTRUE);
+   ROMEConfigParameterGroup(const ROMEConfigParameterGroup &group);
+   ROMEConfigParameterGroup &operator=(const ROMEConfigParameterGroup &rhs);
+   virtual ~ROMEConfigParameterGroup();
+
    ROMEString&                GetGroupName() { return fGroupName; }
    ROMEString&                GetArraySize() { return fArraySize; }
    ROMEString&                GetGroupIdentifier() { return fGroupIdentifier; }

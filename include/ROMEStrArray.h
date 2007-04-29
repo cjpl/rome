@@ -16,10 +16,14 @@ class ROMEStrArray : public TObject
 protected:
    TObjArray *array;  // The array containing the TStrings
 
+private:
+   ROMEStrArray &operator=(const ROMEStrArray &rhs); // not implemented
+
 public:
    ROMEStrArray(Int_t s = TCollection::kInitCapacity, Int_t lowerBound = 0);
    ROMEStrArray(ROMEStrArray& strArray);
    virtual          ~ROMEStrArray();
+
    virtual void     Delete(Option_t *option="");
    Int_t            GetEntries() const;
    Int_t            GetEntriesFast() const;  //only OK when no gaps

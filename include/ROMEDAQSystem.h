@@ -33,7 +33,7 @@ class ROMEDAQSystem : public TObject
    ROMEStopwatch fWatchAll;                        //! Records time used by DAQ
 
 public:
-   ROMEDAQSystem() {}
+   ROMEDAQSystem():fRunStatus(0),fEventStatus(0),fWatchEvent(),fWatchAll() {}
    virtual ~ROMEDAQSystem() {}
 
    Bool_t           InitDAQ();

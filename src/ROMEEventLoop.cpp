@@ -54,38 +54,50 @@ TTask *TTask::fgBreakPoint = 0;
 
 // Hot Links handle initialization
 #if defined( HAVE_MIDAS )
-bool ROMEEventLoop::fHotLinksChanged = false;
+bool ROMEEventLoop::fHotLinksChanged = kFALSE;
 #endif // HAVE_MIDAS
 
 ClassImp(ROMEEventLoop)
 
-ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title,0)
+//______________________________________________________________________________
+ROMEEventLoop::ROMEEventLoop(const char *name,const char *title)
+:ROMETask(name,title,0)
+,fCurrentEvent(0)
+,fFirstUserInput(kFALSE)
+,fStop(kFALSE)
+,fStopAtRun(-1)
+,fStopAtEvent(-1)
+,fStatisticsTimeOfLastEvent(0)
+,fStatisticsLastEvent(0)
+,fProgressDelta(10000)
+,fProgressTimeOfLastEvent(0)
+,fProgressLastEvent(0)
+,fProgressWrite(kFALSE)
+,fUserInputLastTime(0)
+,fContinuous(kTRUE)
+,fTreeInfo(new ROMETreeInfo())
+,fTreeUpdateIndex(0)
+,fAlwaysFillTrees(kFALSE)
+,fHistoFile(0)
+,fFileIOWatch()
+,fUpdateWindow(kFALSE)
+,fLastUpdateTime(0)
+,fWindowFirstDraw(kFALSE)
+,fUpdateWindowLastEvent(0)
+,fBeginOfRunMacro("")
+,fBeginOfEventMacro("")
+,fEndOfEventMacro("")
+,fEndOfRunMacro("")
+,fHaveBeginOfRunMacro(kFALSE)
+,fHaveBeginOfEventMacro(kFALSE)
+,fHaveEndOfEventMacro(kFALSE)
+,fHaveEndOfRunMacro(kFALSE)
+,fLastNetFolderServerUpdateTime(0)
+,fNetFolderServerUpdateThread(0)
 {
-   fTreeInfo = new ROMETreeInfo();
-   fAlwaysFillTrees = kFALSE;
-   fContinuous = true;
-   fUserInputLastTime = 0;
-   fTreeUpdateIndex = 0;
-   fStopAtRun = -1;
-   fStopAtEvent = -1;
-   fStop = false;
-   fHistoFile = 0;
-   fLastUpdateTime = 0;
-   fLastNetFolderServerUpdateTime = 0;
-   fBeginOfRunMacro = "";
-   fBeginOfEventMacro = "";
-   fEndOfEventMacro = "";
-   fEndOfRunMacro = "";
-   fHaveBeginOfRunMacro = kFALSE;
-   fHaveBeginOfEventMacro = kFALSE;
-   fHaveEndOfEventMacro = kFALSE;
-   fHaveEndOfRunMacro = kFALSE;
-   fNetFolderServerUpdateThread = 0;
-   fProgressDelta = 10000;
-   fUpdateWindowLastEvent = 0;
-   fWindowFirstDraw = kFALSE;
 }
 
+//______________________________________________________________________________
 ROMEEventLoop::~ROMEEventLoop()
 {
    if (fNetFolderServerUpdateThread) {
@@ -95,6 +107,7 @@ ROMEEventLoop::~ROMEEventLoop()
    SafeDelete(fHistoFile);
 }
 
+//______________________________________________________________________________
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
    // Declarations
@@ -341,6 +354,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
 }
 
+//______________________________________________________________________________
 Int_t ROMEEventLoop::RunEvent()
 {
    ROMEString text;
@@ -511,6 +525,8 @@ Int_t ROMEEventLoop::RunEvent()
 
    return kContinue;
 }
+
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
@@ -537,6 +553,7 @@ Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
    return kTRUE;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::DAQInit()
 {
    // Initialize the analyzer. Called before the init tasks.
@@ -625,6 +642,7 @@ Bool_t ROMEEventLoop::DAQInit()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 {
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
@@ -757,6 +775,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::DAQEvent()
 {
    // Reads an event. Called before the Event tasks.
@@ -811,6 +830,7 @@ Bool_t ROMEEventLoop::DAQEvent()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::WriteEvent()
 {
    // Writes the event. Called after the Event tasks.
@@ -820,6 +840,7 @@ Bool_t ROMEEventLoop::WriteEvent()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::Update()
 {
    // Update the Analyzer. Called after the Event tasks.
@@ -898,6 +919,7 @@ Bool_t ROMEEventLoop::Update()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::UserInput()
 {
    if (gROME->isDaemonMode() || gROME->isBatchMode())
@@ -1155,6 +1177,7 @@ Bool_t ROMEEventLoop::UserInput()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::DAQEndOfRun()
 {
    // Disconnects the current run. Called after the EndOfRun tasks.
@@ -1233,6 +1256,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    return true;
 }
 
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::DAQTerminate()
 {
    // Clean up the analyzer. Called after the Terminate tasks.
@@ -1286,24 +1310,50 @@ Bool_t ROMEEventLoop::DAQTerminate()
 }
 
 // Run Status
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isRunning()  { return gROME->GetActiveDAQ()->isRunning(); }
+
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isStopped()  { return gROME->GetActiveDAQ()->isStopped(); }
 
+//______________________________________________________________________________
 void ROMEEventLoop::SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); }
+
+//______________________________________________________________________________
 void ROMEEventLoop::SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); }
 
 // Event Status
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze(); }
+
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isContinue()   { return gROME->GetActiveDAQ()->isContinue(); }
+
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); }
+
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun(); }
+
+//______________________________________________________________________________
 Bool_t ROMEEventLoop::isTerminate()  { return gROME->GetActiveDAQ()->isTerminate(); }
 
+//______________________________________________________________________________
 void ROMEEventLoop::SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze(); }
+
+//______________________________________________________________________________
 void ROMEEventLoop::SetContinue()   { gROME->GetActiveDAQ()->SetContinue(); }
+
+//______________________________________________________________________________
 void ROMEEventLoop::SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); }
+
+//______________________________________________________________________________
 void ROMEEventLoop::SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun(); }
+
+//______________________________________________________________________________
 void ROMEEventLoop::SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate(); }
+
+//______________________________________________________________________________
 void ROMEEventLoop::NextEvent()
 {
    RunEvent();
@@ -1314,6 +1364,7 @@ void ROMEEventLoop::NextEvent()
 #endif
 }
 
+//______________________________________________________________________________
 void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 {
    fCurrentEvent = gROME->GetActiveDAQ()->Seek(eventNumber);

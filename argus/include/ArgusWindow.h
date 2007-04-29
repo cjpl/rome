@@ -73,6 +73,11 @@ public:
       M_FILE_EXIT
    };
 
+private:
+   ArgusWindow(const ArgusWindow &window); // not implemented
+   ArgusWindow &operator=(const ArgusWindow &rhs); // not implemented
+
+public:
    ArgusWindow();
    ArgusWindow(const TGWindow* p,Bool_t tabWindow=kTRUE);
    virtual ~ArgusWindow();
@@ -137,7 +142,6 @@ public:
    virtual void    TriggerEventHandler() = 0;
 
 protected:
-   void            InitArgus(Bool_t tabWindow);
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window
 };
