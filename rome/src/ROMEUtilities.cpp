@@ -102,7 +102,7 @@ void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, co
 
    //loop on all entries of this directory
    while ((direntry=(char*)gSystem->GetDirEntry(dirp))) {
-      TString afile = Form("%s/%s",filepath,direntry);
+      afile = Form("%s/%s",filepath,direntry);
 
       if(!afile.EndsWith(".xml") && !afile.EndsWith(".XML"))
          continue;

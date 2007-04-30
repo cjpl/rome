@@ -4379,7 +4379,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
 //______________________________________________________________________________
 Bool_t ROMEBuilder::WriteAnalyzerCpp()
 {
-   int i,j,k,index;
+   int i,j,k,idx;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -4782,11 +4782,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
-      int index = i;
+      idx = i;
       pointer.Resize(0);
-      while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
-         index = taskHierarchyParentIndex[index];
+      while (idx!=-1) {
+         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[idx].Data());
+         idx = taskHierarchyParentIndex[idx];
       }
       if (numOfSteering[taskHierarchyClassIndex[i]]>0) {
          ROMEString pointerT;
@@ -4802,11 +4802,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
-      Int_t index = i;
+      idx = i;
       pointer.Resize(0);
-      while (index != -1) {
-         pointer.InsertFormatted(0, "->f%sTab", tabName[index].Data());
-         index = tabParentIndex[index];
+      while (idx != -1) {
+         pointer.InsertFormatted(0, "->f%sTab", tabName[idx].Data());
+         idx = tabParentIndex[idx];
       }
       if (numOfSteering[i+numOfTask+1] > 0) {
          ROMEString pointerT;
@@ -4838,11 +4838,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
-      int index = i;
+      idx = i;
       pointer.Resize(0);
-      while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
-         index = taskHierarchyParentIndex[index];
+      while (idx!=-1) {
+         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[idx].Data());
+         idx = taskHierarchyParentIndex[idx];
       }
       if (numOfSteering[taskHierarchyClassIndex[i]]>0) {
          ROMEString pointerT;
@@ -4857,11 +4857,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
-      Int_t index = i;
+      idx = i;
       pointer.Resize(0);
-      while (index != -1) {
-         pointer.InsertFormatted(0, "->f%sTab", tabName[index].Data());
-         index = tabParentIndex[index];
+      while (idx != -1) {
+         pointer.InsertFormatted(0, "->f%sTab", tabName[idx].Data());
+         idx = tabParentIndex[idx];
       }
       if (numOfSteering[i+numOfTask+1] > 0) {
          ROMEString pointerT;
@@ -5191,10 +5191,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       if (numOfGraphs[taskHierarchyClassIndex[i]]>0) {
          buffer.AppendFormatted("   if (Get%s%sTaskBase()->IsActive()",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-         index = taskHierarchyParentIndex[i];
-         while (index!=-1) {
-            buffer.AppendFormatted(" && Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
-            index = taskHierarchyParentIndex[index];
+         idx = taskHierarchyParentIndex[i];
+         while (idx!=-1) {
+            buffer.AppendFormatted(" && Get%s%sTaskBase()->IsActive()",taskHierarchyName[idx].Data(),taskHierarchySuffix[idx].Data());
+            idx = taskHierarchyParentIndex[idx];
          }
          buffer.AppendFormatted(") {\n");
       }
@@ -15294,7 +15294,7 @@ void ROMEBuilder::RemoveDepFiles(const char* str)
 
    //loop on all entries of this directory
    while ((direntry = (char*)gSystem->GetDirEntry(dirp))) {
-      TString afile = Form("%s/%s", dirname.Data(), direntry);
+      afile = Form("%s/%s", dirname.Data(), direntry);
       if (afile.EndsWith(".d"))
          RemoveFile(afile.Data(), str);
    }

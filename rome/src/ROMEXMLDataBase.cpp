@@ -382,7 +382,7 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
 }
 
 //______________________________________________________________________________
-Bool_t ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex)
+Bool_t ROMEXMLDataBase::WriteValue(ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex)
 {
    int i;
    ROMEString xmlPath;
@@ -490,7 +490,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
             xmlPath += path->GetFieldName();
             path->Decode(xmlPath.Data(),0,eventNumber);
             vTemp = values->At(i,0);
-            if (!WriteValue(xml,path,fXMLBase,vTemp,-1)) {
+            if (!WriteValue(path,fXMLBase,vTemp,-1)) {
                delete path;
                return false;
             }
@@ -502,7 +502,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       if (path->IsFieldArray()) {
          for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
             vTemp = values->At(0,j);
-            if (!WriteValue(xml,path,fXMLBase,vTemp,j)) {
+            if (!WriteValue(path,fXMLBase,vTemp,j)) {
                delete path;
                return false;
             }
@@ -510,7 +510,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       }
       else {
          vTemp = values->At(0,0);
-         if (!WriteValue(xml,path,fXMLBase,vTemp,-1)) {
+         if (!WriteValue(path,fXMLBase,vTemp,-1)) {
             delete path;
             return false;
          }
