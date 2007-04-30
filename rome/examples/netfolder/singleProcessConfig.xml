@@ -42,13 +42,13 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
 
-      <FloatingPointExeptionTrap>
+      <FloatingPointExceptionTrap>
         <Invalid>false</Invalid>
         <DivByZero>false</DivByZero>
         <Overflow>false</Overflow>
         <Underflow>false</Underflow>
         <Inexact>false</Inexact>
-      </FloatingPointExeptionTrap>
+      </FloatingPointExceptionTrap>
 
       <SocketServer>
         <Active>false</Active>
@@ -99,6 +99,13 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Tab>
           <TabName>Histos</TabName>
           <Active>true</Active>
+          <SingleObject>
+            <SingleObjectName>Histo1</SingleObjectName>
+            <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
         </Tab>
       </Tabs>
     </Monitor>

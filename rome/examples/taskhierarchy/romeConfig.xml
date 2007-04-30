@@ -42,13 +42,13 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
 
-      <FloatingPointExeptionTrap>
+      <FloatingPointExceptionTrap>
         <Invalid>false</Invalid>
         <DivByZero>false</DivByZero>
         <Overflow>false</Overflow>
         <Underflow>false</Underflow>
         <Inexact>false</Inexact>
-      </FloatingPointExeptionTrap>
+      </FloatingPointExceptionTrap>
 
       <SocketServer>
         <Active>false</Active>
