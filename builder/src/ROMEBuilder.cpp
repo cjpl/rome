@@ -18,7 +18,7 @@
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 
-ROMEXML* configXSD;
+ROMEXML* configXSD = 0;
 
 //______________________________________________________________________________
 ROMEBuilder::ROMEBuilder()
@@ -82,9 +82,9 @@ ROMEBuilder::ROMEBuilder()
 ,fNumberOfInterpreterCodes(0)
 ,recursiveTabDepth(0)
 ,recursiveMenuDepth(0)
-,daqNameArray(0)
-,daqTypeArray(0)
-,daqDirArray(0)
+,daqNameArray(new ROMEStrArray(1))
+,daqTypeArray(new ROMEStrArray(1))
+,daqDirArray(new ROMEStrArray(1))
 ,numOfFolder(0)
 ,numOfValue(0)
 ,numOfFolderInclude(0)
@@ -227,7 +227,7 @@ ROMEBuilder::ROMEBuilder()
 ,steerFieldAffiliation(0)
 ,steerFieldUsed(0)
 ,steerFieldHotLink(0)
-,haveSteerFieldHotLinks(0)
+,haveSteerFieldHotLinks(kFALSE)
 ,numOfGSPInclude(0)
 ,gspInclude(0)
 ,gspLocalFlag(0)
@@ -384,7 +384,7 @@ ROMEBuilder::ROMEBuilder()
 ,mainCollaboration("")
 ,mainEmail("")
 ,mainProgName("")
-,mainDefinitionVersion("")
+,mainDefinitionVersion("1")
 ,mainDescription("")
 ,styleSheet("")
 ,dictionaryType(0)
@@ -750,7 +750,6 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString oldFile;
    ROMEString newFile;
 
-   mainDefinitionVersion = "1";
    tabObjectDisplaySupportedObjects.AddLast("TGraphMT");
 //   tabObjectDisplaySupportedObjects.AddLast("TGraph2D");
    tabObjectDisplaySupportedObjects.AddLast("TH1C");
@@ -780,7 +779,6 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!ReadXMLDefinitionFile())
       return false;
 
-   haveSteerFieldHotLinks = false;
    int tabNumber=numOfTab;
    int histoNumber=0;
    int graphNumber=0;
@@ -980,9 +978,6 @@ Bool_t ROMEBuilder::StartBuilder()
    }
 
    // Add DAQs to daqArray
-   daqNameArray = new ROMEStrArray(1);
-   daqTypeArray = new ROMEStrArray(1);
-   daqDirArray = new ROMEStrArray(1);
    if (numOfEvent>0) {
       daqNameArray->AddLast("Midas");
       daqTypeArray->AddLast(shortCut.Data());

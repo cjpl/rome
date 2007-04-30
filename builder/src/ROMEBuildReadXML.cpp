@@ -466,6 +466,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    mainAuthor = "";
    mainInstitute = "";
    mainCollaboration = "";
+   mainDefinitionVersion = "1";
    dictionaryType = 1;
    mainEmail = "";
    usedCLO = ROMECommandLineOptions;
