@@ -7665,7 +7665,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   CheckConfigurationModified(0);\n");
    buffer.AppendFormatted("   if (!SetConfiguration(0,0))\n");
    buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
+   buffer.AppendFormatted("   for (i=0;i<fNumberOfRunConfigs;i++) {\n");
    buffer.AppendFormatted("      fConfigData[i+1] = new ConfigData();\n");
    buffer.AppendFormatted("      path.SetFormatted(\"/Configuration/RunConfiguration[%%d]\",i+1);\n");
    buffer.AppendFormatted("      ReadConfiguration(xml,path,i+1);\n");
@@ -7706,10 +7706,11 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n// Read Configuration\n");
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   ROMEString tempPath;\n");
    buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n",shortCut.Data());
    buffer.AppendFormatted("   int ii[100];\n");
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   ROMEString tempPath;\n");
+   buffer.AppendFormatted("   tempPath = \"\";\n"); // to suppress unused warning
    iSub = 0;
    WriteConfigRead(buffer,mainParGroup,1,"","","configData->","",&iSub);
    buffer.AppendFormatted("   return true;\n");
@@ -8035,6 +8036,8 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
    buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
    buffer.AppendFormatted("   int ind;\n");
    buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   ROMEString str;\n");
+   buffer.AppendFormatted("   str = \"\";\n"); // to suppress unused warning
    buffer.AppendFormatted("   fActiveConfiguration = index;\n");
    iSub = 0;
    WriteConfigSet(buffer,mainParGroup,1,"","",&iSub);
@@ -8660,13 +8663,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->AddSetLine("}");
          subsubGroup->GetLastParameter()->AddSetLine("else if (##==\"xml\") {");
          subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMEXMLDataBase());");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEString str = gAnalyzer->GetDataBaseConnection(i);");
-         subsubGroup->GetLastParameter()->AddSetLine("   int ind;");
+         subsubGroup->GetLastParameter()->AddSetLine("   str = gAnalyzer->GetDataBaseConnection(i);");
          subsubGroup->GetLastParameter()->AddSetLine("   if ((ind=str.Index(\";\",1,0,TString::kExact))==-1) {");
          subsubGroup->GetLastParameter()->AddSetLine("      ROMEPrint::Error(\"Invalid database connection\\n\");");
          subsubGroup->GetLastParameter()->AddSetLine("      return false;");
          subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEString path = str(0,ind);");
+         subsubGroup->GetLastParameter()->AddSetLine("   path = str(0,ind);");
          subsubGroup->GetLastParameter()->AddSetLine("   if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')");
          subsubGroup->GetLastParameter()->AddSetLine("      path += \"/\";");
          subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDir(i,path.Data());");
@@ -9775,7 +9777,6 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
          for (j=0;j<parGroup->GetSubGroupAt(i)->GetNumberOfReadGroupArrayInitLines();j++) {
             buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetReadGroupArrayInitLineAt(j));
          }
-         buffer.AppendFormatted("%s   ROMEString tempPath;\n",sTab.Data());
          buffer.AppendFormatted("%s   %sf%s = new ConfigData::%s%s*[%sf%sArraySize];\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),className.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s   %sf%sModified = new bool[%sf%sArraySize];\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s   for (i=0;i<%sf%sArraySize;i++) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
