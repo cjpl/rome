@@ -135,43 +135,43 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
    path = path(1,path.Length());
    abspathposition += 1;
 
-   int index;
+   int indx;
    int i1,i2,i3,iat1,iat2,itemp,ie;
    ROMEString subPath;
    ROMEString constraint;
    int nTable = -1;
    // extract order path
-   if ((index=path.Index(";",1,0,TString::kExact))!=-1) {
-      orderPath = path(index+1,path.Length()-index-1);
-      path = path(0,index);
+   if ((indx=path.Index(";",1,0,TString::kExact))!=-1) {
+      orderPath = path(indx+1,path.Length()-indx-1);
+      path = path(0,indx);
    }
    // extract tables
-   while ((index=path.Index("/",1,0,TString::kExact))!=-1) {
+   while ((indx=path.Index("/",1,0,TString::kExact))!=-1) {
       constraint.Resize(0);
       nTable++;
       SetTableIDNameAt(nTable,"id");
       SetTableIDXNameAt(nTable,"");
       SetTableConstraintAt(nTable,"");
       SetTableDBConstraintAt(nTable,"");
-      subPath = path(0,index);
-      path = path(index+1,path.Length());
-      abspathposition += index+1;
+      subPath = path(0,indx);
+      path = path(indx+1,path.Length());
+      abspathposition += indx+1;
       // brackets
       i1=subPath.Index("[",1,0,TString::kExact);
       i2=subPath.Index("(",1,0,TString::kExact);
       i3=subPath.Index("{",1,0,TString::kExact);
-      index = MinPosition(i1,i2,i3);
-      if (index==-1) {
+      indx = MinPosition(i1,i2,i3);
+      if (indx==-1) {
          SetTableNameAt(nTable,subPath);
          SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
          continue;
       }
       else {
-         if (index==0) {
+         if (indx==0) {
             ROMEPrint::Error("\nNo table name specified.\n");
             return false;
          }
-         SetTableNameAt(nTable,((TString)subPath(0,index)).Data());
+         SetTableNameAt(nTable,((TString)subPath(0,indx)).Data());
          SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
       }
       // handle '[' (Constraints)
@@ -184,16 +184,16 @@ return false;
             SetTableDBConstraintAt(nTable,((TString)subPath(iat1+1,iat2-iat1-1)).Data());
          }
          else {
-            if ((index=subPath.Index("]",1,i1,TString::kExact))==-1) {
+            if ((indx=subPath.Index("]",1,i1,TString::kExact))==-1) {
                ROMEPrint::Error("\nConstraint statement not closed in table '%s'.\n", GetTableNameAt(nTable));
                return false;
             }
-            SetTableConstraintAt(nTable,((TString)subPath(i1+1,index-i1-1)).Data());
+            SetTableConstraintAt(nTable,((TString)subPath(i1+1,indx-i1-1)).Data());
          }
       }
       // handle '('  (Arrays)
       if (i2!=-1) {
-         if ((index=subPath.Index(")",1,i2,TString::kExact))==-1) {
+         if ((indx=subPath.Index(")",1,i2,TString::kExact))==-1) {
             ROMEPrint::Error("\nArray statement not closed in table '%s'.\n", GetTableNameAt(nTable));
             return false;
          }
@@ -202,7 +202,7 @@ return false;
          SetOrderIndexAt(0,0);
          SetOrderIndexAt(1,-1);
          SetOrderIndexAt(2,1);
-         ROMEString temp = subPath(i2+1,index-i2);
+         ROMEString temp = subPath(i2+1,indx-i2);
          for (int i=0;i<3;i++) {
             value = strtol(temp.Data(),&cstop,10);
             if (cstop==NULL)
@@ -265,36 +265,36 @@ return false;
    SetFieldIndexAt(2,1);
    i1=path.Index("[",1,0,TString::kExact);
    i2=path.Index("(",1,0,TString::kExact);
-   index = MinPosition(i1,i2);
-   if (index==-1) {
+   indx = MinPosition(i1,i2);
+   if (indx==-1) {
       SetFieldName(path);
       SetFieldArray(false);
       return true;
    }
    else {
-      if (index==0) {
+      if (indx==0) {
          ROMEPrint::Error("\nNo field name specified.\n");
          return false;
       }
-      SetFieldName(((TString)path(0,index)).Data());
+      SetFieldName(((TString)path(0,indx)).Data());
    }
    // handle '[' (Constraints)
    if (i1!=-1) {
-      if ((index=path.Index("]",1,i1,TString::kExact))==-1) {
+      if ((indx=path.Index("]",1,i1,TString::kExact))==-1) {
          ROMEPrint::Error("\nConstraint statement not closed in field '%s'.\n", GetFieldName());
          return false;
       }
-      SetFieldConstraints(((TString)path(i1+1,index-i1-1)).Data());
+      SetFieldConstraints(((TString)path(i1+1,indx-i1-1)).Data());
    }
 
    // handle '('  (Arrays)
    if (i2!=-1) {
-      if ((index=path.Index(")",1,i2,TString::kExact))==-1) {
+      if ((indx=path.Index(")",1,i2,TString::kExact))==-1) {
          ROMEPrint::Error("\nArray statement not closed in field '%s'.\n", GetFieldName());
          return false;
       }
       SetFieldArray(true);
-      path = path(i2+1,index-i2);
+      path = path(i2+1,indx-i2);
       for (int i=0;i<3;i++) {
          value = strtol(path.Data(),&cstop,10);
          if (cstop==NULL)
