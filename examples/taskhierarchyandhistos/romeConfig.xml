@@ -66,13 +66,19 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
 
-      <FloatingPointExeptionTrap>
+      <FloatingPointExceptionTrap>
+        <!-- Description of the settings of floating point exception trap. -->
+        <!-- If true, trap invalid operation. (NaNS, INF-INF, INF/INF, 0/0, INF*0, sqrt(Negative) and so on) -->
         <Invalid>false</Invalid>
+        <!-- If true, trap division by zero. -->
         <DivByZero>false</DivByZero>
+        <!-- If true, trap overflow. -->
         <Overflow>false</Overflow>
+        <!-- If true, trap underflow. -->
         <Underflow>false</Underflow>
+        <!-- If true, trap inexact operations. -->
         <Inexact>false</Inexact>
-      </FloatingPointExeptionTrap>
+      </FloatingPointExceptionTrap>
 
       <SocketServer>
         <!-- Description of the socket server. External programs can access the objects inside the framework over a root socket interface. -->
@@ -185,6 +191,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
             <ObjectDisplayName>MyHisto_0</ObjectDisplayName>
             <!-- The root draw option. (optional) -->
             <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
           </ObjectDisplay>
 
           <ObjectDisplay>
@@ -192,6 +201,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
             <ObjectDisplayName>MyHisto_1</ObjectDisplayName>
             <!-- The root draw option. (optional) -->
             <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
           </ObjectDisplay>
         </Tab>
       </Tabs>
