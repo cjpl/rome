@@ -495,21 +495,21 @@ Bool_t XMLToForm::IsChecked(const char* label)
 //______________________________________________________________________________
 const char* XMLToForm::GetValue(const char* label)
 {
-   Int_t index = 0;
+   Int_t indx = 0;
    XMLToFormFrame *frame;
-   if (!fWindow->SearchWidget(label,&frame,&index,fMainFrame))
+   if (!fWindow->SearchWidget(label,&frame,&indx,fMainFrame))
       return "";
-   return frame->GetElementAt(index)->GetValue().Data();
+   return frame->GetElementAt(indx)->GetValue().Data();
 }
 
 //______________________________________________________________________________
 Int_t XMLToForm::GetIndex(const char* label)
 {
-   Int_t index = 0;
+   Int_t indx = 0;
    XMLToFormFrame *frame;
-   if (!fWindow->SearchWidget(label,&frame,&index,fMainFrame))
+   if (!fWindow->SearchWidget(label,&frame,&indx,fMainFrame))
       return -1;
-   return frame->GetElementAt(index)->GetSelectedEntry();
+   return frame->GetElementAt(indx)->GetSelectedEntry();
 }
 
 //______________________________________________________________________________

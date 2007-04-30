@@ -195,26 +195,26 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
 }
 
 //______________________________________________________________________________
-TGraphMT* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
+TGraphMT* ArgusHistoDisplay::GetUserTGraphAt(Int_t indx)
 {
    int i;
    for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
-      if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>index) {
-         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(index)->ClassName(),"TGraphMT"))
-            return ((TGraphMT*)((TObjArray*)fUserObjects->At(i))->At(index));
+      if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>indx) {
+         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(indx)->ClassName(),"TGraphMT"))
+            return ((TGraphMT*)((TObjArray*)fUserObjects->At(i))->At(indx));
       }
    }
    return NULL;
 }
 
 //______________________________________________________________________________
-TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t index,const char* type)
+TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t indx,const char* type)
 {
    int i;
    for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
-      if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>index) {
-         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(index)->ClassName(),type))
-            return ((TH1*)((TObjArray*)fUserObjects->At(i))->At(index));
+      if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>indx) {
+         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(indx)->ClassName(),type))
+            return ((TH1*)((TObjArray*)fUserObjects->At(i))->At(indx));
       }
    }
    return NULL;
@@ -235,10 +235,10 @@ TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
 }
 
 //______________________________________________________________________________
-TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
+TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t indx)
 {
-   if (((TObjArray*)fObjects->At(fCurrentDisplayType))->GetEntriesFast()>index) {
-      return ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(index);
+   if (((TObjArray*)fObjects->At(fCurrentDisplayType))->GetEntriesFast()>indx) {
+      return ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(indx);
    }
    return NULL;
 }

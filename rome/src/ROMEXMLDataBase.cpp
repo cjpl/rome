@@ -262,7 +262,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
 //______________________________________________________________________________
 Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
-   int i,ii,j,k,index;
+   int i,ii,j,k,indx;
    char *cstop;
 
    ROMEStr2DArray fieldArray;
@@ -325,23 +325,23 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
          }
       }
       for (ii=path->GetOrderIndexAt(0);ii<=path->GetOrderIndexAt(1);ii=ii+path->GetOrderIndexAt(2)) {
-         index = ii;
+         indx = ii;
          for (i=fOrderTableIndex;i<path->GetNumberOfTables();i++) {
             // add field
             if (i==path->GetNumberOfTables()-1) {
                // field array
                if (path->IsFieldArray()) {
                   for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
-                     values->SetAt(fieldArray.At(j,index),ii-path->GetOrderIndexAt(0),j);
+                     values->SetAt(fieldArray.At(j,indx),ii-path->GetOrderIndexAt(0),j);
                   }
                }
                // single field
                else {
-                  values->SetAt(fieldArray.At(0,index),ii-path->GetOrderIndexAt(0),0);
+                  values->SetAt(fieldArray.At(0,indx),ii-path->GetOrderIndexAt(0),0);
                }
             }
             else {
-               index = strtol(fPointerArray.At(i-fOrderTableIndex,index).Data(),&cstop,10);
+               indx = strtol(fPointerArray.At(i-fOrderTableIndex,indx).Data(),&cstop,10);
             }
          }
       }

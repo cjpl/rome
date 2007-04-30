@@ -85,7 +85,7 @@ XMLToFormWindow::~XMLToFormWindow()
 void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
 {
    int j,k;
-   int index,additionalWidth;
+   int indx,additionalWidth;
    ROMELabel *tempLabel;
    ROMEString value;
    ROMEString currentPath;
@@ -170,7 +170,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
       int nPart = 1;
       frame->fNumberOfHHFrames = 0;
       for (j=0;j<frame->GetNumberOfElements();j++) {
-         index = frame->fNumberOfHHFrames%frame->fNumberOfVFrames;
+         indx = frame->fNumberOfHHFrames%frame->fNumberOfVFrames;
          // editbox
          if (frame->GetElementAt(j)->GetType()=="EditBox") {
             nDiv = TMath::Min(frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
@@ -178,8 +178,8 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                nPart++;
             }
             else {
-               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,58,kFixedHeight);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = indx;
                frame->fNumberOfHHFrames++;
                nPart = 1;
                nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
@@ -215,10 +215,10 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             }
             else {
 //               if (frame->fNumberOfButtons!=frame->fNumberOfElements)
-               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,58,kFixedHeight);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = indx;
 //               else
-//                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,0);
+//                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,0);
                frame->fNumberOfHHFrames++;
                nPart = 1;
                nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
@@ -244,8 +244,8 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                nPart++;
             }
             else {
-               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,58,kFixedHeight);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = indx;
                frame->fNumberOfHHFrames++;
                nPart = 1;
                nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
@@ -277,8 +277,8 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                nPart++;
             }
             else {
-               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight | kChildFrame);
-               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,58,kFixedHeight | kChildFrame);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = indx;
                frame->fNumberOfHHFrames++;
                nPart = 1;
                nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
@@ -312,8 +312,8 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                nPart++;
             }
             else {
-               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight | kChildFrame);
-               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,58,kFixedHeight | kChildFrame);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = indx;
                frame->fNumberOfHHFrames++;
                nPart = 1;
                nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
@@ -347,8 +347,8 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                nPart++;
             }
             else {
-               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[indx],0,58,kFixedHeight);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = indx;
                frame->fNumberOfHHFrames++;
                nPart = 1;
                nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
@@ -781,7 +781,7 @@ Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
 Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
    XMLToFormFrame *frame;
-   Int_t index,i,ne;
+   Int_t indx,i,ne;
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
@@ -792,11 +792,11 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
          break;
       case kCM_RADIOBUTTON:
          frame = fMainFrame;
-         SearchWidget(parm1,&frame,&index);
+         SearchWidget(parm1,&frame,&indx);
          ne = frame->GetNumberOfElements();
          for (i=0;i<ne;i++) {
             frame->GetElementAt(i)->GetType();
-            if (frame->GetElementAt(i)->GetType()=="RadioButton" && i!=index) {
+            if (frame->GetElementAt(i)->GetType()=="RadioButton" && i!=indx) {
                frame->GetElementAt(i)->fRadioButton->SetState(kButtonUp);
             }
          }
@@ -804,8 +804,8 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
       case kCM_COMBOBOX:
          if (parm1==-2 && fXML!=NULL) {
             frame = fMainFrame;
-            SearchWidget(-2,&frame,&index);
-            if (parm2==frame->GetElementAt(index)->GetNumberOfEntries()-1) {
+            SearchWidget(-2,&frame,&indx);
+            if (parm2==frame->GetElementAt(indx)->GetNumberOfEntries()-1) {
                Int_t exitButtonID;
                Int_t frameNameIndex;
                ROMEString temp;
@@ -820,22 +820,22 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
                fFileNameWindow->SearchWidget("File Name",&frameNameFrame,&frameNameIndex,fileNameEditFrame);
 
                newFile = frameNameFrame->GetElementAt(frameNameIndex)->fEditBoxBuffer->GetString();
-               num = frame->GetElementAt(index)->GetNumberOfEntries();
-               temp = frame->GetElementAt(index)->GetEntryAt(num-1);
-               frame->GetElementAt(index)->AddEntryAt(newFile.Data(),num-1);
-               frame->GetElementAt(index)->AddEntryAt(temp.Data(),num);
+               num = frame->GetElementAt(indx)->GetNumberOfEntries();
+               temp = frame->GetElementAt(indx)->GetEntryAt(num-1);
+               frame->GetElementAt(indx)->AddEntryAt(newFile.Data(),num-1);
+               frame->GetElementAt(indx)->AddEntryAt(temp.Data(),num);
                for (i=0;i<num-1;i++)
-                  UpdateFileSelector(frame->GetElementAt(index)->GetEntryAt(i).Data());
+                  UpdateFileSelector(frame->GetElementAt(indx)->GetEntryAt(i).Data());
                SaveCurrentValues(fMainFrame);
                SaveFrame(fMainFrame,fXML);
                fXML->WritePathFile(newFile.Data());
-               frame->GetElementAt(index)->fComboBox->RemoveEntry(num-1);
-               frame->GetElementAt(index)->fComboBox->AddEntry(newFile.Data(),num-1);
-               frame->GetElementAt(index)->fComboBox->AddEntry(temp.Data(),num);
-               frame->GetElementAt(index)->fComboBox->Select(num-1);
+               frame->GetElementAt(indx)->fComboBox->RemoveEntry(num-1);
+               frame->GetElementAt(indx)->fComboBox->AddEntry(newFile.Data(),num-1);
+               frame->GetElementAt(indx)->fComboBox->AddEntry(temp.Data(),num);
+               frame->GetElementAt(indx)->fComboBox->Select(num-1);
             }
             else {
-               ReloadValues(frame->GetElementAt(index)->fComboBox->GetSelectedEntry()->GetTitle());
+               ReloadValues(frame->GetElementAt(indx)->fComboBox->GetSelectedEntry()->GetTitle());
 //               MapSubwindows();
 //               MapWindow();
             }
@@ -967,7 +967,7 @@ void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame,ROMEXML *xml)
 //______________________________________________________________________________
 void XMLToFormWindow::UpdateFileSelector(const char *xmlFileName)
 {
-   Int_t index;
+   Int_t indx;
    XMLToFormFrame *frame = fMainFrame;
    ROMEString path;
    ROMEString tempPath;
@@ -975,22 +975,22 @@ void XMLToFormWindow::UpdateFileSelector(const char *xmlFileName)
    ROMEXML *xml = new ROMEXML();
    if (!xml->OpenFileForPath(xmlFileName))
       return;
-   SearchWidget(-2,&frame,&index);
-   path = frame->GetElementAt(index)->GetPath();
-   for (j=0;j<frame->GetElementAt(index)->GetNumberOfEntries();j++) {
+   SearchWidget(-2,&frame,&indx);
+   path = frame->GetElementAt(indx)->GetPath();
+   for (j=0;j<frame->GetElementAt(indx)->GetNumberOfEntries();j++) {
       tempPath = path;
       num = xml->NumberOfOccurrenceOfPath(path+"/Entry");
       if (num>j) {
          tempPath.AppendFormatted("/Entry[%d]",j+1);
-         xml->ReplacePathValue(tempPath.Data(),frame->GetElementAt(index)->GetEntryAt(j).Data());
+         xml->ReplacePathValue(tempPath.Data(),frame->GetElementAt(indx)->GetEntryAt(j).Data());
       }
       else {
          if (num==0) {
-            xml->NewPathChildElement(path.Data(),"Entry",frame->GetElementAt(index)->GetEntryAt(j).Data());
+            xml->NewPathChildElement(path.Data(),"Entry",frame->GetElementAt(indx)->GetEntryAt(j).Data());
          }
          else {
             tempPath.AppendFormatted("/Entry[%d]",num);
-            xml->NewPathLastElement(tempPath.Data(),"Entry",frame->GetElementAt(index)->GetEntryAt(j).Data());
+            xml->NewPathLastElement(tempPath.Data(),"Entry",frame->GetElementAt(indx)->GetEntryAt(j).Data());
          }
       }
    }
@@ -1058,44 +1058,44 @@ void XMLToFormWindow::GetFirstPathItem(const char* path,ROMEString& firstItem,RO
 }
 
 //______________________________________________________________________________
-bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *index)
+bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *indx)
 {
    int i;
    XMLToFormFrame *tempFrame;
    for (i=0;i<(*frame)->GetNumberOfElements();i++) {
       if ((*frame)->GetElementAt(i)->GetType()=="EditBox") {
          if ((*frame)->GetElementAt(i)->fEditBox->WidgetId()==id) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
       if ((*frame)->GetElementAt(i)->GetType()=="ComboBox") {
          if ((*frame)->GetElementAt(i)->fComboBox->WidgetId()==id) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
       if ((*frame)->GetElementAt(i)->GetType()=="CheckButton") {
          if ((*frame)->GetElementAt(i)->fCheckButton->WidgetId()==id) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
       if ((*frame)->GetElementAt(i)->GetType()=="RadioButton") {
          if ((*frame)->GetElementAt(i)->fRadioButton->WidgetId()==id) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
       if ((*frame)->GetElementAt(i)->GetType()=="Button") {
          if ((*frame)->GetElementAt(i)->fButton->WidgetId()==id) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
       if ((*frame)->GetElementAt(i)->GetType()=="FileSelector") {
          if ((*frame)->GetElementAt(i)->fComboBox->WidgetId()==id) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
@@ -1103,7 +1103,7 @@ bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *index)
    for (i=0;i<(*frame)->GetNumberOfSubFrames();i++) {
       if ((*frame)->GetSubFrameAt(i)->IsFrameVisible()) {
          tempFrame = (*frame)->GetSubFrameAt(i);
-         if (SearchWidget(id,&tempFrame,index)) {
+         if (SearchWidget(id,&tempFrame,indx)) {
             *frame = tempFrame;
             return true;
          }
@@ -1113,7 +1113,7 @@ bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *index)
 }
 
 //______________________________________________________________________________
-bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *index,XMLToFormFrame* mainFrame)
+bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *indx,XMLToFormFrame* mainFrame)
 {
    int i,ind;
    ROMEString editName = path;
@@ -1140,7 +1140,7 @@ bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *
    if (*frame!=NULL) {
       for (i=0;i<(*frame)->GetNumberOfElements();i++) {
          if (!strcmp((*frame)->GetElementAt(i)->GetTitle().Data(),editName.Data())) {
-            *index = i;
+            *indx = i;
             return true;
          }
       }
