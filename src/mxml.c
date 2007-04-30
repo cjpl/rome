@@ -603,7 +603,7 @@ PMXML_NODE mxml_create_root_node()
 /**
  * add a subnode (child) to an existing parent node as a specific position
  */
-PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char *node_name, const char *value, int index)
+PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char *node_name, const char *value, int idx)
 {
    PMXML_NODE pnode, pchild;
    int i, j;
@@ -619,8 +619,8 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char
    assert(parent->child);
 
    /* move following nodes one down */
-   if (index < parent->n_children) 
-      for (i=parent->n_children ; i > index ; i--)
+   if (idx < parent->n_children) 
+      for (i=parent->n_children ; i > idx ; i--)
          memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
 
    /* correct parent pointer for children */
@@ -631,7 +631,7 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char
    }
 
    /* initialize new node */
-   pnode = &parent->child[index];
+   pnode = &parent->child[idx];
    memset(pnode, 0, sizeof(MXML_NODE));
    strlcpy(pnode->name, node_name, sizeof(pnode->name));
    pnode->node_type = node_type;
@@ -673,9 +673,9 @@ PMXML_NODE mxml_add_node(PMXML_NODE parent, const char *node_name, const char *v
 /**
  * add a subnode (child) to an existing parent node at the end
  */
-PMXML_NODE mxml_add_node_at(PMXML_NODE parent, const char *node_name, const char *value, int index)
+PMXML_NODE mxml_add_node_at(PMXML_NODE parent, const char *node_name, const char *value, int idx)
 {
-   return mxml_add_special_node_at(parent, ELEMENT_NODE, node_name, value, index);
+   return mxml_add_special_node_at(parent, ELEMENT_NODE, node_name, value, idx);
 }
 
 /*------------------------------------------------------------------*/
@@ -683,7 +683,7 @@ PMXML_NODE mxml_add_node_at(PMXML_NODE parent, const char *node_name, const char
 /**
  * add a whole node tree to an existing parent node at a specific position
  */
-int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index)
+int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int idx)
 {
    PMXML_NODE pchild;
    int i, j, k;
@@ -707,8 +707,8 @@ int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index)
    }
    assert(parent->child);
 
-   if (index < parent->n_children) 
-      for (i=parent->n_children ; i > index ; i--) {
+   if (idx < parent->n_children) 
+      for (i=parent->n_children ; i > idx ; i--) {
          /* move following nodes one down */
          memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
 
@@ -721,9 +721,9 @@ int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index)
       }
 
    /* initialize new node */
-   memcpy(parent->child+index, tree, sizeof(MXML_NODE));
+   memcpy(parent->child+idx, tree, sizeof(MXML_NODE));
    parent->n_children++;
-   parent->child[index].parent = parent;
+   parent->child[idx].parent = parent;
 
    /* correct parent pointer for children */
    for (i=0 ; i<parent->n_children ; i++) {
@@ -784,11 +784,11 @@ int mxml_get_number_of_children(PMXML_NODE pnode)
 /**
  * return number of subnodes (children) of a node
  */
-PMXML_NODE mxml_subnode(PMXML_NODE pnode, int index)
+PMXML_NODE mxml_subnode(PMXML_NODE pnode, int idx)
 {
    assert(pnode);
-   if (index < pnode->n_children)
-      return &pnode->child[index];
+   if (idx < pnode->n_children)
+      return &pnode->child[idx];
    return NULL;
 }
 
@@ -823,8 +823,8 @@ int mxml_add_resultnode(PMXML_NODE node, const char *xml_path, PMXML_NODE **node
    Following elemets are possible
 
    /<node>/<node>/..../<node>          Find a node in the tree hierarchy
-   /<node>[index]                      Find child #[index] of node (index starts from 1)
-   /<node>[index]/<node>               Find subnode of the above
+   /<node>[idx]                        Find child #[idx] of node (index starts from 1)
+   /<node>[idx]/<node>                 Find subnode of the above
    /<node>[<subnode>=<value>]          Find a node which has a specific subnode
    /<node>[<subnode>=<value>]/<node>   Find subnode of the above
    /<node>[@<attrib>=<value>]/<node>   Find a node which has a specific attribute
@@ -836,7 +836,7 @@ int mxml_find_nodes1(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelis
    char *p3, node_name[256], condition[256];
    char cond_name[MXML_MAX_CONDITION][256], cond_value[MXML_MAX_CONDITION][256];
    int  cond_type[MXML_MAX_CONDITION];
-   int i, j, k, index, num_cond;
+   int i, j, k, idx, num_cond;
    int cond_satisfied,cond_index;
    size_t len;
 
@@ -857,14 +857,14 @@ int mxml_find_nodes1(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelis
 
       memcpy(node_name, p1, len);
       node_name[len] = 0;
-      index = 0;
+      idx = 0;
       num_cond = 0;
       while (*p2 == '[') {
          cond_name[num_cond][0] = cond_value[num_cond][0] = cond_type[num_cond] = 0;
          p2++;
          if (isdigit(*p2)) {
-            /* evaluate [index] */
-            index = atoi(p2);
+            /* evaluate [idx] */
+            idx = atoi(p2);
             p2 = strchr(p2, ']');
             if (p2 == NULL)
                return 0;
@@ -938,14 +938,14 @@ int mxml_find_nodes1(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelis
             }
             if (cond_satisfied==num_cond) {
                cond_index++;
-               if (index == 0 || cond_index == index) {
+               if (idx == 0 || cond_index == idx) {
                   if (!mxml_add_resultnode(pnode->child+i, p2, nodelist, found))
                      return 0;
                }
             }
          } else {
             if (strcmp(pnode->child[i].name, node_name) == 0)
-               if (index == 0 || ++j == index)
+               if (idx == 0 || ++j == idx)
                   if (!mxml_add_resultnode(pnode->child+i, p2, nodelist, found))
                      return 0;
          }
