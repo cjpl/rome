@@ -811,7 +811,6 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
                ROMEString temp;
                ROMEString newFile;
                Int_t num;
-               Int_t i;
                ROMEStrArray entries;
                XMLToFormFrame *frameNameFrame = fMainFrame;
                XMLToFormFrame *fileNameEditFrame = new XMLToFormFrame(NULL,"","",false,XMLToFormFrame::kFrame,true,0);
