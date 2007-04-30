@@ -144,7 +144,7 @@ inline Int_t ROMEUtilities::GetFPEMask()
 #if defined( R__VISUAL_CPLUSPLUS )
    UInt_t oldmask;
    Int_t mask = 0;
-   oldmask = _control87_(0, 0) & MCW_EM;
+   oldmask = _control87(0, 0) & MCW_EM;
 
    if (oldmask & _EM_INVALID  )   mask |= kInvalid;
    if (oldmask & _EM_ZERODIVIDE)  mask |= kDivByZero;
@@ -168,14 +168,13 @@ inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    if (mask & kDivByZero)   newm |= _EM_ZERODIVIDE;
    if (mask & kOverflow )   newm |= _EM_OVERFLOW;
    if (mask & kUnderflow)   newm |= _EM_UNDERFLOW;
-   if (mask & kInexact  )   newm |= _EM_INEXACT;
+//   if (mask & kInexact  )   newm |= _EM_INEXACT; // does not work yet
 
-   UInt_t cm;
+   Int_t cm;
    /* could use _controlfp */
-   cm = _control87(0, 0) & MCW_EM;
+   cm = _control87(0, 0);
    cm &= ~newm;
    _control87(cm, MCW_EM);
-
    return old;
 #else // UNIX
    return gSystem->SetFPEMask(mask);
