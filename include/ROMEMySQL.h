@@ -13,6 +13,7 @@
 //typedef UINT_PTR        SOCKET;
 #endif
 #if !defined (__CINT__)
+#include <mysql_version.h>
 #include <mysql.h>
 #endif // __CINT__
 
