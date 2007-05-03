@@ -888,6 +888,53 @@
 					<xs:documentation>The root draw option. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="LogScaleX" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>X axis log scale flag. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LogScaleY" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Y axis log scale flag. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LogScaleZ" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Z axis log scale flag. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SingleObjectDesc">
+		<xs:annotation>
+			<xs:documentation>Description of an single object.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SingleObjectName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the single object. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DrawOption" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The root draw option. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LogScaleX" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>X axis log scale flag. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LogScaleY" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Y axis log scale flag. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LogScaleZ" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Z axis log scale flag. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TabDesc">
@@ -923,6 +970,11 @@
 			<xs:element name="ObjectDisplay" type="ObjectDisplayDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes an object display.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SingleObject" type="SingleObjectDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes an single object.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
