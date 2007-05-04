@@ -46,16 +46,19 @@ TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
       TAttMarker::operator=(gr);
 
       if (gr.fMaxSize == 0) {
-         if (fX)
+         // deleting this pointers crashes on windows
+         // I have no clue why!
+         // uncommented as a temorary fix
+/*         if (fX)
             delete [] fX;
          if (fY)
-            delete [] fY;
+            delete [] fY;*/
          fX = fY = 0;
       } else if (fMaxSize != gr.fMaxSize) {
-         if (fX)
+/*         if (fX)
             delete [] fX;
          if (fY)
-            delete [] fY;
+            delete [] fY;*/
          fX = new Double_t[gr.fMaxSize];
          fY = new Double_t[gr.fMaxSize];
       }
