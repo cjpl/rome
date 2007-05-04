@@ -168,7 +168,10 @@ inline Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    if (mask & kDivByZero)   newm |= _EM_ZERODIVIDE;
    if (mask & kOverflow )   newm |= _EM_OVERFLOW;
    if (mask & kUnderflow)   newm |= _EM_UNDERFLOW;
-//   if (mask & kInexact  )   newm |= _EM_INEXACT; // does not work yet
+   if (mask & kInexact  )   newm |= _EM_INEXACT;
+
+   // clear the status
+   _clear87();
 
    Int_t cm;
    /* could use _controlfp */
