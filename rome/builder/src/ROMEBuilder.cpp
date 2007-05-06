@@ -937,9 +937,9 @@ Bool_t ROMEBuilder::StartBuilder()
             taskHierarchySuffix[i].SetFormatted("_%02d",suffixNumber);
          if (multiplicity>99)
             taskHierarchySuffix[i].SetFormatted("_%03d",suffixNumber);
-      }
-      else
+      } else {
          taskHierarchySuffix[i] = "";
+      }
    }
 
    // fill tab suffix
@@ -962,9 +962,9 @@ Bool_t ROMEBuilder::StartBuilder()
             tabSuffix[i].SetFormatted("_%02d",suffixNumber);
          if (multiplicity>99)
             tabSuffix[i].SetFormatted("_%03d",suffixNumber);
-      }
-      else
+      } else {
          tabSuffix[i] = "";
+      }
    }
 
    if (!readGlobalSteeringParameters) {
@@ -1162,8 +1162,7 @@ Bool_t ROMEBuilder::StartBuilder()
       tempStr.AppendFormatted(" dict/%sGeneratedDict.cpp",shortCut.Data());
       if (librome) {
          tempStr.AppendFormatted(" dict/ROMESDict.cpp");
-      }
-      else {
+      } else {
          tempStr.AppendFormatted(" dict/ROMEDict.cpp");
          tempStr.AppendFormatted(" dict/ARGUSDict.cpp"); // currently no header when librome mode.
       }
@@ -1241,8 +1240,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("meg",0);
-      }
-      else if (!strcmp(argv[i],"-drs")) {
+      } else if (!strcmp(argv[i],"-drs")) {
          makeOutput = false;
          midas = false;
          noLink = true;
@@ -1257,8 +1255,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 //         flags.AddAtAndExpand("HAVE_AFG3251",3);
 //         flags.AddAtAndExpand("HAVE_VME",4);
          affiliations.AddAtAndExpand("drs",0);
-      }
-      else if (!strcmp(argv[i],"-drstest")) {
+      } else if (!strcmp(argv[i],"-drstest")) {
          makeOutput = false;
          midas = false;
          noLink = true;
@@ -1269,8 +1266,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("drs",0);
          flags.AddAtAndExpand("HAVE_DRS",0);
-      }
-      else if (!strcmp(argv[i],"-dch")) {
+      } else if (!strcmp(argv[i],"-dch")) {
          makeOutput = false;
          midas = true;
          noLink = true;
@@ -1281,8 +1277,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
          affiliations.AddAtAndExpand("dchcabling",1);
-      }
-      else if (!strcmp(argv[i],"-dchhv")) {
+      } else if (!strcmp(argv[i],"-dchhv")) {
          makeOutput = false;
          midas = true;
          noLink = true;
@@ -1294,8 +1289,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          affiliations.AddAtAndExpand("dch",0);
          affiliations.AddAtAndExpand("dchcabling",1);
          affiliations.AddAtAndExpand("xechv",2);
-      }
-      else if (!strcmp(argv[i],"-drsdch")) {
+      } else if (!strcmp(argv[i],"-drsdch")) {
          makeOutput = false;
          midas = true;
          noLink = true;
@@ -1313,111 +1307,92 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          flags.AddAtAndExpand("HAVE_AFG3251",2);
 //         flags.AddAtAndExpand("HAVE_MSCB",3);
 //         flags.AddAtAndExpand("HAVE_USB",4);
-      }
-      else if (!strcmp(argv[i],"-stepbystep")) {
+      } else if (!strcmp(argv[i],"-stepbystep")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/stepbystep/";
          xmlFile = "C:/rome/examples/stepbystep/stepbystep.xml";
-      }
-      else if (!strcmp(argv[i],"-readwrite")) {
+      } else if (!strcmp(argv[i],"-readwrite")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/tree_write_read/";
          xmlFile = "C:/rome/examples/tree_write_read/tree_write_read.xml";
-      }
-      else if (!strcmp(argv[i],"-multi")) {
+      } else if (!strcmp(argv[i],"-multi")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/multirun/";
          xmlFile = "C:/rome/examples/multirun/multirun.xml";
-      }
-      else if (!strcmp(argv[i],"-midasdaq")) {
+      } else if (!strcmp(argv[i],"-midasdaq")) {
          noLink = true;
          minRebuild = true;
          midas = true;
          outDir = "C:/rome/examples/midas/";
          xmlFile = "C:/rome/examples/midas/midas.xml";
-      }
-      else if (!strcmp(argv[i],"-taskhierarchy")) {
+      } else if (!strcmp(argv[i],"-taskhierarchy")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/taskhierarchy/";
          xmlFile = "C:/rome/examples/taskhierarchy/taskhierarchy.xml";
-      }
-      else if (!strcmp(argv[i],"-taskhierarchyandhistos")) {
+      } else if (!strcmp(argv[i],"-taskhierarchyandhistos")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/taskhierarchyandhistos/";
          xmlFile = "C:/rome/examples/taskhierarchyandhistos/taskhierarchyandhistos.xml";
-      }
-      else if (!strcmp(argv[i],"-displayobjects")) {
+      } else if (!strcmp(argv[i],"-displayobjects")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/displayobjects/";
          xmlFile = "C:/rome/examples/displayobjects/displayObjects.xml";
-      }
-      else if (!strcmp(argv[i],"-netfolder")) {
+      } else if (!strcmp(argv[i],"-netfolder")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/netfolder/";
          xmlFile = "C:/rome/examples/netfolder/netfolder.xml";
-      }
-      else if (!strcmp(argv[i],"-database")) {
+      } else if (!strcmp(argv[i],"-database")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/dbexample/";
          xmlFile = "C:/rome/examples/dbexample/RDBframework.xml";
-      }
-      else if (!strcmp(argv[i],"-histogui")) {
+      } else if (!strcmp(argv[i],"-histogui")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/histogui/";
          xmlFile = "C:/rome/examples/histogui/histogui.xml";
-      }
-      else if (!strcmp(argv[i],"-rootDAQ")) {
+      } else if (!strcmp(argv[i],"-rootDAQ")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/rootDAQ/";
          xmlFile = "C:/rome/examples/rootDAQ/rootDAQ.xml";
-      }
-      else if (!strcmp(argv[i],"-lp")) {
+      } else if (!strcmp(argv[i],"-lp")) {
          makeOutput = true;
          midas = true;
          noLink = true;
          minRebuild = true;
          outDir = "C:/lpframework/";
          xmlFile = "C:/lpframework/lpframework.xml";
-      }
-      else if (!strcmp(argv[i],"-laura")) {
+      } else if (!strcmp(argv[i],"-laura")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/Data/Testprojects/laura/";
          xmlFile = "C:/Data/Testprojects/laura/rootDAQClean.xml";
-      }
-      else if (!strcmp(argv[i],"-jan")) {
+      } else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/Data/Testprojects/jan/folderProb/";
          xmlFile = "C:/Data/Testprojects/jan/folderProb/danceobj.xml";
-      }
-      else if (!strcmp(argv[i],"-gsptest")) {
+      } else if (!strcmp(argv[i],"-gsptest")) {
          noLink = true;
          minRebuild = true;
          outDir = "C:/rome/examples/GSPTest/";
          xmlFile = "C:/rome/examples/GSPTest/gsptest.xml";
-      }
-      // -- only for testing (end) --
-      else if (!strcmp(argv[i],"-v")) {
+         //-- only for testing (end) --
+      } else if (!strcmp(argv[i],"-v")) {
          makeOutput = true;
-      }
-      else if (!strcmp(argv[i],"-nvp")) {
+      } else if (!strcmp(argv[i],"-nvp")) {
          noVP = true;
-      }
-      else if (!strcmp(argv[i],"-nl")) {
+      } else if (!strcmp(argv[i],"-nl")) {
          noLink = true;
-      }
-      else if (!strcmp(argv[i],"-dl")) {
+      } else if (!strcmp(argv[i],"-dl")) {
 #if defined(USE_PIC_UPPER) || defined(USE_PIC_LOWER)
 #   if defined( R__UNIX )
          dynamicLink = true;
@@ -1427,23 +1402,17 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #else
          cout<<"PIC option is necessary to use dynamic link library."<<endl;
 #endif
-      }
-      else if (!strcmp(argv[i],"-nosql")) {
+      } else if (!strcmp(argv[i],"-nosql")) {
          cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
-      }
-      else if (!strcmp(argv[i],"-mysql")) {
+      } else if (!strcmp(argv[i],"-mysql")) {
          mysql = true;
-      }
-      else if (!strcmp(argv[i],"-pgsql")) {
+      } else if (!strcmp(argv[i],"-pgsql")) {
          pgsql = true;
-      }
-      else if (!strcmp(argv[i],"-sqlite")) {
+      } else if (!strcmp(argv[i],"-sqlite")) {
          sqlite = true;
-      }
-      else if (!strcmp(argv[i],"-sqlite3")) {
+      } else if (!strcmp(argv[i],"-sqlite3")) {
          sqlite3 = true;
-      }
-      else if (!strcmp(argv[i],"-midas")) {
+      } else if (!strcmp(argv[i],"-midas")) {
          midas = true;
          ROMEString midasFile;
          midasFile = getenv("MIDASSYS");
@@ -1452,40 +1421,34 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
             cout << "Midas library not found. Have you set the MIDASSYS environment variable ?" << endl;
             return false;
          }
-      }
-      else if (!strcmp(argv[i],"-orca")) {
+      } else if (!strcmp(argv[i],"-orca")) {
          orca = true;
-      }
-      else if (!strcmp(argv[i],"-minrb")) {
+      } else if (!strcmp(argv[i],"-minrb")) {
 #if defined( R__VISUAL_CPLUSPLUS )
          minRebuild = true;
 #   else
          cout << "Minimal rebuild is only available on windows." << endl;
 #   endif
-      }
-      else if (!strcmp(argv[i],"-qm")) {
+      } else if (!strcmp(argv[i],"-qm")) {
 #if defined( R__VISUAL_CPLUSPLUS )
          cout << "Quiet make is only available on Unix." << endl;
 #else
          quietMake = true;
 #endif
-      }
-      else if (!strcmp(argv[i],"-pch")) {
+      } else if (!strcmp(argv[i],"-pch")) {
 #if defined( __GNUC__ ) && (( __GNUC__ >= 4 ) || (( __GNUC__ == 3 ) && ( __GNUC_MINOR__ >= 4 )))
          pch = true;
 #else
          cout << "Precompiled header is available with GCC 3.4 or later." << endl;
 #endif
-      }
-      else if (!strcmp(argv[i],"-makeflag")&&i<argc-1) {
+      } else if (!strcmp(argv[i],"-makeflag")&&i<argc-1) {
          i++;
          makeFlag = ((const char*)argv[i]);
          if (makeFlag[0] == '\"' && makeFlag[makeFlag.Length() - 1] == '\"') {
             makeFlag.Remove(makeFlag.Length() - 1, 1);
             makeFlag.Remove(0, 1);
          }
-      }
-      else if (!strcmp(argv[i],"-f")&&i<argc-1) {
+      } else if (!strcmp(argv[i],"-f")&&i<argc-1) {
          i++;
          while (argv[i][0]!='-') {
             flags.AddLast((const char*)argv[i]);
@@ -1494,18 +1457,15 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
                break;
          }
          i--;
-      }
-      else if (!strcmp(argv[i],"-i")&&i<argc-1) {
+      } else if (!strcmp(argv[i],"-i")&&i<argc-1) {
          xmlFile = argv[i+1];
          i++;
-      }
-      else if (!strcmp(argv[i],"-o")&&i<argc-1) {
+      } else if (!strcmp(argv[i],"-o")&&i<argc-1) {
          outDir = argv[i+1];
          if (outDir[outDir.Length()-1]!='/' && outDir[outDir.Length()-1]!='\\')
             outDir.Append("/");
          i++;
-      }
-      else if (!strcmp(argv[i],"-a")&&i<argc-1) {
+      } else if (!strcmp(argv[i],"-a")&&i<argc-1) {
          i++;
          while (argv[i][0]!='-') {
             affiliations.AddLast((const char*)argv[i]);
@@ -1514,12 +1474,10 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
                break;
          }
          i--;
-      }
-      else if (argv[i][0]=='-') {
+      } else if (argv[i][0]=='-') {
          Usage();
          return false;
-      }
-      else {
+      } else {
          xmlFile = argv[i];
       }
    }
@@ -1653,10 +1611,11 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
 Bool_t ROMEBuilder::CheckFileAndPath()
 {
    if (gSystem->AccessPathName(xmlFile.Data(),kFileExists)) {
-      if ( xmlFile == "")
+      if ( xmlFile == "") {
          cout << "No inputfile specified." << endl;
-      else
+      } else {
          cout << "Inputfile '" << xmlFile.Data() << "' not found." << endl;
+      }
       return false;
    }
    ROMEString path;
@@ -1706,8 +1665,7 @@ void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMESt
    if (ind==-1) {
       nameOfFile = str;
       extensionOfFile = "";
-   }
-   else {
+   } else {
       nameOfFile = str(0,ind);
       extensionOfFile = str(ind+1,str.Length()-ind-1);
    }
@@ -1770,20 +1728,20 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
        !strcmp(type,"Color_t") ||
        !strcmp(type,"Font_t") ||
        !strcmp(type,"Version_t")) {
-      if (version==0)
+      if (version==0) {
          buf->AppendFormatted("%s = strtol(%s,&cstop,10)",destination,source);
-      else
+      } else {
          buf->AppendFormatted("strtol(%s,&cstop,10)",source);
-   }
-   else if (
+      }
+   } else if (
        !strcmp(type,"bool") ||
        !strcmp(type,"Bool_t")) {
-      if (version==0)
+      if (version==0) {
          buf->AppendFormatted("%s = gAnalyzer->strtobool(%s)",destination,source);
-      else
+      } else {
          buf->AppendFormatted("gAnalyzer->strtobool(%s)",source);
-   }
-   else if (
+      }
+   } else if (
        !strcmp(type,"char") ||
        !strcmp(type,"unsigned char") ||
        !strcmp(type,"Char_t") ||
@@ -1791,12 +1749,12 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
 
        !strcmp(type,"Option_t") ||
        !strcmp(type,"Text_t")) {
-      if (version==0)
+      if (version==0) {
          buf->AppendFormatted("strcpy(%s,%s)",destination,source);
-      else
+      } else {
          buf->AppendFormatted("%s",source);
-   }
-   else if (
+      }
+   } else if (
        !strcmp(type,"float") ||
        !strcmp(type,"Float_t") ||
 
@@ -1806,16 +1764,17 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
-      if (version==0)
+      if (version==0) {
          buf->AppendFormatted("%s = strtod(%s,&cstop)",destination,source);
-      else
+      } else {
          buf->AppendFormatted("strtod(%s,&cstop)",source);
-   }
-   else {
-      if (version==0)
+      }
+   } else {
+      if (version==0) {
          buf->AppendFormatted("%s = %s",destination,source);
-      else
+      } else {
          buf->AppendFormatted("%s",source);
+      }
    }
 }
 
@@ -1824,18 +1783,18 @@ bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
 {
    // converts c++ types to midas odb compatible types
    if (type == "int" ||
-      type == "Int_t")
+       type == "Int_t") {
       midasODBType = "INT";
-   else if (type == "bool" ||
-            type == "Bool_t")
+   } else if (type == "bool" ||
+              type == "Bool_t") {
       midasODBType = "BOOL";
-   else if (type == "float" ||
-            type == "Float_t")
+   } else if (type == "float" ||
+              type == "Float_t") {
       midasODBType = "FLOAT";
-   else if (type == "double" ||
-            type == "Double_t")
+   } else if (type == "double" ||
+              type == "Double_t") {
       midasODBType = "DOUBLE";
-   else {
+   } else {
       cout << type << " no conversion to a midas odb type available" << endl;
       return false;
    }
@@ -1903,49 +1862,53 @@ Bool_t ROMEBuilder::isIntType(const char *type)
 ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer)
 {
    int type = 0;
-   if (!strcmp(newType,"int") || !strcmp(newType,"Int_t"))
+   if (!strcmp(newType,"int") || !strcmp(newType,"Int_t")) {
       type = 1;
-   else if (!strcmp(newType,"double") || !strcmp(newType,"Double_t"))
+   } else if (!strcmp(newType,"double") || !strcmp(newType,"Double_t")) {
       type = 2;
-   else if (!strcmp(newType,"ROMEString&"))
+   } else if (!strcmp(newType,"ROMEString&")) {
       type = 3;
-   else
+   } else {
       return stringBuffer;
+   }
    if (type==1 || type==2) {
       if (isNumber(oldType) || isBoolType(oldType)) {
-         if (type==1)
+         if (type==1) {
             return stringBuffer.SetFormatted("(int)%s",value);
-         if (type==2)
+         } else if (type==2) {
             return stringBuffer.SetFormatted("(double)%s",value);
-      }
-      else {
-         if (type==1)
+         }
+      } else {
+         if (type==1) {
             stringBuffer.SetFormatted("strtol(%s,&cstop,10)",value);
-         if (type==2)
+         } else if (type==2) {
             stringBuffer.SetFormatted("strtod(%s,&cstop)",value);
-         if (!strcmp(oldType,"std::string"))
+         }
+         if (!strcmp(oldType,"std::string")) {
             stringBuffer.Insert(strlen(value)+7,".c_str()");
-         else if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString"))
+         } else if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString")) {
             stringBuffer.Insert(strlen(value)+7,".Data()");
+         }
          return stringBuffer;
       }
-   }
-   else if (type==3) {
-      if (isBoolType(oldType))
+   } else if (type==3) {
+      if (isBoolType(oldType)) {
          return stringBuffer;
+      }
       ROMEString tmp = stringBuffer;
-      if (!strcmp(oldType,"std::string"))
+      if (!strcmp(oldType,"std::string")) {
          return stringBuffer.SetFormatted("%s=%s.c_str()",tmp.Data(),value);
-      if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString"))
+      } else if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString")) {
          return stringBuffer.SetFormatted("%s=%s",tmp.Data(),value);
-      if (isFloatingType(oldType))
+      } else if (isFloatingType(oldType)) {
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%.16g\",%s)",tmp.Data(),value);
-      else
+      } else {
 #if defined( R__VISUAL_CPLUSPLUS )
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%I64d\",static_cast<Long64_t>(%s))",tmp.Data(),value);
 #else
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%lld\",static_cast<Long64_t>(%s))",tmp.Data(),value);
 #endif
+      }
    }
    return stringBuffer;
 }
@@ -2108,15 +2071,15 @@ Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
       fileBuffer.ReadFile(*fileStreamI);
       fileStreamI->close();
       delete fileStreamI;
-   }
-   else
+   } else {
       return false;
+   }
    if ((fileStreamO = new fstream(newFileName,ios::out | ios::trunc))) {
       *fileStreamO<<fileBuffer.Data();
       fileStreamO->close();
       delete fileStreamO;
-   }
-   else
+   } else {
       return false;
+   }
    return true;
 }

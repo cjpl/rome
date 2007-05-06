@@ -29,19 +29,21 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    while(1) {
       path.AppendFormatted("/Folder");
       nfound = xml->NumberOfOccurrenceOfPath(path);
-      if (nfound)
+      if (nfound) {
          maxNumberOfFolders += nfound;
-      else
+      } else {
          break;
+      }
    }
    path = "ROMEFrameworkDefinition/SupportFolders";
    while(1) {
       path.AppendFormatted("/SupportFolder");
       nfound = xml->NumberOfOccurrenceOfPath(path);
-      if (nfound)
+      if (nfound) {
          maxNumberOfFolders += nfound;
-      else
+      } else {
          break;
+      }
    }
    maxNumberOfFolders++; // for configuration folder
 
@@ -51,20 +53,22 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    while(1) {
       path.AppendFormatted("/Task");
       nfound = xml->NumberOfOccurrenceOfPath(path);
-      if (nfound)
+      if (nfound) {
          tmp += nfound;
-      else
+      } else {
          break;
+      }
    }
    tmp2 = 0;
    path = "ROMEFrameworkDefinition/TaskHierarchy";
    while(1) {
       path.AppendFormatted("/Task");
       nfound = xml->NumberOfOccurrenceOfPath(path);
-      if (nfound)
+      if (nfound) {
          tmp2 += nfound;
-      else
+      } else {
          break;
+      }
    }
    maxNumberOfTasks = TMath::Max(tmp, tmp2);
 
@@ -74,10 +78,11 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    while(1) {
       path.AppendFormatted("/Tab");
       nfound = xml->NumberOfOccurrenceOfPath(path);
-      if (nfound)
+      if (nfound) {
          maxNumberOfTabs += nfound;
-      else
+      } else {
          break;
+      }
    }
    path = "ROMEFrameworkDefinition/Tasks";
    while(1) {
@@ -89,9 +94,9 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
       if (nfound) {
          if (nfound2)
             maxNumberOfTabs += nfound2;
-      }
-      else
+      } else {
          break;
+      }
    }
 
    // Net folders
@@ -965,10 +970,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             if (folderUserCode[numOfFolder]) {
                hasFolderUserCode = true;
             } else {
-               if (folderSupport[numOfFolder])
+               if (folderSupport[numOfFolder]) {
                   hasSupportFolderGenerated = true;
-               else
+               } else {
                   hasFolderGenerated = true;
+               }
             }
          }
          // description
@@ -1153,20 +1159,19 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                if (valueType[numOfFolder][numOfValue[numOfFolder]].BeginsWith("T"))
                   valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = true;
                // set initial value
-               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" || valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString")
+               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" || valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString") {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
-               else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
+               } else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef") {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
-               else if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+               } else if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
                   valueDimension[numOfFolder][numOfValue[numOfFolder]] = 1;
                   valueArray[numOfFolder][numOfValue[numOfFolder]][0] = "0";
-               }
-               else if (isPointerType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+               } else if (isPointerType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
-               }
-               else
+               } else {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
+               }
             }
             // field initialization
             if (type == 1 && !strcmp((const char*)name,"FieldInitialization")) {
@@ -1234,10 +1239,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             if (type == 1 && !strcmp((const char*)name,"InheritTObject")) {
                xml->GetValue(tmp,"false");
                FormatText(tmp, kTRUE);
-               if (tmp == "true")
+               if (tmp == "true") {
                   valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = true;
-               else
+               } else {
                   valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
+               }
             }
             // field end
             if (type == 15 && !strcmp((const char*)name,"Field"))
@@ -3177,8 +3183,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
             cout << "Terminating program." << endl;
             return false;
          }
-      }
-      else if (type == 1 && !strcmp((const char*)name,"EventDefinition")) {
+      } else if (type == 1 && !strcmp((const char*)name,"EventDefinition")) {
          numOfEvent++;
          if (numOfEvent>=maxNumberOfEvents) {
             cout << "Maximal number of midas events reached : " << maxNumberOfEvents << " !" << endl;
@@ -3292,8 +3297,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                         cout << "Terminating program." << endl;
                         return false;
                      }
-                  }
-                  else if (type == 1 && !strcmp((const char*)name,"StructuredBank")) {
+                  } else if (type == 1 && !strcmp((const char*)name,"StructuredBank")) {
                      // count banks
                      numOfBank[numOfEvent]++;
                      if (numOfBank[numOfEvent]>=maxNumberOfBanks) {
@@ -3858,14 +3862,15 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                xml->GetValue(steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
                              ,steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
                FormatText(steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
-               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString" || steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "ROMEString")
+               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString" || steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "ROMEString") {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "' '";
-               else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "std::string")
+               } else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "std::string") {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "\" \"";
-               else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TRef")
+               } else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TRef") {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "NULL";
-               else
+               } else {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "0";
+               }
             }
             // steering parameter field format
             if (type == 1 && !strcmp((const char*)name,"SPFieldFormat")) {
@@ -4216,10 +4221,11 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      xml->GetValue(temp,"");
                      FormatText(temp, kTRUE);
                      AnalyzeFileName(temp.Data(),mfSourceFilePath[numOfMFSources],mfSourceFileName[numOfMFSources],ext);
-                     if (ext.Length()==0)
+                     if (ext.Length()==0) {
                         mfSourceFileName[numOfMFSources].Append(".cpp");
-                     else
+                     } else {
                         mfSourceFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
+                     }
                      if (mfSourceFilePath[numOfMFSources].Length()>0) {
                         if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='/' ||
                            mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='\\')
@@ -4231,10 +4237,11 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      xml->GetValue(temp,"");
                      FormatText(temp, kTRUE);
                      AnalyzeFileName(temp.Data(),mfHeaderFilePath[numOfMFSources],mfHeaderFileName[numOfMFSources],ext);
-                     if (ext.Length()==0)
+                     if (ext.Length()==0) {
                         mfHeaderFileName[numOfMFSources].Append(".h");
-                     else
+                     } else {
                         mfHeaderFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
+                     }
                      if (mfHeaderFilePath[numOfMFSources].Length()>0) {
                         if (mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1]!='/' ||
                            mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1]!='\\')
@@ -4332,10 +4339,13 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
       return;
    }
 
-   if (str.BeginsWith("$Rev: "))                      str.Remove(0, 6);
-   else if (str.BeginsWith("$Revision: "))            str.Remove(0, 11);
-   else if (str.BeginsWith("$LastChangedRevision: ")) str.Remove(0, 22);
-   else{
+   if (str.BeginsWith("$Rev: ")) {
+      str.Remove(0, 6);
+   } else if (str.BeginsWith("$Revision: ")) {
+      str.Remove(0, 11);
+   } else if (str.BeginsWith("$LastChangedRevision: ")){
+      str.Remove(0, 22);
+   } else{
       cout << "Warning: ROMEBuilder does not support keyword '"<<str<<"'"<<endl;
       return;
    }
