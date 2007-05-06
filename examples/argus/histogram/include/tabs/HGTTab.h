@@ -33,14 +33,17 @@ protected:
    enum CommandIdentifiers {
       B_UPDATE,
    };
+private:
+   HGTTab(const HGTTab &c); // not implemented
+   HGTTab &operator=(const HGTTab &c); // not implemented
 
 public:
    HGTTab(HGWindow *window):HGTTab_Base(window)
+   ,fVert(0)
+   ,fCanvas(0)
+   ,fBUpdate(0)
+   ,fHisto(0)
    {
-      fVert    = 0;
-      fCanvas  = 0;
-      fBUpdate = 0;
-      fHisto   = 0;
    }
 
    virtual ~HGTTab()

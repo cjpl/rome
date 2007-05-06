@@ -24,8 +24,14 @@ protected:
    TH1F *histo2;
    TRootEmbeddedCanvas *fCanvas;
 
+private:
+   NFTHistos(const NFTHistos &c); // not implemented
+   NFTHistos &operator=(const NFTHistos &c); // not implemented
+
 public:
    NFTHistos(NFWindow* window):NFTHistos_Base(window)
+   ,histo2(0)
+   ,fCanvas(0)
    {
    }
 

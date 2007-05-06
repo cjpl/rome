@@ -38,6 +38,10 @@ protected:
    char        fLastRunNumberString[21];
    char        fLastEventNumberString[21];
 
+private:
+   ROMESQLDataBase(const ROMESQLDataBase &db); // not implemented
+   ROMESQLDataBase &operator=(const ROMESQLDataBase &rhs); // not implemented
+
 public:
    ROMESQLDataBase();
    virtual ~ROMESQLDataBase();

@@ -103,7 +103,8 @@ private:
    ArgusHistoDisplay &operator=(const ArgusHistoDisplay &rhs); // not implemented
 
 public:
-   ArgusHistoDisplay(ArgusWindow* window);
+   ArgusHistoDisplay(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TArrayI *logY, TArrayI *logZ,
+                     const char* inheritName, Int_t nDisplayType);
    virtual ~ArgusHistoDisplay();
    void InitHistoDisplay();
 

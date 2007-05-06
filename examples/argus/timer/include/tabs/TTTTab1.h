@@ -43,19 +43,23 @@ protected:
       B_STOPH
    };
 
+private:
+   TTTTab1(const TTTTab1 &c); // not implemented
+   TTTTab1 &operator=(const TTTTab1 &c); // not implemented
+
 public:
    TTTTab1(TTWindow *window):TTTTab1_Base(window)
+   ,fVert(0)
+   ,fHorz(0)
+   ,fCanvas(0)
+   ,fText(0)
+   ,fBStartVertical(0)
+   ,fBStopVertical(0)
+   ,fBStartHorizontal(0)
+   ,fBStopHorizontal(0)
+   ,fTimer1_1(0)
+   ,fTimer1_2(0)
    {
-      fVert   = 0;
-      fHorz   = 0;
-      fCanvas = 0;
-      fText   = 0;
-      fBStartVertical = 0;
-      fBStopVertical = 0;
-      fBStartHorizontal = 0;
-      fBStopHorizontal = 0;
-      fTimer1_1 = 0;
-      fTimer1_2 = 0;
    }
 
    virtual ~TTTTab1()

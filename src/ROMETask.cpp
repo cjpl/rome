@@ -54,7 +54,7 @@ ROMETask::ROMETask()
 }
 
 //______________________________________________________________________________
-ROMETask::ROMETask(const char *name,const char *title,int level)
+ROMETask::ROMETask(const char *name,const char *title,int level,int version,int eventID,bool hasHisto,bool hasGraph,TFolder* histoFolder)
 :TTask(name,title)
 ,fLevel(level)
 ,fWatchAll()
@@ -63,12 +63,12 @@ ROMETask::ROMETask(const char *name,const char *title,int level)
 ,fTimeAllString("")
 ,fTimeUserString("")
 ,fTimeUserEventString("")
-,fVersion(0)
-,fHasHistograms(kFALSE)
-,fHasGraphs(kFALSE)
-,fEventID(-1)
+,fVersion(version)
+,fHasHistograms(hasHisto)
+,fHasGraphs(hasGraph)
+,fEventID(eventID)
 ,fCurrentEventMethod("")
-,fHistoFolder(0)
+,fHistoFolder(histoFolder)
 ,fSkippedEvents(0)
 {
    fWatchAll.Reset();

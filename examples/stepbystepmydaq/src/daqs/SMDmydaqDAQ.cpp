@@ -4,6 +4,8 @@
 #include "include/generated/SMDPMTData.h"
 
 SMDmydaqDAQ::SMDmydaqDAQ()
+:fFile(0)
+,fNumberOfEvent(0)
 {
 }
 
@@ -21,14 +23,14 @@ Bool_t SMDmydaqDAQ::BeginOfRun()
 #else
    sprintf(filename, "%s/data%05lld.txt", gAnalyzer->GetInputDir(), gAnalyzer->GetCurrentRunNumber());
 #endif
-   fFile.open(filename);
-   if(!fFile.good()) {
+   fFile = new fstream(filename);
+   if(!fFile->good()) {
       cerr<<"Failed to open "<<filename<<" !"<<endl;
       return false;
    }
 
    //-- Get number of events in a file
-   fFile>>fNumberOfEvent;
+   *fFile>>fNumberOfEvent;
    return true;
 }
 
@@ -47,7 +49,7 @@ Bool_t SMDmydaqDAQ::Event(Long64_t /*event*/)
    Int_t adc;
    Int_t i;
    for(i=0; i<10; i++) {
-      fFile>>adc;
+      *fFile>>adc;
       gAnalyzer->GetPMTDataAt(i)->SetADC(adc);
    }
 
@@ -57,14 +59,22 @@ Bool_t SMDmydaqDAQ::Event(Long64_t /*event*/)
 Bool_t SMDmydaqDAQ::EndOfRun()
 {
    //-- Close file
-   fFile.close();
+   if (fFile) {
+      fFile->close();
+      delete fFile;
+      fFile = 0;
+   }
    return true;
 }
 
 Bool_t SMDmydaqDAQ::Terminate()
 {
    //-- Close file
-   fFile.close();
+   if (fFile) {
+      fFile->close();
+      delete fFile;
+      fFile = 0;
+   }
    return true;
 }
 

@@ -29,16 +29,21 @@ protected:
       B_UPDATE
    };
 
+private:
+   FLTTab1(const FLTTab1 &c); // not implemented
+   FLTTab1 &operator=(const FLTTab1 &c); // not implemented
+
 public:
    FLTTab1(FLWindow *window):FLTTab1_Base(window)
+   ,fRunNumber(0)
+   ,fTextRun(0)
+   ,fTextEvent(0)
+   ,fTextValue(0)
+   ,fLabelRun(0)
+   ,fLabelEvent(0)
+   ,fLabelValue(0)
+   ,fBUpdate(0)
    {
-      fTextRun = 0;
-      fTextEvent = 0;
-      fTextValue = 0;
-      fBUpdate = 0;
-      fLabelRun = 0;
-      fLabelEvent = 0;
-      fLabelValue = 0;
    }
 
    ~FLTTab1()

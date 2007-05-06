@@ -78,8 +78,8 @@ private:
    ArgusWindow &operator=(const ArgusWindow &rhs); // not implemented
 
 public:
-   ArgusWindow();
-   ArgusWindow(const TGWindow* p,Bool_t tabWindow=kTRUE);
+   ArgusWindow(Bool_t statusBarSwitch = kTRUE, TObjArray *tabobj = 0);
+   ArgusWindow(const TGWindow* p,Bool_t statusBarSwitch = kTRUE, TObjArray *tabobj = 0,Bool_t tabWindow=kTRUE);
    virtual ~ArgusWindow();
 
    Bool_t          Start();

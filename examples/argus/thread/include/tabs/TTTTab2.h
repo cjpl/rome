@@ -34,14 +34,18 @@ protected:
       B_STOP_2_2
    };
 
+private:
+   TTTTab2(const TTTTab2 &c); // not implemented
+   TTTTab2 &operator=(const TTTTab2 &c); // not implemented
+
 public:
    TTTTab2(TTWindow *window):TTTTab2_Base(window)
+   ,fHorz(0)
+   ,fBStart_2_1(0)
+   ,fBStop_2_1(0)
+   ,fBStart_2_2(0)
+   ,fBStop_2_2(0)
    {
-      fHorz       = 0;
-      fBStart_2_1 = 0;
-      fBStop_2_1  = 0;
-      fBStart_2_2 = 0;
-      fBStop_2_2  = 0;
    }
 
    virtual ~TTTTab2()

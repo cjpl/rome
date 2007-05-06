@@ -26,12 +26,16 @@ protected:
    TGTextButton*      fButton1;
    TGTextButton*      fButton2;
 
+private:
+   PMTMixed(const PMTMixed &c); // not implemented
+   PMTMixed &operator=(const PMTMixed &c); // not implemented
+
 public:
    PMTMixed(PMWindow *window):PMTMixed_Base(window)
+   ,fHorz(0)
+   ,fButton1(0)
+   ,fButton2(0)
    {
-      fHorz       = 0;
-      fButton1    = 0;
-      fButton2    = 0;
    }
 
    virtual ~PMTMixed()

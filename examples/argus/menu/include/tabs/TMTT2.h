@@ -28,12 +28,16 @@ protected:
    TRootEmbeddedCanvas *fCanvas;
    TLatex              *fText;
 
+private:
+   TMTT2(const TMTT2 &c); // not implemented
+   TMTT2 &operator=(const TMTT2 &c); // not implemented
+
 public:
    TMTT2(TMWindow *window):TMTT2_Base(window)
+   ,fVert(0)
+   ,fCanvas(0)
+   ,fText(0)
    {
-      fVert   = 0;
-      fCanvas = 0;
-      fText   = 0;
    }
 
    virtual ~TMTT2()

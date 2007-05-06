@@ -28,12 +28,16 @@ protected:
    TRootEmbeddedCanvas *fCanvas;
    TLatex              *fText;
 
+private:
+   HWTEnglish(const HWTEnglish &c); // not implemented
+   HWTEnglish &operator=(const HWTEnglish &c); // not implemented
+
 public:
    HWTEnglish(HWWindow *window):HWTEnglish_Base(window)
+   ,fVert(0)
+   ,fCanvas(0)
+   ,fText(0)
    {
-      fVert   = 0;
-      fCanvas = 0;
-      fText   = 0;
    }
 
    virtual ~HWTEnglish()

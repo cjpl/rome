@@ -14,8 +14,8 @@
 
 ClassImp(MCRdummyDAQ)
 MCRdummyDAQ::MCRdummyDAQ()
+:fRandom(new TRandom())
 {
-   fRandom = new TRandom();
 }
 
 Bool_t MCRdummyDAQ::Init()

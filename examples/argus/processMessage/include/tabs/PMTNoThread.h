@@ -25,11 +25,15 @@ protected:
    TGHorizontalFrame* fHorz;
    TGTextButton*      fButton;
 
+private:
+   PMTNoThread(const PMTNoThread &c); // not implemented
+   PMTNoThread &operator=(const PMTNoThread &c); // not implemented
+
 public:
    PMTNoThread(PMWindow *window):PMTNoThread_Base(window)
+   ,fHorz(0)
+   ,fButton(0)
    {
-      fHorz       = 0;
-      fButton     = 0;
    }
 
    virtual ~PMTNoThread()

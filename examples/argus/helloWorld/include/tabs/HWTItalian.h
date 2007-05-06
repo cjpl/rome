@@ -28,12 +28,16 @@ protected:
    TRootEmbeddedCanvas *fCanvas;
    TLatex              *fText;
 
+private:
+   HWTItalian(const HWTItalian &c); // not implemented
+   HWTItalian &operator=(const HWTItalian &c); // not implemented
+
 public:
    HWTItalian(HWWindow *window):HWTItalian_Base(window)
+   ,fVert(0)
+   ,fCanvas(0)
+   ,fText(0)
    {
-      fVert   = 0;
-      fCanvas = 0;
-      fText   = 0;
    }
 
    virtual ~HWTItalian()
