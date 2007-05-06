@@ -28,12 +28,16 @@ protected:
    TRootEmbeddedCanvas *fCanvas;
    TLatex              *fText;
 
+private:
+   HWTFrench(const HWTFrench &c); // not implemented
+   HWTFrench &operator=(const HWTFrench &c); // not implemented
+
 public:
    HWTFrench(HWWindow *window):HWTFrench_Base(window)
+   ,fVert(0)
+   ,fCanvas(0)
+   ,fText(0)
    {
-      fVert   = 0;
-      fCanvas = 0;
-      fText   = 0;
    }
 
    virtual ~HWTFrench()

@@ -24,8 +24,15 @@ class FOTTab : public FOTTab_Base
 protected:
    FORunInfo*   fRunInfo;
    TClonesArray* fPMTDatas;
+
+private:
+   FOTTab(const FOTTab &c); // not implemented
+   FOTTab &operator=(const FOTTab &c); // not implemented
+
 public:
    FOTTab(FOWindow *window):FOTTab_Base(window)
+   ,fRunInfo(0)
+   ,fPMTDatas(0)
    {
    }
 

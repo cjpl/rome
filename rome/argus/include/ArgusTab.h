@@ -52,7 +52,7 @@ private:
    ArgusTab &operator=(const ArgusTab &rhs); // not implemented
 
 public:
-   ArgusTab(ArgusWindow* window);
+   ArgusTab(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TArrayI *logY, TArrayI *logZ);
    virtual ~ArgusTab();
 
    void ArgusInit();

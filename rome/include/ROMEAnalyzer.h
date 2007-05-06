@@ -251,7 +251,8 @@ private:
 
 public:
    ROMEAnalyzer();
-   ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);
+   ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics,
+                const char* programName, const char* onlineName, ROMEConfig* config, int numNetFolder);
    virtual ~ROMEAnalyzer();
 
    // Program Mode

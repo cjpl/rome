@@ -26,7 +26,7 @@
 ClassImp(ArgusTab)
 
 //______________________________________________________________________________
-ArgusTab::ArgusTab(ArgusWindow* window)
+ArgusTab::ArgusTab(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TArrayI *logY, TArrayI *logZ)
 :TGCompositeFrame(NULL,1,1)
 ,fWindow(window)
 ,fTitle("")
@@ -42,10 +42,10 @@ ArgusTab::ArgusTab(ArgusWindow* window)
 ,fWatchUserEvent()
 ,fTimeUserEventString("")
 ,fRegisteringActive(kTRUE)
-,fDrawOption(0)
-,fLogScaleX(0)
-,fLogScaleY(0)
-,fLogScaleZ(0)
+,fDrawOption(drawOpt)
+,fLogScaleX(logX)
+,fLogScaleY(logY)
+,fLogScaleZ(logZ)
 {
 }
 

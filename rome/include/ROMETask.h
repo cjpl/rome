@@ -37,7 +37,8 @@ private:
 
 public:
    ROMETask();
-   ROMETask(const char *name,const char *title,int level);
+   ROMETask(const char *name,const char *title,int level,int version,int eventID,
+            bool hasHisto,bool hasGraph,TFolder* histoFolder);
 
    virtual ~ROMETask() { SafeDelete(fHistoFolder); }
    void         Exec(Option_t *option="");

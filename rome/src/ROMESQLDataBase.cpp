@@ -36,15 +36,25 @@ const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
 ClassImp(ROMESQLDataBase)
 
 //______________________________________________________________________________
-ROMESQLDataBase::ROMESQLDataBase() {
-   fSQL = NULL;
+ROMESQLDataBase::ROMESQLDataBase()
+:ROMEDataBase()
+,fSelectFieldList("")
+,fInsertFieldList("")
+,fSetFieldList("")
+,fFromPhrase("")
+,fWherePhrase("")
+,fAdInsertFields("")
+,fAdInsertValues("")
+,fSQL(0)
+,fDBMSType("")
+,fCurrentCache(0)
+,fLastRunNumber(0)
+,fLastEventNumber(0)
+{
    Int_t i;
    for (i = 0; i < kNumberOfReadCache; i++) {
       fPathCache[i] = 0;
    }
-   fCurrentCache = 0;
-   fLastRunNumber = 0;
-   fLastEventNumber = 0;
    sprintf(fLastRunNumberString, "0");
    sprintf(fLastEventNumberString, "0");
 }

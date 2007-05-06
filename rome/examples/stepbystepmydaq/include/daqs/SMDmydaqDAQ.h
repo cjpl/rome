@@ -7,8 +7,12 @@
 class SMDmydaqDAQ : public ROMEDAQSystem
 {
 protected:
-   fstream fFile;
+   fstream *fFile;
    Long64_t fNumberOfEvent;
+
+private:
+   SMDmydaqDAQ(const SMDmydaqDAQ &c); // not implemented
+   SMDmydaqDAQ &operator=(const SMDmydaqDAQ &c); // not implemented
 
 public:
    SMDmydaqDAQ();

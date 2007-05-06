@@ -17,6 +17,10 @@ class MCRdummyDAQ : public ROMEDAQSystem
 protected:
    TRandom *fRandom;
 
+private:
+   MCRdummyDAQ(const MCRdummyDAQ &c); // not implemented
+   MCRdummyDAQ &operator=(const MCRdummyDAQ &c); // not implemented
+
 public:
    MCRdummyDAQ();
    virtual ~MCRdummyDAQ() { delete fRandom; }
