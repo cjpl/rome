@@ -71,9 +71,7 @@ rome: $(ROMEProjects)
 argus: $(ARGUSProjects)
 
 dbwrapper :
-ifeq ($(OSTYPE),linux)
 	make -C romedbwrapper
-endif
 
 multirun/mranalyzer.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i multirun/multirun.xml -o multirun -nl;
