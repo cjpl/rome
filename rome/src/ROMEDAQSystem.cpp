@@ -67,8 +67,9 @@ Bool_t ROMEDAQSystem::TimeDAQ()
    int i;
    ROMEString str = GetName();
    ROMEPrint::Print(" DAQ %s", str.Data());
-   for (i=0;i<30-4-1-str.Length();i++)
+   for (i=0;i<30-4-1-str.Length();i++) {
       ROMEPrint::Print(".");
+   }
    ROMEPrint::Print(" : %s\n", fWatchAll.GetRealTimeString(str));
    return true;
 }

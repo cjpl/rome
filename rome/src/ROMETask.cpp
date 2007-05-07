@@ -127,8 +127,9 @@ void ROMETask::Exec(Option_t *option)
       ROMEString name;
       int nchars;
       nchars = 0;
-      for (i=0;i<fLevel;i++)
+      for (i=0;i<fLevel;i++) {
          ROMEPrint::Print(" ");
+      }
       if (fLevel==1) {
          ROMEPrint::Print("Task ");
          nchars = 5;
@@ -141,8 +142,9 @@ void ROMETask::Exec(Option_t *option)
          name = name(0,name.Last('_'));
       }
       ROMEPrint::Print(name.Data());
-      for (i=0;i<30-name.Length()-fLevel-nchars;i++)
+      for (i=0;i<30-name.Length()-fLevel-nchars;i++) {
          ROMEPrint::Print(".");
+      }
       ROMEPrint::Print(" : %s", GetTimeOfAll());
       if (fWatchUser.RealTime()>0) {
          ROMEPrint::Print("  ");

@@ -102,8 +102,9 @@ Bool_t ROMESQLite3::StoreResult()
             break;
          case SQLITE_ROW:
             column_count = sqlite3_column_count(stmt);
-            for(i=0; i < column_count; i++)
+            for (i=0; i < column_count; i++) {
                result.SetAt((char*)sqlite3_column_text(stmt,i),i,j);
+            }
             j++;
             break;
          default:

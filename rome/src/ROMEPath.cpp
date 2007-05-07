@@ -205,15 +205,17 @@ return false;
          ROMEString temp = subPath(i2+1,indx-i2);
          for (int i=0;i<3;i++) {
             value = strtol(temp.Data(),&cstop,10);
-            if (cstop==NULL)
+            if (cstop==NULL) {
                return true;
+            }
             if (*cstop!=',' && *cstop!=')') {
                ROMEPrint::Error("\nError in array statement.\n%s\n", dataBasePath);
                return false;
             }
             SetOrderIndexAt(i,value);
-            if (*cstop==')')
+            if (*cstop==')') {
                break;
+            }
             temp = temp((int)(cstop+1-temp.Data()),temp.Length());
          }
       }
@@ -238,8 +240,9 @@ return false;
          SetTableIDXNameAt(nTable,temp.Data());
       }
    }
-   if (strlen(GetOrderTableName())<=0)
+   if (strlen(GetOrderTableName())<=0) {
       SetOrderTableName(GetTableNameAt(nTable));
+   }
 
    // handle order
    if (orderPath.Length()>0) {
@@ -254,8 +257,9 @@ return false;
       SetOrderArray(order->IsFieldArray());
       SetOrderTableName(order->GetTableNameAt(0));
       SetOrderFieldName(order->GetFieldName());
-      for (int i=0;i<3;i++)
+      for (int i=0;i<3;i++) {
          SetOrderIndexAt(i,order->GetFieldIndexAt(i));
+      }
       SafeDelete(order);
    }
 
@@ -297,16 +301,18 @@ return false;
       path = path(i2+1,indx-i2);
       for (int i=0;i<3;i++) {
          value = strtol(path.Data(),&cstop,10);
-         if (cstop==NULL)
+         if (cstop==NULL) {
             return true;
+         }
          if (*cstop!=',' && *cstop!=')') {
             ROMEPrint::Error("\nError in array statement.\n%s\n", dataBasePath);
             return false;
          }
          SetFieldIndexAt(i,value);
          if (*cstop==')') {
-            if (GetFieldIndexAt(1)==-1)
+            if (GetFieldIndexAt(1)==-1) {
                SetFieldIndexAt(1,GetFieldIndexAt(0)+1);
+            }
             return true;
          }
          path = path((int)(cstop+1-path.Data()),path.Length());
@@ -367,13 +373,17 @@ void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ) {
 Int_t ROMEPath::MinPosition(Int_t i1,Int_t i2,Int_t i3,Int_t i4) {
    if (i1==-1 && i2==-1 && i3==-1 && i4==-1)
       return -1;
-   if (i1==-1)
+   if (i1==-1) {
       i1 = 1000000;
-   if (i2==-1)
+   }
+   if (i2==-1) {
       i2 = 1000000;
-   if (i3==-1)
+   }
+   if (i3==-1) {
       i3 = 1000000;
-   if (i4==-1)
+   }
+   if (i4==-1) {
       i4 = 1000000;
+   }
    return TMath::Min(i1,TMath::Min(i2,TMath::Min(i3,i4)));
 }

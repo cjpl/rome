@@ -78,8 +78,9 @@ Bool_t ROMEStrArray::IsEmpty() const
 //______________________________________________________________________________
 void ROMEStrArray::AddFormatted(const char* va_(fmt),...)
 {
-   if (va_(fmt)==NULL)
+   if (va_(fmt)==NULL) {
       return;
+   }
    va_list ap;
    va_start(ap,va_(fmt));
    this->AddLast(ROMEString::Format(va_(fmt), ap));
@@ -235,13 +236,16 @@ Int_t ROMEStrArray::IndexOf(const char *text) const
    //          Returns -1 in case array doesn't contain the obj.
    //
    // obj == 0 return -1.
-   if (!text)
+   if (!text) {
       return -1;
+   }
 
    Int_t i;
-   for (i = 0; i < array->GetEntriesFast(); i++)
-      if (static_cast<TObjString*>(array->At(i))->GetString() == text)
+   for (i = 0; i < array->GetEntriesFast(); i++) {
+      if (static_cast<TObjString*>(array->At(i))->GetString() == text) {
          return i;
+      }
+   }
 
    return -1;
 }

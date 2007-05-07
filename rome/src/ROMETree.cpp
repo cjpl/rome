@@ -52,7 +52,9 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
    fSwitches.fCompressionLevel = compressionLevel;
    fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
    /* note: use 4byte integer for odb */
-   if (maxEntries>0) fTree->SetCircular(maxEntries);
+   if (maxEntries>0) {
+      fTree->SetCircular(maxEntries);
+   }
    TObjArray *branches = fTree->GetListOfBranches();
    for (Int_t i=0;i<branches->GetEntriesFast();i++) {
       ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
@@ -69,7 +71,9 @@ void ROMETree::AllocateBranchActive(Int_t n) {
    fNBranchActive = n;
    SafeDeleteArray(fBranchActive);
    fBranchActive = new Bool_t[n];
-   for(int i=0;i<n;i++) fBranchActive[i]=kTRUE;
+   for(int i=0;i<n;i++) {
+      fBranchActive[i]=kTRUE;
+   }
 }
 
 //______________________________________________________________________________
