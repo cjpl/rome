@@ -35,8 +35,9 @@ ClassImp(TNetFolderServer)
 //______________________________________________________________________________
 TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 {
-   if (!socket->IsValid())
+   if (!socket->IsValid()) {
       return NULL;
+   }
 
    //read pointer to current folder
    TMessage *message = 0;
@@ -49,8 +50,9 @@ TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 
 //______________________________________________________________________________
 int TNetFolderServer::ResponseFunction(TSocket *socket) {
-   if (!socket->IsValid())
+   if (!socket->IsValid()) {
       return 0;
+   }
 
    // Read Command
    char str[200];
@@ -64,8 +66,9 @@ int TNetFolderServer::ResponseFunction(TSocket *socket) {
 
 //______________________________________________________________________________
 int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
-   if (!socket->IsValid())
+   if (!socket->IsValid()) {
       return 1;
+   }
 
    // Check Command
    if (strcmp(str, "GetListOfFolders") == 0) {
@@ -95,8 +98,9 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       message.WriteObject(names);
       socket->Send(message);
 
-      for (int i = 0; i < names->GetLast() + 1; i++)
+      for (int i = 0; i < names->GetLast() + 1; i++) {
          delete(TObjString *) names->At(i);
+      }
 
       delete names;
       return 1;

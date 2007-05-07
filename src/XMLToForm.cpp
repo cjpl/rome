@@ -74,8 +74,9 @@ XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFi
 ,fSubstitutes(0)
 ,fPlaceHolders(0)
 {
-   if (!Init(xmlFileName,substitutes))
+   if (!Init(xmlFileName,substitutes)) {
       return;
+   }
 //   PrintFrame(fMainFrame);
    fWindow = new XMLToFormWindow(p,main,fMainFrame,exitButtonID,fMaximalWindowWidth,fXML);
 }
@@ -128,10 +129,11 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
          visible = true;
          currentPath.AppendFormatted("/FrameType");
          fXML->GetPathValue(currentPath,value);
-         if (value=="horizontal")
+         if (value=="horizontal") {
             vertical = false;
-         else
+         } else {
             vertical = true;
+         }
 
          frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kFrame,visible,tabIndex));
       }
@@ -195,8 +197,9 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
          break;
       }
    }
-   if (frame->GetNumberOfSubFrames()>0 && !visible)
+   if (frame->GetNumberOfSubFrames()>0 && !visible) {
       frame->SetFrameVisible(false);
+   }
 }
 
 //______________________________________________________________________________
@@ -257,10 +260,11 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          currentPath = xmlPath;
          currentPath.AppendFormatted("/Button[%d]/ID",nButton+1);
          fXML->GetPathValue(currentPath,temp);
-         if (temp.Length()>0)
+         if (temp.Length()>0) {
             buttonID = temp.ToInteger();
-         else
+         } else {
             buttonID = -1;
+         }
          // path
          path = xmlPath;
          path.AppendFormatted("/Button[%d]",nButton+1);
@@ -307,8 +311,9 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          currentPath.AppendFormatted("/ComboBox[%d]/Selected",nComboBox+1);
          fXML->GetPathValue(currentPath,temp);
          selectedEntry = temp.ToInteger();
-         if (selectedEntry>=entries->GetEntriesFast())
+         if (selectedEntry>=entries->GetEntriesFast()) {
             selectedEntry = entries->GetEntriesFast()-1;
+         }
          // path
          path = xmlPath;
          path.AppendFormatted("/ComboBox[%d]",nComboBox+1);
@@ -321,10 +326,11 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          frame->AddElement(new XMLToFormElement("ComboBox",title,entries->At(selectedEntry),path,width,entries));
       }
       if (!strcmp(node->child[j].name,"CheckButton") || !strcmp(node->child[j].name,"RadioButton")) {
-         if (!strcmp(node->child[j].name,"CheckButton"))
+         if (!strcmp(node->child[j].name,"CheckButton")) {
             buttonName = "CheckButton";
-         if (!strcmp(node->child[j].name,"RadioButton"))
+         } else if (!strcmp(node->child[j].name,"RadioButton")) {
             buttonName = "RadioButton";
+         }
          // label
          currentPath = xmlPath;
          currentPath.AppendFormatted("/%s[%d]/Label",buttonName.Data(),nButton+1);
@@ -338,10 +344,11 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          currentPath = xmlPath;
          currentPath.AppendFormatted("/%s[%d]/ID",buttonName.Data(),nButton+1);
          fXML->GetPathValue(currentPath,temp);
-         if (temp.Length()>0)
+         if (temp.Length()>0) {
             buttonID = value.ToInteger();
-         else
+         } else {
             buttonID = -1;
+         }
          // path
          path = xmlPath;
          path.AppendFormatted("/%s[%d]",buttonName.Data(),nButton+1);
@@ -428,10 +435,12 @@ Bool_t XMLToForm::XMLToRootClass()
    Bool_t vertical;
    ROMEString value;
    ROMEString valueT;
-   if (!fXML->OpenFileForPath(fXMLFileName.Data()))
+   if (!fXML->OpenFileForPath(fXMLFileName.Data())) {
       return false;
-   if (fXML->NumberOfOccurrenceOfPath("/XMLToForm")<1)
+   }
+   if (fXML->NumberOfOccurrenceOfPath("/XMLToForm")<1) {
       return false;
+   }
    fXML->GetPathValue("/XMLToForm/MaximalWindowWidth",value);
    fMaximalWindowWidth = value.ToInteger();
 
@@ -439,10 +448,11 @@ Bool_t XMLToForm::XMLToRootClass()
    Substitute(valueT,value);
 
    fXML->GetPathValue("/XMLToForm/FrameType",value);
-   if (value=="horizontal")
+   if (value=="horizontal") {
       vertical = false;
-   else
+   } else {
       vertical = true;
+   }
 
    fMainFrame = new XMLToFormFrame(NULL,value,"/XMLToForm",vertical,XMLToFormFrame::kFrame,true,0);
 
@@ -459,8 +469,9 @@ void XMLToForm::SaveForm()
 //______________________________________________________________________________
 Bool_t XMLToForm::GetBoolValue(const char* label)
 {
-   if (!strcmp(GetValue(label),"true"))
+   if (!strcmp(GetValue(label),"true")) {
       return true;
+   }
    return false;
 }
 
@@ -487,8 +498,9 @@ Int_t XMLToForm::GetSelectedIndex(const char* label)
 //______________________________________________________________________________
 Bool_t XMLToForm::IsChecked(const char* label)
 {
-   if (!strcmp(GetValue(label),"true"))
+   if (!strcmp(GetValue(label),"true")) {
       return true;
+   }
    return false;
 }
 
@@ -497,8 +509,9 @@ const char* XMLToForm::GetValue(const char* label)
 {
    Int_t indx = 0;
    XMLToFormFrame *frame;
-   if (!fWindow->SearchWidget(label,&frame,&indx,fMainFrame))
+   if (!fWindow->SearchWidget(label,&frame,&indx,fMainFrame)) {
       return "";
+   }
    return frame->GetElementAt(indx)->GetValue().Data();
 }
 
@@ -507,8 +520,9 @@ Int_t XMLToForm::GetIndex(const char* label)
 {
    Int_t indx = 0;
    XMLToFormFrame *frame;
-   if (!fWindow->SearchWidget(label,&frame,&indx,fMainFrame))
+   if (!fWindow->SearchWidget(label,&frame,&indx,fMainFrame)) {
       return -1;
+   }
    return frame->GetElementAt(indx)->GetSelectedEntry();
 }
 
@@ -573,8 +587,9 @@ void XMLToForm::FillClass(XMLToFormFrame *frame)
 
    // read subframes
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
-      if (frame->GetSubFrameAt(i)->IsFrameVisible())
+      if (frame->GetSubFrameAt(i)->IsFrameVisible()) {
          FillClass(frame->GetSubFrameAt(i));
+      }
    }
 }
 
@@ -586,8 +601,9 @@ Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
    InitSubstitutes(substitutes);
 
    // read xml
-   if (!XMLToRootClass())
+   if (!XMLToRootClass()) {
       return false;
+   }
 
    FillClass(fMainFrame);
    return true;
@@ -598,8 +614,9 @@ void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab)
 {
    Int_t i;
    ROMEString tabChar;
-   for (i=0;i<tab;i++)
+   for (i=0;i<tab;i++) {
       tabChar += "   ";
+   }
    ROMEPrint::Print("%sFrame : %s\n", tabChar.Data(), frame->GetFrameTitle().Data());
    for (i=0;i<frame->GetNumberOfElements();i++) {
       ROMEPrint::Print("%s   %s : %s\n", tabChar.Data(), frame->GetElementAt(i)->GetType().Data(), frame->GetElementAt(i)->GetTitle().Data());

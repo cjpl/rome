@@ -221,14 +221,16 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
              ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
              ;iField+=path->GetFieldIndexAt(2)) {
          temp = path->GetFieldName();
-         if (path->IsFieldArray())
+         if (path->IsFieldArray()) {
             temp.AppendFormatted("__%d",iField);
+         }
          fSelectFieldList.AppendFormatted("%s%s.%s",separator.Data(),path->GetTableNameAt(path->GetNumberOfTables()-1),temp.Data());
          fInsertFieldList.AppendFormatted("%s%s",separator.Data(),temp.Data());
          fSetFieldList.AppendFormatted("%s%s%s",separator.Data(),temp.Data(),RSQLDB_STR);
          separator = ",";
-         if (!path->IsFieldArray())
+         if (!path->IsFieldArray()) {
             break;
+         }
       }
    }
 
@@ -249,8 +251,9 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
           !fFromPhrase.EndsWith(tmp1) &&
           !fFromPhrase.Contains(tmp2)
          ) {
-         if (fFromPhrase.Length())
+         if (fFromPhrase.Length()) {
             fFromPhrase += ",";
+         }
          fFromPhrase.AppendFormatted("%s",path->GetTableNameAt(iTable));
       }
 
@@ -260,14 +263,16 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
             return false;
          }
          for (iConstraint=0;iConstraint<path->GetNumberOfConstraints();iConstraint++) {
-            if (fAdInsertFields.Length())
+            if (fAdInsertFields.Length()) {
                separator = ",";
-            else
+            } else {
                separator = "";
+            }
             fAdInsertFields.AppendFormatted("%s%s",separator.Data(),path->GetConstraintFieldAt(iConstraint));
             fAdInsertValues.AppendFormatted("%s%s",separator.Data(),path->GetConstraintValueAt(iConstraint));
-            if (fWherePhrase.Length())
+            if (fWherePhrase.Length()) {
                fWherePhrase += " AND ";
+            }
             fWherePhrase.AppendFormatted("%s.%s=%s",path->GetTableNameAt(iTable)
                                          ,path->GetConstraintFieldAt(iConstraint)
                                          ,path->GetConstraintValueAt(iConstraint));
@@ -322,8 +327,9 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
       //add relation to the next table
       if (iTable<path->GetNumberOfTables()-1 && !strlen(path->GetTableDBConstraintAt(iTable))) {
          if (strlen(path->GetTableIDNameAt(iTable))) {
-            if (fWherePhrase.Length())
+            if (fWherePhrase.Length()) {
                fWherePhrase += " AND ";
+            }
             fWherePhrase.AppendFormatted("%s.%s=%s.%s_%s"
                                          ,path->GetTableNameAt(iTable+1)
                                          ,"id"//path->GetTableIDNameAt(iTable)
@@ -333,8 +339,9 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
                );
          }
          if (strlen(path->GetTableIDXNameAt(iTable))) {
-            if (fWherePhrase.Length())
+            if (fWherePhrase.Length()) {
                fWherePhrase += " AND ";
+            }
             fWherePhrase.AppendFormatted("%s.%s=%s.%s_%s"
                                          ,path->GetTableNameAt(iTable+1)
                                          ,"idx"//path->GetTableIDXNameAt(iTable)
@@ -525,25 +532,29 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
          ROMEPrint::Error("order tabele '%s' should be in path\n", path->GetOrderTableName());
          return false;
       }
-      if (path->IsOrderArray())
+      if (path->IsOrderArray()) {
          orderField.AppendFormatted("%s.%s",
                                     strlen(path->GetOrderTableName())
                                     ? path->GetOrderTableName() : path->GetTableNameAt(path->GetNumberOfTables()-1),
                                     strlen(path->GetOrderFieldName())
                                     ? path->GetOrderFieldName() : "idx");
+      }
 
       sqlQuery = "SELECT ";
       sqlQuery += fSelectFieldList;
-      if (path->IsOrderArray())
+      if (path->IsOrderArray()) {
          sqlQuery.AppendFormatted(",%s",orderField.Data());
+      }
       sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
-      if (fWherePhrase.Length())
+      if (fWherePhrase.Length()) {
          sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+      }
       if (orderField.Length()) {
-         if (sqlQuery.Contains("WHERE"))
+         if (sqlQuery.Contains("WHERE")) {
             sqlQuery += " AND ";
-         else
+         } else {
             sqlQuery += " WHERE ";
+         }
          sqlQuery.AppendFormatted("(%s BETWEEN %d AND %d)"
                                   ,orderField.Data()
                                   ,TMath::Min(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
@@ -553,8 +564,9 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
                                      ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
          }
          sqlQuery.AppendFormatted(" ORDER BY %s ",orderField.Data());
-         if (path->GetOrderIndexAt(2)<0)
+         if (path->GetOrderIndexAt(2)<0) {
             sqlQuery += " DESC ";
+         }
       }
       sqlQuery += ";";
       // store cache
@@ -622,10 +634,11 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
             }
             iCount++ ;
          }
-         if (iCount)
+         if (iCount) {
             ROMEPrint::Warning("Warning: %s  has %d records which satisfy %s.%s=%d\n"
                                ,path->GetTableNameAt(path->GetNumberOfTables()-1), iCount+1
                                ,path->GetOrderTableName(), path->GetOrderFieldName(), iLastOrder);
+         }
 
          // check if the record exists
          if (TMath::Sign(iOrder,orderIndex[2])
@@ -644,11 +657,13 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
              ;iField+=fieldIndex[2],jArray++) {
          values->SetAt(fSQL->GetField(jArray),iArray,jArray);
          iLastOrder = iOrder;
-         if (!path->IsFieldArray())
+         if (!path->IsFieldArray()) {
             break;
+         }
       }
-      if (!path->IsOrderArray())
+      if (!path->IsOrderArray()) {
          break;
+      }
    }
 
    fSQL->FreeResult();
@@ -703,13 +718,15 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       sqlQuery += fSelectFieldList;
       sqlQuery += " FROM ";
       sqlQuery += fFromPhrase;
-      if (fWherePhrase.Length())
+      if (fWherePhrase.Length()) {
          sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+      }
       if (path->IsOrderArray()) {
-         if (!sqlQuery.Contains("WHERE"))
+         if (!sqlQuery.Contains("WHERE")) {
             sqlQuery += " WHERE ";
-         else
+         } else {
             sqlQuery += " AND ";
+         }
          sqlQuery.AppendFormatted("%s.%s='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
                                   strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1))
                                   ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
@@ -738,8 +755,9 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
                                      strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1))
                                      ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx");
          }
-         if (fAdInsertFields.Length())
+         if (fAdInsertFields.Length()) {
             sqlQuery.AppendFormatted(",%s",fAdInsertFields.Data());
+         }
          sqlQuery += " ) VALUES ( ";
          separator = "";
          for (iField=path->GetFieldIndexAt(0),jArray=0
@@ -772,16 +790,19 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
                sqlQuery.Remove(istart,RSQLDB_STR_LEN);
                sqlQuery.Insert(istart,temp);
             }
-            if (!path->IsFieldArray())
+            if (!path->IsFieldArray()) {
                break;
+            }
          }
-         if (fWherePhrase.Length())
+         if (fWherePhrase.Length()) {
             sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+         }
          if (path->IsOrderArray()) {
-            if (sqlQuery.Contains("WHERE"))
+            if (sqlQuery.Contains("WHERE")) {
                sqlQuery += " AND ";
-            else
+            } else {
                sqlQuery += " WHERE ";
+            }
             sqlQuery.AppendFormatted("%s.%s ='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
                                      strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1))
                                      ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
@@ -798,8 +819,9 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
 #endif
          return false;
       }
-      if (!path->IsOrderArray())
+      if (!path->IsOrderArray()) {
          break;
+      }
    }
 #if defined ( USE_TRANSACTION )
    fSQL->CommitTransaction("");

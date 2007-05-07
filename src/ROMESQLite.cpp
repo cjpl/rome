@@ -70,8 +70,9 @@ Bool_t ROMESQLite::DisConnect()
 //______________________________________________________________________________
 Bool_t ROMESQLite::MakeQuery(const char* query, Bool_t store)
 {
-   if (strlen(query) < 2048)
+   if (strlen(query) < 2048) {
       ROMEPrint::Debug("\nROMESQLite::MakeQuery : %s\n", query);
+   }
    if(store){
       if( (errnum = sqlite_compile(db, query, NULL, &vm, &errmsg)) != SQLITE_OK){
          ROMEPrint::Error("%s\n", query);
@@ -109,8 +110,9 @@ Bool_t ROMESQLite::StoreResult()
             continue;
             break;
          case SQLITE_ROW:
-            for(i=0;i<nFields;i++)
+            for(i=0;i<nFields;i++) {
                result.SetAt(values[i],i,j);
+            }
             j++;
             break;
          default:
@@ -146,8 +148,9 @@ char* ROMESQLite::GetField(Int_t fieldNumber) {
 void ROMESQLite::FreeResult() {
    if(vm){
       errnum = sqlite_finalize(vm, &errmsg);
-      if(errmsg)
+      if(errmsg) {
          ROMEPrint::Error("%s\n", GetErrorMessage());
+      }
       vm = NULL;
    }
    numOfRows   = 0;

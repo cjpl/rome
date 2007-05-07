@@ -112,7 +112,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
                xmlPath += "=";
                xmlPath += ConstraintValue.At(0,0).Data();
             }
-            else{
+            else {
                xmlPath += "=";
                xmlPath += path->GetConstraintValueAt(j);
             }
@@ -161,11 +161,13 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
          if ((is=value.Index(temp,temp.Length(),0,TString::kIgnoreCase))!=-1) {
             if ((ie=value.Index("\"",1,is+temp.Length(),TString::kIgnoreCase))!=-1) {
                value = value(is+temp.Length(),ie-is-temp.Length());
-               if(value(value.Length()-1)=='/')
+               if(value(value.Length()-1)=='/') {
                   value.Remove(value.Length()-1,value.Length());
+               }
                while ((is=value.Index("(@@",3,0,TString::kIgnoreCase))!=-1) {
-                  if ((ie=value.Index(")",1,is+3,TString::kIgnoreCase))==-1)
+                  if ((ie=value.Index(")",1,is+3,TString::kIgnoreCase))==-1) {
                      ie = value.Length();
+                  }
                   val = value(is+3,ie-is-3);
                   path->GetAbsolutePath(ConstraintPath,path->GetTableNameAt(i));
                   ConstraintPath += "/";
@@ -177,12 +179,14 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
                newDataBasePath.InsertFormatted(istart,(char*)value.Data());
                // decode new path
                if (write) {
-                  if (Write(values,newDataBasePath.Data(),runNumber,eventNumber))
+                  if (Write(values,newDataBasePath.Data(),runNumber,eventNumber)) {
                      return -1;
+                  }
                }
                else {
-                  if (Read(values,newDataBasePath.Data(),runNumber,eventNumber))
+                  if (Read(values,newDataBasePath.Data(),runNumber,eventNumber)) {
                      return -1;
+                  }
                }
                return 0;
             }
@@ -213,10 +217,11 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
          nArrayTables++;
          fIDX.RemoveAll();
          xmlPath = fXMLBase;
-         if (!strcmp(path->GetTableNameAt(i),path->GetOrderTableName()))
+         if (!strcmp(path->GetTableNameAt(i),path->GetOrderTableName())) {
             xmlPath += path->GetOrderFieldName();
-         else
+         } else {
             xmlPath += path->GetTableIDXNameAt(i-1);
+         }
          if (!xml->GetPathValues(xmlPath,&fIDX)) {
             ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
             return 0;
@@ -226,10 +231,11 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
          if (i<path->GetNumberOfTables()-1) {
             xmlPath += path->GetTableNameAt(i+1);
             xmlPath += "_";
-            if (!strcmp(path->GetTableNameAt(i),path->GetOrderTableName()))
+            if (!strcmp(path->GetTableNameAt(i),path->GetOrderTableName())) {
                xmlPath += path->GetOrderFieldName();
-            else
+            } else {
                xmlPath += path->GetTableIDXNameAt(i-1);
+            }
             if (!xml->GetPathValues(xmlPath,&valueArr)) {
                ROMEPrint::Error("\nWrong data base path : %s\n",xmlPath.Data());
                return 0;
@@ -240,8 +246,9 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
             }
             for (j=0;j<valueArr.GetEntriesFast();j++) {
                int idxValue = strtol(fIDX.At(j).Data(),&cstop,10);
-               if (idxValue>=0)
+               if (idxValue>=0) {
                   fPointerArray.SetAt(valueArr.At(j),nArrayTables,idxValue);
+               }
             }
          }
          else {
