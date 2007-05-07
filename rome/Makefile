@@ -19,6 +19,9 @@
 ### Add -O compile option when compiling librome.a
 # ROMEOPTIMIZE = yes
 
+### Add -pg compile option when compiling librome.a
+# ROMEPROFILE = yes
+
 ### Switch for verbose make. 1 or 0. (Default = 1)
 # ROMEVERBOSEMAKE = 0
 
@@ -83,12 +86,15 @@ else
   endif
 endif
 
-# reset when ROMEDEBUG or ROMEOPTIMIZE is yes
+# reset when ROMEDEBUG, ROMEOPTIMIZE or ROMEPROFILE are yes
 ifeq ($(ROMEDEBUG), yes)
   ROMELIB_FLAGS += -g
 endif
 ifeq ($(ROMEOPTIMIZE), yes)
   ROMELIB_FLAGS += -O
+endif
+ifeq ($(ROMEPROFILE), yes)
+  ROMELIB_FLAGS += -pg
 endif
 
 CFLAGS += $(ROMECFLAGS)
