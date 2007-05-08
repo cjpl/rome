@@ -33,6 +33,7 @@ export THHOPT   =$(OPT)
 export TMOPT    =$(OPT)
 export TTOPT    =$(OPT)
 export TWROPT   =$(OPT)
+export TWR2OPT  =$(OPT)
 
 ROMEProjects = multirun/mranalyzer.exe \
                dbexample/rdbframework.exe \
@@ -40,6 +41,7 @@ ROMEProjects = multirun/mranalyzer.exe \
                netfolder/nfexample.exe \
                stepbystep/sbsanalyzer.exe \
                tree_write_read/twrsample.exe \
+               tree_write_read2/twr2sample.exe \
                stepbystephisto/sbshanalyzer.exe \
                histoGUI/hguiexample.exe \
                stepbystepdbdaq/sdaqanalyzer.exe \
@@ -100,6 +102,10 @@ stepbystep/sbsanalyzer.exe :
 tree_write_read/twrsample.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read/tree_write_read.xml -o tree_write_read -nl;
 	make $(JOBSFLAG) -C tree_write_read/
+
+tree_write_read2/twr2sample.exe :
+	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read2/tree_write_read2.xml -o tree_write_read2 -nl;
+	make $(JOBSFLAG) -C tree_write_read2/
 
 stepbystephisto/sbshanalyzer.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i stepbystephisto/stepbystephisto.xml -o stepbystephisto -nl;
@@ -206,6 +212,9 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd tree_write_read; ./twrsample.exe -i writeTreeWithFileName.xml -q
 	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q
 	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q
+
+	cd tree_write_read2; ./twr2sample.exe -i readTreeConfig.xml -q
+	cd tree_write_read2; ./twr2sample.exe -i readTreeWithFileName.xml -q
 
 	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99
 
