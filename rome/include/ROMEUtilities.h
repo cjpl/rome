@@ -154,7 +154,7 @@ inline Int_t ROMEUtilities::GetFPEMask()
 
    return static_cast<Int_t>(mask);
 #else
- return gSystem->GetFPEMask();
+   return gSystem->GetFPEMask();
 #endif
 }
 
