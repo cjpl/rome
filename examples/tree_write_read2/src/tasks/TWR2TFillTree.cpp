@@ -75,12 +75,10 @@ void TWR2TFillTree::Event()
    gAnalyzer->GetTrack()->SetparticleidSize(10);
    for (i=0;i<10;i++) {
       gAnalyzer->GetTrack()->SetparticleidAt(i,99);
-      RawData *rawData = new RawData();
-      rawData->SetDataSize(4);
-      rawData->SetData("Test");
-      gAnalyzer->GetRawAt(i)->SetData(*rawData);
+      fRawData->SetDataSize(5);
+      fRawData->SetData("Test\0");
+      gAnalyzer->GetRawAt(i)->SetData(fRawData);
    }
-
 }
 
 void TWR2TFillTree::EndOfRun()
