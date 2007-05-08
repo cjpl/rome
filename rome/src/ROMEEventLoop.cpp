@@ -847,7 +847,6 @@ Bool_t ROMEEventLoop::Update()
 
    ROMEString text;
    Long64_t newUpdateWindowEvent;
-   Int_t oldFPE;
 
    // Progress Display
    ROMEPrint::Debug("ROMEEventLoop::Update() Progress Display");
@@ -904,9 +903,9 @@ Bool_t ROMEEventLoop::Update()
          }
          gROME->GetWindow()->ClearEventHandlingRequest();
       }
-      oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
+      gROME->GetApplication()->DisableFPETrap();
       gSystem->ProcessEvents();
-      ROMEUtilities::SetFPEMask(oldFPE);
+      gROME->GetApplication()->EnableFPETrap();
       gSystem->Sleep(10);
    }
 
@@ -935,7 +934,6 @@ Bool_t ROMEEventLoop::UserInput()
    bool hit = false;
    ROMEString text;
    int inumber;
-   Int_t oldFPE;
 
    if (fStop) {
       wait = true;
@@ -1158,9 +1156,9 @@ Bool_t ROMEEventLoop::UserInput()
 
       if (wait) {
          StoreEvent(true);
-         oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
+         gROME->GetApplication()->DisableFPETrap();
          gSystem->ProcessEvents();
-         ROMEUtilities::SetFPEMask(oldFPE);
+         gROME->GetApplication()->EnableFPETrap();
          gSystem->Sleep(10);
       }
 

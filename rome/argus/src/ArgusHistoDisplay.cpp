@@ -545,11 +545,10 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
    fCanvas->GetCanvas()->Modified();
    fCanvas->GetCanvas()->Update();
 
-   Int_t oldFPE;
    if (processEvents) {
-      oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
+      gROME->GetApplication()->DisableFPETrap();
       gSystem->ProcessEvents();
-      oldFPE = ROMEUtilities::SetFPEMask(oldFPE);
+      gROME->GetApplication()->EnableFPETrap();
       gSystem->Sleep(10);
    }
 }
