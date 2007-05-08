@@ -290,9 +290,9 @@ void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sl
    if (mode==2) {
       fStatusBar->GetBarPart(0)->SetBackgroundColor(GetDefaultFrameBackground());
    }
-   Int_t oldFPE = ROMEUtilities::SetFPEMask(kNoneMask);
+   gROME->GetApplication()->DisableFPETrap();
    gSystem->ProcessEvents();
-   oldFPE = ROMEUtilities::SetFPEMask(oldFPE);
+   gROME->GetApplication()->EnableFPETrap();
    gSystem->Sleep(sleepingTime);
    return;
 }
