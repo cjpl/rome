@@ -11,9 +11,13 @@ protected:
    char           *fData;      //[fDataSize] data
 
 public:
+#if defined(R__UNIX)
+   RawData() {fData = 0;};
+   virtual ~RawData() { if(fData) {delete [] fData; fData = 0;} };
+#else
    RawData() {};
-
    virtual ~RawData() {};
+#endif
 
    Int_t    GetDataSize() { return fDataSize; }
    char    *GetData() { return fData; }
