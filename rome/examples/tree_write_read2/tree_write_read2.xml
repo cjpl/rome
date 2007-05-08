@@ -33,7 +33,7 @@
 			</Include>
 			<Field>
 				<FieldName>Data</FieldName>
-				<FieldType>RawData</FieldType>
+				<FieldType>RawData*</FieldType>
 				<FieldComment>|| Raw Data</FieldComment>
 				<InheritTObject>true</InheritTObject>
 			</Field>
@@ -57,6 +57,7 @@
 			<Branch>
 				<BranchName>RawDataBranch</BranchName>
 				<RelatedFolder>Raw</RelatedFolder>
+				<SplitLevel>0</SplitLevel>
 			</Branch>
 		</Tree>
 	</Trees>

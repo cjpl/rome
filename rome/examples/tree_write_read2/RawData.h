@@ -10,14 +10,21 @@ protected:
    Int_t           fDataSize;  // size of data
    char           *fData;      //[fDataSize] data
 
+private:
+   RawData(const RawData &c); // not implemented
+   RawData &operator=(const RawData &c); // not implemented
+
 public:
-#if defined(R__UNIX)
-   RawData() {fData = 0;};
-   virtual ~RawData() { if(fData) {delete [] fData; fData = 0;} };
-#else
-   RawData() {};
-   virtual ~RawData() {};
-#endif
+   RawData()
+   :TObject()
+   ,fDataSize(0)
+   ,fData(0)
+   {}
+
+   virtual ~RawData()
+   {
+      if(fData) {delete [] fData; fData = 0;}
+   }
 
    Int_t    GetDataSize() { return fDataSize; }
    char    *GetData() { return fData; }
