@@ -2,7 +2,7 @@
 	<Experiment>
 		<ExperimentShortCut>TWR2</ExperimentShortCut>
 		<ProgramName>Sample</ProgramName>
-		<ProgramDefinitionVersion>$Rev: 1810 $</ProgramDefinitionVersion>
+		<ProgramDefinitionVersion>$Rev$</ProgramDefinitionVersion>
 	</Experiment>
 	<Folders>
 		<Folder>
@@ -25,7 +25,7 @@
 			<FolderTitle>Raw</FolderTitle>
 			<ArraySize>10</ArraySize>
 			<NoResetByFramework>true</NoResetByFramework>
-			<FolderVersion>$Rev: 6252 $</FolderVersion>
+			<FolderVersion>$Rev$</FolderVersion>
 			<FolderDescription>Folder to store calorimeter raw data.</FolderDescription>
 			<Include>
 				<IncludeName>RawData.h</IncludeName>
