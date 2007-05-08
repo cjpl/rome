@@ -174,6 +174,7 @@ protected:
    Bool_t       *folderSupport;
    Bool_t       *folderNoReset;
    Bool_t       *folderNoResetModified;
+   Bool_t       *folderHasClassField;
    Bool_t        hasFolderUserCode;
    Bool_t        hasFolderGenerated;
    Bool_t        hasSupportFolderGenerated;
@@ -379,6 +380,7 @@ protected:
    ROMEString  **branchFolder;
    ROMEString  **branchBufferSize;
    ROMEString  **branchSplitLevel;
+   Bool_t      **branchSplitLevelSpecified;
    ROMEString  **runHeaderName;
    ROMEString  **runHeaderFolder;
    Int_t       **runHeaderFolderIndex;

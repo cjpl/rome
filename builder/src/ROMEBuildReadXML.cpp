@@ -172,6 +172,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    folderSupport = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderNoReset = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderNoResetModified = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderHasClassField = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
 
    valueName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
@@ -363,6 +364,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    branchFolder = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
    branchBufferSize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
    branchSplitLevel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
+   branchSplitLevelSpecified = static_cast<Bool_t**>(AllocateBool(maxNumberOfTrees,maxNumberOfBranches));
    runHeaderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfRunHeaders));
    runHeaderFolder = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfRunHeaders));
    runHeaderFolderIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTrees,maxNumberOfRunHeaders));
@@ -645,6 +647,19 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   }
                   // count folders
                   numOfFolder++;
+                  // check if a folder has class fields
+                  for (i=0;i<numOfFolder;i++) {
+                     for (j=0;j<numOfValue[i];j++) {
+                        if (valueIsTObject[i][j] || isFolder(valueName[i][j])) {
+                           tmp = valueComment[i][j];
+                           tmp.StripSpaces();
+                           if (!tmp.BeginsWith("!")) {
+                              folderHasClassField[i] = kTRUE;
+                              break;
+                           }
+                        }
+                     }
+                  }
                }
                if (!strcmp((const char*)name,"SupportFolders")) {
                   if (numOfFolder==-1)
@@ -678,6 +693,19 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   }
                   // count folders
                   numOfFolder++;
+                  // check if a folder has class fields
+                  for (i=0;i<numOfFolder;i++) {
+                     for (j=0;j<numOfValue[i];j++) {
+                        if (valueIsTObject[i][j] || isFolder(valueName[i][j])) {
+                           tmp = valueComment[i][j];
+                           tmp.StripSpaces();
+                           if (!tmp.BeginsWith("!")) {
+                              folderHasClassField[i] = kTRUE;
+                              break;
+                           }
+                        }
+                     }
+                  }
                }
                if (!strcmp((const char*)name,"Tasks")) {
                   // initialization
@@ -929,6 +957,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    numOfValue[numOfFolder] = 0;
    folderNoReset[numOfFolder] = false;
    folderNoResetModified[numOfFolder] = false;
+   folderHasClassField[numOfFolder] = false;
 
    // set parent
    folderParentName[numOfFolder] = parent[recursiveDepth];
@@ -1156,8 +1185,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                readType = true;
                xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],valueType[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueType[numOfFolder][numOfValue[numOfFolder]], kTRUE);
-               if (valueType[numOfFolder][numOfValue[numOfFolder]].BeginsWith("T"))
+#if 0 // better to use "InheritTObject" flag
+               if (valueType[numOfFolder][numOfValue[numOfFolder]].BeginsWith("T")) {
                   valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = true;
+               }
+#endif
                // set initial value
                if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" || valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString") {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
@@ -2798,6 +2830,7 @@ Bool_t ROMEBuilder::ReadXMLTree()
                branchFolder[numOfTree][numOfBranch[numOfTree]] = "";
                branchBufferSize[numOfTree][numOfBranch[numOfTree]] = "32000";
                branchSplitLevel[numOfTree][numOfBranch[numOfTree]] = "99";
+               branchSplitLevelSpecified[numOfTree][numOfBranch[numOfTree]] = kFALSE;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -2822,6 +2855,7 @@ Bool_t ROMEBuilder::ReadXMLTree()
                   if (type == 1 && !strcmp((const char*)name,"SplitLevel")) {
                      xml->GetValue(branchSplitLevel[numOfTree][numOfBranch[numOfTree]],branchSplitLevel[numOfTree][numOfBranch[numOfTree]]);
                      FormatText(branchSplitLevel[numOfTree][numOfBranch[numOfTree]], kTRUE);
+                     branchSplitLevelSpecified[numOfTree][numOfBranch[numOfTree]] = kTRUE;
                   }
                   // branch end
                   if (type == 15 && !strcmp((const char*)name,"Branch"))
@@ -2840,8 +2874,13 @@ Bool_t ROMEBuilder::ReadXMLTree()
                }
                bool found = false;
                for (i=0;i<numOfFolder;i++) {
-                  if (!folderSupport[i] && folderName[i]==branchFolder[numOfTree][numOfBranch[numOfTree]])
+                  if (!folderSupport[i] && folderName[i]==branchFolder[numOfTree][numOfBranch[numOfTree]]) {
                      found = true;
+                     // set split level to be zero when branch folder has a class as a field
+                     if (folderHasClassField[i] && !branchSplitLevelSpecified[numOfTree][numOfBranch[numOfTree]]) {
+                        branchSplitLevel[numOfTree][numOfBranch[numOfTree]] = "0";
+                     }
+                  }
                }
                if (!found) {
                   cout << "Folder of Branch '" << branchName[numOfTree][numOfBranch[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' not existing !" << endl;

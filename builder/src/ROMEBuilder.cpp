@@ -106,6 +106,7 @@ ROMEBuilder::ROMEBuilder()
 ,folderSupport(0)
 ,folderNoReset(0)
 ,folderNoResetModified(0)
+,folderHasClassField(0)
 ,hasFolderUserCode(kFALSE)
 ,hasFolderGenerated(kFALSE)
 ,hasSupportFolderGenerated(kFALSE)
@@ -297,6 +298,7 @@ ROMEBuilder::ROMEBuilder()
 ,branchFolder(0)
 ,branchBufferSize(0)
 ,branchSplitLevel(0)
+,branchSplitLevelSpecified(0)
 ,runHeaderName(0)
 ,runHeaderFolder(0)
 ,runHeaderFolderIndex(0)
@@ -475,6 +477,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] folderSupport;
    delete [] folderNoReset;
    delete [] folderNoResetModified;
+   delete [] folderHasClassField;
 
    delete [] valueName;
    delete [] valueType;
@@ -663,6 +666,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] branchFolder;
    delete [] branchBufferSize;
    delete [] branchSplitLevel;
+   delete [] branchSplitLevelSpecified;
 
    // thread functions
    delete [] numOfThreadFunctions;
@@ -1512,6 +1516,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    numOfValue[numOfFolder] = 0;
    folderNoReset[numOfFolder] = true;
    folderNoResetModified[numOfFolder] = false;
+   folderHasClassField[numOfFolder] = false;
    folderParentName[numOfFolder] = "GetMainFolder()";
    folderSupport[numOfFolder] = false;
 
