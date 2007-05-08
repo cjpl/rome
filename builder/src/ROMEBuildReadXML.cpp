@@ -2878,7 +2878,9 @@ Bool_t ROMEBuilder::ReadXMLTree()
                      found = true;
                      // set split level to be zero when branch folder has a class as a field
                      if (folderHasClassField[i] && !branchSplitLevelSpecified[numOfTree][numOfBranch[numOfTree]]) {
+#if 0 // disable automatic setting until safety of split level 0 is checked.
                         branchSplitLevel[numOfTree][numOfBranch[numOfTree]] = "0";
+#endif
                      }
                   }
                }
