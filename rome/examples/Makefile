@@ -213,8 +213,8 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q
 	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q
 
+	cd tree_write_read2; ./twr2sample.exe -i writeTreeConfig.xml -q -e 0-9
 	cd tree_write_read2; ./twr2sample.exe -i readTreeConfig.xml -q
-	cd tree_write_read2; ./twr2sample.exe -i readTreeWithFileName.xml -q
 
 	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99
 
