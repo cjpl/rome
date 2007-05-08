@@ -1,0 +1,70 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>TWR2</ExperimentShortCut>
+		<ProgramName>Sample</ProgramName>
+		<ProgramDefinitionVersion>$Rev: 1810 $</ProgramDefinitionVersion>
+	</Experiment>
+	<Folders>
+		<Folder>
+			<FolderName>Track</FolderName>
+			<Field>
+				<FieldName>ntrack</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment># of tracks</FieldComment>
+				<FieldInitialization>0</FieldInitialization>
+			</Field>
+			<Field>
+				<FieldName>particleid</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>[ntrack] geant particle code</FieldComment>
+				<ArraySize>variable</ArraySize>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>Raw</FolderName>
+			<FolderTitle>Raw</FolderTitle>
+			<ArraySize>10</ArraySize>
+			<NoResetByFramework>true</NoResetByFramework>
+			<FolderVersion>$Rev: 6252 $</FolderVersion>
+			<FolderDescription>Folder to store calorimeter raw data.</FolderDescription>
+			<Include>
+				<IncludeName>RawData.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Field>
+				<FieldName>Data</FieldName>
+				<FieldType>RawData</FieldType>
+				<FieldComment>|| Raw Data</FieldComment>
+				<InheritTObject>true</InheritTObject>
+			</Field>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>FillTree</TaskName>
+		</Task>
+		<Task>
+			<TaskName>PrintValue</TaskName>
+		</Task>
+	</Tasks>
+	<Trees>
+		<Tree>
+			<TreeName>MyTree</TreeName>
+			<Branch>
+				<BranchName>TrackBranch</BranchName>
+				<RelatedFolder>Track</RelatedFolder>
+			</Branch>
+			<Branch>
+				<BranchName>RawDataBranch</BranchName>
+				<RelatedFolder>Raw</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
+	<UserMakeFile>
+		<DictionaryHeaders>
+			<Header>
+				<HeaderName>$(ROMESYS)/examples/tree_write_read2/RawData.h</HeaderName>
+			</Header>
+		</DictionaryHeaders>
+	</UserMakeFile>
+</ROMEFrameworkDefinition>
