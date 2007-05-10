@@ -1321,6 +1321,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          minRebuild = true;
          outDir = "C:/rome/examples/tree_write_read/";
          xmlFile = "C:/rome/examples/tree_write_read/tree_write_read.xml";
+      } else if (!strcmp(argv[i],"-readwrite2")) {
+         noLink = true;
+         minRebuild = true;
+         outDir = "C:/rome/examples/tree_write_read2/";
+         xmlFile = "C:/rome/examples/tree_write_read2/tree_write_read2.xml";
       } else if (!strcmp(argv[i],"-multi")) {
          noLink = true;
          minRebuild = true;
