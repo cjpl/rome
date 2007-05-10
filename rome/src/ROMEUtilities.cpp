@@ -151,6 +151,50 @@ const char* ROMEUtilities::FastDecrypt(const char *str)
    result[i / 2] = '\0';
    return result;
 }
+Int_t ROMEUtilities::GetFPEMask()
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+   UInt_t oldmask;
+   Int_t mask = 0;
+   oldmask = _control87(0, 0) & MCW_EM;
+
+   if (oldmask & _EM_INVALID  )   mask |= kInvalid;
+   if (oldmask & _EM_ZERODIVIDE)  mask |= kDivByZero;
+   if (oldmask & _EM_OVERFLOW )   mask |= kOverflow;
+   if (oldmask & _EM_UNDERFLOW)   mask |= kUnderflow;
+   if (oldmask & _EM_INEXACT  )   mask |= kInexact;
+
+   return static_cast<Int_t>(mask);
+#else
+ return gSystem->GetFPEMask();
+#endif
+}
+
+Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+   Int_t old = GetFPEMask();
+
+   UInt_t newm = 0;
+   if (mask & kInvalid  )   newm |= _EM_INVALID;
+   if (mask & kDivByZero)   newm |= _EM_ZERODIVIDE;
+   if (mask & kOverflow )   newm |= _EM_OVERFLOW;
+   if (mask & kUnderflow)   newm |= _EM_UNDERFLOW;
+   if (mask & kInexact  )   newm |= _EM_INEXACT;
+
+   // clear the status
+   _clear87();
+
+   Int_t cm;
+   /* could use _controlfp */
+   cm = _control87(0, 0);
+   cm &= ~newm;
+   _control87(cm, MCW_EM);
+   return old;
+#else // UNIX
+   return gSystem->SetFPEMask(mask);
+#endif
+}
 
 #if !defined(__CINT__)
 //______________________________________________________________________________

@@ -67,7 +67,6 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
 ,fUseRintInterruptHandler(kFALSE)
 ,fRintInterruptHandler(0)
 ,fROMEInterruptHandler(0)
-,fFPEMaskOriginal(0)
 ,fFPEMask(0)
 {
    fRintInterruptHandler = gSystem->RemoveSignalHandler(GetSignalHandler());
@@ -75,9 +74,6 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    fROMEInterruptHandler->Add();
    SetSignalHandler(fROMEInterruptHandler);
    fUseRintInterruptHandler = kFALSE;
-
-   fFPEMaskOriginal  = ROMEUtilities::GetFPEMask();
-   fFPEMask  = fFPEMaskOriginal;
 
    atexit((void (*)(void))cleaning);
 }
