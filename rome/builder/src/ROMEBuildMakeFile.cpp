@@ -1482,6 +1482,11 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    command.Append(includedirs);
    command.Append(" ");
    command.Append(includes);
+   if (dictionaryType > 0) {
+      command.Append(" include/generated/");
+      command.Append(dictionaryName);
+      command.Append("LinkDef.h");
+   }
    dictionaryCommands->Add(command);
 }
 
@@ -1624,7 +1629,22 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    GetUserDictIncludeDirString(bufferT," ");
    includedirs.AppendFormatted(" %s",bufferT.Data());
    GetUserDictHeaderString(includes," ");
+#if defined( R__UNIX )
    dictionaryCommands->AddFormatted("$(Q)rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
+#else
+   ROMEString command = "rootcint";
+   command.Append(arguments);
+   command.Append(" ");
+   command.Append(includedirs);
+   command.Append(" ");
+   command.Append(includes);
+   if (dictionaryType > 0) {
+      command.Append(" include/generated/");
+      command.Append(dictionaryName);
+      command.Append("LinkDef.h");
+   }
+   dictionaryCommands->Add(command);
+#endif
 }
 
 //______________________________________________________________________________
