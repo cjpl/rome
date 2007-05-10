@@ -25,7 +25,6 @@ private:
    Bool_t          fUseRintInterruptHandler; // flag if TRint signal handler is used
    TSignalHandler *fRintInterruptHandler;    // original signal handler of TRint
    TSignalHandler *fROMEInterruptHandler;    // special handler of ROMERint
-   Int_t           fFPEMaskOriginal;         // FPE mask when this instance is created
    Int_t           fFPEMask;                 // Customized FPE mode
 
 private:
@@ -50,7 +49,6 @@ public:
    void            SetFPEInexact(Bool_t flag);
 
    Int_t           GetFPEMask()           { return  fFPEMask; }
-   Int_t           GetFPEMaskOriginal()   { return  fFPEMaskOriginal; }
    Bool_t          GetFPEInvalid()        { return  (fFPEMask & kInvalid)!=0; }
    Bool_t          GetFPEDivByZero()      { return  (fFPEMask & kDivByZero)!=0; }
    Bool_t          GetFPEOverflow()       { return  (fFPEMask & kOverflow)!=0; }
@@ -59,7 +57,6 @@ public:
 
    void            EnableFPETrap();
    void            DisableFPETrap();
-   void            RestoreFPETrap();
 
    ClassDef(ROMERint, 0) // Customized TRint for ROME
 };
@@ -118,12 +115,6 @@ inline void ROMERint::DisableFPETrap()
 {
    // Diable all FPE trap
    ROMEUtilities::SetFPEMask(kNoneMask);
-}
-
-inline void ROMERint::RestoreFPETrap()
-{
-   // Restore FPE trap mode to original one when this instance is created
-   ROMEUtilities::SetFPEMask(fFPEMaskOriginal);
 }
 
 #endif   // ROMERint_H
