@@ -4,6 +4,8 @@
 #include "RConfig.h"
 #include "TObject.h"
 
+#define RAWDATA_WITH_COPY
+
 class RawData : public TObject
 {
 protected:
@@ -12,8 +14,10 @@ protected:
 
 public:
    RawData();
+#if defined(RAWDATA_WITH_COPY)
    RawData(const RawData &c);
    RawData &operator=(const RawData &c);
+#endif
    virtual ~RawData();
 
    Int_t    GetDataLength() { return fDataLength; }
