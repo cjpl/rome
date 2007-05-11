@@ -21,8 +21,8 @@
 			</Field>
 		</Folder>
 		<Folder>
-			<FolderName>Raw</FolderName>
-			<FolderTitle>Raw</FolderTitle>
+			<FolderName>RawPointerSplit</FolderName>
+			<FolderTitle>Raw with pointer of Data</FolderTitle>
 			<ArraySize>10</ArraySize>
 			<NoResetByFramework>true</NoResetByFramework>
 			<FolderVersion>$Rev$</FolderVersion>
@@ -34,6 +34,60 @@
 			<Field>
 				<FieldName>Data</FieldName>
 				<FieldType>RawData*</FieldType>
+				<FieldComment>|| Raw Data</FieldComment>
+				<InheritTObject>true</InheritTObject>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>RawPointerNoSplit</FolderName>
+			<FolderTitle>Raw with pointer of Data</FolderTitle>
+			<ArraySize>10</ArraySize>
+			<NoResetByFramework>true</NoResetByFramework>
+			<FolderVersion>$Rev$</FolderVersion>
+			<FolderDescription>Folder to store calorimeter raw data.</FolderDescription>
+			<Include>
+				<IncludeName>RawData.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Field>
+				<FieldName>Data</FieldName>
+				<FieldType>RawData*</FieldType>
+				<FieldComment>|| Raw Data</FieldComment>
+				<InheritTObject>true</InheritTObject>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>RawSplit</FolderName>
+			<FolderTitle>Raw with Data</FolderTitle>
+			<ArraySize>10</ArraySize>
+			<NoResetByFramework>true</NoResetByFramework>
+			<FolderVersion>$Rev$</FolderVersion>
+			<FolderDescription>Folder to store calorimeter raw data.</FolderDescription>
+			<Include>
+				<IncludeName>RawData.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Field>
+				<FieldName>Data</FieldName>
+				<FieldType>RawData</FieldType>
+				<FieldComment>|| Raw Data</FieldComment>
+				<InheritTObject>true</InheritTObject>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>RawNoSplit</FolderName>
+			<FolderTitle>Raw with Data</FolderTitle>
+			<ArraySize>10</ArraySize>
+			<NoResetByFramework>true</NoResetByFramework>
+			<FolderVersion>$Rev$</FolderVersion>
+			<FolderDescription>Folder to store calorimeter raw data.</FolderDescription>
+			<Include>
+				<IncludeName>RawData.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Field>
+				<FieldName>Data</FieldName>
+				<FieldType>RawData</FieldType>
 				<FieldComment>|| Raw Data</FieldComment>
 				<InheritTObject>true</InheritTObject>
 			</Field>
@@ -55,8 +109,23 @@
 				<RelatedFolder>Track</RelatedFolder>
 			</Branch>
 			<Branch>
-				<BranchName>RawDataBranch</BranchName>
-				<RelatedFolder>Raw</RelatedFolder>
+				<BranchName>RawPointerSplitBranch</BranchName>
+				<RelatedFolder>RawPointerSplit</RelatedFolder>
+				<SplitLevel>99</SplitLevel>
+			</Branch>
+			<Branch>
+				<BranchName>RawPointerNoSplitBranch</BranchName>
+				<RelatedFolder>RawPointerNoSplit</RelatedFolder>
+				<SplitLevel>0</SplitLevel>
+			</Branch>
+			<Branch>
+				<BranchName>RawSplitBranch</BranchName>
+				<RelatedFolder>RawSplit</RelatedFolder>
+				<SplitLevel>99</SplitLevel>
+			</Branch>
+			<Branch>
+				<BranchName>RawNoSplitBranch</BranchName>
+				<RelatedFolder>RawNoSplit</RelatedFolder>
 				<SplitLevel>0</SplitLevel>
 			</Branch>
 		</Tree>
@@ -67,5 +136,10 @@
 				<HeaderName>$(ROMESYS)/examples/tree_write_read2/RawData.h</HeaderName>
 			</Header>
 		</DictionaryHeaders>
+		<AdditionalFiles>
+			<File>
+				<SourceFile>$(ROMESYS)/examples/tree_write_read2/RawData.cpp</SourceFile>
+			</File>
+		</AdditionalFiles>AdditionalFiles>
 	</UserMakeFile>
 </ROMEFrameworkDefinition>
