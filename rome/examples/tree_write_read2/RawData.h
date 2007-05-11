@@ -7,30 +7,23 @@
 class RawData : public TObject
 {
 protected:
-   Int_t           fDataSize;  // size of data
-   char           *fData;      //[fDataSize] data
-
-private:
-   RawData(const RawData &c); // not implemented
-   RawData &operator=(const RawData &c); // not implemented
+   Int_t           fDataLength; // size of data
+   char           *fData;       //[fDataLength] data
 
 public:
-   RawData()
-   :TObject()
-   ,fDataSize(0)
-   ,fData(0)
-   {}
+   RawData();
+   RawData(const RawData &c);
+   RawData &operator=(const RawData &c);
+   virtual ~RawData();
 
-   virtual ~RawData()
-   {
-      if(fData) {delete [] fData; fData = 0;}
-   }
-
-   Int_t    GetDataSize() { return fDataSize; }
+   Int_t    GetDataLength() { return fDataLength; }
    char    *GetData() { return fData; }
 
-   void    SetDataSize(Int_t datasize) { fDataSize = datasize; }
+   void    SetDataLength(Int_t length) { fDataLength = length; }
    void    SetData(char *data) { fData = data; };
+   void    SetDataCopy(const char *data, Int_t n) { memcpy(fData, data, n); }
+   void    SetDataSize(Int_t size);
+
    ClassDef(RawData,1) // raw data
 };
 
