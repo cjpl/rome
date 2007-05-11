@@ -9,6 +9,7 @@ RawData::RawData()
 ,fData(0)
 {}
 
+#if defined(RAWDATA_WITH_COPY)
 //______________________________________________________________________________
 RawData::RawData(const RawData &c)
 :TObject(c)
@@ -40,6 +41,7 @@ RawData &RawData::operator=(const RawData &c)
    }
    return *this;
 }
+#endif
 
 //______________________________________________________________________________
 RawData::~RawData()
