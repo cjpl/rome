@@ -11211,6 +11211,34 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
+   // Get run header
+   for (i=0;i<numOfTree;i++) {
+      for (j=0;j<numOfRunHeader[i];j++) {
+         if (folderUsed[runHeaderFolderIndex[i][j]]) {
+            if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
+               buffer.AppendFormatted("%s%s* %sRomeDAQ::Get%sFrom%s()\n{\n", shortCut.Data(), runHeaderFolder[i][j].Data(), shortCut.Data(),
+                                      runHeaderFolder[i][j].Data(), treeName[i].Data());
+            } else {
+               buffer.AppendFormatted("TClonesArray* %sRomeDAQ::Get%ssFrom%s()\n{\n", shortCut.Data(), runHeaderFolder[i][j].Data(), treeName[i].Data());
+            }
+            buffer.AppendFormatted("   if (fROMETrees[%d]->isRead()) {\n", i);
+            buffer.AppendFormatted("      if (fROMETrees[%d]->GetFile()) {\n", i);
+            if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
+               buffer.AppendFormatted("         return static_cast<%s%s*>(fROMETrees[%d]->GetFile()->FindObjectAny(\"%s\"));\n",
+                                      shortCut.Data(), runHeaderFolder[i][j].Data(), i, runHeaderName[i][j].Data());
+            } else {
+               buffer.AppendFormatted("         return static_cast<TClonesArray*>(fROMETrees[%d]->GetFile()->FindObjectAny(\"%s\"));\n",
+                                      i, runHeaderName[i][j].Data());
+            }
+            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   return 0;\n");
+            buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("\n");
+         }
+      }
+   }
+
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -11257,6 +11285,19 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    // Run header
    buffer.AppendFormatted("   void    ReadRunHeaders();\n");
+   // Get run header
+   Int_t j;
+   for (i=0;i<numOfTree;i++) {
+      for (j=0;j<numOfRunHeader[i];j++) {
+         if (folderUsed[runHeaderFolderIndex[i][j]]) {
+            if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
+               buffer.AppendFormatted("   %s%s* Get%sFrom%s();\n", shortCut.Data(), runHeaderFolder[i][j].Data(), runHeaderFolder[i][j].Data(),treeName[i].Data());
+            } else {
+               buffer.AppendFormatted("   TClonesArray* Get%ssFrom%s();\n", runHeaderFolder[i][j].Data(),treeName[i].Data());
+            }
+         }
+      }
+   }
 
    // File getter
    for (i=0;i<numOfTree;i++)
