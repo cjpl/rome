@@ -20,7 +20,7 @@ class ROMEConfigParameterGroup;
 
 const Int_t maxNumberOfPathObjectInterpreterCodes = 10;
 const Int_t maxNumberOfInclude = 50;
-const Int_t maxNumberOfValues = 50;
+const Int_t maxNumberOfValues = 100;
 const Int_t maxNumberOfValueDimension = 3;
 const Int_t maxNumberOfHistos = 50;
 const Int_t maxNumberOfGraphs = 50;
