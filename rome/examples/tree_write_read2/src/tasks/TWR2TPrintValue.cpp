@@ -51,7 +51,6 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "generated/TWR2Raw.h"
 #include "RawData.h"
 #include "generated/TWR2Analyzer.h"
 #include "tasks/TWR2TPrintValue.h"
