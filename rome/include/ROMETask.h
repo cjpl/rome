@@ -30,6 +30,7 @@ protected:
    ROMEString     fCurrentEventMethod; // Current event method name
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
    Long64_t       fSkippedEvents;      //! Number of events skipped filling tree by this task
+   Int_t          fMemoryAccumulated;  //! Accumulated used memory difference between BOE and EOE.
 
 private:
    ROMETask(const ROMETask &task); // not implemented
