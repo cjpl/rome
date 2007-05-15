@@ -3405,6 +3405,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                      buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[indx].Data(),taskHierarchySuffix[indx].Data());
                      indx = taskHierarchyParentIndex[indx];
                   }
+                  indx = tabSingleObjectTaskHierarchyIndex[iTab][j];
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Is%sActive()",taskHierarchyName[indx].Data(),taskHierarchySuffix[indx].Data(),tabSingleObjectName[iTab][j].Data());
                   buffer.AppendFormatted(") {\n");
                   if (tabSingleObjectType[iTab][j]=="Histogram") {
                      if (histoArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
