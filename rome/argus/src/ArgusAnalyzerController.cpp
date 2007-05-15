@@ -262,7 +262,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    Move(ax, ay);
    SetWMPosition(ax, ay);
 
-   TString window_name = "Control Panel";
+   TString window_name = "Analyzer Controller";
 #if 0 // fSocket is protected
    window_name += fNetFolder->fSocket->GetUrl();
 #endif
