@@ -418,7 +418,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] == 0) {
-               buffer.AppendFormatted("   if (%s && %s->isModified()) {\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (%s && %s->isModified()) {\n",valueName[iFold][i].Data(),
+                                      valueName[iFold][i].Data());
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("      return true;\n");
                buffer.AppendFormatted("   }\n");
@@ -526,7 +527,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                continue;
             } else if (valueArray[iFold][i][0] == "variable") {
                buffer.AppendFormatted("void %s::Set%sAt(Int_t indx,%s %s_value) {\n",clsName.Data(),
-                                      valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+                                      valueName[iFold][i].Data(),valueType[iFold][i].Data(),
+                                      valueName[iFold][i].Data());
                if (!valueNoBoundChech[iFold][i])
                   buffer.AppendFormatted("   if (!%sBoundsOk(\"Set%sAt\", indx)) return;\n",
                                          valueName[iFold][i].Data(),valueName[iFold][i].Data());
@@ -547,7 +549,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                       valueType[iFold][i].Data());
                buffer.AppendFormatted("      if (copyOldData)\n");
                buffer.AppendFormatted("         memcpy(%s, tmp, TMath::Min(%sSize, number) * sizeof(%s));\n",
-                                      valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
+                                      valueName[iFold][i].Data(),valueName[iFold][i].Data(),
+                                      valueType[iFold][i].Data());
                buffer.AppendFormatted("   } else {\n");
                buffer.AppendFormatted("      %s = 0;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
@@ -658,7 +661,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                       valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   %s tmp = %s%sAt(indx);\n",TArray2StandardType(valueType[iFold][i],tempBuffer),
+               buffer.AppendFormatted("   %s tmp = %s%sAt(indx);\n",
+                                      TArray2StandardType(valueType[iFold][i],tempBuffer),
                                       valueName[iFold][i].Data(),relation.Data());
                buffer.AppendFormatted("   tmp += %s_value;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   %s%sAddAt(tmp,indx);\n",valueName[iFold][i].Data(),relation.Data());
@@ -704,7 +708,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          if (!isFolder(valueType[iFold][i].Data()))
             continue;
          if (valueDimension[iFold][i] == 0) {
-            buffer.AppendFormatted("      if (%s) {%s->ResetModified();}\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("      if (%s) {%s->ResetModified();}\n",valueName[iFold][i].Data(),
+                                   valueName[iFold][i].Data());
          } else {
             buffer.AppendFormatted("      nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
             buffer.AppendFormatted("      for (Int_t i%d = 0; i%d < nentry; i%d++) { ((%s)%s->At(i%d))->ResetModified(); }\n",
@@ -817,7 +822,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             buffer.AppendFormatted("      %s%sReset(%s);\n",valueName[iFold][i].Data(),relation.Data(),
                                    valueInit[iFold][i].Data());
          } else if (valueArray[iFold][i][0] == "variable") {
-            buffer.AppendFormatted("      for (int i%d = 0; i%d < %sSize; i%d++) {\n",i,i,valueName[iFold][i].Data(),i);
+            buffer.AppendFormatted("      for (int i%d = 0; i%d < %sSize; i%d++) {\n",i,i,
+                                   valueName[iFold][i].Data(),i);
             buffer.AppendFormatted("         %s[i%d] = %s;\n",valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
             buffer.AppendFormatted("      }\n");
          } else {
@@ -1320,7 +1326,8 @@ Bool_t ROMEBuilder::WriteFolderH()
             if (valueType[iFold][i] == "TRef") {
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds SetModified(true); }\n",
                                    lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"","TObject*",
+                                      valueName[iFold][i].Data(),
                                       "",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             } if (isFolder(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())) {
                // operator= is not implemented
@@ -1330,8 +1337,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                    !isTArrayType(valueType[iFold][i])) {
                   buffer.AppendFormatted("   // you might have errors to use Set%s, if operator= is not implemented\n",
                                          valueName[iFold][i].Data());
-                  buffer.AppendFormatted("   // in %s class but %s has pointer data member.\n", valueType[iFold][i].Data(),
-                                         valueType[iFold][i].Data());
+                  buffer.AppendFormatted("   // in %s class but %s has pointer data member.\n",
+                                         valueType[iFold][i].Data(), valueType[iFold][i].Data());
                }
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds SetModified(true); }\n",
                                    lb,typeLen,lb,lb,lb);
@@ -1360,8 +1367,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                format.SetFormatted("   void Set%%sAt%%%ds(Int_t indx,%%-%ds %%s_value%%%ds) { %%s%%sAddAt(%%s_value,indx)%%%ds;%%%ds SetModified(true); }\n",
                                    lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",
-                                      TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),"",
-                                      valueName[iFold][i].Data(),relation.Data(),valueName[iFold][i].Data(),"","");
+                                      TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),
+                                      "", valueName[iFold][i].Data(),relation.Data(),valueName[iFold][i].Data(),"","");
                buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      %s%sSet(number);\n",valueName[iFold][i].Data(),relation.Data());
                buffer.AppendFormatted("      SetModified(true);\n");
@@ -1379,7 +1386,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds* %%s_value%%%ds) { %%s = %%s_value%%%ds;%%%ds SetModified(true); }\n",
                                    lb,typeLen - 1,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),
-                                      valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
+                                      valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),
+                                      valueName[iFold][i].Data(),"","");
                buffer.AppendFormatted("   void Set%sSize(Int_t number, Bool_t copyOldData = kFALSE);\n",
                                       valueName[iFold][i].Data());
                format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n, const %%s* array);\n",typeLen);
@@ -1477,7 +1485,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                continue;
             if (valueDimension[iFold][i] == 0) {
                if (valueType[iFold][i] == "TRef") {
-                  buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+                  buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),
+                                         valueInit[iFold][i].Data());
                } else {
                   buffer.AppendFormatted("%s %s_value=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),
                                          valueInit[iFold][i].Data());
@@ -2252,7 +2261,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("      graphName = \"%s\";\n",graphName[iTask][i].Data());
             buffer.AppendFormatted("      graphName+=fGraphSuffix;\n");
             if (graphArraySize[iTask][i] == "1") {
-               buffer.AppendFormatted("      f%s = new %s(1);\n",graphName[iTask][i].Data(),graphType[iTask][i].Data());
+               buffer.AppendFormatted("      f%s = new %s(1);\n",graphName[iTask][i].Data(),
+                                      graphType[iTask][i].Data());
                buffer.AppendFormatted("      f%s->SetNameTitle(\"%s\",\"%s\");\n",graphName[iTask][i].Data(),
                                       graphName[iTask][i].Data(),graphTitle[iTask][i].Data());
                if (!homeFolder) {
@@ -2642,7 +2652,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      Error(\"Get%s\", \"histogram %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",
-                                      histoName[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+                                      histoName[iTask][i].Data(),histoName[iTask][i].Data(),
+                                      histoName[iTask][i].Data());
                buffer.AppendFormatted("      return 0;\n");
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
@@ -2658,7 +2669,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      Error(\"Get%sAt\", \"histogram %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",
-                                      histoName[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+                                      histoName[iTask][i].Data(),histoName[iTask][i].Data(),
+                                      histoName[iTask][i].Data());
                buffer.AppendFormatted("      return 0;\n");
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
@@ -2678,7 +2690,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!f%sHisto->IsActive()) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      Error(\"Get%s\", \"histogram %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",
-                                      histoName[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+                                      histoName[iTask][i].Data(),histoName[iTask][i].Data(),
+                                      histoName[iTask][i].Data());
                buffer.AppendFormatted("      return 0;\n");
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
@@ -2729,7 +2742,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
                buffer.AppendFormatted("      Error(\"Get%s\", \"graph %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",
-                                      graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphName[iTask][i].Data());
+                                      graphName[iTask][i].Data(),graphName[iTask][i].Data(),
+                                      graphName[iTask][i].Data());
                buffer.AppendFormatted("      return 0;\n");
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
@@ -2745,7 +2759,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!f%sGraph->IsActive()) {\n",graphName[iTask][i].Data());
                buffer.AppendFormatted("      Error(\"Get%sAt\", \"graph %s is deactivated. Please check the state with Is%sActive() in your code.\");\n",
-                                      graphName[iTask][i].Data(),graphName[iTask][i].Data(),graphName[iTask][i].Data());
+                                      graphName[iTask][i].Data(),graphName[iTask][i].Data(),
+                                      graphName[iTask][i].Data());
                buffer.AppendFormatted("      return 0;\n");
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
@@ -2770,7 +2785,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
                buffer.AppendFormatted("      f%ss = (TObjArray*)(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%ss\"));\n",
-                                      graphName[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+                                      graphName[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),
+                                      graphName[iTask][i].Data());
                buffer.AppendFormatted("   return f%ss;\n",graphName[iTask][i].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
@@ -3364,7 +3380,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
-      buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu * /* menu */, Long_t /* param */)\n", shortCut.Data(),
+      buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu * /* menu */, Long_t /* param */)\n",
+                             shortCut.Data(),
                              tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("}\n");
@@ -3696,7 +3713,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   if (tabSingleObjectType[iTab][j] == "Histogram") {
                      if (histoArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]] == "1") {
                         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i + 1);
-                        buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j);
+                        buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",
+                                               tabSingleObjectName[iTab][j].Data(),j);
                         buffer.AppendFormatted("      f%sPad%d->SetLogx(fLogScaleX->At(%d));\n",
                                                tabSingleObjectName[iTab][j].Data(),j,j);
                         buffer.AppendFormatted("      f%sPad%d->SetLogy(fLogScaleY->At(%d));\n",
@@ -3741,7 +3759,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   } else if (tabSingleObjectType[iTab][j] == "Graph") {
                      if (graphArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]] == "1") {
                         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i + 1);
-                        buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j);
+                        buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",
+                                               tabSingleObjectName[iTab][j].Data(),j);
                         buffer.AppendFormatted("      f%sPad%d->SetLogx(fLogScaleX->At(%d));\n",
                                                tabSingleObjectName[iTab][j].Data(),j,j);
                         buffer.AppendFormatted("      f%sPad%d->SetLogy(fLogScaleY->At(%d));\n",
@@ -4067,11 +4086,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   } else {
                      for (k = tabSingleObjectArrayIndexStart[iTab][j]; k <= tabSingleObjectArrayIndexEnd[iTab][j]; k++) {
                         buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",
-                                               tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),
+                                               tabSingleObjectName[iTab][j].Data(),j,k,
+                                               taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),
                                                taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),
                                                tabSingleObjectName[iTab][j].Data(),k);
-                        buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j,
-                                               k);
+                        buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),
+                                               j, k);
                      }
                   }
                } else if (tabSingleObjectType[iTab][j] == "Graph") {
@@ -4083,14 +4103,15 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                                             tabSingleObjectName[iTab][j].Data());
                      buffer.AppendFormatted("      f%sPad%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j);
                   } else {
-                     for (k = tabSingleObjectArrayIndexStart[iTab][j]; k <= tabSingleObjectArrayIndexEnd[iTab][j]; k++) {
+                     for (k = tabSingleObjectArrayIndexStart[iTab][j]; k <= tabSingleObjectArrayIndexEnd[iTab][j];
+                          k++) {
                         buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",
                                                tabSingleObjectName[iTab][j].Data(),j,k,
                                                taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),
                                                taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),
                                                tabSingleObjectName[iTab][j].Data(),k);
-                        buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j,
-                                               k);
+                        buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),
+                                               j, k);
                      }
                   }
                }
@@ -4316,7 +4337,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                }
                buffer.AppendFormatted("         {\n");
                buffer.AppendFormatted("            fDisplayObjIndex = %d;\n",i);
-               buffer.AppendFormatted("            fCurrentDisplayType = %d;\n",tabObjectDisplayObjectTypeIndex[iTab][i]);
+               buffer.AppendFormatted("            fCurrentDisplayType = %d;\n",
+                                      tabObjectDisplayObjectTypeIndex[iTab][i]);
                buffer.AppendFormatted("            SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
                buffer.AppendFormatted("            fMenuDisplay->RCheckEntry(M_DISPLAY_%s",
                                       tabObjectDisplayName[iTab][i].ToUpper(str));
@@ -4353,7 +4375,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          for (i = 0; i < numOfTabObjectDisplays[iTab]; i++) {
             if (tabObjectDisplayTaskHierarchyIndex[iTab][i] < 0) {
                buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",
-                                      tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str));
+                                      tabObjectDisplayTitle[iTab][i].Data(),
+                                      tabObjectDisplayName[iTab][i].ToUpper(str));
             } else {
                if (tabObjectDisplayTaskHierarchyNumber[iTab][i] > 0) {
                   buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%d. %s\", M_DISPLAY_%s%s);\n",
@@ -4432,7 +4455,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          for (k = 0; k < numOfGraphs[taskHierarchyClassIndex[j]]; k++) {
             if (accessGraph(fileBuffer,taskHierarchyClassIndex[j],k) || accessGraph(buffer,taskHierarchyClassIndex[j],
                                                                                     k)) {
-               buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->Register%s();\n",taskHierarchyName[j].Data(),
+               buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->Register%s();\n",
+                                      taskHierarchyName[j].Data(),
                                       taskHierarchySuffix[j].Data(),graphName[taskHierarchyClassIndex[j]][k].Data());
             }
          }
@@ -4559,7 +4583,8 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("\n");
 
       // Fields
-      buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+      buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(),
+                             tabVersion[iTab].Data());
       if (tabShortDescription[iTab].Length())
          buffer.AppendFormatted(" // %s", tabShortDescription[iTab].Data());
       buffer.AppendFormatted("\n");
@@ -5203,8 +5228,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFoldersStorage = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),
                                       shortCut.Data(),folderName[i].Data());
-               buffer.AppendFormatted("   f%sFoldersStorage->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),
-                                      folderName[i].Data());
+               buffer.AppendFormatted("   f%sFoldersStorage->SetName(\"%s%s\");\n",folderName[i].Data(),
+                                      shortCut.Data(), folderName[i].Data());
             }
          }
       }
@@ -5960,9 +5985,9 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
                                 taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),i);
       }
       // create task
-      buffer.AppendFormatted("   AddTask(new %sT%s(\"%s%s\",\"%s\",%d,\"%s\",GetHistoFolderAt(%d)));\n",shortCut.Data(),
-                             taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),"",
-                             taskHierarchyLevel[i],taskHierarchySuffix[i].Data(),i);
+      buffer.AppendFormatted("   AddTask(new %sT%s(\"%s%s\",\"%s\",%d,\"%s\",GetHistoFolderAt(%d)));\n",
+                             shortCut.Data(), taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),
+                             taskHierarchySuffix[i].Data(),"", taskHierarchyLevel[i],taskHierarchySuffix[i].Data(),i);
       buffer.AppendFormatted("   GetTaskObjectAt(%d)->SetActive(false);\n",taskHierarchyObjectIndex[i]);
       if (taskHierarchyParentIndex[i] == -1) {
          parentt = "GetMainTask()";
@@ -6775,7 +6800,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("}\n\n");
 
 
-   buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p,Bool_t tabWindow)\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p,Bool_t tabWindow)\n", shortCut.Data(),
+                          shortCut.Data());
    buffer.AppendFormatted(":ArgusWindow(p,kTRUE");
    if (numOfTab > 0) {
       buffer.AppendFormatted(",new TObjArray(%d)",numOfTab);
@@ -6985,8 +7011,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
-      buffer.AppendFormatted("         if (fCurrentTabID != f%s%sTabID && param1 == f%s%sTabID) {\n", tabName[i].Data(),
-                             tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
+      buffer.AppendFormatted("         if (fCurrentTabID != f%s%sTabID && param1 == f%s%sTabID) {\n",
+                             tabName[i].Data(), tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("            f%s%sTab->BaseTabSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("         }\n");
    }
@@ -7046,8 +7072,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
-      buffer.AppendFormatted("         if (fCurrentTabID == f%s%sTabID && param1 != f%s%sTabID) {\n", tabName[i].Data(),
-                             tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
+      buffer.AppendFormatted("         if (fCurrentTabID == f%s%sTabID && param1 != f%s%sTabID) {\n",
+                             tabName[i].Data(), tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("            f%s%sTab->TabUnSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("         }\n");
    }
@@ -7056,7 +7082,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
-      buffer.AppendFormatted("         if (fCurrentTabID != f%s%sTabID && param1 == f%s%sTabID) {\n", tabName[i].Data(),
+      buffer.AppendFormatted("         if (fCurrentTabID != f%s%sTabID && param1 == f%s%sTabID) {\n",
+                             tabName[i].Data(),
                              tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("            fCurrentTabID = param1;\n");
       if (tabNumOfChildren[i])
@@ -7698,7 +7725,8 @@ Bool_t ROMEBuilder::WriteDBAccessH()
 
    // Method
    buffer.AppendFormatted("private:\n");
-   buffer.AppendFormatted("   %sDBAccess(const %sDBAccess &c); // not implemented\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("   %sDBAccess(const %sDBAccess &c); // not implemented\n", shortCut.Data(),
+                          shortCut.Data());
    buffer.AppendFormatted("   %sDBAccess &operator=(const %sDBAccess &c); // not implemented\n", shortCut.Data(),
                           shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -7912,7 +7940,8 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.Resize(0);
    WriteHeader(buffer, mainAuthor.Data(), kTRUE);
    clsName.SetFormatted("%sConfigToForm", shortCut.Data());
-   clsDescription.SetFormatted("This class makes form for configuration for %s%s.",shortCut.Data(),mainProgName.Data());
+   clsDescription.SetFormatted("This class makes form for configuration for %s%s.",shortCut.Data(),
+                               mainProgName.Data());
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
    buffer.AppendFormatted("\n\n");
 
@@ -8139,7 +8168,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
       if (!(level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") &&
           !(level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
          if (parGroup->GetSubGroupAt(i)->GetArraySize() == "1") {
-            buffer.AppendFormatted("%stempFrame[%d] = tempFrame[%d]->GetSubFrameAt(%d);\n",sTab.Data(),level + 1,level,i);
+            buffer.AppendFormatted("%stempFrame[%d] = tempFrame[%d]->GetSubFrameAt(%d);\n",sTab.Data(),level + 1,level,
+                                   i);
             WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),
                                         tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
                                         newConfigPointer.Data(),level + 1,tab);
@@ -8182,8 +8212,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
             }
             buffer.AppendFormatted("%s   tempFrame[%d]->AddSubFrame(new XMLToFormFrame(tempFrame[%d],str.Data(),\"\",true,XMLToFormFrame::kListTreeItem,true, 0, comment.Data()));\n",
                                    sTab.Data(),level,level);
-            buffer.AppendFormatted("%s   tempFrame[%d] = tempFrame[%d]->GetSubFrameAt(ii[%d]);\n",sTab.Data(),level + 1,
-                                   level,parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   tempFrame[%d] = tempFrame[%d]->GetSubFrameAt(ii[%d]);\n",sTab.Data(),
+                                   level + 1, level,parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
             WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),
                                         tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
                                         newConfigPointer.Data(),level + 1,tab + 1);

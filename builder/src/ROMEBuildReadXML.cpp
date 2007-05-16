@@ -149,7 +149,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    }
 
    // Allocate memory
-   parent = static_cast<ROMEString*>(AllocateROMEString(TMath::Max(maxNumberOfTasks,maxNumberOfFolders)+1));
+   parent = static_cast<ROMEString*>(AllocateROMEString(TMath::Max(maxNumberOfTasks,maxNumberOfFolders) + 1));
 
    numOfValue = static_cast<Int_t*>(AllocateInt(maxNumberOfFolders));
    numOfFolderInclude = static_cast<Int_t*>(AllocateInt(maxNumberOfFolders));
@@ -179,7 +179,8 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    valueInit = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueComment = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueDimension = static_cast<Int_t**>(AllocateInt(maxNumberOfFolders,maxNumberOfValues));
-   valueArray = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues,maxNumberOfValueDimension));
+   valueArray = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues,
+                                                              maxNumberOfValueDimension));
    valueArraySpecifier = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueDBName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueDBPath = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
@@ -238,9 +239,12 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    histoZmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoZmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    numOfHistoSingleObjectTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfHistos));
-   histoSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoSingleObjectTabs));
-   histoSingleObjectTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoSingleObjectTabs));
-   histoSingleObjectTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoSingleObjectTabs));
+   histoSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,
+                                                                            maxNumberOfHistoSingleObjectTabs));
+   histoSingleObjectTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,
+                                                                             maxNumberOfHistoSingleObjectTabs));
+   histoSingleObjectTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,
+                                                                                  maxNumberOfHistoSingleObjectTabs));
    numOfGraphs = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    graphName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
    graphTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
@@ -259,9 +263,12 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    graphZmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
    graphZmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
    numOfGraphSingleObjectTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfGraphs));
-   graphSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,maxNumberOfGraphSingleObjectTabs));
-   graphSingleObjectTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,maxNumberOfGraphSingleObjectTabs));
-   graphSingleObjectTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,maxNumberOfGraphSingleObjectTabs));
+   graphSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,
+                                                                            maxNumberOfGraphSingleObjectTabs));
+   graphSingleObjectTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,
+                                                                             maxNumberOfGraphSingleObjectTabs));
+   graphSingleObjectTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,
+                                                                                  maxNumberOfGraphSingleObjectTabs));
 
    // task hierarchy
    taskHierarchyName = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
@@ -273,29 +280,50 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskHierarchySuffix = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
 
    // steering
-   numOfSteering = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1));
-   numOfSteerFields = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering+1));
-   numOfSteerChildren = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering+1));
-   steerName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
-   steerArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
-   steerParent = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
-   steerChildren = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteering));
-   numOfSteerAffiliations = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
-   steerAffiliation = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfAffiliations));
-   steerUsed = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
-   steerFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldFormat = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldInit = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldComment = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldShortDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldCLOption = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldCLDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   numOfSteerFieldAffiliations = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldAffiliation = static_cast<ROMEString****>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField,maxNumberOfAffiliations));
-   steerFieldUsed = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
-   steerFieldHotLink = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   numOfSteering = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1));
+   numOfSteerFields = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering + 1));
+   numOfSteerChildren = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                         maxNumberOfSteering + 1));
+   steerName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering));
+   steerArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                 maxNumberOfSteering));
+   steerParent = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering));
+   steerChildren = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering,
+                                                     maxNumberOfSteering));
+   numOfSteerAffiliations = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                             maxNumberOfSteering));
+   steerAffiliation = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                    maxNumberOfSteering,maxNumberOfAffiliations));
+   steerUsed = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering));
+   steerFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                  maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                  maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldFormat = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                    maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                       maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldInit = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                  maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldComment = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                     maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldShortDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                              maxNumberOfSteering,
+                                                                              maxNumberOfSteeringField));
+   steerFieldCLOption = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                      maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldCLDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                           maxNumberOfSteering,
+                                                                           maxNumberOfSteeringField));
+   numOfSteerFieldAffiliations = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                   maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldAffiliation = static_cast<ROMEString****>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs + 1,
+                                                                          maxNumberOfSteering,maxNumberOfSteeringField,
+                                                                          maxNumberOfAffiliations));
+   steerFieldUsed = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering,
+                                                        maxNumberOfSteeringField));
+   steerFieldHotLink = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering,
+                                                           maxNumberOfSteeringField));
    gspInclude = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfInclude));
    gspLocalFlag = static_cast<Bool_t*>(AllocateBool(maxNumberOfInclude));
 
@@ -328,8 +356,10 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    menuTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus));
    menuDepth = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfMenus));
    menuItemChildMenuIndex = static_cast<Int_t***>(AllocateInt(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
-   menuItemEnumName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
-   menuItemTitle = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
+   menuItemEnumName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,
+                                                                    maxNumberOfMenuItems));
+   menuItemTitle = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,
+                                                                 maxNumberOfMenuItems));
    numOfTabSingleObjects = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabSingleObjectName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabSingleObjects));
    tabSingleObjectIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
@@ -343,15 +373,19 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfTabObjectDisplays = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabObjectDisplayName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
-   tabObjectDisplayObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs
+                                                                         ,maxNumberOfTabObjectDisplays));
    tabObjectDisplayType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
-   tabObjectDisplayTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,
+                                                                         maxNumberOfTabObjectDisplays));
    tabObjectDisplayTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayObjectIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
-   tabObjectDisplayTaskHierarchyNumber = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayTaskHierarchyNumber = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,
+                                                                          maxNumberOfTabObjectDisplays));
    tabObjectDisplayObjectTypeIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    numOfTabObjectDisplayObjectTypes = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
-   tabObjectDisplayObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplayObjectTypes));
+   tabObjectDisplayObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,
+                                                                             maxNumberOfTabObjectDisplayObjectTypes));
 
    // tree
    numOfBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
@@ -373,7 +407,8 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfThreadFunctions = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    numOfThreadFunctionArguments = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfThreadFunctions));
    threadFunctionName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfThreadFunctions));
-   threadFunctionArgument = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfThreadFunctions,maxNumberOfThreadFunctionArguments));
+   threadFunctionArgument = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfThreadFunctions,
+                                                                          maxNumberOfThreadFunctionArguments));
 
    // daq
    daqName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfDAQ));
@@ -397,10 +432,14 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    bankArraySize = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
    bankArrayStart = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
    bankArrayDigit = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
-   structFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
-   structFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
-   structFieldSize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
-   bankFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
+   structFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,
+                                                                   maxNumberOfStructFields));
+   structFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,
+                                                                   maxNumberOfStructFields));
+   structFieldSize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,
+                                                                   maxNumberOfStructFields));
+   bankFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,
+                                                                      maxNumberOfStructFields));
 
    // root DAQ
    numOfRootBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfRootTrees));
@@ -410,16 +449,22 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    rootBranchType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
    rootBranchArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
    rootBranchClassName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
-   rootBranchClassVersion = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
-   rootBranchFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
-   rootBranchFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
-   rootBranchFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
+   rootBranchClassVersion = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,
+                                                                         maxNumberOfRootBranches));
+   rootBranchFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,
+                                                                       maxNumberOfRootBranchFields));
+   rootBranchFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,
+                                                                       maxNumberOfRootBranchFields));
+   rootBranchFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,
+                                                                            maxNumberOfRootBranches,
+                                                                            maxNumberOfRootBranchFields));
 
    // user makefile
    mfDictHeaderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictHeaders));
    mfDictHeaderLinkDefSuffix = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictHeaders));
    numOfMFDictHeaderAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfMFDictHeaders));
-   mfDictHeaderAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFDictHeaders,maxNumberOfAffiliations));
+   mfDictHeaderAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFDictHeaders,
+                                                                          maxNumberOfAffiliations));
    mfDictHeaderUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFDictHeaders));
 
    mfDictIncDir = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictIncDirs));
@@ -444,7 +489,8 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfMFSourceFlags = static_cast<Int_t*>(AllocateInt(maxNumberOfMFSources));
    mfSourceFileFlag = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFSources,maxNumberOfMFSourceFlags));
    numOfMFSourceAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfMFSources));
-   mfSourceFileAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFSources,maxNumberOfAffiliations));
+   mfSourceFileAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFSources,
+                                                                          maxNumberOfAffiliations));
    mfSourceFileUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFSources));
 
    // precompiled headers;
@@ -515,8 +561,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
             name = xml->GetName();
             if (type == 15 && !strcmp((const char*)name,"ROMEFrameworkDefinition")) {
                if (!readExperiment) {
-                  cout << "Experiment tree missing!" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Experiment tree missing!"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                if (numOfFolder < 0) numOfFolder = 0;
@@ -577,9 +623,9 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         FormatText(styleSheet, kTRUE);
                      }
                      if (type == 15 && !strcmp((const char*)name,"Experiment")) {
-                        if (shortCut=="") {
-                           cout << "Experiment must have a shortcut!" << endl;
-                           cout << "Terminating program." << endl;
+                        if (shortCut == "") {
+                           cout<<"Experiment must have a shortcut!"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                         break;
@@ -620,14 +666,14 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   hasSupportFolderGenerated = false;
                   parent[0] = "GetMainFolder()";
                   // output
-                  if (makeOutput) cout << "Folders:" << endl;
+                  if (makeOutput) cout<<"Folders:"<<endl;
                   while (xml->NextLine()) {
                      type = xml->GetType();
                      name = xml->GetName();
                      // folder
                      if (type == 1 && !strcmp((const char*)name,"Folder")) {
                         recursiveDepth = 0;
-                        folderSupport[numOfFolder+1] = false;
+                        folderSupport[numOfFolder + 1] = false;
                         if (!ReadXMLFolder()) return false;
                      }
                      // folders end
@@ -636,11 +682,11 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      }
                   }
                   // check input
-                  for (i=0;i<numOfFolder;i++) {
-                     for (j=i+1;j<numOfFolder;j++) {
-                        if (folderName[i]==folderName[j]) {
-                           cout << "\nFolder '" << folderName[i].Data() << "' is defined twice !" << endl;
-                           cout << "Terminating program." << endl;
+                  for (i = 0; i < numOfFolder; i++) {
+                     for (j = i + 1; j < numOfFolder; j++) {
+                        if (folderName[i] == folderName[j]) {
+                           cout<<"\nFolder '"<<folderName[i].Data()<<"' is defined twice !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                      }
@@ -648,8 +694,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   // count folders
                   numOfFolder++;
                   // check if a folder has class fields
-                  for (i=0;i<numOfFolder;i++) {
-                     for (j=0;j<numOfValue[i];j++) {
+                  for (i = 0; i < numOfFolder; i++) {
+                     for (j = 0; j < numOfValue[i]; j++) {
                         if (valueIsTObject[i][j] || isFolder(valueName[i][j])) {
                            tmp = valueComment[i][j];
                            tmp.StripSpaces();
@@ -662,18 +708,18 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   }
                }
                if (!strcmp((const char*)name,"SupportFolders")) {
-                  if (numOfFolder==-1)
+                  if (numOfFolder == -1)
                      continue;
                   numOfFolder--;
                   // output
-                  if (makeOutput) cout << "SupportFolders:" << endl;
+                  if (makeOutput) cout<<"SupportFolders:"<<endl;
                   while (xml->NextLine()) {
                      type = xml->GetType();
                      name = xml->GetName();
                      // folder
                      if (type == 1 && !strcmp((const char*)name,"SupportFolder")) {
                         recursiveDepth = 0;
-                        folderSupport[numOfFolder+1] = true;
+                        folderSupport[numOfFolder + 1] = true;
                         if (!ReadXMLFolder()) return false;
                      }
                      // folders end
@@ -682,11 +728,11 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      }
                   }
                   // check input
-                  for (i=0;i<numOfFolder;i++) {
-                     for (j=i+1;j<numOfFolder;j++) {
-                        if (folderName[i]==folderName[j]) {
-                           cout << "\nFolder '" << folderName[i].Data() << "' is defined twice !" << endl;
-                           cout << "Terminating program." << endl;
+                  for (i = 0; i < numOfFolder; i++) {
+                     for (j = i + 1; j < numOfFolder; j++) {
+                        if (folderName[i] == folderName[j]) {
+                           cout<<"\nFolder '"<<folderName[i].Data()<<"' is defined twice !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                      }
@@ -694,8 +740,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   // count folders
                   numOfFolder++;
                   // check if a folder has class fields
-                  for (i=0;i<numOfFolder;i++) {
-                     for (j=0;j<numOfValue[i];j++) {
+                  for (i = 0; i < numOfFolder; i++) {
+                     for (j = 0; j < numOfValue[i]; j++) {
                         if (valueIsTObject[i][j] || isFolder(valueName[i][j])) {
                            tmp = valueComment[i][j];
                            tmp.StripSpaces();
@@ -713,7 +759,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   hasTaskGenerated = false;
                   parent[0] = "GetMainTask()";
                   // output
-                  if (makeOutput) cout << "\n\nTasks:" << endl;
+                  if (makeOutput) cout<<"\n\nTasks:"<<endl;
                   while (xml->NextLine()) {
                      type = xml->GetType();
                      name = xml->GetName();
@@ -730,17 +776,17 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   // count tasks
                   numOfTask++;
                   // check input
-                  for (i=0;i<numOfTask;i++) {
-                     for (j=i+1;j<numOfTask;j++) {
+                  for (i = 0; i < numOfTask; i++) {
+                     for (j = i + 1; j < numOfTask; j++) {
                         if (taskName[i] == taskName[j]) {
-                           cout << "\nTask '" << taskName[i].Data() << "' is defined twice !" << endl;
-                           cout << "Terminating program." << endl;
+                           cout<<"\nTask '"<<taskName[i].Data()<<"' is defined twice !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                      }
                   }
                   // default task hierarchy
-                  for (i=0;i<numOfTask;i++) {
+                  for (i = 0; i < numOfTask; i++) {
                      taskHierarchyName[i] = taskName[i];
                      taskHierarchyParentIndex[i] = -1;
                      taskHierarchyClassIndex[i] = i;
@@ -761,19 +807,20 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         xml->GetValue(taskHierarchyName[numOfTaskHierarchy],taskHierarchyName[numOfTaskHierarchy]);
                         FormatText(taskHierarchyName[numOfTaskHierarchy], kTRUE);
                         taskHierarchyClassIndex[numOfTaskHierarchy] = -1;
-                        for (i=0;i<numOfTask;i++) {
-                           if (taskName[i]==taskHierarchyName[numOfTaskHierarchy])
+                        for (i = 0; i < numOfTask; i++) {
+                           if (taskName[i] == taskHierarchyName[numOfTaskHierarchy])
                               taskHierarchyClassIndex[numOfTaskHierarchy] = i;
                         }
                         if (taskHierarchyClassIndex[numOfTaskHierarchy] == -1) {
-                           cout << "The task '" << taskHierarchyName[numOfTaskHierarchy].Data() << "' used in the task hierarchy is not defined !" << endl;
-                           cout << "Terminating program." << endl;
+                           cout<<"The task '"<<taskHierarchyName[numOfTaskHierarchy].Data()
+                               <<"' used in the task hierarchy is not defined !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                         taskHierarchyMultiplicity[numOfTaskHierarchy] = 1;
-                        for (i=0;i<numOfTaskHierarchy;i++) {
-                           if (taskHierarchyName[i]==taskHierarchyName[numOfTaskHierarchy] &&
-                               taskHierarchyParentIndex[i]==taskHierarchyParentIndex[numOfTaskHierarchy])
+                        for (i = 0; i < numOfTaskHierarchy; i++) {
+                           if (taskHierarchyName[i] == taskHierarchyName[numOfTaskHierarchy] &&
+                               taskHierarchyParentIndex[i] == taskHierarchyParentIndex[numOfTaskHierarchy])
                               taskHierarchyMultiplicity[numOfTaskHierarchy]++;
                         }
                         if (!taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]])
@@ -798,13 +845,13 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   continue;
                }
                if (!strcmp((const char*)name,"Tabs")) {
-                  if (numOfTask==-1)
+                  if (numOfTask == -1)
                      numOfTask++;
                   // initialization
                   numOfTab = -1;
                   // output
                   if (makeOutput)
-                     cout << "\n\nTabs:" << endl;
+                     cout<<"\n\nTabs:"<<endl;
                   while (xml->NextLine()) {
                      type = xml->GetType();
                      name = xml->GetName();
@@ -826,8 +873,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   for (i = 0; i < numOfTab; i++) {
                      for (j = i + 1; j < numOfTab; j++) {
                         if (tabName[i] == tabName[j]) {
-                           cout << "\nTab '" << tabName[i].Data() << "' is defined twice !" << endl;
-                           cout << "Terminating program." << endl;
+                           cout<<"\nTab '"<<tabName[i].Data()<<"' is defined twice !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                         if (tabName[i] == tabHeredity[j]) {
@@ -842,7 +889,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   numOfNetFolder = -1;
                   // output
                   if (makeOutput)
-                     cout << "\n\nNetFolders:" << endl;
+                     cout<<"\n\nNetFolders:"<<endl;
                   while (xml->NextLine()) {
                      type = xml->GetType();
                      name = xml->GetName();
@@ -860,8 +907,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   for (i = 0; i < numOfNetFolder; i++) {
                      for (j = i + 1; j < numOfNetFolder; j++) {
                         if (netFolderName[i] == netFolderName[j]) {
-                           cout << "\nNet folder '" << netFolderName[i].Data() << "' is defined twice !" << endl;
-                           cout << "Terminating program." << endl;
+                           cout<<"\nNet folder '"<<netFolderName[i].Data()<<"' is defined twice !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                      }
@@ -891,11 +938,11 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   if (!ReadXMLRootDAQ()) return false;
                }
                if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
-                  if (numOfTask==-1)
+                  if (numOfTask == -1)
                      numOfTask++;
                   readGlobalSteeringParameters = true;
                   // output
-                  if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
+                  if (makeOutput) cout<<"\n\nGlobal Steering Parameters:"<<endl;
                   // initialisation
                   steerName[numOfTask][0] = "GlobalSteering";
                   actualSteerIndex = 0;
@@ -913,8 +960,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
       }
    }
    if (!inputok) {
-      cout << "\nCould not find the <ROMEFrameworkDefinition> tag in the inputfile '"<< xmlFile.Data() << "'." << endl;
-      cout << "Terminating the ROMEBuilder." << endl;
+      cout<<"\nCould not find the <ROMEFrameworkDefinition> tag in the inputfile '"<< xmlFile.Data()<<"'."<<endl;
+      cout<<"Terminating the ROMEBuilder."<<endl;
       return false;
    }
    delete xml;
@@ -936,9 +983,9 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    // count folders
    numOfFolder++;
    currentNumberOfFolders = numOfFolder;
-   if (numOfFolder>=maxNumberOfFolders) {
-      cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
-      cout << "Terminating program." << endl;
+   if (numOfFolder >= maxNumberOfFolders) {
+      cout<<"Maximal number of folders reached : "<<maxNumberOfFolders<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return false;
    }
    // initialisation
@@ -968,8 +1015,8 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       if (type == 1 && !strcmp((const char*)name,"Folder")) {
          // set folder as parent for subsequent folders
          recursiveDepth++;
-         folderSupport[numOfFolder+1] = false;
-         if (parent[recursiveDepth].Length()==0)
+         folderSupport[numOfFolder + 1] = false;
+         if (parent[recursiveDepth].Length() == 0)
             parent[recursiveDepth] = folderName[numOfFolder].Data();
          // read subfolder
          if (!ReadXMLFolder())
@@ -979,16 +1026,16 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       // end folder
       if (type == 15 && (!strcmp((const char*)name,"Folder") || !strcmp((const char*)name,"SupportFolder"))) {
          // check input
-         if (currentFolderName=="") {
-            cout << "The " << (currentNumberOfFolders+1) << ". Folder has no name !" << endl;
-            cout << "Terminating program." << endl;
+         if (currentFolderName == "") {
+            cout<<"The "<<(currentNumberOfFolders + 1)<<". Folder has no name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (affiliations.GetEntriesFast()>0) {
+         if (affiliations.GetEntriesFast() > 0) {
             folderUsed[currentNumberOfFolders] = false;
-            for (i=0;i<affiliations.GetEntriesFast() && !folderUsed[currentNumberOfFolders];i++) {
-               for (j=0;j<numOfFolderAffiliations[currentNumberOfFolders];j++) {
-                  if (affiliations.At(i)==folderAffiliation[currentNumberOfFolders][j]) {
+            for (i = 0; i < affiliations.GetEntriesFast() && !folderUsed[currentNumberOfFolders]; i++) {
+               for (j = 0; j < numOfFolderAffiliations[currentNumberOfFolders]; j++) {
+                  if (affiliations.At(i) == folderAffiliation[currentNumberOfFolders][j]) {
                      folderUsed[currentNumberOfFolders] = true;
                      break;
                   }
@@ -1011,7 +1058,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
              && !folderShortDescription[currentNumberOfFolders].Length()
              && !folderDescription[currentNumberOfFolders].Contains("\n"))
             folderShortDescription[currentNumberOfFolders] = folderDescription[currentNumberOfFolders];
-         parent[recursiveDepth+1] = "";
+         parent[recursiveDepth + 1] = "";
          recursiveDepth--;
          return true;
       }
@@ -1021,7 +1068,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          FormatText(folderName[numOfFolder], kTRUE);
          currentFolderName = folderName[numOfFolder];
          // output
-         if (makeOutput) for (i=0;i<recursiveDepth;i++) cout << "   ";
+         if (makeOutput) for (i = 0; i < recursiveDepth; i++) cout<<"   ";
          if (makeOutput) folderName[numOfFolder].WriteLine();
       }
       // folder affiliation
@@ -1030,7 +1077,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          xml->GetValue(folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]]
                        ,folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]]);
          FormatText(folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]], kTRUE, " ");
-         for (i=0;i<affiliationList.GetEntries();i++) {
+         for (i = 0; i < affiliationList.GetEntries(); i++) {
             if (affiliationList.At(i,0) == folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]])
                break;
          }
@@ -1052,7 +1099,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       // folder data base access
       if (type == 1 && !strcmp((const char*)name,"DataBaseAccess")) {
          if (folderSupport[numOfFolder]) {
-            cout << "Support folders can not have database access!!" << endl;
+            cout<<"Support folders can not have database access!!"<<endl;
             continue;
          }
          xml->GetValue(tmp,"false");
@@ -1126,16 +1173,17 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                break;
          }
          // check input
-         if (folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]=="") {
-            cout << "An Include of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
-            cout << "Terminating program." << endl;
+         if (folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]] == "") {
+            cout<<"An Include of Folder '"<<folderName[numOfFolder].Data()<<"' has no Name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // count includes
          numOfFolderInclude[numOfFolder]++;
-         if (numOfFolderInclude[numOfFolder]>=maxNumberOfInclude) {
-            cout << "Maximal number of includes in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfFolderInclude[numOfFolder] >= maxNumberOfInclude) {
+            cout<<"Maximal number of includes in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+                <<maxNumberOfInclude<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          continue;
@@ -1165,7 +1213,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
          valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
          valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
-         for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+         for (iDm = 0; iDm < maxNumberOfValueDimension; iDm++)
             valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
          valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
@@ -1177,13 +1225,15 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             // field name
             if (type == 1 && !strcmp((const char*)name,"FieldName")) {
                readName = true;
-               xml->GetValue(valueName[numOfFolder][numOfValue[numOfFolder]],valueName[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueName[numOfFolder][numOfValue[numOfFolder]],
+                             valueName[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueName[numOfFolder][numOfValue[numOfFolder]], kTRUE, " ");
             }
             // field type
             if (type == 1 && !strcmp((const char*)name,"FieldType")) {
                readType = true;
-               xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],valueType[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],
+                             valueType[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueType[numOfFolder][numOfValue[numOfFolder]], kTRUE);
 #if 0 // better to use "InheritTObject" flag
                if (valueType[numOfFolder][numOfValue[numOfFolder]].BeginsWith("T")) {
@@ -1191,7 +1241,8 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                }
 #endif
                // set initial value
-               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" || valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString") {
+               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" ||
+                   valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString") {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
                } else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef") {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
@@ -1208,21 +1259,26 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             // field initialization
             if (type == 1 && !strcmp((const char*)name,"FieldInitialization")) {
                if (!readName) {
-                  cout << "Please specify a field name befor the initial value in the " << (numOfValue[numOfFolder]+1) << ".field in folder '" << folderName[numOfFolder].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Please specify a field name befor the initial value in the "<<(numOfValue[numOfFolder] + 1)
+                      <<".field in folder '"<<folderName[numOfFolder].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                if (!readType) {
-                  cout << "Please specify a field type befor the initial value in field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' in folder  '" << folderName[numOfFolder].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Please specify a field type befor the initial value in field '"
+                      <<valueName[numOfFolder][numOfValue[numOfFolder]].Data()<<"' in folder  '"
+                      <<folderName[numOfFolder].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
-               xml->GetValue(valueInit[numOfFolder][numOfValue[numOfFolder]],valueInit[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueInit[numOfFolder][numOfValue[numOfFolder]],
+                             valueInit[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueInit[numOfFolder][numOfValue[numOfFolder]], kTRUE);
             }
             // field comment
             if (type == 1 && !strcmp((const char*)name,"FieldComment")) {
-               xml->GetValue(valueComment[numOfFolder][numOfValue[numOfFolder]],valueComment[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueComment[numOfFolder][numOfValue[numOfFolder]],
+                             valueComment[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueComment[numOfFolder][numOfValue[numOfFolder]], kFALSE);
             }
             // field array size
@@ -1232,32 +1288,37 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                FormatText(tmp, kTRUE);
                istart = iend = 0;
                valueDimension[numOfFolder][numOfValue[numOfFolder]]++;
-               while ((iend=tmp.Index(":",1,istart,TString::kExact))!=-1) {
+               while ((iend=tmp.Index(":",1,istart,TString::kExact)) != -1) {
                   valueDimension[numOfFolder][numOfValue[numOfFolder]]++;
                   if (valueDimension[numOfFolder][numOfValue[numOfFolder]] > maxNumberOfValueDimension) {
-                     cout << "Error: dimension of "<<valueName[numOfFolder][numOfValue[numOfFolder]]<<" is larger than "<<maxNumberOfValueDimension<<" in "<<folderName[numOfFolder]<<"."<<endl;
-                     cout << "Terminating program." << endl;
+                     cout<<"Error: dimension of "<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                         <<" is larger than "<<maxNumberOfValueDimension<<" in "<<folderName[numOfFolder]<<"."<<endl;
+                     cout<<"Terminating program."<<endl;
                      return false;
 
                   }
-                  valueArray[numOfFolder][numOfValue[numOfFolder]][valueDimension[numOfFolder][numOfValue[numOfFolder]]-2] = tmp(istart,iend-istart);
-                  istart = iend+1;
+                  valueArray[numOfFolder][numOfValue[numOfFolder]][valueDimension[numOfFolder][numOfValue[numOfFolder]]-2] =
+                        tmp(istart,iend-istart);
+                  istart = iend + 1;
                }
                valueArray[numOfFolder][numOfValue[numOfFolder]][valueDimension[numOfFolder][numOfValue[numOfFolder]]-1] = tmp(istart,tmp.Length()-istart);
             }
             // database name
             if (type == 1 && !strcmp((const char*)name,"DataBaseName")) {
-               xml->GetValue(valueDBName[numOfFolder][numOfValue[numOfFolder]],valueDBName[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueDBName[numOfFolder][numOfValue[numOfFolder]],
+                             valueDBName[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueDBName[numOfFolder][numOfValue[numOfFolder]], kTRUE);
             }
             // database path
             if (type == 1 && !strcmp((const char*)name,"DataBasePath")) {
-               xml->GetValue(valueDBPath[numOfFolder][numOfValue[numOfFolder]],valueDBPath[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueDBPath[numOfFolder][numOfValue[numOfFolder]],
+                             valueDBPath[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueDBPath[numOfFolder][numOfValue[numOfFolder]], kTRUE);
             }
             // database if
             if (type == 1 && !strcmp((const char*)name,"DataBaseIfStatement")) {
-               xml->GetValue(valueDBIf[numOfFolder][numOfValue[numOfFolder]],valueDBIf[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueDBIf[numOfFolder][numOfValue[numOfFolder]],
+                             valueDBIf[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueDBIf[numOfFolder][numOfValue[numOfFolder]], kTRUE);
             }
             // no boundcheck
@@ -1282,87 +1343,102 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                break;
          }
          // check input
-         if (valueName[numOfFolder][numOfValue[numOfFolder]]=="") {
-            cout << "A Field of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
-            cout << "Terminating program." << endl;
+         if (valueName[numOfFolder][numOfValue[numOfFolder]] == "") {
+            cout<<"A Field of Folder '"<<folderName[numOfFolder].Data()<<"' has no Name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
-            cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
-            cout << "Terminating program." << endl;
+         if (valueType[numOfFolder][numOfValue[numOfFolder]] == "") {
+            cout<<"Field '"<<valueName[numOfFolder][numOfValue[numOfFolder]].Data()<<"' of Folder '"
+                <<folderName[numOfFolder].Data()<<"' has no Type !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1 &&
              (valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
               || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())
             ) {
-            cout << "Multiple dimension field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
-            cout << "Terminating program." << endl;
+            cout<<"Multiple dimension field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                <<"' can not have database connection"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1) {
-            for (iDm=1;iDm<3;iDm++) {
-               if (valueArray[numOfFolder][numOfValue[numOfFolder]][iDm]=="variable") {
-                  cout << "Multiple dimension field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have variable length."<<endl;
-                  cout << "Terminating program." << endl;
+            for (iDm = 1; iDm < 3; iDm++) {
+               if (valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] == "variable") {
+                  cout<<"Multiple dimension field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                      <<"' can not have variable length."<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
          }
-         if (valueArray[numOfFolder][numOfValue[numOfFolder]][0]=="variable"
+         if (valueArray[numOfFolder][numOfValue[numOfFolder]][0] == "variable"
              && ( valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
                   || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())) {
-            cout << "Variable length array field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
-            cout << "Terminating program." << endl;
+            cout<<"Variable length array field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                <<"' can not have database connection"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          tmp = valueComment[numOfFolder][numOfValue[numOfFolder]];
          tmp.ReplaceAll("//","");
          tmp.ReplaceAll(" ","");
          tmp.ReplaceAll("\t","");
-         if ((isNumber(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) || isBoolType(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) || valueType[numOfFolder][numOfValue[numOfFolder]]=="TString") && valueArray[numOfFolder][numOfValue[numOfFolder]][0]=="variable" && tmp[0]!='!') {
-            for (i=0;i<numOfValue[numOfFolder];i++) {
+         if ((isNumber(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) ||
+              isBoolType(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) ||
+              valueType[numOfFolder][numOfValue[numOfFolder]] == "TString") &&
+             valueArray[numOfFolder][numOfValue[numOfFolder]][0] == "variable" && tmp[0] != '!') {
+            for (i = 0; i < numOfValue[numOfFolder]; i++) {
                tmp.SetFormatted("[%s]",valueName[numOfFolder][i].Data());
-               if (valueComment[numOfFolder][numOfValue[numOfFolder]].Contains(tmp) && isIntType(valueType[numOfFolder][i].Data())) {
+               if (valueComment[numOfFolder][numOfValue[numOfFolder]].Contains(tmp) &&
+                   isIntType(valueType[numOfFolder][i].Data())) {
                   valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = valueName[numOfFolder][i];
                   break;
                }
             }
-            if (i==numOfValue[numOfFolder]) {
-               cout << "\nError: Variable length array member '"<< valueName[numOfFolder][numOfValue[numOfFolder]].Data()<<"' should have '!' or '[length]' at the top of comment."<<endl;
-               cout << "       If '!', field will not be stored in tree."<<endl;
-               cout << "       If '[length]', field will be stored in tree with the length. 'length' needs to be an integer field name of the folder. It must be defined ahead of its use."<<endl;
-               cout << "Terminating program." << endl;
+            if (i == numOfValue[numOfFolder]) {
+               cout<<"\nError: Variable length array member '"
+                   << valueName[numOfFolder][numOfValue[numOfFolder]].Data()
+                   <<"' should have '!' or '[length]' at the top of comment."<<endl;
+               cout<<"       If '!', field will not be stored in tree."<<endl;
+               cout<<"       If '[length]', field will be stored in tree with the length. 'length' needs to be an integer field name of the folder. It must be defined ahead of its use."
+                   <<endl;
+               cout<<"Terminating program."<<endl;
                return false;
             }
          }
          if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
             if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>2) {
-               cout << "Array of TArray is not supported. ( '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' )"<<endl;
-               cout << "Terminating program." << endl;
+               cout<<"Array of TArray is not supported. ( '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                   <<"' )"<<endl;
+               cout<<"Terminating program."<<endl;
                return false;
             }
             if (valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
                || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length()) {
-               cout << "TArray type field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
-               cout << "Terminating program." << endl;
+               cout<<"TArray type field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                   <<"' can not have database connection"<<endl;
+               cout<<"Terminating program."<<endl;
                return false;
             }
          }
-         for (i=0;i<numOfValue[numOfFolder];i++) {
-            for (j=i+1;j<numOfValue[numOfFolder];j++) {
-               if (valueName[numOfFolder][i]==valueName[numOfFolder][j]) {
-                  cout << "\nFolder '" << folderName[numOfFolder].Data() << "' has two fields with the name '" << valueName[numOfFolder][i].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+         for (i = 0; i < numOfValue[numOfFolder]; i++) {
+            for (j = i + 1; j < numOfValue[numOfFolder]; j++) {
+               if (valueName[numOfFolder][i] == valueName[numOfFolder][j]) {
+                  cout<<"\nFolder '"<<folderName[numOfFolder].Data()<<"' has two fields with the name '"
+                      <<valueName[numOfFolder][i].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
          }
          // count fields
          numOfValue[numOfFolder]++;
-         if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-            cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+            cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+                <<maxNumberOfValues<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          continue;
@@ -1382,8 +1458,8 @@ Bool_t ROMEBuilder::ReadXMLNetFolder()
    // count netFolders
    numOfNetFolder++;
    if (numOfNetFolder >= maxNumberOfNetFolders) {
-      cout << "Maximal number of net folders reached : " << maxNumberOfNetFolders << " !" << endl;
-      cout << "Terminating program." << endl;
+      cout<<"Maximal number of net folders reached : "<<maxNumberOfNetFolders<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return kFALSE;
    }
    // initialization
@@ -1400,8 +1476,8 @@ Bool_t ROMEBuilder::ReadXMLNetFolder()
       if (type == 15 && !strcmp(name, "NetFolder")) {
          // check input
          if (netFolderName[numOfNetFolder] == "") {
-            cout << "The " << (numOfNetFolder + 1) << ". NetFolder has no name !" << endl;
-            cout << "Terminating program." << endl;
+            cout<<"The "<<(numOfNetFolder + 1)<<". NetFolder has no name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return kFALSE;
          }
          return kTRUE;
@@ -1454,9 +1530,9 @@ Bool_t ROMEBuilder::ReadXMLTask()
    // count tasks
    numOfTask++;
    currentNumberOfTasks = numOfTask;
-   if (numOfTask>=maxNumberOfTasks) {
-      cout << "Maximal number of tasks reached : " << maxNumberOfTasks << " !" << endl;
-      cout << "Terminating program." << endl;
+   if (numOfTask >= maxNumberOfTasks) {
+      cout<<"Maximal number of tasks reached : "<<maxNumberOfTasks<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return false;
    }
    // initialisation
@@ -1496,16 +1572,16 @@ Bool_t ROMEBuilder::ReadXMLTask()
       // end task
       if (type == 15 && !strcmp((const char*)name,"Task")) {
          // check input
-         if (currentTaskName=="") {
-            cout << "The " << (currentNumberOfTasks+1) << ". Task has no name !" << endl;
-            cout << "Terminating program." << endl;
+         if (currentTaskName == "") {
+            cout<<"The "<<(currentNumberOfTasks + 1)<<". Task has no name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (affiliations.GetEntriesFast()>0) {
+         if (affiliations.GetEntriesFast() > 0) {
             taskUsed[numOfTask] = false;
-            for (i=0;i<affiliations.GetEntriesFast() && !taskUsed[numOfTask];i++) {
-               for (j=0;j<numOfTaskAffiliations[numOfTask];j++) {
-                  if (affiliations.At(i)==taskAffiliation[numOfTask][j]) {
+            for (i = 0; i < affiliations.GetEntriesFast() && !taskUsed[numOfTask]; i++) {
+               for (j = 0; j < numOfTaskAffiliations[numOfTask]; j++) {
+                  if (affiliations.At(i) == taskAffiliation[numOfTask][j]) {
                      taskUsed[numOfTask] = true;
                      break;
                   }
@@ -1529,15 +1605,16 @@ Bool_t ROMEBuilder::ReadXMLTask()
          FormatText(taskName[numOfTask], kTRUE, " .");
          currentTaskName = taskName[numOfTask];
          // output
-         if (makeOutput) for (i=0;i<recursiveDepth;i++) cout << "   ";
+         if (makeOutput) for (i = 0; i < recursiveDepth; i++) cout<<"   ";
          if (makeOutput) taskName[numOfTask].WriteLine();
       }
       // task affiliation
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
          taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]] = "";
-         xml->GetValue(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]],taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]]);
+         xml->GetValue(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]],
+                       taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]]);
          FormatText(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]], kTRUE, " ");
-         for (i=0;i<affiliationList.GetEntries();i++) {
+         for (i = 0; i < affiliationList.GetEntries(); i++) {
             if (affiliationList.At(i,0) == taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]])
                break;
          }
@@ -1632,7 +1709,8 @@ Bool_t ROMEBuilder::ReadXMLTask()
             name = xml->GetName();
             // include name
             if (type == 1 && !strcmp((const char*)name,"IncludeName")) {
-               xml->GetValue(taskInclude[numOfTask][numOfTaskInclude[numOfTask]],taskInclude[numOfTask][numOfTaskInclude[numOfTask]]);
+               xml->GetValue(taskInclude[numOfTask][numOfTaskInclude[numOfTask]],
+                             taskInclude[numOfTask][numOfTaskInclude[numOfTask]]);
                FormatText(taskInclude[numOfTask][numOfTaskInclude[numOfTask]], kTRUE);
             }
             // include type
@@ -1647,16 +1725,17 @@ Bool_t ROMEBuilder::ReadXMLTask()
                break;
          }
          // check input
-         if (taskInclude[numOfTask][numOfTaskInclude[numOfTask]]=="") {
-            cout << "An Include of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-            cout << "Terminating program." << endl;
+         if (taskInclude[numOfTask][numOfTaskInclude[numOfTask]] == "") {
+            cout<<"An Include of Task '"<<taskName[numOfTask].Data()<<"' has no Name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // count includes
          numOfTaskInclude[numOfTask]++;
-         if (numOfTaskInclude[numOfTask]>=maxNumberOfInclude) {
-            cout << "Maximal number of includes in Task '" << taskName[numOfTask].Data() << "' reached : " << numOfTaskInclude << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfTaskInclude[numOfTask] >= maxNumberOfInclude) {
+            cout<<"Maximal number of includes in Task '"<<taskName[numOfTask].Data()<<"' reached : "
+                <<numOfTaskInclude<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          continue;
@@ -1689,97 +1768,116 @@ Bool_t ROMEBuilder::ReadXMLTask()
             name = xml->GetName();
             // histo name
             if (type == 1 && !strcmp((const char*)name,"HistName")) {
-               xml->GetValue(histoName[numOfTask][numOfHistos[numOfTask]],histoName[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoName[numOfTask][numOfHistos[numOfTask]],
+                             histoName[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoName[numOfTask][numOfHistos[numOfTask]], kTRUE, " ");
             }
             // histo title
             if (type == 1 && !strcmp((const char*)name,"HistTitle")) {
-               xml->GetValue(histoTitle[numOfTask][numOfHistos[numOfTask]],histoTitle[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoTitle[numOfTask][numOfHistos[numOfTask]],
+                             histoTitle[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoTitle[numOfTask][numOfHistos[numOfTask]], kFALSE);
             }
             // histo folder name
             if (type == 1 && !strcmp((const char*)name,"HistFolderName")) {
-               xml->GetValue(histoFolderName[numOfTask][numOfHistos[numOfTask]],histoFolderName[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoFolderName[numOfTask][numOfHistos[numOfTask]],
+                             histoFolderName[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoFolderName[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo folder title
             if (type == 1 && !strcmp((const char*)name,"HistFolderTitle")) {
-               xml->GetValue(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],histoFolderTitle[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],
+                             histoFolderTitle[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoFolderTitle[numOfTask][numOfHistos[numOfTask]], kFALSE);
             }
             // histo type
             if (type == 1 && !strcmp((const char*)name,"HistType")) {
-               xml->GetValue(histoType[numOfTask][numOfHistos[numOfTask]],histoType[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoType[numOfTask][numOfHistos[numOfTask]],
+                             histoType[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoType[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo array size
             if (type == 1 && !strcmp((const char*)name,"HistArraySize")) {
-               xml->GetValue(histoArraySize[numOfTask][numOfHistos[numOfTask]],histoArraySize[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoArraySize[numOfTask][numOfHistos[numOfTask]],
+                             histoArraySize[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoArraySize[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo array start index
             if (type == 1 && !strcmp((const char*)name,"HistArrayStartIndex")) {
-               xml->GetValue(histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]],histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]],
+                             histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo x label
             if (type == 1 && !strcmp((const char*)name,"HistXLabel")) {
-               xml->GetValue(histoXLabel[numOfTask][numOfHistos[numOfTask]],histoXLabel[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoXLabel[numOfTask][numOfHistos[numOfTask]],
+                             histoXLabel[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoXLabel[numOfTask][numOfHistos[numOfTask]], kFALSE);
             }
             // histo y label
             if (type == 1 && !strcmp((const char*)name,"HistYLabel")) {
-               xml->GetValue(histoYLabel[numOfTask][numOfHistos[numOfTask]],histoYLabel[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoYLabel[numOfTask][numOfHistos[numOfTask]],
+                             histoYLabel[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoYLabel[numOfTask][numOfHistos[numOfTask]], kFALSE);
             }
             // histo z label
             if (type == 1 && !strcmp((const char*)name,"HistZLabel")) {
-               xml->GetValue(histoZLabel[numOfTask][numOfHistos[numOfTask]],histoZLabel[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoZLabel[numOfTask][numOfHistos[numOfTask]],
+                             histoZLabel[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoZLabel[numOfTask][numOfHistos[numOfTask]], kFALSE);
             }
             // histo number of bins in x
             if (type == 1 && !strcmp((const char*)name,"HistXNbins")) {
-               xml->GetValue(histoXNbins[numOfTask][numOfHistos[numOfTask]],histoXNbins[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoXNbins[numOfTask][numOfHistos[numOfTask]],
+                             histoXNbins[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoXNbins[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo min value in x
             if (type == 1 && !strcmp((const char*)name,"HistXmin")) {
-               xml->GetValue(histoXmin[numOfTask][numOfHistos[numOfTask]],histoXmin[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoXmin[numOfTask][numOfHistos[numOfTask]],
+                             histoXmin[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoXmin[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo max value in x
             if (type == 1 && !strcmp((const char*)name,"HistXmax")) {
-               xml->GetValue(histoXmax[numOfTask][numOfHistos[numOfTask]],histoXmax[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoXmax[numOfTask][numOfHistos[numOfTask]],
+                             histoXmax[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoXmax[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo number of bins in y
             if (type == 1 && !strcmp((const char*)name,"HistYNbins")) {
-               xml->GetValue(histoYNbins[numOfTask][numOfHistos[numOfTask]],histoYNbins[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoYNbins[numOfTask][numOfHistos[numOfTask]],
+                             histoYNbins[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoYNbins[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo min value in y
             if (type == 1 && !strcmp((const char*)name,"HistYmin")) {
-               xml->GetValue(histoYmin[numOfTask][numOfHistos[numOfTask]],histoYmin[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoYmin[numOfTask][numOfHistos[numOfTask]],
+                             histoYmin[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoYmin[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo max value in y
             if (type == 1 && !strcmp((const char*)name,"HistYmax")) {
-               xml->GetValue(histoYmax[numOfTask][numOfHistos[numOfTask]],histoYmax[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoYmax[numOfTask][numOfHistos[numOfTask]],
+                             histoYmax[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoYmax[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo number of bins in z
             if (type == 1 && !strcmp((const char*)name,"HistZNbins")) {
-               xml->GetValue(histoZNbins[numOfTask][numOfHistos[numOfTask]],histoZNbins[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoZNbins[numOfTask][numOfHistos[numOfTask]],
+                             histoZNbins[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoZNbins[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo min value in z
             if (type == 1 && !strcmp((const char*)name,"HistZmin")) {
-               xml->GetValue(histoZmin[numOfTask][numOfHistos[numOfTask]],histoZmin[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoZmin[numOfTask][numOfHistos[numOfTask]],
+                             histoZmin[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoZmin[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo max value in z
             if (type == 1 && !strcmp((const char*)name,"HistZmax")) {
-               xml->GetValue(histoZmax[numOfTask][numOfHistos[numOfTask]],histoZmax[numOfTask][numOfHistos[numOfTask]]);
+               xml->GetValue(histoZmax[numOfTask][numOfHistos[numOfTask]],
+                             histoZmax[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoZmax[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // argus
@@ -1789,9 +1887,12 @@ Bool_t ROMEBuilder::ReadXMLTask()
                   name = xml->GetName();
                   // tab
                   if (type == 1 && !strcmp((const char*)name,"Tab")) {
-                     if (numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]>=maxNumberOfHistoSingleObjectTabs) {
-                        cout << "Maximal number of Tabs in the Argus section of Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' reached : " << maxNumberOfHistoSingleObjectTabs << " !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]] >=
+                         maxNumberOfHistoSingleObjectTabs) {
+                        cout<<"Maximal number of Tabs in the Argus section of Histogram '"
+                            <<histoName[numOfTask][numOfHistos[numOfTask]].Data()<<"' reached : "
+                            <<maxNumberOfHistoSingleObjectTabs<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                      histoSingleObjectTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]] = "";
@@ -1814,9 +1915,10 @@ Bool_t ROMEBuilder::ReadXMLTask()
                         }
                         // array index
                         if (type == 1 && !strcmp((const char*)name,"HistArrayIndex")) {
-                           xml->GetValue(histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]]
-                                         ,histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]]);
-                           FormatText(histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]], kTRUE);
+                           xml->GetValue(histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]],
+                                         histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]]);
+                           FormatText(histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]],
+                                      kTRUE);
                         }
                         // tab end
                         if (type == 15 && !strcmp((const char*)name,"Tab")) {
@@ -1835,30 +1937,33 @@ Bool_t ROMEBuilder::ReadXMLTask()
                break;
          }
          // check input
-         if (histoName[numOfTask][numOfHistos[numOfTask]]=="") {
-            cout << "A Histo of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-            cout << "Terminating program." << endl;
+         if (histoName[numOfTask][numOfHistos[numOfTask]] == "") {
+            cout<<"A Histo of Task '"<<taskName[numOfTask].Data()<<"' has no Name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (histoType[numOfTask][numOfHistos[numOfTask]]=="") {
-            cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no type defined !" << endl;
-            cout << "Terminating program." << endl;
+         if (histoType[numOfTask][numOfHistos[numOfTask]] == "") {
+            cout<<"Histogram '"<<histoName[numOfTask][numOfHistos[numOfTask]].Data()<<"' of Task '"
+                <<taskName[numOfTask].Data()<<"' has no type defined !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         for (i=0;i<numOfHistos[numOfTask];i++) {
-            for (j=i+1;j<numOfHistos[numOfTask];j++) {
-               if (histoName[numOfTask][i]==histoName[numOfTask][j]) {
-                  cout << "\nTask '" << taskName[numOfTask].Data() << "' has two histos with the name '" << histoName[numOfTask][i].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+         for (i = 0; i < numOfHistos[numOfTask]; i++) {
+            for (j = i + 1; j < numOfHistos[numOfTask]; j++) {
+               if (histoName[numOfTask][i] == histoName[numOfTask][j]) {
+                  cout<<"\nTask '"<<taskName[numOfTask].Data()<<"' has two histos with the name '"
+                      <<histoName[numOfTask][i].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
          }
          // count histos
          numOfHistos[numOfTask]++;
-         if (numOfHistos[numOfTask]>=maxNumberOfHistos) {
-            cout << "Maximal number of histos in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfHistos << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfHistos[numOfTask] >= maxNumberOfHistos) {
+            cout<<"Maximal number of histos in task '"<<taskName[numOfTask].Data()<<"' reached : "
+                <<maxNumberOfHistos<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          continue;
@@ -1888,84 +1993,100 @@ Bool_t ROMEBuilder::ReadXMLTask()
             name = xml->GetName();
             // histo name
             if (type == 1 && !strcmp((const char*)name,"GraphName")) {
-               xml->GetValue(graphName[numOfTask][numOfGraphs[numOfTask]],graphName[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphName[numOfTask][numOfGraphs[numOfTask]],
+                             graphName[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphName[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph title
             if (type == 1 && !strcmp((const char*)name,"GraphTitle")) {
-               xml->GetValue(graphTitle[numOfTask][numOfGraphs[numOfTask]],graphTitle[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphTitle[numOfTask][numOfGraphs[numOfTask]],
+                             graphTitle[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphTitle[numOfTask][numOfGraphs[numOfTask]], kFALSE);
             }
             // graph folder name
             if (type == 1 && !strcmp((const char*)name,"GraphFolderName")) {
-               xml->GetValue(graphFolderName[numOfTask][numOfGraphs[numOfTask]],graphFolderName[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphFolderName[numOfTask][numOfGraphs[numOfTask]],
+                             graphFolderName[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphFolderName[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph folder title
             if (type == 1 && !strcmp((const char*)name,"GraphFolderTitle")) {
-               xml->GetValue(graphFolderTitle[numOfTask][numOfGraphs[numOfTask]],graphFolderTitle[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphFolderTitle[numOfTask][numOfGraphs[numOfTask]],
+                             graphFolderTitle[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphFolderTitle[numOfTask][numOfGraphs[numOfTask]], kFALSE);
             }
             // graph type
             if (type == 1 && !strcmp((const char*)name,"GraphType")) {
-               xml->GetValue(graphType[numOfTask][numOfGraphs[numOfTask]],graphType[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphType[numOfTask][numOfGraphs[numOfTask]],
+                             graphType[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphType[numOfTask][numOfGraphs[numOfTask]], kTRUE);
-               if (graphType[numOfTask][numOfGraphs[numOfTask]]=="TGraph")
+               if (graphType[numOfTask][numOfGraphs[numOfTask]] == "TGraph")
                   graphType[numOfTask][numOfGraphs[numOfTask]]="TGraphMT";
             }
             // graph array size
             if (type == 1 && !strcmp((const char*)name,"GraphArraySize")) {
-               xml->GetValue(graphArraySize[numOfTask][numOfGraphs[numOfTask]],graphArraySize[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphArraySize[numOfTask][numOfGraphs[numOfTask]],
+                             graphArraySize[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphArraySize[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph array start index
             if (type == 1 && !strcmp((const char*)name,"GraphArrayStartIndex")) {
-               xml->GetValue(graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]],graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]],
+                             graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph x label
             if (type == 1 && !strcmp((const char*)name,"GraphXLabel")) {
-               xml->GetValue(graphXLabel[numOfTask][numOfGraphs[numOfTask]],graphXLabel[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphXLabel[numOfTask][numOfGraphs[numOfTask]],
+                             graphXLabel[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphXLabel[numOfTask][numOfGraphs[numOfTask]], kFALSE);
             }
             // graph y label
             if (type == 1 && !strcmp((const char*)name,"GraphYLabel")) {
-               xml->GetValue(graphYLabel[numOfTask][numOfGraphs[numOfTask]],graphYLabel[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphYLabel[numOfTask][numOfGraphs[numOfTask]],
+                             graphYLabel[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphYLabel[numOfTask][numOfGraphs[numOfTask]], kFALSE);
             }
             // graph z label
             if (type == 1 && !strcmp((const char*)name,"GraphZLabel")) {
-               xml->GetValue(graphZLabel[numOfTask][numOfGraphs[numOfTask]],graphZLabel[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphZLabel[numOfTask][numOfGraphs[numOfTask]],
+                             graphZLabel[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphZLabel[numOfTask][numOfGraphs[numOfTask]], kFALSE);
             }
             // graph xmin
             if (type == 1 && !strcmp((const char*)name,"GraphXmin")) {
-               xml->GetValue(graphXmin[numOfTask][numOfGraphs[numOfTask]],graphXmin[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphXmin[numOfTask][numOfGraphs[numOfTask]],
+                             graphXmin[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphXmin[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph xmax
             if (type == 1 && !strcmp((const char*)name,"GraphXmax")) {
-               xml->GetValue(graphXmax[numOfTask][numOfGraphs[numOfTask]],graphXmax[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphXmax[numOfTask][numOfGraphs[numOfTask]],
+                             graphXmax[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphXmax[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph ymin
             if (type == 1 && !strcmp((const char*)name,"GraphYmin")) {
-               xml->GetValue(graphYmin[numOfTask][numOfGraphs[numOfTask]],graphYmin[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphYmin[numOfTask][numOfGraphs[numOfTask]],
+                             graphYmin[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphYmin[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph ymax
             if (type == 1 && !strcmp((const char*)name,"GraphYmax")) {
-               xml->GetValue(graphYmax[numOfTask][numOfGraphs[numOfTask]],graphYmax[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphYmax[numOfTask][numOfGraphs[numOfTask]],
+                             graphYmax[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphYmax[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph zmin
             if (type == 1 && !strcmp((const char*)name,"GraphZmin")) {
-               xml->GetValue(graphZmin[numOfTask][numOfGraphs[numOfTask]],graphZmin[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphZmin[numOfTask][numOfGraphs[numOfTask]],
+                             graphZmin[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphZmin[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // graph zmax
             if (type == 1 && !strcmp((const char*)name,"GraphZmax")) {
-               xml->GetValue(graphZmax[numOfTask][numOfGraphs[numOfTask]],graphZmax[numOfTask][numOfGraphs[numOfTask]]);
+               xml->GetValue(graphZmax[numOfTask][numOfGraphs[numOfTask]],
+                             graphZmax[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphZmax[numOfTask][numOfGraphs[numOfTask]], kTRUE);
             }
             // argus
@@ -1975,9 +2096,12 @@ Bool_t ROMEBuilder::ReadXMLTask()
                   name = xml->GetName();
                   // tab
                   if (type == 1 && !strcmp((const char*)name,"Tab")) {
-                     if (numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]>=maxNumberOfGraphSingleObjectTabs) {
-                        cout << "Maximal number of Tabs in the Argus section of Graph '" << graphName[numOfTask][numOfGraphs[numOfTask]].Data() << "' reached : " << maxNumberOfGraphSingleObjectTabs << " !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]] >=
+                         maxNumberOfGraphSingleObjectTabs) {
+                        cout<<"Maximal number of Tabs in the Argus section of Graph '"
+                            <<graphName[numOfTask][numOfGraphs[numOfTask]].Data()<<"' reached : "
+                            <<maxNumberOfGraphSingleObjectTabs<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                      graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]] = "";
@@ -1988,21 +2112,24 @@ Bool_t ROMEBuilder::ReadXMLTask()
                         name = xml->GetName();
                         // tab name
                         if (type == 1 && !strcmp((const char*)name,"TabName")) {
-                           xml->GetValue(graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]
-                                         ,graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
-                           FormatText(graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]], kTRUE, " ");
+                           xml->GetValue(graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],
+                                         graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
+                           FormatText(graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],
+                                      kTRUE, " ");
                         }
                         // index
                         if (type == 1 && !strcmp((const char*)name,"Index")) {
-                           xml->GetValue(graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]
-                                         ,graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
-                           FormatText(graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]], kTRUE);
+                           xml->GetValue(graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],
+                                         graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
+                           FormatText(graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],
+                                      kTRUE);
                         }
                         // array index
                         if (type == 1 && !strcmp((const char*)name,"HistArrayIndex")) {
-                           xml->GetValue(graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]
-                                         ,graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
-                           FormatText(graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]], kTRUE);
+                           xml->GetValue(graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],
+                                         graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
+                           FormatText(graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],
+                                      kTRUE);
                         }
                         // tab end
                         if (type == 15 && !strcmp((const char*)name,"Tab")) {
@@ -2021,30 +2148,33 @@ Bool_t ROMEBuilder::ReadXMLTask()
                break;
          }
          // check input
-         if (graphName[numOfTask][numOfGraphs[numOfTask]]=="") {
-            cout << "A Graph of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-            cout << "Terminating program." << endl;
+         if (graphName[numOfTask][numOfGraphs[numOfTask]] == "") {
+            cout<<"A Graph of Task '"<<taskName[numOfTask].Data()<<"' has no Name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (graphType[numOfTask][numOfGraphs[numOfTask]]=="") {
-            cout << "Graph '" << graphName[numOfTask][numOfGraphs[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no type defined !" << endl;
-            cout << "Terminating program." << endl;
+         if (graphType[numOfTask][numOfGraphs[numOfTask]] == "") {
+            cout<<"Graph '"<<graphName[numOfTask][numOfGraphs[numOfTask]].Data()<<"' of Task '"
+                <<taskName[numOfTask].Data()<<"' has no type defined !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         for (i=0;i<numOfGraphs[numOfTask];i++) {
-            for (j=i+1;j<numOfGraphs[numOfTask];j++) {
-               if (graphName[numOfTask][i]==graphName[numOfTask][j]) {
-                  cout << "\nTask '" << taskName[numOfTask].Data() << "' has two graphs with the name '" << graphName[numOfTask][i].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+         for (i = 0; i < numOfGraphs[numOfTask]; i++) {
+            for (j = i + 1;j < numOfGraphs[numOfTask]; j++) {
+               if (graphName[numOfTask][i] == graphName[numOfTask][j]) {
+                  cout<<"\nTask '"<<taskName[numOfTask].Data()<<"' has two graphs with the name '"
+                      <<graphName[numOfTask][i].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
          }
          // count graphs
          numOfGraphs[numOfTask]++;
-         if (numOfGraphs[numOfTask]>=maxNumberOfGraphs) {
-            cout << "Maximal number of graphs in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfGraphs << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfGraphs[numOfTask] >= maxNumberOfGraphs) {
+            cout<<"Maximal number of graphs in task '"<<taskName[numOfTask].Data()<<"' reached : "
+                <<maxNumberOfGraphs<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          continue;
@@ -2081,8 +2211,8 @@ Bool_t ROMEBuilder::ReadXMLTab()
    numOfTab++;
    currentNumberOfTabs = numOfTab;
    if (currentNumberOfTabs >= maxNumberOfTabs) {
-      cout << "Maximal number of tabs reached : " << maxNumberOfTabs << " !" << endl;
-      cout << "Terminating program." << endl;
+      cout<<"Maximal number of tabs reached : "<<maxNumberOfTabs<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return kFALSE;
    }
    // initialisation
@@ -2102,14 +2232,14 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabKnownProblems[currentNumberOfTabs] = "";
    tabHeredity[currentNumberOfTabs] = "";
    tabHeredityIndex[currentNumberOfTabs] = 0;
-   numOfSteering[currentNumberOfTabs+numOfTask+1] = -1;
+   numOfSteering[currentNumberOfTabs+numOfTask + 1] = -1;
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
    numOfThreadFunctions[currentNumberOfTabs] = 0;
    numOfTabSingleObjects[currentNumberOfTabs] = 0;
-   numOfSteering[currentNumberOfTabs+numOfTask+1] = 0;
-   numOfSteerFields[currentNumberOfTabs+numOfTask+1][0] = 0;
-   numOfSteerChildren[currentNumberOfTabs+numOfTask+1][0] = 0;
+   numOfSteering[currentNumberOfTabs+numOfTask + 1] = 0;
+   numOfSteerFields[currentNumberOfTabs+numOfTask + 1][0] = 0;
+   numOfSteerChildren[currentNumberOfTabs+numOfTask + 1][0] = 0;
    numOfTabObjectDisplays[currentNumberOfTabs] = 0;
    numOfTabObjectDisplayObjectTypes[currentNumberOfTabs] = 0;
 
@@ -2133,15 +2263,15 @@ Bool_t ROMEBuilder::ReadXMLTab()
       if (type == 15 && !strcmp(name, "Tab")) {
          // check input
          if (currentTabName == "") {
-            cout << "The " << (currentNumberOfTabs + 1) << ". Tab has no name !" << endl;
-            cout << "Terminating program." << endl;
+            cout<<"The "<<(currentNumberOfTabs + 1)<<". Tab has no name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return kFALSE;
          }
-         if (affiliations.GetEntriesFast()>0) {
+         if (affiliations.GetEntriesFast() > 0) {
             tabUsed[currentNumberOfTabs] = false;
-            for (i=0;i<affiliations.GetEntriesFast() && !tabUsed[currentNumberOfTabs];i++) {
-               for (j=0;j<numOfTabAffiliations[currentNumberOfTabs];j++) {
-                  if (affiliations.At(i)==tabAffiliation[currentNumberOfTabs][j]) {
+            for (i = 0; i < affiliations.GetEntriesFast() && !tabUsed[currentNumberOfTabs]; i++) {
+               for (j = 0; j < numOfTabAffiliations[currentNumberOfTabs]; j++) {
+                  if (affiliations.At(i) == tabAffiliation[currentNumberOfTabs][j]) {
                      tabUsed[currentNumberOfTabs] = true;
                      break;
                   }
@@ -2149,12 +2279,13 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
          }
          // Check Tab Objects
-         if (numOfTabObjectDisplays[currentNumberOfTabs]==0 && tabObjectDisplay[currentNumberOfTabs])
+         if (numOfTabObjectDisplays[currentNumberOfTabs] == 0 && tabObjectDisplay[currentNumberOfTabs])
             tabObjectDisplay[currentNumberOfTabs] = false;
-         for (i=0;i<numOfTabObjectDisplays[currentNumberOfTabs];i++) {
+         for (i = 0; i < numOfTabObjectDisplays[currentNumberOfTabs]; i++) {
             if (tabUsed[currentNumberOfTabs] && tabObjectDisplayType[currentNumberOfTabs][i] == "none") {
-               cout << "The object reference of a display object '" << tabObjectDisplayName[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
-               cout << "Terminating program." << endl;
+               cout<<"The object reference of a display object '"<<tabObjectDisplayName[currentNumberOfTabs][i].Data()
+                   <<"' of tab '"<<tabName[currentNumberOfTabs].Data()<<"' was not found !"<<endl;
+               cout<<"Terminating program."<<endl;
                return kFALSE;
             }
          }
@@ -2175,7 +2306,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
          // output
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth; i++)
-               cout << "   ";
+               cout<<"   ";
          if (makeOutput)
             tabName[currentNumberOfTabs].WriteLine();
       }
@@ -2186,9 +2317,10 @@ Bool_t ROMEBuilder::ReadXMLTab()
       }
       // tab histo display
       if (type == 1 && !strcmp(name, "HistogramDisplay")) {
-         cout << "The tag HistogramDisplay has been renamed to TabObjectDisplay. ( " << tabName[currentNumberOfTabs] << " )" << endl;
-         cout << "Please see the ROME homepage under 'TabObjectDisplay'." << endl;
-         cout << "Terminating program." << endl;
+         cout<<"The tag HistogramDisplay has been renamed to TabObjectDisplay. ( "<<tabName[currentNumberOfTabs]<<" )"
+             <<endl;
+         cout<<"Please see the ROME homepage under 'TabObjectDisplay'."<<endl;
+         cout<<"Terminating program."<<endl;
          return kFALSE;
       }
       if (type == 1 && !strcmp(name, "TabObjectDisplay")) {
@@ -2200,9 +2332,10 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab affiliation
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
          tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]] = "";
-         xml->GetValue(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]],tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]]);
+         xml->GetValue(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]],
+                       tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]]);
          FormatText(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]], kTRUE, " ");
-         for (i=0;i<affiliationList.GetEntries();i++) {
+         for (i = 0; i < affiliationList.GetEntries(); i++) {
             if (affiliationList.At(i,0) == tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]])
                break;
          }
@@ -2287,21 +2420,21 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab steering parameters
       if (type == 1 && !strcmp(name, "SteeringParameters")) {
          // read steering parameter
-         steerName[currentNumberOfTabs+numOfTask+1][0] = "Steering";
-         steerParent[currentNumberOfTabs+numOfTask+1][0] = -1;
+         steerName[currentNumberOfTabs+numOfTask + 1][0] = "Steering";
+         steerParent[currentNumberOfTabs+numOfTask + 1][0] = -1;
          actualSteerIndex = 0;
          recursiveSteerDepth = 0;
-         if (!ReadXMLSteering(currentNumberOfTabs+numOfTask+1,false))
+         if (!ReadXMLSteering(currentNumberOfTabs+numOfTask + 1,false))
             return kFALSE;
-         numOfSteering[currentNumberOfTabs+numOfTask+1]++;
+         numOfSteering[currentNumberOfTabs+numOfTask + 1]++;
       }
       // tab threadFunctions
       if (type == 1 && !strcmp(name, "ThreadFunctions")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 1; i++)
-               cout << "   ";
+               cout<<"   ";
          if (makeOutput)
-            cout << "ThreadFunctions:" << endl;
+            cout<<"ThreadFunctions:"<<endl;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -2318,14 +2451,16 @@ Bool_t ROMEBuilder::ReadXMLTab()
                   name = xml->GetName();
 
                   if (type == 1 && !strcmp(name, "FunctionName")) {
-                     xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]
-                                   , threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
-                     FormatText(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]], kTRUE);
+                     xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]],
+                                   threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
+                     FormatText(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]],
+                                kTRUE);
                   }
                   if (type == 1 && !strcmp(name, "FunctionArgument")) {
-                     xml->GetValue(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]]
-                                   , threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]]);
-                     FormatText(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]], kTRUE);
+                     xml->GetValue(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]],
+                                   threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]]);
+                     FormatText(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]],
+                                kTRUE);
                      numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]++;
                   }
                   // end
@@ -2333,27 +2468,30 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      // output
                      if (makeOutput)
                         for (i = 0; i < recursiveTabDepth + 2; i++)
-                           cout << "   ";
+                           cout<<"   ";
                      if (makeOutput)
                         threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]].WriteLine();
                      // check input
                      if (threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] == "") {
-                        cout << "A thread function of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
-                        cout << "Terminating program." << endl;
+                        cout<<"A thread function of tab '"<<tabName[currentNumberOfTabs].Data()<<"' has no Name !"
+                            <<endl;
+                        cout<<"Terminating program."<<endl;
                         return kFALSE;
                      }
                      for (j = 0; j < numOfThreadFunctions[currentNumberOfTabs]; j++) {
-                        if (threadFunctionName[currentNumberOfTabs][j] == threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]) {
-                           cout << "Two thread functions of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
-                           cout << "Terminating program." << endl;
+                        if (threadFunctionName[currentNumberOfTabs][j] ==
+                            threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]) {
+                           cout<<"Two thread functions of tab '"<<tabName[currentNumberOfTabs].Data()
+                               <<"' have the same Name !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return kFALSE;
                         }
                      }
                      // count thread functions
                      numOfThreadFunctions[currentNumberOfTabs]++;
                      if (numOfThreadFunctions[currentNumberOfTabs] >= maxNumberOfThreadFunctions) {
-                        cout << "Maximal number of thread functions reached : " << maxNumberOfThreadFunctions << " !" << endl;
-                        cout << "Terminating program." << endl;
+                        cout<<"Maximal number of thread functions reached : "<<maxNumberOfThreadFunctions<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return kFALSE;
                      }
                      break;
@@ -2366,9 +2504,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
       if (type == 1 && !strcmp(name, "Menus")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 1; i++)
-               cout << "   ";
+               cout<<"   ";
          if (makeOutput)
-            cout << "Menus:" << endl;
+            cout<<"Menus:"<<endl;
          recursiveMenuDepth = 0;
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -2391,17 +2529,18 @@ Bool_t ROMEBuilder::ReadXMLTab()
       }
       // tab display objects
       if (type == 1 && !strcmp(name, "DisplayObjects")) {
-         cout << "The tag DisplayObjects and all subtags have been renamed. ( " << tabName[currentNumberOfTabs] << " )" << endl;
-         cout << "Please see the ROME homepage under 'ObjectDisplays'." << endl;
-         cout << "Terminating program." << endl;
+         cout<<"The tag DisplayObjects and all subtags have been renamed. ( "<<tabName[currentNumberOfTabs]<<" )"
+             <<endl;
+         cout<<"Please see the ROME homepage under 'ObjectDisplays'."<<endl;
+         cout<<"Terminating program."<<endl;
          return kFALSE;
       }
       if (type == 1 && !strcmp(name, "ObjectDisplays")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 1; i++)
-               cout << "   ";
+               cout<<"   ";
          if (makeOutput)
-            cout << "Object Displays :" << endl;
+            cout<<"Object Displays :"<<endl;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -2416,114 +2555,153 @@ Bool_t ROMEBuilder::ReadXMLTab()
                tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
                tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
                tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
-               tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = 0;
+               tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                     = 0;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
 
                   // object name
                   if (type == 1 && !strcmp(name, "ObjectDisplayName")) {
-                     xml->GetValue(tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
-                                   , tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
-                     FormatText(tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], kTRUE);
+                     xml->GetValue(tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]],
+                                   tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
+                     FormatText(tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]],
+                                kTRUE);
                      if (makeOutput) {
                         for (i = 0; i < recursiveTabDepth + 2; i++)
-                           cout << "   ";
+                           cout<<"   ";
                         tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].WriteLine();
                      }
                   }
                   // object title
                   if (type == 1 && !strcmp(name, "ObjectDisplayTitle")) {
-                     xml->GetValue(tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
-                                   , tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
-                     FormatText(tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], kFALSE);
+                     xml->GetValue(tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]],
+                                   tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
+                     FormatText(tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]],
+                                kFALSE);
                   }
                   // object
                   if (type == 1 && !strcmp(name, "ObjectDisplayObject")) {
-                     xml->GetValue(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
-                                   , tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
-                     FormatText(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], kTRUE);
-                     if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]=="TGraph")
-                        tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]="TGraphMT";
+                     xml->GetValue(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]],
+                                   tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
+                     FormatText(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]],
+                                kTRUE);
+                     if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                         == "TGraph")
+                        tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                              = "TGraphMT";
                   }
                   // object task hierarchy index
                   if (type == 1 && !strcmp(name, "ObjectDisplayTaskHierarchyIndex")) {
                      xml->GetValue(tmp,"0");
                      FormatText(tmp, kTRUE);
-                     tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tmp.ToInteger();
+                     tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                           = tmp.ToInteger();
                   }
                   // end
                   if (type == 15 && !strcmp(name, "ObjectDisplay")) {
                      // check input
                      if (tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "") {
-                        cout << "A object display of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
-                        cout << "Terminating program." << endl;
+                        cout<<"A object display of tab '"<<tabName[currentNumberOfTabs].Data()<<"' has no Name !"
+                            <<endl;
+                        cout<<"Terminating program."<<endl;
                         return kFALSE;
                      }
-                     if (tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Length()==0)
-                        tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
+                     if (tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Length() == 0)
+                        tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                              = tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
 
                      for (j = 0; j < numOfTabObjectDisplays[currentNumberOfTabs]; j++) {
-                        if (tabObjectDisplayName[currentNumberOfTabs][j] == tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
-                           cout << "Two object display of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
-                           cout << "Terminating program." << endl;
+                        if (tabObjectDisplayName[currentNumberOfTabs][j]
+                            == tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
+                           cout<<"Two object display of tab '"<<tabName[currentNumberOfTabs].Data()
+                               <<"' have the same Name !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return kFALSE;
                         }
                      }
                      found = false;
-                     for (i=0;i<tabObjectDisplaySupportedObjects.GetEntriesFast() && !found;i++) {
-                        for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast();k++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "TGraphMT" ||
-                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == tabObjectDisplaySupportedObjects.At(k)) {
+                     for (i = 0; i < tabObjectDisplaySupportedObjects.GetEntriesFast() && !found; i++) {
+                        for (k = 0; k < tabObjectDisplaySupportedObjects.GetEntriesFast(); k++) {
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                               == "TGraphMT" ||
+                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                               == tabObjectDisplaySupportedObjects.At(k)) {
                               found = true;
-                              tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
-                              tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
-                              tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
-                              tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
+                              tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                    = tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
+                              tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                    = -1;
+                              tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                    = -1;
+                              tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                    = -1;
                               break;
                            }
                         }
                      }
                      int num = 0;
-                     for (i=0;i<numOfTaskHierarchy && !found;i++) {
-                        for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]] && !found;j++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == histoName[taskHierarchyClassIndex[i]][j]) {
-                              if (num==tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
+                     for (i = 0; i < numOfTaskHierarchy && !found; i++) {
+                        for (j = 0; j < numOfHistos[taskHierarchyClassIndex[i]] && !found; j++) {
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                               == histoName[taskHierarchyClassIndex[i]][j]) {
+                              if (num
+                                  == tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
                                  found = true;
-                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = histoType[taskHierarchyClassIndex[i]][j];
-                                 tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
-                                 tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = i;
-                                 tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = j;
+                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                                       = histoType[taskHierarchyClassIndex[i]][j];
+                                 tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                       = taskHierarchyClassIndex[i];
+                                 tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                       = i;
+                                 tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                       = j;
                                  typeFound = false;
-                                 for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast() && !typeFound;k++) {
-                                    if (histoType[taskHierarchyClassIndex[i]][j] == tabObjectDisplaySupportedObjects.At(k))
+                                 for (k = 0; k < tabObjectDisplaySupportedObjects.GetEntriesFast() &&
+                                            !typeFound; k++) {
+                                    if (histoType[taskHierarchyClassIndex[i]][j]
+                                        == tabObjectDisplaySupportedObjects.At(k))
                                        typeFound = true;
                                  }
                                  if (!typeFound) {
-                                    cout << histoType[taskHierarchyClassIndex[i]][j] << " histograms are not yet supported for object displays. (" << tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
-                                    cout << "Terminating program." << endl;
+                                    cout<<histoType[taskHierarchyClassIndex[i]][j]
+                                        <<" histograms are not yet supported for object displays. ("
+                                        <<tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data()
+                                        <<" of tab "<<tabName[currentNumberOfTabs].Data()<<")"<<endl;
+                                    cout<<"Terminating program."<<endl;
                                     return kFALSE;
                                  }
                               }
                               num++;
                            }
                         }
-                        for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]] && !found;j++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == graphName[taskHierarchyClassIndex[i]][j]) {
-                              if (num==tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
+                        for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]] && !found; j++) {
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                               == graphName[taskHierarchyClassIndex[i]][j]) {
+                              if (num
+                                  == tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
                                  found = true;
-                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = graphType[taskHierarchyClassIndex[i]][j];
-                                 tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
-                                 tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = i;
-                                 tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = j;
+                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                                       = graphType[taskHierarchyClassIndex[i]][j];
+                                 tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                       = taskHierarchyClassIndex[i];
+                                 tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                       = i;
+                                 tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                                       = j;
                                  typeFound = false;
-                                 for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast() && !typeFound;k++) {
-                                    if (graphType[taskHierarchyClassIndex[i]][j] == tabObjectDisplaySupportedObjects.At(k))
+                                 for (k = 0; k < tabObjectDisplaySupportedObjects.GetEntriesFast() &&
+                                            !typeFound; k++) {
+                                    if (graphType[taskHierarchyClassIndex[i]][j]
+                                        == tabObjectDisplaySupportedObjects.At(k))
                                        typeFound = true;
                                  }
                                  if (!typeFound) {
-                                    cout << graphType[taskHierarchyClassIndex[i]][j] << " graphs are not yet supported for object displays. (" << tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
-                                    cout << "Terminating program." << endl;
+                                    cout<<graphType[taskHierarchyClassIndex[i]][j]
+                                        <<" graphs are not yet supported for object displays. ("
+                                        <<tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data()
+                                        <<" of tab "<<tabName[currentNumberOfTabs].Data()<<")"<<endl;
+                                    cout<<"Terminating program."<<endl;
                                     return kFALSE;
                                  }
                               }
@@ -2532,27 +2710,31 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         }
                      }
                      if (!found) {
-                        tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "none";
+                        tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
+                              = "none";
                      }
                      // count thread functions
                      numOfTabObjectDisplays[currentNumberOfTabs]++;
                      if (numOfTabObjectDisplays[currentNumberOfTabs] >= maxNumberOfTabObjectDisplays) {
-                        cout << "Maximal number of object displays reached : " << maxNumberOfTabObjectDisplays << " !" << endl;
-                        cout << "Terminating program." << endl;
+                        cout<<"Maximal number of object displays reached : "<<maxNumberOfTabObjectDisplays<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return kFALSE;
                      }
-                     for (i=0;i<numOfTabObjectDisplays[currentNumberOfTabs];i++) {
+                     for (i = 0; i < numOfTabObjectDisplays[currentNumberOfTabs]; i++) {
                         found = false;
-                        for (j=0;j<numOfTabObjectDisplayObjectTypes[currentNumberOfTabs];j++) {
-                           if (tabObjectDisplayType[currentNumberOfTabs][i]==tabObjectDisplayObjectType[currentNumberOfTabs][j]) {
+                        for (j = 0; j < numOfTabObjectDisplayObjectTypes[currentNumberOfTabs]; j++) {
+                           if (tabObjectDisplayType[currentNumberOfTabs][i]
+                               == tabObjectDisplayObjectType[currentNumberOfTabs][j]) {
                               found = true;
                               tabObjectDisplayObjectTypeIndex[currentNumberOfTabs][i] = j;
                               break;
                            }
                         }
                         if (!found) {
-                           tabObjectDisplayObjectType[currentNumberOfTabs][numOfTabObjectDisplayObjectTypes[currentNumberOfTabs]] = tabObjectDisplayType[currentNumberOfTabs][i];
-                           tabObjectDisplayObjectTypeIndex[currentNumberOfTabs][i] = numOfTabObjectDisplayObjectTypes[currentNumberOfTabs];
+                           tabObjectDisplayObjectType[currentNumberOfTabs][numOfTabObjectDisplayObjectTypes[currentNumberOfTabs]]
+                                 = tabObjectDisplayType[currentNumberOfTabs][i];
+                           tabObjectDisplayObjectTypeIndex[currentNumberOfTabs][i]
+                                 = numOfTabObjectDisplayObjectTypes[currentNumberOfTabs];
                            numOfTabObjectDisplayObjectTypes[currentNumberOfTabs]++;
                         }
                      }
@@ -2577,8 +2759,8 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
    // count menus
    numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] = -1;
    if (currentNumberOfMenus >= maxNumberOfMenus) {
-      cout << "Maximal number of menus reached : " << maxNumberOfMenus << " !" << endl;
-      cout << "Terminating program." << endl;
+      cout<<"Maximal number of menus reached : "<<maxNumberOfMenus<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return kFALSE;
    }
    menuTitle[currentNumberOfTabs][currentNumberOfMenus] = "";
@@ -2591,7 +2773,7 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
       if (type == 15 && !strcmp(name, "Menu")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 2; i++)
-               cout << "   ";
+               cout<<"   ";
          if (makeOutput)
             menuTitle[currentNumberOfTabs][currentNumberOfMenus].WriteLine();
          numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
@@ -2599,7 +2781,7 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
             if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE) {
                if (makeOutput)
                   for (i = 0; i < recursiveTabDepth + 3; i++)
-                     cout << "   ";
+                     cout<<"   ";
                if (makeOutput)
                   menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j].WriteLine();
             }
@@ -2607,7 +2789,8 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
          break;
       }
       if (type == 1 && !strcmp(name, "MenuTitle")) {
-         xml->GetValue(menuTitle[currentNumberOfTabs][currentNumberOfMenus], menuTitle[currentNumberOfTabs][currentNumberOfMenus]);
+         xml->GetValue(menuTitle[currentNumberOfTabs][currentNumberOfMenus],
+                       menuTitle[currentNumberOfTabs][currentNumberOfMenus]);
          FormatText(menuTitle[currentNumberOfTabs][currentNumberOfMenus], kTRUE);
       }
 
@@ -2627,11 +2810,12 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                numOfMenu[currentNumberOfTabs]++;
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
                if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
-                  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Maximal number of menu items reached : "<<maxNumberOfMenuItems<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return kFALSE;
                }
-               menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = numOfMenu[currentNumberOfTabs];
+               menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                     = numOfMenu[currentNumberOfTabs];
                if (!ReadXMLMenu(currentNumberOfTabs))
                   return kFALSE;
                recursiveMenuDepth--;
@@ -2641,12 +2825,14 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                // count menu items
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
                if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
-                  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Maximal number of menu items reached : "<<maxNumberOfMenuItems<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return kFALSE;
                }
-               menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = LINE_TITLE;
-               menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
+               menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                     = LINE_TITLE;
+               menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                     = "";
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -2660,13 +2846,16 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                // count menu items
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
                if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
-                  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Maximal number of menu items reached : "<<maxNumberOfMenuItems<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return kFALSE;
                }
-               menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
-               menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
-               menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = 0;
+               menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                     = "";
+               menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                     = "";
+               menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                     = 0;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -2675,31 +2864,34 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                   if (type == 15 && !strcmp(name, "MenuItem"))
                      break;
                   if (type == 1 && !strcmp(name, "MenuItemTitle")) {
-                     xml->GetValue(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
-                                   , menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
-                     FormatText(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]], kTRUE);
+                     xml->GetValue(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]],
+                                   menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
+                     FormatText(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]],
+                                kTRUE);
                   }
                   if (type == 1 && !strcmp(name, "MenuItemEnumName")) {
-                     xml->GetValue(menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
-                                   , menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
-                     FormatText(menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]], kTRUE);
+                     xml->GetValue(menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]],
+                                   menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
+                     FormatText(menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]],
+                                kTRUE);
                   }
                }
 
                // check input
-               if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] == "") {
-                  cout << currentNumberOfTabs << endl;
-                  cout << currentNumberOfMenus << endl;
-                  cout << numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] << endl;
-                  cout << "A menu item of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
-                  cout << "Terminating program." << endl;
+               if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]
+                   == "") {
+                  cout<<currentNumberOfTabs<<endl;
+                  cout<<currentNumberOfMenus<<endl;
+                  cout<<numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]<<endl;
+                  cout<<"A menu item of tab '"<<tabName[currentNumberOfTabs].Data()<<"' has no Title !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return kFALSE;
                }
                for (j = 0; j < numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]; j++) {
                   if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE && menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j]
                       == menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]) {
-                     cout << "Two menu items of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
-                     cout << "Terminating program." << endl;
+                     cout<<"Two menu items of tab '"<<tabName[currentNumberOfTabs].Data()<<"' have the same Title !"<<endl;
+                     cout<<"Terminating program."<<endl;
                      return kFALSE;
                   }
                }
@@ -2710,14 +2902,14 @@ Bool_t ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
 
    // check input
    if (menuTitle[currentNumberOfTabs][currentNumberOfMenus] == "") {
-      cout << "A menu of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
-      cout << "Terminating program." << endl;
+      cout<<"A menu of tab '"<<tabName[currentNumberOfTabs].Data()<<"' has no Title !"<<endl;
+      cout<<"Terminating program."<<endl;
       return kFALSE;
    }
    for (j = 0; j < currentNumberOfMenus; j++) {
       if (menuTitle[currentNumberOfTabs][j] == menuTitle[currentNumberOfTabs][currentNumberOfMenus]) {
-         cout << "Two menus of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
-         cout << "Terminating program." << endl;
+         cout<<"Two menus of tab '"<<tabName[currentNumberOfTabs].Data()<<"' have the same Title !"<<endl;
+         cout<<"Terminating program."<<endl;
          return kFALSE;
       }
    }
@@ -2732,7 +2924,7 @@ Bool_t ROMEBuilder::ReadXMLTree()
    int type,i,j;
 
    // output
-   if (makeOutput) cout << "\n\nTrees:" << endl;
+   if (makeOutput) cout<<"\n\nTrees:"<<endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2740,9 +2932,9 @@ Bool_t ROMEBuilder::ReadXMLTree()
       if (type == 1 && !strcmp((const char*)name,"Tree")) {
          // count trees
          numOfTree++;
-         if (numOfTree>=maxNumberOfTrees) {
-            cout << "Maximal number of trees reached : " << maxNumberOfTrees << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfTree >= maxNumberOfTrees) {
+            cout<<"Maximal number of trees reached : "<<maxNumberOfTrees<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // tree initialisation
@@ -2761,7 +2953,7 @@ Bool_t ROMEBuilder::ReadXMLTree()
                xml->GetValue(treeName[numOfTree],treeName[numOfTree]);
                FormatText(treeName[numOfTree], kTRUE);
                // output
-               if (makeOutput) cout << "   " << treeName[numOfTree].Data() << endl;
+               if (makeOutput) cout<<"   "<<treeName[numOfTree].Data()<<endl;
             }
             // tree title
             if (type == 1 && !strcmp((const char*)name,"TreeTitle")) {
@@ -2789,12 +2981,14 @@ Bool_t ROMEBuilder::ReadXMLTree()
                   name = xml->GetName();
                   // run header name
                   if (type == 1 && !strcmp((const char*)name,"RunHeaderName")) {
-                     xml->GetValue(runHeaderName[numOfTree][numOfRunHeader[numOfTree]],runHeaderName[numOfTree][numOfRunHeader[numOfTree]]);
+                     xml->GetValue(runHeaderName[numOfTree][numOfRunHeader[numOfTree]],
+                                   runHeaderName[numOfTree][numOfRunHeader[numOfTree]]);
                      FormatText(runHeaderName[numOfTree][numOfRunHeader[numOfTree]], kTRUE);
                   }
                   // run header folder
                   if (type == 1 && !strcmp((const char*)name,"RelatedFolder")) {
-                     xml->GetValue(runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]],runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]]);
+                     xml->GetValue(runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]],
+                                   runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]]);
                      FormatText(runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]], kTRUE);
                   }
                   // runHeader
@@ -2802,25 +2996,28 @@ Bool_t ROMEBuilder::ReadXMLTree()
                      break;
                }
                bool found = false;
-               for (i=0;i<numOfFolder;i++) {
-                  if (!folderSupport[i] && folderName[i]==runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]]) {
+               for (i = 0; i < numOfFolder; i++) {
+                  if (!folderSupport[i] && folderName[i] == runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]]) {
                      found = true;
                      runHeaderFolderIndex[numOfTree][numOfRunHeader[numOfTree]] = i;
                   }
                }
                if (!found) {
-                  cout << "Folder of RunHeader '" << runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' not existing !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Folder of RunHeader '"<<runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]].Data()
+                      <<"' of Tree '"<<treeName[numOfTree].Data()<<"' not existing !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                if (runHeaderName[numOfTree][numOfRunHeader[numOfTree]] == "") {
-                  runHeaderName[numOfTree][numOfRunHeader[numOfTree]] = runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]];
+                  runHeaderName[numOfTree][numOfRunHeader[numOfTree]]
+                        = runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]];
                }
                // count run headeres
                numOfRunHeader[numOfTree]++;
-               if (numOfRunHeader[numOfTree]>=maxNumberOfRunHeaders) {
-                  cout << "Maximal number of run headers in tree '" << treeName[numOfTree].Data() << "' reached : " << maxNumberOfRunHeaders << " !" << endl;
-                  cout << "Terminating program." << endl;
+               if (numOfRunHeader[numOfTree] >= maxNumberOfRunHeaders) {
+                  cout<<"Maximal number of run headers in tree '"<<treeName[numOfTree].Data()<<"' reached : "
+                      <<maxNumberOfRunHeaders<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
@@ -2836,24 +3033,28 @@ Bool_t ROMEBuilder::ReadXMLTree()
                   name = xml->GetName();
                   // branch name
                   if (type == 1 && !strcmp((const char*)name,"BranchName")) {
-                     xml->GetValue(branchName[numOfTree][numOfBranch[numOfTree]],branchName[numOfTree][numOfBranch[numOfTree]]);
+                     xml->GetValue(branchName[numOfTree][numOfBranch[numOfTree]],
+                                   branchName[numOfTree][numOfBranch[numOfTree]]);
                      FormatText(branchName[numOfTree][numOfBranch[numOfTree]], kTRUE);
                      // output
-                     if (makeOutput) cout << "      " << branchName[numOfTree][numOfBranch[numOfTree]].Data() << endl;
+                     if (makeOutput) cout<<"      "<<branchName[numOfTree][numOfBranch[numOfTree]].Data()<<endl;
                   }
                   // branch folder
                   if (type == 1 && !strcmp((const char*)name,"RelatedFolder")) {
-                     xml->GetValue(branchFolder[numOfTree][numOfBranch[numOfTree]],branchFolder[numOfTree][numOfBranch[numOfTree]]);
+                     xml->GetValue(branchFolder[numOfTree][numOfBranch[numOfTree]],
+                                   branchFolder[numOfTree][numOfBranch[numOfTree]]);
                      FormatText(branchFolder[numOfTree][numOfBranch[numOfTree]], kTRUE);
                   }
                   // branch buffer size
                   if (type == 1 && !strcmp((const char*)name,"BufferSize")) {
-                     xml->GetValue(branchBufferSize[numOfTree][numOfBranch[numOfTree]],branchBufferSize[numOfTree][numOfBranch[numOfTree]]);
+                     xml->GetValue(branchBufferSize[numOfTree][numOfBranch[numOfTree]],
+                                   branchBufferSize[numOfTree][numOfBranch[numOfTree]]);
                      FormatText(branchBufferSize[numOfTree][numOfBranch[numOfTree]], kTRUE);
                   }
                   // branch split level
                   if (type == 1 && !strcmp((const char*)name,"SplitLevel")) {
-                     xml->GetValue(branchSplitLevel[numOfTree][numOfBranch[numOfTree]],branchSplitLevel[numOfTree][numOfBranch[numOfTree]]);
+                     xml->GetValue(branchSplitLevel[numOfTree][numOfBranch[numOfTree]],
+                                   branchSplitLevel[numOfTree][numOfBranch[numOfTree]]);
                      FormatText(branchSplitLevel[numOfTree][numOfBranch[numOfTree]], kTRUE);
                      branchSplitLevelSpecified[numOfTree][numOfBranch[numOfTree]] = kTRUE;
                   }
@@ -2862,19 +3063,20 @@ Bool_t ROMEBuilder::ReadXMLTree()
                      break;
                }
                // input chaeck
-               if (branchName[numOfTree][numOfBranch[numOfTree]]=="") {
-                  cout << "Branch without a name in Tree '" << treeName[numOfTree].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+               if (branchName[numOfTree][numOfBranch[numOfTree]] == "") {
+                  cout<<"Branch without a name in Tree '"<<treeName[numOfTree].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
-               if (branchFolder[numOfTree][numOfBranch[numOfTree]]=="") {
-                  cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' has no Folder specified!" << endl;
-                  cout << "Terminating program." << endl;
+               if (branchFolder[numOfTree][numOfBranch[numOfTree]] == "") {
+                  cout<<"Branch '"<<branchName[numOfTree][numOfBranch[numOfTree]].Data()<<"' of Tree '"
+                      <<treeName[numOfTree].Data()<<"' has no Folder specified!"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                bool found = false;
-               for (i=0;i<numOfFolder;i++) {
-                  if (!folderSupport[i] && folderName[i]==branchFolder[numOfTree][numOfBranch[numOfTree]]) {
+               for (i = 0; i < numOfFolder; i++) {
+                  if (!folderSupport[i] && folderName[i] == branchFolder[numOfTree][numOfBranch[numOfTree]]) {
                      found = true;
                      // set split level to be zero when branch folder has a class as a field
                      if (folderHasClassField[i] && !branchSplitLevelSpecified[numOfTree][numOfBranch[numOfTree]]) {
@@ -2885,35 +3087,38 @@ Bool_t ROMEBuilder::ReadXMLTree()
                   }
                }
                if (!found) {
-                  cout << "Folder of Branch '" << branchName[numOfTree][numOfBranch[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' not existing !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Folder of Branch '"<<branchName[numOfTree][numOfBranch[numOfTree]].Data()<<"' of Tree '"
+                      <<treeName[numOfTree].Data()<<"' not existing !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                // count branches
                numOfBranch[numOfTree]++;
-               if (numOfBranch[numOfTree]>=maxNumberOfBranches) {
-                  cout << "Maximal number of branches in tree '" << treeName[numOfTree].Data() << "' reached : " << maxNumberOfBranches << " !" << endl;
-                  cout << "Terminating program." << endl;
+               if (numOfBranch[numOfTree] >= maxNumberOfBranches) {
+                  cout<<"Maximal number of branches in tree '"<<treeName[numOfTree].Data()<<"' reached : "
+                      <<maxNumberOfBranches<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
             if (type == 15 && !strcmp((const char*)name,"Tree")) {
                // input check
-               if (treeName[numOfTree]=="") {
-                  cout << "Tree without a name !" << endl;
-                  cout << "Terminating program." << endl;
+               if (treeName[numOfTree] == "") {
+                  cout<<"Tree without a name !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                if (numOfBranch[numOfTree] == 0) {
-                  cout << "Tree '" << treeName[numOfTree].Data() << "' has no Branch !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Tree '"<<treeName[numOfTree].Data()<<"' has no Branch !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
-               for (i=0;i<numOfBranch[numOfTree];i++) {
-                  for (j=i+1;j<numOfBranch[numOfTree];j++) {
-                     if (branchName[numOfTree][i]==branchName[numOfTree][j]) {
-                        cout << "\nTree '" << treeName[numOfTree].Data() << "' has two branches with the name '" << branchName[numOfTree][i].Data() << "' !" << endl;
-                        cout << "Terminating program." << endl;
+               for (i = 0; i < numOfBranch[numOfTree]; i++) {
+                  for (j = i + 1; j < numOfBranch[numOfTree]; j++) {
+                     if (branchName[numOfTree][i] == branchName[numOfTree][j]) {
+                        cout<<"\nTree '"<<treeName[numOfTree].Data()<<"' has two branches with the name '"
+                            <<branchName[numOfTree][i].Data()<<"' !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                   }
@@ -2925,11 +3130,11 @@ Bool_t ROMEBuilder::ReadXMLTree()
 
       if (type == 15 && !strcmp((const char*)name,"Trees")) {
          // input check
-         for (i=0;i<numOfTree;i++) {
-            for (j=i+1;j<numOfTree;j++) {
-               if (treeName[i]==treeName[j]) {
-                  cout << "\nTree '" << treeName[i].Data() << "' is defined twice !" << endl;
-                  cout << "Terminating program." << endl;
+         for (i = 0; i < numOfTree; i++) {
+            for (j = i + 1; j < numOfTree; j++) {
+               if (treeName[i] == treeName[j]) {
+                  cout<<"\nTree '"<<treeName[i].Data()<<"' is defined twice !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
@@ -2948,7 +3153,7 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
    int type,i,j;
 
    // output
-   if (makeOutput) cout << "\n\nUser DAQ Systems:" << endl;
+   if (makeOutput) cout<<"\n\nUser DAQ Systems:"<<endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2956,9 +3161,9 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
       if (type == 1 && !strcmp((const char*)name,"UserDAQSystem")) {
          // count trees
          numOfDAQ++;
-         if (numOfDAQ>=maxNumberOfDAQ) {
-            cout << "Maximal number of user DAQ systems reached : " << maxNumberOfDAQ << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfDAQ >= maxNumberOfDAQ) {
+            cout<<"Maximal number of user DAQ systems reached : "<<maxNumberOfDAQ<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // daq initialisation
@@ -2974,14 +3179,15 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
                xml->GetValue(daqName[numOfDAQ],daqName[numOfDAQ]);
                FormatText(daqName[numOfDAQ], kTRUE, " ");
                // output
-               if (makeOutput) cout << "   " << daqName[numOfDAQ].Data() << endl;
+               if (makeOutput) cout<<"   "<<daqName[numOfDAQ].Data()<<endl;
             }
             // daq affiliation
             if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
                daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]] = "";
-               xml->GetValue(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]],daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]]);
+               xml->GetValue(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]],
+                             daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]]);
                FormatText(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]], kTRUE, " ");
-               for (i=0;i<affiliationList.GetEntries();i++) {
+               for (i = 0; i < affiliationList.GetEntries(); i++) {
                   if (affiliationList.At(i,0) == daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]])
                      break;
                }
@@ -2992,16 +3198,16 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
             }
             if (type == 15 && !strcmp((const char*)name,"UserDAQSystem")) {
                // input check
-               if (daqName[numOfDAQ]=="") {
-                  cout << "User DAQ system without a name !" << endl;
-                  cout << "Terminating program." << endl;
+               if (daqName[numOfDAQ] == "") {
+                  cout<<"User DAQ system without a name !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
-               if (affiliations.GetEntriesFast()>0) {
+               if (affiliations.GetEntriesFast() > 0) {
                   daqUsed[numOfDAQ] = false;
-                  for (i=0;i<affiliations.GetEntriesFast() && !daqUsed[numOfDAQ];i++) {
-                     for (j=0;j<numOfDAQAffiliations[numOfDAQ];j++) {
-                        if (affiliations.At(i)==daqAffiliation[numOfDAQ][j]) {
+                  for (i = 0; i < affiliations.GetEntriesFast() && !daqUsed[numOfDAQ]; i++) {
+                     for (j = 0; j < numOfDAQAffiliations[numOfDAQ]; j++) {
+                        if (affiliations.At(i) == daqAffiliation[numOfDAQ][j]) {
                            daqUsed[numOfDAQ] = true;
                            break;
                         }
@@ -3015,11 +3221,11 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
 
       if (type == 15 && !strcmp((const char*)name,"UserDAQSystems")) {
          // input check
-         for (i=0;i<numOfDAQ;i++) {
-            for (j=i+1;j<numOfDAQ;j++) {
-               if (daqName[i]==daqName[j]) {
-                  cout << "\nDAQ system '" << daqName[i].Data() << "' is defined twice !" << endl;
-                  cout << "Terminating program." << endl;
+         for (i = 0; i < numOfDAQ; i++) {
+            for (j = i + 1; j < numOfDAQ; j++) {
+               if (daqName[i] == daqName[j]) {
+                  cout<<"\nDAQ system '"<<daqName[i].Data()<<"' is defined twice !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
@@ -3038,7 +3244,7 @@ Bool_t ROMEBuilder::ReadXMLDB()
    int type,i,j;
 
    // output
-   if (makeOutput) cout << "\n\nUser Database Interfaces:" << endl;
+   if (makeOutput) cout<<"\n\nUser Database Interfaces:"<<endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -3046,9 +3252,9 @@ Bool_t ROMEBuilder::ReadXMLDB()
       if (type == 1 && !strcmp((const char*)name,"UserDatabase")) {
          // count trees
          numOfDB++;
-         if (numOfDB>=maxNumberOfDB) {
-            cout << "Maximal number of user database interfaces reached : " << maxNumberOfDB << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfDB >= maxNumberOfDB) {
+            cout<<"Maximal number of user database interfaces reached : "<<maxNumberOfDB<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // database initialisation
@@ -3062,7 +3268,7 @@ Bool_t ROMEBuilder::ReadXMLDB()
                xml->GetValue(dbName[numOfDB],dbName[numOfDB]);
                FormatText(dbName[numOfDB], kTRUE, " ");
                // output
-               if (makeOutput) cout << "   " << dbName[numOfDB].Data() << endl;
+               if (makeOutput) cout<<"   "<<dbName[numOfDB].Data()<<endl;
             }
             // database description
             if (type == 1 && !strcmp((const char*)name,"DatabaseDescription")) {
@@ -3071,9 +3277,9 @@ Bool_t ROMEBuilder::ReadXMLDB()
             }
             if (type == 15 && !strcmp((const char*)name,"UserDatabase")) {
                // input check
-               if (dbName[numOfDB]=="") {
-                  cout << "User database interface without a name !" << endl;
-                  cout << "Terminating program." << endl;
+               if (dbName[numOfDB] == "") {
+                  cout<<"User database interface without a name !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                break;
@@ -3083,11 +3289,11 @@ Bool_t ROMEBuilder::ReadXMLDB()
 
       if (type == 15 && !strcmp((const char*)name,"UserDatabases")) {
          // input check
-         for (i=0;i<numOfDB;i++) {
-            for (j=i+1;j<numOfDB;j++) {
-               if (dbName[i]==dbName[j]) {
-                  cout << "\nDatabase '" << dbName[i].Data() << "' is defined twice !" << endl;
-                  cout << "Terminating program." << endl;
+         for (i = 0; i < numOfDB; i++) {
+            for (j = i + 1; j < numOfDB; j++) {
+               if (dbName[i] == dbName[j]) {
+                  cout<<"\nDatabase '"<<dbName[i].Data()<<"' is defined twice !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
@@ -3108,14 +3314,14 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
    char *cstop=NULL;
 
    // output
-   if (makeOutput) cout << "\n\nBanks:" << endl;
+   if (makeOutput) cout<<"\n\nBanks:"<<endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp("EventHeader",(const char*)name)) {
          // output
-         if (makeOutput) cout << "   Header" << endl;
+         if (makeOutput) cout<<"   Header"<<endl;
          // header initialisation
          bankHasHeader = true;
          bankHeaderFolder = "";
@@ -3156,26 +3362,26 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                break;
          }
          // input check
-         if (bankHeaderFolder=="") {
-            cout << "Midas event header has no folder !" << endl;
-            cout << "Terminating program." << endl;
+         if (bankHeaderFolder == "") {
+            cout<<"Midas event header has no folder !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          int iFold = -1;
-         for (i=0;i<numOfFolder;i++) {
-            if (!folderSupport[i] && folderName[i]==bankHeaderFolder) {
+         for (i = 0; i < numOfFolder; i++) {
+            if (!folderSupport[i] && folderName[i] == bankHeaderFolder) {
                iFold = i;
                break;
             }
          }
-         if (iFold==-1) {
-            cout << "Midas event header : folder '" << bankHeaderFolder.Data() << "' does not exist !" << endl;
-            cout << "Terminating program." << endl;
+         if (iFold == -1) {
+            cout<<"Midas event header : folder '"<<bankHeaderFolder.Data()<<"' does not exist !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (folderArray[iFold]!="1") {
-            cout << "Midas event header : folder '" << bankHeaderFolder.Data() << "' is an array !" << endl;
-            cout << "Terminating program." << endl;
+         if (folderArray[iFold] != "1") {
+            cout<<"Midas event header : folder '"<<bankHeaderFolder.Data()<<"' is an array !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          bool foundID = false;
@@ -3186,49 +3392,53 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
             foundID = true;
          if (bankHeaderTriggerMask == "")
             foundMask = true;
-         if (bankHeaderSerialNumber=="")
+         if (bankHeaderSerialNumber == "")
             foundNum = true;
-         if (bankHeaderTimeStamp=="")
+         if (bankHeaderTimeStamp == "")
             foundTime = true;
-         for (i=0;i<numOfValue[iFold];i++) {
-            if (valueName[iFold][i]==bankHeaderEventID) {
+         for (i = 0; i < numOfValue[iFold]; i++) {
+            if (valueName[iFold][i] == bankHeaderEventID) {
                foundID = true;
             }
-            if (valueName[iFold][i]==bankHeaderTriggerMask) {
+            if (valueName[iFold][i] == bankHeaderTriggerMask) {
                foundMask = true;
             }
-            if (valueName[iFold][i]==bankHeaderSerialNumber) {
+            if (valueName[iFold][i] == bankHeaderSerialNumber) {
                foundNum = true;
             }
-            if (valueName[iFold][i]==bankHeaderTimeStamp) {
+            if (valueName[iFold][i] == bankHeaderTimeStamp) {
                foundTime = true;
             }
          }
          if (!foundID) {
-            cout << "Midas event header : event id field '" << bankHeaderEventID.Data() << "' does not exist in folder '" << bankHeaderFolder << "'!" << endl;
-            cout << "Terminating program." << endl;
+            cout<<"Midas event header : event id field '"<<bankHeaderEventID.Data()<<"' does not exist in folder '"
+                <<bankHeaderFolder<<"'!"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          if (!foundMask) {
-            cout << "Midas event header : trigger mask field '" << bankHeaderTriggerMask.Data() << "' does not exist in folder '" << bankHeaderFolder << "'!" << endl;
-            cout << "Terminating program." << endl;
+            cout<<"Midas event header : trigger mask field '"<<bankHeaderTriggerMask.Data()
+                <<"' does not exist in folder '"<<bankHeaderFolder<<"'!"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          if (!foundNum) {
-            cout << "Midas event header : serial number field '" << bankHeaderSerialNumber.Data() << "' does not exist '" << bankHeaderFolder << "'!" << endl;
-            cout << "Terminating program." << endl;
+            cout<<"Midas event header : serial number field '"<<bankHeaderSerialNumber.Data()<<"' does not exist '"
+                <<bankHeaderFolder<<"'!"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          if (!foundTime) {
-            cout << "Midas event header : time stamp field '" << bankHeaderTimeStamp.Data() << "' does not exist '" << bankHeaderFolder << "'!" << endl;
-            cout << "Terminating program." << endl;
+            cout<<"Midas event header : time stamp field '"<<bankHeaderTimeStamp.Data()<<"' does not exist '"
+                <<bankHeaderFolder<<"'!"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
       } else if (type == 1 && !strcmp((const char*)name,"EventDefinition")) {
          numOfEvent++;
-         if (numOfEvent>=maxNumberOfEvents) {
-            cout << "Maximal number of midas events reached : " << maxNumberOfEvents << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfEvent >= maxNumberOfEvents) {
+            cout<<"Maximal number of midas events reached : "<<maxNumberOfEvents<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // event initialisation
@@ -3245,7 +3455,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                xml->GetValue(eventName[numOfEvent],eventName[numOfEvent]);
                FormatText(eventName[numOfEvent], kTRUE);
                // output
-               if (makeOutput) cout << "   " << eventName[numOfEvent].Data() << endl;
+               if (makeOutput) cout<<"   "<<eventName[numOfEvent].Data()<<endl;
             }
             // event id
             if (type == 1 && !strcmp((const char*)name,"EventID")) {
@@ -3269,9 +3479,9 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                   if (type == 1 && !strcmp((const char*)name,"Bank")) {
                      // count banks
                      numOfBank[numOfEvent]++;
-                     if (numOfBank[numOfEvent]>=maxNumberOfBanks) {
-                        cout << "Maximal number of banks reached : " << maxNumberOfBanks << " !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (numOfBank[numOfEvent] >= maxNumberOfBanks) {
+                        cout<<"Maximal number of banks reached : "<<maxNumberOfBanks<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                      // bank initialisation
@@ -3286,14 +3496,16 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                         name = xml->GetName();
                         // bank name
                         if (type == 1 && !strcmp((const char*)name,"BankName")) {
-                           xml->GetValue(bankName[numOfEvent][numOfBank[numOfEvent]],bankName[numOfEvent][numOfBank[numOfEvent]]);
+                           xml->GetValue(bankName[numOfEvent][numOfBank[numOfEvent]],
+                                         bankName[numOfEvent][numOfBank[numOfEvent]]);
                            FormatText(bankName[numOfEvent][numOfBank[numOfEvent]], kTRUE);
                            // output
-                           if (makeOutput) cout << "      " << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << endl;
+                           if (makeOutput) cout<<"      "<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()<<endl;
                         }
                         // bank type
                         if (type == 1 && !strcmp((const char*)name,"BankType")) {
-                           xml->GetValue(bankType[numOfEvent][numOfBank[numOfEvent]],bankType[numOfEvent][numOfBank[numOfEvent]]);
+                           xml->GetValue(bankType[numOfEvent][numOfBank[numOfEvent]],
+                                         bankType[numOfEvent][numOfBank[numOfEvent]]);
                            FormatText(bankType[numOfEvent][numOfBank[numOfEvent]], kTRUE);
                         }
                         // bank array
@@ -3328,22 +3540,22 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                            break;
                      }
                      // input check
-                     if (bankName[numOfEvent][numOfBank[numOfEvent]]=="") {
-                        cout << "A Midas Bank has no Name !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (bankName[numOfEvent][numOfBank[numOfEvent]] == "") {
+                        cout<<"A Midas Bank has no Name !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
-                     if (bankType[numOfEvent][numOfBank[numOfEvent]]=="") {
-                        cout << "Bank '" << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << "' has no type !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (bankType[numOfEvent][numOfBank[numOfEvent]] == "") {
+                        cout<<"Bank '"<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()<<"' has no type !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                   } else if (type == 1 && !strcmp((const char*)name,"StructuredBank")) {
                      // count banks
                      numOfBank[numOfEvent]++;
-                     if (numOfBank[numOfEvent]>=maxNumberOfBanks) {
-                        cout << "Maximal number of banks reached : " << maxNumberOfBanks << " !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (numOfBank[numOfEvent] >= maxNumberOfBanks) {
+                        cout<<"Maximal number of banks reached : "<<maxNumberOfBanks<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                      // structured bank initialisation
@@ -3358,76 +3570,96 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                         name = xml->GetName();
                         // structured bank name
                         if (type == 1 && !strcmp((const char*)name,"BankName")) {
-                           xml->GetValue(bankName[numOfEvent][numOfBank[numOfEvent]],bankName[numOfEvent][numOfBank[numOfEvent]]);
+                           xml->GetValue(bankName[numOfEvent][numOfBank[numOfEvent]],
+                                         bankName[numOfEvent][numOfBank[numOfEvent]]);
                            FormatText(bankName[numOfEvent][numOfBank[numOfEvent]], kTRUE);
                            // output
-                           if (makeOutput) cout << "      " << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << endl;
+                           if (makeOutput) cout<<"      "<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()<<endl;
                         }
                         // structured bank field
                         if (type == 1 && !strcmp((const char*)name,"BankField")) {
                            // structured bank field initialisation
-                           structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
-                           structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
-                           structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
-                           bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "1";
+                           structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
+                                 = "";
+                           structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
+                                 = "";
+                           structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
+                                 = "";
+                           bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
+                                 = "1";
                            while (xml->NextLine()) {
                               type = xml->GetType();
                               name = xml->GetName();
                               // field name
                               if (type == 1 && !strcmp((const char*)name,"BankFieldName")) {
-                                 xml->GetValue(structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
-                                               ,structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
-                                 FormatText(structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]], kTRUE);
+                                 xml->GetValue(structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                               structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
+                                 FormatText(structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                            kTRUE);
                                  // output
-                                 if (makeOutput) cout << "         " << structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]].Data() << endl;
+                                 if (makeOutput) cout<<"         "
+                                                     <<structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]].Data()
+                                                     <<endl;
                               }
                               // field type
                               if (type == 1 && !strcmp((const char*)name,"BankFieldType")) {
-                                 xml->GetValue(structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
-                                               ,structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
-                                 FormatText(structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]], kTRUE);
+                                 xml->GetValue(structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                               structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
+                                 FormatText(structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                            kTRUE);
                               }
                               // field size
                               if (type == 1 && !strcmp((const char*)name,"BankFieldSize")) {
-                                 xml->GetValue(structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
-                                               ,structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
-                                 FormatText(structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]], kTRUE);
+                                 xml->GetValue(structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                               structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
+                                 FormatText(structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                            kTRUE);
                               }
                               // bank field array size
                               if (type == 1 && !strcmp((const char*)name,"BankFieldArraySize")) {
-                                 xml->GetValue(bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
-                                               ,bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
-                                 FormatText(bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]], kTRUE);
+                                 xml->GetValue(bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                               bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
+                                 FormatText(bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],
+                                            kTRUE);
                               }
                               // field end
                               if (type == 15 && !strcmp((const char*)name,"BankField"))
                                  break;
                            }
                            // input check
-                           if (structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]=="") {
-                              cout << "A field of the midas bank '" << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << "' has no name !" << endl;
-                              cout << "Terminating program." << endl;
+                           if (structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
+                               == "") {
+                              cout<<"A field of the midas bank '"<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()
+                                  <<"' has no name !"<<endl;
+                              cout<<"Terminating program."<<endl;
                               return false;
                            }
-                           if (structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]=="") {
-                              cout << "Structure field '" << structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]].Data() << "' of bank '" << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << "' has no type !" << endl;
-                              cout << "Terminating program." << endl;
+                           if (structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]
+                               == "") {
+                              cout<<"Structure field '"
+                                  <<structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]].Data()
+                                  <<"' of bank '"<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()
+                                  <<"' has no type !"<<endl;
+                              cout<<"Terminating program."<<endl;
                               return false;
                            }
-                           for (i=0;i<numOfStructFields[numOfEvent][numOfBank[numOfEvent]];i++) {
-                              for (j=i+1;j<numOfStructFields[numOfEvent][numOfBank[numOfEvent]];j++) {
-                                 if (structFieldName[numOfEvent][numOfBank[numOfEvent]][i]==structFieldName[numOfEvent][numOfBank[numOfEvent]][j]) {
-                                    cout << "\nStructure of bank '" << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << "' has two fields with the name '" << structFieldName[numOfEvent][numOfBank[numOfEvent]][i].Data() << "' !" << endl;
-                                    cout << "Terminating program." << endl;
+                           for (i = 0; i < numOfStructFields[numOfEvent][numOfBank[numOfEvent]]; i++) {
+                              for (j = i + 1; j < numOfStructFields[numOfEvent][numOfBank[numOfEvent]]; j++) {
+                                 if (structFieldName[numOfEvent][numOfBank[numOfEvent]][i]
+                                     == structFieldName[numOfEvent][numOfBank[numOfEvent]][j]) {
+                                    cout<<"\nStructure of bank '"<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()
+                                        <<"' has two fields with the name '"
+                                        <<structFieldName[numOfEvent][numOfBank[numOfEvent]][i].Data()<<"' !"<<endl;
+                                    cout<<"Terminating program."<<endl;
                                     return false;
                                  }
                               }
                            }
                            // count structured bank fields
                            numOfStructFields[numOfEvent][numOfBank[numOfEvent]]++;
-                           if (numOfStructFields[numOfEvent][numOfBank[numOfEvent]]>=maxNumberOfStructFields) {
-                              cout << "Maximal number of fields in bank '" << bankName[numOfEvent][numOfBank[numOfEvent]].Data() << "' reached : " << maxNumberOfStructFields << " !" << endl;
-                              cout << "Terminating program." << endl;
+                           if (numOfStructFields[numOfEvent][numOfBank[numOfEvent]] >= maxNumberOfStructFields) {
+                              cout<<"Maximal number of fields in bank '"<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()<<"' reached : "<<maxNumberOfStructFields<<" !"<<endl;
+                              cout<<"Terminating program."<<endl;
                               return false;
                            }
                         }
@@ -3463,9 +3695,9 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                            break;
                      }
                      // input check
-                     if (bankName[numOfEvent][numOfBank[numOfEvent]]=="") {
-                        cout << "A structured midas bank has no Name !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (bankName[numOfEvent][numOfBank[numOfEvent]] == "") {
+                        cout<<"A structured midas bank has no Name !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                   }
@@ -3477,9 +3709,9 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
             // event end
             if (type == 15 && !strcmp((const char*)name,"EventDefinition")) {
                numOfBank[numOfEvent]++;
-               if (eventName[numOfEvent]=="") {
-                  cout << "Midas event definition without a name !" << endl;
-                  cout << "Terminating program." << endl;
+               if (eventName[numOfEvent] == "") {
+                  cout<<"Midas event definition without a name !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                break;
@@ -3492,13 +3724,13 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
          break;
       }
    }
-   for (i=0;i<numOfEvent;i++) {
-      for (j=0;j<numOfBank[i];j++) {
-         for (k=0;k<numOfEvent;k++) {
-            for (kk=0;kk<numOfBank[k];kk++) {
-               if (bankName[i][j]==bankName[k][kk] && (i!=k || j!=kk)) {
-                  cout << "\nMidas bank '" << bankName[i][j].Data() << "' is defined twice !" << endl;
-                  cout << "Terminating program." << endl;
+   for (i = 0; i < numOfEvent; i++) {
+      for (j = 0; j < numOfBank[i]; j++) {
+         for (k = 0; k < numOfEvent; k++) {
+            for (kk = 0; kk< numOfBank[k]; kk++) {
+               if (bankName[i][j] == bankName[k][kk] && (i != k || j != kk)) {
+                  cout<<"\nMidas bank '"<<bankName[i][j].Data()<<"' is defined twice !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
@@ -3516,16 +3748,16 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
    ROMEString tmp;
 
    // output
-   if (makeOutput) cout << "\n\nRootDAQ:" << endl;
+   if (makeOutput) cout<<"\n\nRootDAQ:"<<endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp((const char*)name,"RootTree")) {
          numOfRootTree++;
-         if (numOfRootTree>=maxNumberOfRootTrees) {
-            cout << "Maximal number of root trees in the RootDAQ reached : " << maxNumberOfRootTrees << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfRootTree >= maxNumberOfRootTrees) {
+            cout<<"Maximal number of root trees in the RootDAQ reached : "<<maxNumberOfRootTrees<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // tree initialisation
@@ -3539,14 +3771,15 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                xml->GetValue(rootTreeName[numOfRootTree],rootTreeName[numOfRootTree]);
                FormatText(rootTreeName[numOfRootTree], kTRUE, " ");
                // output
-               if (makeOutput) cout << "   " << rootTreeName[numOfRootTree].Data() << endl;
+               if (makeOutput) cout<<"   "<<rootTreeName[numOfRootTree].Data()<<endl;
             }
             if (type == 1 && !strcmp((const char*)name,"RootBranch")) {
                // count branches
                numOfRootBranch[numOfRootTree]++;
-               if (numOfRootBranch[numOfRootTree]>=maxNumberOfRootBranches) {
-                  cout << "Maximal number of branches in a root tree of a RootDAQ reached : " << maxNumberOfRootBranches << " !" << endl;
-                  cout << "Terminating program." << endl;
+               if (numOfRootBranch[numOfRootTree] >= maxNumberOfRootBranches) {
+                  cout<<"Maximal number of branches in a root tree of a RootDAQ reached : "
+                      <<maxNumberOfRootBranches<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                // branch initialisation
@@ -3565,7 +3798,8 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                                    ,rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]]);
                      FormatText(rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]], kTRUE, " ");
                      // output
-                     if (makeOutput) cout << "      " << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << endl;
+                     if (makeOutput) cout<<"      "
+                                         <<rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data()<<endl;
                   }
                   // branch type
                   if (type == 1 && !strcmp((const char*)name,"RootBranchType")) {
@@ -3578,7 +3812,7 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                      xml->GetValue(rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]]
                                    ,rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]]);
                      FormatText(rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]], kTRUE);
-                     if (rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]].ToInteger()<=1)
+                     if (rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]].ToInteger() <= 1)
                         rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
                   }
                   // branch class name
@@ -3597,62 +3831,81 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                   if (type == 1 && !strcmp((const char*)name,"RootBranchClassField")) {
                      // count branch fields
                      numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]++;
-                     if (numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]>=maxNumberOfRootBranchFields) {
-                        cout << "Maximal number of fields in a class of a branch in a root tree of a RootDAQ reached : " << maxNumberOfRootBranchFields << " !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]] >=
+                         maxNumberOfRootBranchFields) {
+                        cout<<"Maximal number of fields in a class of a branch in a root tree of a RootDAQ reached : "
+                            <<maxNumberOfRootBranchFields<<" !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                      // branch field initialisation
-                     rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]] = "";
-                     rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]] = "";
-                     rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]] = "";
+                     rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
+                           = "";
+                     rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
+                           = "";
+                     rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
+                           = "";
                      while (xml->NextLine()) {
                         type = xml->GetType();
                         name = xml->GetName();
                         // branch field name
                         if (type == 1 && !strcmp((const char*)name,"RootBranchClassFieldName")) {
-                           xml->GetValue(rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
-                                         ,rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
-                           FormatText(rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]], kTRUE);
+                           xml->GetValue(rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],
+                                         rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
+                           FormatText(rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],
+                                      kTRUE);
                            // output
-                           if (makeOutput) cout << "      " << rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].Data() << endl;
+                           if (makeOutput) cout<<"      "
+                                               <<rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].Data()
+                                               <<endl;
                         }
                         // branch field type
                         if (type == 1 && !strcmp((const char*)name,"RootBranchClassFieldType")) {
-                           xml->GetValue(rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
-                                         ,rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
-                           FormatText(rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]], kTRUE);
+                           xml->GetValue(rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],
+                                         rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
+                           FormatText(rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],
+                                      kTRUE);
                         }
                         // branch field array size
                         if (type == 1 && !strcmp((const char*)name,"RootBranchClassFieldArraySize")) {
-                           xml->GetValue(rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
-                                         ,rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
-                           FormatText(rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]], kTRUE);
-                           if (rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].ToInteger()<=1)
-                              rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]] = "";
+                           xml->GetValue(rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],
+                                         rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
+                           FormatText(rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],
+                                      kTRUE);
+                           if (rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].ToInteger() <= 1)
+                              rootBranchFieldArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
+                                    = "";
                         }
                         // branch end
                         if (type == 15 && !strcmp((const char*)name,"RootBranchClassField"))
                            break;
                      }
                      // input check
-                     if (rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]=="") {
-                        cout << "A field of a class of a branch of the Root DAQ has no Name !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
+                         == "") {
+                        cout<<"A field of a class of a branch of the Root DAQ has no Name !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
-                     if (rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]=="") {
-                        cout << "Field '" << rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].Data() << "' of branch '" << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << "' of the Root DAQ has no type !" << endl;
-                        cout << "Terminating program." << endl;
+                     if (rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]
+                         == "") {
+                        cout<<"Field '"
+                            <<rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].Data()
+                            <<"' of branch '"<<rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data()
+                            <<"' of the Root DAQ has no type !"<<endl;
+                        cout<<"Terminating program."<<endl;
                         return false;
                      }
                   }
                   // branch end
                   if (type == 15 && !strcmp((const char*)name,"RootBranch")) {
-                     if (!rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]].CompareTo("Class",TString::kIgnoreCase)) {
-                        if (rootBranchClassName[numOfRootTree][numOfRootBranch[numOfRootTree]].Length()==0) {
-                           cout << "Class name of Branch '" << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << "' not specified !" << endl;
-                           cout << "Terminating program." << endl;
+                     if (!rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]].CompareTo("Class",
+                                                                                                  TString::kIgnoreCase)) {
+                        if (rootBranchClassName[numOfRootTree][numOfRootBranch[numOfRootTree]].Length() == 0) {
+                           cout<<"Class name of Branch '"
+                               <<rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data()
+                               <<"' not specified !"<<endl;
+                           cout<<"Terminating program."<<endl;
                            return false;
                         }
                      }
@@ -3661,23 +3914,24 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                   }
                }
                // input check
-               if (rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]]=="") {
-                  cout << "A branch of the Root DAQ has no Name !" << endl;
-                  cout << "Terminating program." << endl;
+               if (rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]] == "") {
+                  cout<<"A branch of the Root DAQ has no Name !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
-               if (rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]]=="") {
-                  cout << "Branch '" << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << "' of the Root DAQ has no type !" << endl;
-                  cout << "Terminating program." << endl;
+               if (rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]] == "") {
+                  cout<<"Branch '"<<rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data()
+                      <<"' of the Root DAQ has no type !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
             }
             // tree end
             if (type == 15 && !strcmp((const char*)name,"RootTree")) {
                numOfRootBranch[numOfRootTree]++;
-               if (rootTreeName[numOfRootTree]=="") {
-                  cout << "Tree of the Root DAQ without a name !" << endl;
-                  cout << "Terminating program." << endl;
+               if (rootTreeName[numOfRootTree] == "") {
+                  cout<<"Tree of the Root DAQ without a name !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                break;
@@ -3690,11 +3944,11 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
          break;
       }
    }
-   for (i=0;i<numOfRootTree;i++) {
-      for (k=i+1;k<numOfRootTree;k++) {
-         if (rootTreeName[i]==rootTreeName[k]) {
-            cout << "\nTree '" << rootTreeName[k].Data() << "' of the Root DAQ is defined twice !" << endl;
-            cout << "Terminating program." << endl;
+   for (i = 0; i < numOfRootTree; i++) {
+      for (k = i + 1; k < numOfRootTree; k++) {
+         if (rootTreeName[i] == rootTreeName[k]) {
+            cout<<"\nTree '"<<rootTreeName[k].Data()<<"' of the Root DAQ is defined twice !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
       }
@@ -3716,13 +3970,13 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
    // count steering parameters
    numOfSteering[iTask]++;
    currentNumberOfSteerings = numOfSteering[iTask];
-   if (numOfSteering[iTask]>=maxNumberOfSteering) {
-      cout << "Maximal number of steering parameters reached : " << maxNumberOfSteering << " !" << endl;
-      cout << "Terminating program." << endl;
+   if (numOfSteering[iTask] >= maxNumberOfSteering) {
+      cout<<"Maximal number of steering parameters reached : "<<maxNumberOfSteering<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return false;
    }
    // initialisation
-   if (numOfSteering[iTask]>0) {
+   if (numOfSteering[iTask] > 0) {
       steerName[iTask][numOfSteering[iTask]] = "";
       steerArraySize[iTask][numOfSteering[iTask]] = "1";
    }
@@ -3768,16 +4022,17 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                }
             }
             // check input
-            if (gspInclude[numOfGSPInclude]=="") {
-               cout << "An Include of global steering parameter  has no Name !" << endl;
-               cout << "Terminating program." << endl;
+            if (gspInclude[numOfGSPInclude] == "") {
+               cout<<"An Include of global steering parameter  has no Name !"<<endl;
+               cout<<"Terminating program."<<endl;
                return false;
             }
             // count includes
             numOfGSPInclude++;
-            if (numOfGSPInclude>=maxNumberOfInclude) {
-               cout << "Maximal number of includes in global steering parameter reached : " << maxNumberOfInclude << " !" << endl;
-               cout << "Terminating program." << endl;
+            if (numOfGSPInclude >= maxNumberOfInclude) {
+               cout<<"Maximal number of includes in global steering parameter reached : "<<maxNumberOfInclude<<" !"
+                   <<endl;
+               cout<<"Terminating program."<<endl;
                return false;
             }
             continue;
@@ -3786,8 +4041,8 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
       // subgroup
       if (type == 1 && !strcmp((const char*)name,"SteeringParameterGroup")) {
          // set steering parameter group as parent for subsequent groups
-         steerParent[iTask][numOfSteering[iTask]+1] = actualSteerIndex;
-         actualSteerIndex = numOfSteering[iTask]+1;
+         steerParent[iTask][numOfSteering[iTask] + 1] = actualSteerIndex;
+         actualSteerIndex = numOfSteering[iTask] + 1;
          recursiveSteerDepth++;
          // read subgroup
          if (!ReadXMLSteering(iTask,false))
@@ -3797,16 +4052,16 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
       // end group
       if (type == 15 && !strcmp((const char*)name,"SteeringParameterGroup")) {
          // check input
-         if (currentSteeringName=="") {
-            cout << "The " << (currentNumberOfSteerings+1) << ". Steering Parameter Group has no name !" << endl;
-            cout << "Terminating program." << endl;
+         if (currentSteeringName == "") {
+            cout<<"The "<<(currentNumberOfSteerings + 1)<<". Steering Parameter Group has no name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
-         if (affiliations.GetEntriesFast()>0) {
+         if (affiliations.GetEntriesFast() > 0) {
             steerUsed[iTask][actualSteerIndex] = false;
-            for (i=0;i<affiliations.GetEntriesFast() && !steerUsed[iTask][actualSteerIndex];i++) {
-               for (j=0;j<numOfSteerAffiliations[iTask][actualSteerIndex];j++) {
-                  if (affiliations.At(i)==steerAffiliation[iTask][actualSteerIndex][j]) {
+            for (i = 0; i < affiliations.GetEntriesFast() && !steerUsed[iTask][actualSteerIndex]; i++) {
+               for (j = 0; j < numOfSteerAffiliations[iTask][actualSteerIndex]; j++) {
+                  if (affiliations.At(i) == steerAffiliation[iTask][actualSteerIndex][j]) {
                      steerUsed[iTask][actualSteerIndex] = true;
                      break;
                   }
@@ -3822,12 +4077,13 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
          xml->GetValue(steerName[iTask][actualSteerIndex],steerName[iTask][actualSteerIndex]);
          FormatText(steerName[iTask][actualSteerIndex], kTRUE);
          currentSteeringName = steerName[iTask][actualSteerIndex];
-         if (steerParent[iTask][numOfSteering[iTask]]!= -1) {
-            steerChildren[iTask][steerParent[iTask][actualSteerIndex]][numOfSteerChildren[iTask][steerParent[iTask][actualSteerIndex]]] = actualSteerIndex;
+         if (steerParent[iTask][numOfSteering[iTask]] !=  -1) {
+            steerChildren[iTask][steerParent[iTask][actualSteerIndex]][numOfSteerChildren[iTask][steerParent[iTask][actualSteerIndex]]]
+                  = actualSteerIndex;
             numOfSteerChildren[iTask][steerParent[iTask][actualSteerIndex]]++;
          }
          // output
-         if (makeOutput) for (i=0;i<recursiveSteerDepth;i++) cout << "   ";
+         if (makeOutput) for (i = 0; i < recursiveSteerDepth; i++) cout<<"   ";
          if (makeOutput) steerName[iTask][actualSteerIndex].WriteLine();
       }
       // group affiliation
@@ -3835,12 +4091,15 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
          steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]] = "";
          xml->GetValue(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]]
                        ,steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]]);
-         FormatText(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]], kTRUE, " ");
-         for (i=0;i<affiliationList.GetEntries();i++) {
-            if (affiliationList.At(i,0) == steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]])
+         FormatText(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]], kTRUE,
+                    " ");
+         for (i = 0; i < affiliationList.GetEntries(); i++) {
+            if (affiliationList.At(i,0)
+                == steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]])
                break;
          }
-         affiliationList.SetAt(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]], i, 0);
+         affiliationList.SetAt(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]],
+                               i, 0);
          affiliationList.SetAt("SteerGroup", i, affiliationList.GetEntriesAt(i));
          affiliationList.SetAt(steerName[iTask][actualSteerIndex], i, affiliationList.GetEntriesAt(i));
          numOfSteerAffiliations[iTask][actualSteerIndex]++;
@@ -3877,23 +4136,28 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                              ,steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
                FormatText(steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
                // output
-               if (makeOutput) for (i=0;i<recursiveSteerDepth+1;i++) cout << "   ";
+               if (makeOutput) for (i = 0; i < recursiveSteerDepth + 1; i++) cout<<"   ";
                if (makeOutput) steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].WriteLine();
             }
             // steering parameter field affiliation
             if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
                readFieldAffiliation = true;
-               steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]] = "";
-               xml->GetValue(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]
-                             ,steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]);
-               FormatText(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]], kTRUE, " ");
-               for (i=0;i<affiliationList.GetEntries();i++) {
-                  if (affiliationList.At(i,0) == steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]])
+               steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]
+                     = "";
+               xml->GetValue(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]],
+                             steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]);
+               FormatText(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]],
+                          kTRUE, " ");
+               for (i = 0; i < affiliationList.GetEntries(); i++) {
+                  if (affiliationList.At(i,0)
+                      == steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]])
                      break;
                }
-               affiliationList.SetAt(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]], i, 0);
+               affiliationList.SetAt(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]],
+                                     i, 0);
                affiliationList.SetAt("SteerField", i, affiliationList.GetEntriesAt(i));
-               affiliationList.SetAt(steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], i, affiliationList.GetEntriesAt(i));
+               affiliationList.SetAt(steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                                     i, affiliationList.GetEntriesAt(i));
                numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]++;
             }
 
@@ -3903,11 +4167,15 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                xml->GetValue(steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
                              ,steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
                FormatText(steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
-               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString" || steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "ROMEString") {
+               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString" ||
+                   steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                   == "ROMEString") {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "' '";
-               } else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "std::string") {
+               } else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                          == "std::string") {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "\" \"";
-               } else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TRef") {
+               } else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                          == "TRef") {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "NULL";
                } else {
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "0";
@@ -3923,18 +4191,23 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
             if (type == 1 && !strcmp((const char*)name,"SPFieldArraySize")) {
                xml->GetValue(steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
                              ,steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               FormatText(steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
+               FormatText(steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                          kTRUE);
             }
             // steering parameter field initialization
             if (type == 1 && !strcmp((const char*)name,"SPFieldInitialization")) {
                if (!readName) {
-                  cout << "Please specify a steering parameter field name befor the initial value in the " << (numOfSteering[iTask]+1) << ". steering parameter field in task '" << taskName[iTask].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Please specify a steering parameter field name befor the initial value in the "
+                      <<(numOfSteering[iTask] + 1)<<". steering parameter field in task '"<<taskName[iTask].Data()
+                      <<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                if (!readType) {
-                  cout << "Please specify a steering parameter field type befor the initial value in steering parameter field '" << steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].Data() << "' in task  '" << taskName[iTask].Data() << "' !" << endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Please specify a steering parameter field type befor the initial value in steering parameter field '"
+                      <<steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].Data()
+                      <<"' in task  '"<<taskName[iTask].Data()<<"' !"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
@@ -3945,32 +4218,40 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
             if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
                xml->GetValue(steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
                              ,steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               FormatText(steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kFALSE);
+               FormatText(steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                          kFALSE);
             }
             // steering parameter field comment
             if (type == 1 && !strcmp((const char*)name,"SPFieldShortDescription")) {
-               xml->GetValue(steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
-                             ,steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               FormatText(steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
+               xml->GetValue(steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                             steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               FormatText(steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                          kTRUE);
             }
             // steering parameter command line option
             if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineOption")) {
                xml->GetValue(steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
                              ,steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               FormatText(steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kTRUE);
-               ROMEString cloption = cloSeparator + steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] + cloSeparator;
+               FormatText(steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                          kTRUE);
+               ROMEString cloption = cloSeparator +
+                     steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] +
+                     cloSeparator;
                if ( usedCLO.Contains(cloption) ) {
-                  cout << "Command line option \"" << steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] <<"\" is reserved by ROME or already used. Please use other word." <<endl;
-                  cout << "Terminating program." << endl;
+                  cout<<"Command line option \""
+                      <<steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                      <<"\" is reserved by ROME or already used. Please use other word." <<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                usedCLO += cloption;
             }
             // steering parameter command line option description
             if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineDescription")) {
-               xml->GetValue(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
-                             ,steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               FormatText(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], kFALSE);
+               xml->GetValue(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                             steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               FormatText(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],
+                          kFALSE);
             }
             // steering parameter hot link
             if (type == 1 && !strcmp((const char*)name,"SPFieldHotLink")) {
@@ -3984,27 +4265,40 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
             // steering parameter field end
             if (type == 15 && !strcmp((const char*)name,"SteeringParameterField")) {
                // description
-               if (steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()
-                   && !steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length())
-                  steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
-               if (steerArraySize[iTask][actualSteerIndex].Length() && steerArraySize[iTask][actualSteerIndex]!="1" && steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()) {
-                  cout << "Error. Command line option of field '"<< steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]<<"' is not supported!" << endl;
-                  cout << "Terminating program." << endl;
+               if (steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length() &&
+                   !steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length())
+                  steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                        = steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
+               if (steerArraySize[iTask][actualSteerIndex].Length() && steerArraySize[iTask][actualSteerIndex]
+                   != "1" &&
+                   steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()) {
+                  cout<<"Error. Command line option of field '"
+                      << steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]
+                      <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]
+                      <<"' is not supported!"<<endl;
+                  cout<<"Terminating program."<<endl;
                   return false;
                }
                if (!readFieldAffiliation) {
                   numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
                      = numOfSteerAffiliations[iTask][numOfSteering[iTask]];
-                  for (i=0;i<numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];i++) {
+                  for (i = 0;
+                       i < numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
+                       i++) {
                      steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][i]
                         = steerAffiliation[iTask][actualSteerIndex][i];
                   }
                }
-               if (affiliations.GetEntriesFast()>0) {
+               if (affiliations.GetEntriesFast() > 0) {
                   steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = false;
-                  for (i=0;i<affiliations.GetEntriesFast() && !steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];i++) {
-                     for (j=0;j<numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];j++) {
-                        if (affiliations.At(i)==steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][j]) {
+                  for (i = 0; i < affiliations.GetEntriesFast() &&
+                             !steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
+                       i++) {
+                     for (j = 0;
+                          j < numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
+                          j++) {
+                        if (affiliations.At(i)
+                            == steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][j]) {
                            steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = true;
                            break;
                         }
@@ -4015,16 +4309,17 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
             }
          }
          // check input
-         if (steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]=="") {
-            cout << "A steering parameter field of task '" << taskName[iTask].Data() << "' has no Name !" << endl;
-            cout << "Terminating program." << endl;
+         if (steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "") {
+            cout<<"A steering parameter field of task '"<<taskName[iTask].Data()<<"' has no Name !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          // count includes
          numOfSteerFields[iTask][actualSteerIndex]++;
-         if (numOfSteerFields[iTask][actualSteerIndex]>=maxNumberOfSteeringField) {
-            cout << "Maximal number of steering parameter fields in task '" << taskName[iTask].Data() << "' reached : " << maxNumberOfSteeringField << " !" << endl;
-            cout << "Terminating program." << endl;
+         if (numOfSteerFields[iTask][actualSteerIndex] >= maxNumberOfSteeringField) {
+            cout<<"Maximal number of steering parameter fields in task '"<<taskName[iTask].Data()<<"' reached : "
+                <<maxNumberOfSteeringField<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
             return false;
          }
          continue;
@@ -4063,38 +4358,43 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (type == 1 && !strcmp((const char*)name,"HeaderName")) {
                      xml->GetValue(mfDictHeaderName[numOfMFDictHeaders],mfDictHeaderName[numOfMFDictHeaders]);
                      FormatText(mfDictHeaderName[numOfMFDictHeaders], kTRUE);
-                     if (mfDictHeaderName[numOfMFDictHeaders].Length()>0) {
-                        if (mfDictHeaderName[numOfMFDictHeaders].Index(".")==-1)
+                     if (mfDictHeaderName[numOfMFDictHeaders].Length() > 0) {
+                        if (mfDictHeaderName[numOfMFDictHeaders].Index(".") == -1)
                            mfDictHeaderName[numOfMFDictHeaders].Append(".h");
                      }
                   }
                   // affiliation
                   if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
-                     mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]] = "";
-                     xml->GetValue(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]]
-                                   ,mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]]);
-                     FormatText(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]], kTRUE, " ");
+                     mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]]
+                           = "";
+                     xml->GetValue(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]],
+                                   mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]]);
+                     FormatText(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]],
+                                kTRUE, " ");
 
-                     for (i=0;i<affiliationList.GetEntries();i++) {
-                        if (affiliationList.At(i,0) == mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]])
+                     for (i = 0; i < affiliationList.GetEntries(); i++) {
+                        if (affiliationList.At(i,0)
+                            == mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]])
                            break;
                      }
-                     affiliationList.SetAt(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]], i, 0);
+                     affiliationList.SetAt(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]],
+                                           i, 0);
                      affiliationList.SetAt("Class", i, affiliationList.GetEntriesAt(i));
                      affiliationList.SetAt(mfDictHeaderName[numOfMFDictHeaders], i, affiliationList.GetEntriesAt(i));
                      numOfMFDictHeaderAffiliations[numOfMFDictHeaders]++;
                   }
                   // linkDef suffix
                   if (type == 1 && !strcmp((const char*)name,"LinkDefSuffix")) {
-                     xml->GetValue(mfDictHeaderLinkDefSuffix[numOfMFDictHeaders],mfDictHeaderLinkDefSuffix[numOfMFDictHeaders]);
+                     xml->GetValue(mfDictHeaderLinkDefSuffix[numOfMFDictHeaders],
+                                   mfDictHeaderLinkDefSuffix[numOfMFDictHeaders]);
                      FormatText(mfDictHeaderLinkDefSuffix[numOfMFDictHeaders], kTRUE);
                   }
                   if (type == 15 && !strcmp((const char*)name,"Header")) {
-                     if (affiliations.GetEntriesFast()>0) {
+                     if (affiliations.GetEntriesFast() > 0) {
                         mfDictHeaderUsed[numOfMFDictHeaders] = false;
-                        for (i=0;i<affiliations.GetEntriesFast() && !mfDictHeaderUsed[numOfMFDictHeaders];i++) {
-                           for (j=0;j<numOfMFDictHeaderAffiliations[numOfMFDictHeaders];j++) {
-                              if (affiliations.At(i)==mfDictHeaderAffiliation[numOfMFDictHeaders][j]) {
+                        for (i = 0; i < affiliations.GetEntriesFast() && !mfDictHeaderUsed[numOfMFDictHeaders]; i++) {
+                           for (j = 0; j < numOfMFDictHeaderAffiliations[numOfMFDictHeaders]; j++) {
+                              if (affiliations.At(i) == mfDictHeaderAffiliation[numOfMFDictHeaders][j]) {
                                  mfDictHeaderUsed[numOfMFDictHeaders] = true;
                                  break;
                               }
@@ -4119,9 +4419,9 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                mfDictIncDir[numOfMFDictIncDirs] = "";
                xml->GetValue(mfDictIncDir[numOfMFDictIncDirs],mfDictIncDir[numOfMFDictIncDirs]);
                FormatText(mfDictIncDir[numOfMFDictIncDirs], kTRUE);
-               if (mfDictIncDir[numOfMFDictIncDirs].Length()>0) {
-                  if (mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='/' &&
-                     mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='\\')
+               if (mfDictIncDir[numOfMFDictIncDirs].Length() > 0) {
+                  if (mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1] != '/' &&
+                     mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1] != '\\')
                      mfDictIncDir[numOfMFDictIncDirs].Append("/");
 #if defined( R__VISUAL_CPLUSPLUS )
                   mfDictIncDir[numOfMFDictIncDirs].ReplaceAll("$(","%");
@@ -4148,8 +4448,8 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
                      xml->GetValue(mfWinLibName[numOfMFWinLibs],mfWinLibName[numOfMFWinLibs]);
                      FormatText(mfWinLibName[numOfMFWinLibs], kTRUE);
-                     if (mfWinLibName[numOfMFWinLibs].Length()>0) {
-                        if (mfWinLibName[numOfMFWinLibs].Index(".")==-1)
+                     if (mfWinLibName[numOfMFWinLibs].Length() > 0) {
+                        if (mfWinLibName[numOfMFWinLibs].Index(".") == -1)
                            mfWinLibName[numOfMFWinLibs].Append(".lib");
                      }
                   }
@@ -4213,9 +4513,9 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                mfIncDir[numOfMFIncDirs] = "";
                xml->GetValue(mfIncDir[numOfMFIncDirs],mfIncDir[numOfMFIncDirs]);
                FormatText(mfIncDir[numOfMFIncDirs], kTRUE);
-               if (mfIncDir[numOfMFIncDirs].Length()>0) {
-                  if (mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1]!='/' &&
-                     mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1]!='\\')
+               if (mfIncDir[numOfMFIncDirs].Length() > 0) {
+                  if (mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1] != '/' &&
+                     mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1] != '\\')
                      mfIncDir[numOfMFIncDirs].Append("/");
                   numOfMFIncDirs++;
                }
@@ -4233,7 +4533,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                mfPreDefName[numOfMFPreDefs] = "";
                xml->GetValue(mfPreDefName[numOfMFPreDefs],mfPreDefName[numOfMFPreDefs]);
                FormatText(mfPreDefName[numOfMFPreDefs], kTRUE, " ");
-               if (mfPreDefName[numOfMFPreDefs].Length()>0)
+               if (mfPreDefName[numOfMFPreDefs].Length() > 0)
                   numOfMFPreDefs++;
             }
             if (type == 15 && !strcmp((const char*)name,"PreprocessorDefinition"))
@@ -4261,15 +4561,16 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (type == 1 && !strcmp((const char*)name,"SourceFile")) {
                      xml->GetValue(temp,"");
                      FormatText(temp, kTRUE);
-                     AnalyzeFileName(temp.Data(),mfSourceFilePath[numOfMFSources],mfSourceFileName[numOfMFSources],ext);
-                     if (ext.Length()==0) {
+                     AnalyzeFileName(temp.Data(),mfSourceFilePath[numOfMFSources],
+                                     mfSourceFileName[numOfMFSources],ext);
+                     if (ext.Length() == 0) {
                         mfSourceFileName[numOfMFSources].Append(".cpp");
                      } else {
                         mfSourceFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
                      }
-                     if (mfSourceFilePath[numOfMFSources].Length()>0) {
-                        if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='/' ||
-                           mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='\\')
+                     if (mfSourceFilePath[numOfMFSources].Length() > 0) {
+                        if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1] != '/' ||
+                           mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1] != '\\')
                            mfSourceFilePath[numOfMFSources].Append("/");
                      }
                   }
@@ -4277,15 +4578,16 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (type == 1 && !strcmp((const char*)name,"HeaderFile")) {
                      xml->GetValue(temp,"");
                      FormatText(temp, kTRUE);
-                     AnalyzeFileName(temp.Data(),mfHeaderFilePath[numOfMFSources],mfHeaderFileName[numOfMFSources],ext);
-                     if (ext.Length()==0) {
+                     AnalyzeFileName(temp.Data(),mfHeaderFilePath[numOfMFSources],
+                                     mfHeaderFileName[numOfMFSources],ext);
+                     if (ext.Length() == 0) {
                         mfHeaderFileName[numOfMFSources].Append(".h");
                      } else {
                         mfHeaderFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
                      }
-                     if (mfHeaderFilePath[numOfMFSources].Length()>0) {
-                        if (mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1]!='/' ||
-                           mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1]!='\\')
+                     if (mfHeaderFilePath[numOfMFSources].Length() > 0) {
+                        if (mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1] != '/' ||
+                           mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1] != '\\')
                            mfHeaderFilePath[numOfMFSources].Append("/");
                      }
                   }
@@ -4307,14 +4609,17 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   // affiliation
                   if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
                      mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]] = "";
-                     xml->GetValue(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]]
-                                   ,mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]]);
-                     FormatText(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]], kTRUE, " ");
-                     for (i=0;i<affiliationList.GetEntries();i++) {
-                        if (affiliationList.At(i,0) == mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]])
+                     xml->GetValue(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]],
+                                   mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]]);
+                     FormatText(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]],
+                                kTRUE, " ");
+                     for (i = 0 ;i < affiliationList.GetEntries(); i++) {
+                        if (affiliationList.At(i,0)
+                            == mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]])
                            break;
                      }
-                     affiliationList.SetAt(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]], i, 0);
+                     affiliationList.SetAt(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]],
+                                           i, 0);
                      if (mfSourceFileName[numOfMFSources].Length()) {
                         affiliationList.SetAt("Source", i, affiliationList.GetEntriesAt(i));
                         affiliationList.SetAt(mfSourceFileName[numOfMFSources], i, affiliationList.GetEntriesAt(i));
@@ -4326,11 +4631,11 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      numOfMFSourceAffiliations[numOfMFSources]++;
                   }
                   if (type == 15 && !strcmp((const char*)name,"File")) {
-                     if (affiliations.GetEntriesFast()>0) {
+                     if (affiliations.GetEntriesFast() > 0) {
                         mfSourceFileUsed[numOfMFSources] = false;
-                        for (i=0;i<affiliations.GetEntriesFast() && !mfSourceFileUsed[numOfMFSources];i++) {
-                           for (j=0;j<numOfMFSourceAffiliations[numOfMFSources];j++) {
-                              if (affiliations.At(i)==mfSourceFileAffiliation[numOfMFSources][j]) {
+                        for (i = 0; i < affiliations.GetEntriesFast() && !mfSourceFileUsed[numOfMFSources]; i++) {
+                           for (j = 0; j < numOfMFSourceAffiliations[numOfMFSources]; j++) {
+                              if (affiliations.At(i) == mfSourceFileAffiliation[numOfMFSources][j]) {
                                  mfSourceFileUsed[numOfMFSources] = true;
                                  break;
                               }
@@ -4343,7 +4648,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                }
             }
             if (type == 15 && !strcmp((const char*)name,"AdditionalFiles")) {
-               for (i=0;i<numOfMFSources;i++) {
+               for (i = 0; i < numOfMFSources; i++) {
                   if (!mfSourceFileUsed[i])
                      continue;
                   found = false;
@@ -4387,7 +4692,7 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
    } else if (str.BeginsWith("$LastChangedRevision: ")){
       str.Remove(0, 22);
    } else{
-      cout << "Warning: ROMEBuilder does not support keyword '"<<str<<"'"<<endl;
+      cout<<"Warning: ROMEBuilder does not support keyword '"<<str<<"'"<<endl;
       return;
    }
    str.Remove(str.Length()-2, 2);
