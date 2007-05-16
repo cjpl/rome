@@ -1321,7 +1321,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") &&
                    !isTArrayType(valueType[iFold][i])) {
-                  buffer.AppendFormatted("   // you might have errors if operator= is not implemented\n");
+                  buffer.AppendFormatted("   // you might have errors to use Set%s, if operator= is not implemented\n",
+                                         valueName[iFold][i].Data());
                   buffer.AppendFormatted("   // in %s class but %s has pointer data member.\n", valueType[iFold][i].Data(),
                                          valueType[iFold][i].Data());
                }
