@@ -788,16 +788,16 @@ Bool_t ROMEBuilder::StartBuilder()
    int graphNumber=0;
    int is,ie,ind;
    // Assign Single Object Tabs
-   for (i=0;i<numOfTaskHierarchy;i++) {
+   for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
-         for (k=0;k<numOfHistoSingleObjectTabs[taskHierarchyClassIndex[i]][j];k++) {
+      for (j = 0; j < numOfHistos[taskHierarchyClassIndex[i]]; j++) {
+         for (k = 0; k < numOfHistoSingleObjectTabs[taskHierarchyClassIndex[i]][j]; k++) {
             found = false;
             for (l=0;l<numOfTab;l++) {
                if (!tabUsed[l])
                   continue;
-               if (histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k]==tabName[l]) {
+               if (histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k] == tabName[l]) {
                   found = true;
                   tabNumber = l;
                   histoNumber = numOfTabSingleObjects[l];
@@ -832,14 +832,16 @@ Bool_t ROMEBuilder::StartBuilder()
                numOfTab++;
             }
             is = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].ToInteger(); ie = is;
-            if ((ind=histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-"))!=-1) {
+            if ((ind=histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-")) != -1) {
                str = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](0,ind);
                is = str.ToInteger();
-               str = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
+               str = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,
+                                                                                      histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
                ie = str.ToInteger();
             }
             tabSingleObjectName[tabNumber][histoNumber] = histoName[taskHierarchyClassIndex[i]][j];
-            tabSingleObjectIndex[tabNumber][histoNumber] = histoSingleObjectTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
+            tabSingleObjectIndex[tabNumber][histoNumber] =
+                  histoSingleObjectTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
             tabSingleObjectArrayIndexStart[tabNumber][histoNumber] = is;
             tabSingleObjectArrayIndexEnd[tabNumber][histoNumber] = ie;
             tabSingleObjectTaskHierarchyIndex[tabNumber][histoNumber] = i;
@@ -849,13 +851,13 @@ Bool_t ROMEBuilder::StartBuilder()
             numOfTabSingleObjects[tabNumber]++;
          }
       }
-      for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
-         for (k=0;k<numOfGraphSingleObjectTabs[taskHierarchyClassIndex[i]][j];k++) {
+      for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]]; j++) {
+         for (k = 0; k < numOfGraphSingleObjectTabs[taskHierarchyClassIndex[i]][j]; k++) {
             found = false;
             for (l=0;l<numOfTab;l++) {
                if (!tabUsed[l])
                   continue;
-               if (graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k]==tabName[l]) {
+               if (graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k] == tabName[l]) {
                   found = true;
                   tabNumber = l;
                   graphNumber = numOfTabSingleObjects[l];
@@ -890,14 +892,16 @@ Bool_t ROMEBuilder::StartBuilder()
                numOfTab++;
             }
             is = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].ToInteger(); ie = is;
-            if ((ind=graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-"))!=-1) {
+            if ((ind=graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-")) != -1) {
                str = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](0,ind);
                is = str.ToInteger();
-               str = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
+               str = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,
+                                                                                      graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
                ie = str.ToInteger();
             }
             tabSingleObjectName[tabNumber][graphNumber] = graphName[taskHierarchyClassIndex[i]][j];
-            tabSingleObjectIndex[tabNumber][graphNumber] = graphSingleObjectTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
+            tabSingleObjectIndex[tabNumber][graphNumber]
+                  = graphSingleObjectTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
             tabSingleObjectArrayIndexStart[tabNumber][graphNumber] = is;
             tabSingleObjectArrayIndexEnd[tabNumber][graphNumber] = ie;
             tabSingleObjectTaskHierarchyIndex[tabNumber][graphNumber] = i;
@@ -909,33 +913,35 @@ Bool_t ROMEBuilder::StartBuilder()
       }
    }
 
-   for (i=0;i<numOfTab;i++) {
+   for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
       tabSingleObjectIndexMax[i] = 0;
-      for (j=0;j<numOfTabSingleObjects[i];j++) {
-         tabSingleObjectIndexMax[i] = TMath::Max(tabSingleObjectIndex[i][j]+1+tabSingleObjectArrayIndexEnd[i][j]-tabSingleObjectArrayIndexStart[i][j],tabSingleObjectIndexMax[i]);
+      for (j = 0; j < numOfTabSingleObjects[i]; j++) {
+         tabSingleObjectIndexMax[i] = TMath::Max(tabSingleObjectIndex[i][j] + 1 +
+                                                 tabSingleObjectArrayIndexEnd[i][j] -
+                                                 tabSingleObjectArrayIndexStart[i][j],tabSingleObjectIndexMax[i]);
       }
    }
    // fill task hierarchy index and suffix
    Int_t taskIndex = 0;
    Int_t suffixNumber = 0;
    Int_t multiplicity = 0;
-   for (i=0;i<numOfTaskHierarchy;i++) {
+   for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       taskHierarchyObjectIndex[i] = taskIndex++;
       suffixNumber = 0;
       multiplicity = 0;
-      for (j=0;j<numOfTaskHierarchy;j++) {
-         if (j!=i && taskHierarchyName[i]==taskHierarchyName[j]) {
+      for (j = 0; j < numOfTaskHierarchy; j++) {
+         if (j != i && taskHierarchyName[i] == taskHierarchyName[j]) {
             multiplicity++;
             if (j<i)
                suffixNumber++;
          }
       }
-      if (multiplicity>0) {
-         if (multiplicity<=9)
+      if (multiplicity > 0) {
+         if (multiplicity <= 9)
             taskHierarchySuffix[i].SetFormatted("_%01d",suffixNumber);
          if (multiplicity>9)
             taskHierarchySuffix[i].SetFormatted("_%02d",suffixNumber);
@@ -947,24 +953,24 @@ Bool_t ROMEBuilder::StartBuilder()
    }
 
    // fill tab suffix
-   for (i=0;i<numOfTab;i++) {
+   for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
       suffixNumber = 0;
       multiplicity = 0;
-      for (j=0;j<numOfTab;j++) {
-         if (j!=i && tabName[i]==tabName[j]) {
+      for (j = 0; j < numOfTab; j++) {
+         if (j != i && tabName[i] == tabName[j]) {
             multiplicity++;
             if (j<i)
                suffixNumber++;
          }
       }
-      if (multiplicity>0) {
-         if (multiplicity<=9)
+      if (multiplicity > 0) {
+         if (multiplicity <= 9)
             tabSuffix[i].SetFormatted("_%01d",suffixNumber);
-         if (multiplicity>9)
+         if (multiplicity > 9)
             tabSuffix[i].SetFormatted("_%02d",suffixNumber);
-         if (multiplicity>99)
+         if (multiplicity > 99)
             tabSuffix[i].SetFormatted("_%03d",suffixNumber);
       } else {
          tabSuffix[i] = "";
@@ -972,7 +978,7 @@ Bool_t ROMEBuilder::StartBuilder()
    }
 
    if (!readGlobalSteeringParameters) {
-      if (numOfTaskHierarchy==-1)
+      if (numOfTaskHierarchy == -1)
          numOfTaskHierarchy++;
       steerName[numOfTask][0] = "GlobalSteering";
       steerParent[numOfTask][0] = -1;
@@ -982,17 +988,17 @@ Bool_t ROMEBuilder::StartBuilder()
    }
 
    // Add DAQs to daqArray
-   if (numOfEvent>0) {
+   if (numOfEvent > 0) {
       daqNameArray->AddLast("Midas");
       daqTypeArray->AddLast(shortCut.Data());
       daqDirArray->AddLast("generated/");
    }
-   if (numOfTree>0) {
+   if (numOfTree > 0) {
       daqNameArray->AddLast("Rome");
       daqTypeArray->AddLast(shortCut.Data());
       daqDirArray->AddLast("generated/");
    }
-   if (numOfRootTree>0) {
+   if (numOfRootTree > 0) {
       daqNameArray->AddLast("Root");
       daqTypeArray->AddLast(shortCut.Data());
       daqDirArray->AddLast("generated/");
@@ -1005,7 +1011,7 @@ Bool_t ROMEBuilder::StartBuilder()
       daqTypeArray->AddLast("ROME");
       daqDirArray->AddLast("");
    }
-   for (i=0;i<numOfDAQ;i++) {
+   for (i = 0; i < numOfDAQ; i++) {
       if (!daqUsed[i])
          continue;
       str.SetFormatted("%s",daqName[i].Data());
@@ -1073,48 +1079,48 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!CheckConfigParameters(mainParGroup)) return false;
    if (!AddConfigParametersFolder()) return false;
    if (makeOutput)
-      cout << "\n\nAnalyzer:" << endl;
+      cout<<"\n\nAnalyzer:"<<endl;
    if (!WriteAnalyzerCpp()) return false;
    if (!WriteAnalyzer2Cpp()) return false;
    if (!WriteAnalyzer3Cpp()) return false;
    if (!WriteAnalyzer4Cpp()) return false;
    if (!WriteAnalyzerH()) return false;
    if (makeOutput)
-      cout << "\n\nWindow:" << endl;
+      cout<<"\n\nWindow:"<<endl;
    if (!WriteWindowCpp()) return false;
    if (!WriteWindow2Cpp()) return false;
    if (!WriteWindowH()) return false;
    if (makeOutput)
-      cout << "\n\nFolders:" << endl;
+      cout<<"\n\nFolders:"<<endl;
    if (!WriteFolderH()) return false;
    if (!WriteFolderCpp()) return false;
    if (!WriteAllFoldersH()) return false;
    if (makeOutput)
-      cout << "\n\nTasks:" << endl;
+      cout<<"\n\nTasks:"<<endl;
    if (!WriteTaskCpp()) return false;
    if (!WriteBaseTaskCpp()) return false;
    if (!WriteTaskH()) return false;
    if (!WriteBaseTaskH()) return false;
    if (makeOutput)
-      cout << "\n\nTabs:" << endl;
+      cout<<"\n\nTabs:"<<endl;
    if (!WriteTabCpp()) return false;
    if (!WriteBaseTabCpp()) return false;
    if (!WriteTabH()) return false;
    if (!WriteBaseTabH()) return false;
    if (makeOutput)
-      cout << "\n\nUser DAQ Systems:" << endl;
+      cout<<"\n\nUser DAQ Systems:"<<endl;
    if (!WriteDAQCpp()) return false;
    if (!WriteDAQH()) return false;
    if (makeOutput)
-      cout << "\n\nUser Database Interfaces:" << endl;
+      cout<<"\n\nUser Database Interfaces:"<<endl;
    if (!WriteDBCpp()) return false;
    if (!WriteDBH()) return false;
    if (makeOutput)
-      cout << "\n\nDatabase Interface:" << endl;
+      cout<<"\n\nDatabase Interface:"<<endl;
    if (!WriteDBAccessCpp()) return false;
    if (!WriteDBAccessH()) return false;
    if (makeOutput)
-      cout << "\n\nFramework:" << endl;
+      cout<<"\n\nFramework:"<<endl;
    if (readGlobalSteeringParameters)
       if (!WriteSteering(numOfTask)) return false;
    if (!WriteConfigToFormCpp()) return false;
@@ -1124,15 +1130,15 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteConfig3Cpp()) return false;
    if (!WriteConfig4Cpp()) return false;
    if (!WriteConfigH()) return false;
-   if (numOfEvent>0) {
+   if (numOfEvent > 0) {
       if (!WriteMidasDAQCpp()) return false;
       if (!WriteMidasDAQH()) return false;
    }
-   if (numOfTree>0) {
+   if (numOfTree > 0) {
       if (!WriteRomeDAQCpp()) return false;
       if (!WriteRomeDAQH()) return false;
    }
-   if (numOfRootTree>0) {
+   if (numOfRootTree > 0) {
       if (!WriteRootDAQCpp()) return false;
       if (!WriteRootDAQH()) return false;
       if (!WriteRootDAQClassesH()) return false;
@@ -1170,30 +1176,30 @@ Bool_t ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/ROMEDict.cpp");
          tempStr.AppendFormatted(" dict/ARGUSDict.cpp"); // currently no header when librome mode.
       }
-      if (generatedFolderDictHeaders->GetEntriesFast()>0)
+      if (generatedFolderDictHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
-      if (generatedSupportFolderDictHeaders->GetEntriesFast()>0)
+      if (generatedSupportFolderDictHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sGeneratedSupportFolderDict.cpp",shortCut.Data());
-      if (folderHeaders->GetEntriesFast()>0)
+      if (folderHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sFolderDict.cpp",shortCut.Data());
-      if (generatedTaskDictHeaders->GetEntriesFast()>0)
+      if (generatedTaskDictHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sGeneratedTaskDict.cpp",shortCut.Data());
-      if (taskHeaders->GetEntriesFast()>0)
+      if (taskHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sTaskDict.cpp",shortCut.Data());
-      if (generatedTabDictHeaders->GetEntriesFast()>0)
+      if (generatedTabDictHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
-      if (tabHeaders->GetEntriesFast()>0)
+      if (tabHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sTabDict.cpp",shortCut.Data());
-      if (daqHeaders->GetEntriesFast()>0)
+      if (daqHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sDAQDict.cpp",shortCut.Data());
-      if (databaseHeaders->GetEntriesFast()>0)
+      if (databaseHeaders->GetEntriesFast() > 0)
          tempStr.AppendFormatted(" dict/%sDBDict.cpp",shortCut.Data());
       tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
       gSystem->Exec(tempStr.Data());
    }
 #endif
 // Documentation
-   if (makeOutput) cout << "\nWrite HTML Documentation." << endl;
+   if (makeOutput) cout<<"\nWrite HTML Documentation."<<endl;
    WriteHTMLDoku();
    return true;
 }
@@ -1228,11 +1234,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    outDir = workDir;
    outDir.Append("/");
 
-   if (argc==1) {
+   if (argc == 1) {
       Usage();
       return false;
    }
-   for (int i=1;i<argc;i++) {
+   for (int i = 1; i < argc; i++) {
       // -- only for testing (start) --
       if (!strcmp(argv[i],"-meg")) {
          makeOutput = false;
@@ -1427,7 +1433,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          midasFile = getenv("MIDASSYS");
          midasFile.Append("/include/midas.h");
          if (gSystem->AccessPathName(midasFile.Data(),kFileExists)) {
-            cout << "Midas library not found. Have you set the MIDASSYS environment variable ?" << endl;
+            cout<<"Midas library not found. Have you set the MIDASSYS environment variable ?"<<endl;
             return false;
          }
       } else if (!strcmp(argv[i],"-orca")) {
@@ -1436,11 +1442,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #if defined( R__VISUAL_CPLUSPLUS )
          minRebuild = true;
 #   else
-         cout << "Minimal rebuild is only available on windows." << endl;
+         cout<<"Minimal rebuild is only available on windows."<<endl;
 #   endif
       } else if (!strcmp(argv[i],"-qm")) {
 #if defined( R__VISUAL_CPLUSPLUS )
-         cout << "Quiet make is only available on Unix." << endl;
+         cout<<"Quiet make is only available on Unix."<<endl;
 #else
          quietMake = true;
 #endif
@@ -1448,7 +1454,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #if defined( __GNUC__ ) && (( __GNUC__ >= 4 ) || (( __GNUC__ == 3 ) && ( __GNUC_MINOR__ >= 4 )))
          pch = true;
 #else
-         cout << "Precompiled header is available with GCC 3.4 or later." << endl;
+         cout<<"Precompiled header is available with GCC 3.4 or later."<<endl;
 #endif
       } else if (!strcmp(argv[i],"-makeflag")&&i<argc-1) {
          i++;
@@ -1459,7 +1465,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          }
       } else if (!strcmp(argv[i],"-f")&&i<argc-1) {
          i++;
-         while (argv[i][0]!='-') {
+         while (argv[i][0] != '-') {
             flags.AddLast((const char*)argv[i]);
             i++;
             if (i>argc-1)
@@ -1471,19 +1477,19 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          i++;
       } else if (!strcmp(argv[i],"-o")&&i<argc-1) {
          outDir = argv[i+1];
-         if (outDir[outDir.Length()-1]!='/' && outDir[outDir.Length()-1]!='\\')
+         if (outDir[outDir.Length()-1] != '/' && outDir[outDir.Length()-1] != '\\')
             outDir.Append("/");
          i++;
       } else if (!strcmp(argv[i],"-a")&&i<argc-1) {
          i++;
-         while (argv[i][0]!='-') {
+         while (argv[i][0] != '-') {
             affiliations.AddLast((const char*)argv[i]);
             i++;
             if (i>argc-1)
                break;
          }
          i--;
-      } else if (argv[i][0]=='-') {
+      } else if (argv[i][0] == '-') {
          Usage();
          return false;
       } else {
@@ -1533,7 +1539,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
    valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
    valueInit[numOfFolder][numOfValue[numOfFolder]] = "\"\"";
-   for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+   for (iDm = 0; iDm < maxNumberOfValueDimension; iDm++)
       valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
    valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
    valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
@@ -1544,9 +1550,10 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
    // count fields
    numOfValue[numOfFolder]++;
-   if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-      cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
-      cout << "Terminating program." << endl;
+   if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+      cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+          <<maxNumberOfValues<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return false;
    }
 
@@ -1558,7 +1565,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
    valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
    valueInit[numOfFolder][numOfValue[numOfFolder]] = "\"\"";
-   for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+   for (iDm = 0; iDm < maxNumberOfValueDimension; iDm++)
       valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
    valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
    valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
@@ -1569,14 +1576,15 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
    // count fields
    numOfValue[numOfFolder]++;
-   if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-      cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
-      cout << "Terminating program." << endl;
+   if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+      cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : " 
+          <<maxNumberOfValues<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return false;
    }
 
    // Task active flag
-   for (i=0;i<numOfTaskHierarchy;i++) {
+   for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       tmp.SetFormatted("%s%sTaskActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
@@ -1588,7 +1596,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
       valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
       valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
       valueInit[numOfFolder][numOfValue[numOfFolder]] = "kFALSE";
-      for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
+      for (iDm = 0; iDm < maxNumberOfValueDimension; iDm++)
          valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
       valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
       valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
@@ -1599,9 +1607,10 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
       csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
       // count fields
       numOfValue[numOfFolder]++;
-      if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-         cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
-         cout << "Terminating program." << endl;
+      if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+         cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+             <<maxNumberOfValues<<" !"<<endl;
+         cout<<"Terminating program."<<endl;
          return false;
       }
    }
@@ -1609,8 +1618,8 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    // count folders
    numOfFolder++;
    if (numOfFolder > maxNumberOfFolders) {
-      cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
-      cout << "Terminating program." << endl;
+      cout<<"Maximal number of folders reached : "<<maxNumberOfFolders<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
       return false;
    }
 
@@ -1622,9 +1631,9 @@ Bool_t ROMEBuilder::CheckFileAndPath()
 {
    if (gSystem->AccessPathName(xmlFile.Data(),kFileExists)) {
       if ( xmlFile == "") {
-         cout << "No inputfile specified." << endl;
+         cout<<"No inputfile specified."<<endl;
       } else {
-         cout << "Inputfile '" << xmlFile.Data() << "' not found." << endl;
+         cout<<"Inputfile '"<<xmlFile.Data()<<"' not found."<<endl;
       }
       return false;
    }
@@ -1632,7 +1641,7 @@ Bool_t ROMEBuilder::CheckFileAndPath()
    path = outDir;
    path.Remove(path.Length()-1);
    if (gSystem->AccessPathName(path.Data(),kFileExists)) {
-      cout << "Outputpath '" << outDir.Data() << "' not found." << endl;
+      cout<<"Outputpath '"<<outDir.Data()<<"' not found."<<endl;
       return false;
    }
    return true;
@@ -1641,30 +1650,31 @@ Bool_t ROMEBuilder::CheckFileAndPath()
 //______________________________________________________________________________
 void ROMEBuilder::Usage()
 {
-   cout << "  -i        Inputfile" << endl;
-   cout << "  -o        Outputfile path" << endl;
-   cout << "  -v        Verbose Mode (no Argument)" << endl;
-   cout << "  -nl       No Linking (no Argument)" << endl;
-   cout << "  -dl       Making dynamic library and ling it to program, only on Un*x (no Argument)" << endl;
-   cout << "  -pch      Use precompiled header (no Argument)" << endl;
+   cout<<"  -i        Inputfile"<<endl;
+   cout<<"  -o        Outputfile path"<<endl;
+   cout<<"  -v        Verbose Mode (no Argument)"<<endl;
+   cout<<"  -nl       No Linking (no Argument)"<<endl;
+   cout<<"  -dl       Making dynamic library and ling it to program, only on Un*x (no Argument)"<<endl;
+   cout<<"  -pch      Use precompiled header (no Argument)"<<endl;
 #if defined( R__VISUAL_CPLUSPLUS )
-   cout << "  -minrb    Enables minimal rebuild, only on windows (no Argument)" << endl;
+   cout<<"  -minrb    Enables minimal rebuild, only on windows (no Argument)"<<endl;
 #endif
 #if defined( R__UNIX )
-   cout << "  -qm       Quiet make. Not print compile commands in make procedure." << endl;
+   cout<<"  -qm       Quiet make. Not print compile commands in make procedure."<<endl;
 #endif
-   cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
-   cout << "  -orca     Generated program can be connected to a orca DAQ system (no Argument)" << endl;
-   cout << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl;
-   cout << "  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)" << endl;
-   cout << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl;
-   cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
-   cout << "  -f        Compile flags added to the Makefile" << endl;
-   cout << "  -makeflag Options for make command executed in romebuilder" << endl;
+   cout<<"  -midas    Generated program can be connected to a midas online system (no Argument)"<<endl;
+   cout<<"  -orca     Generated program can be connected to a orca DAQ system (no Argument)"<<endl;
+   cout<<"  -mysql    Generated program can be connected to a MySQL server (no Argument)"<<endl;
+   cout<<"  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)"<<endl;
+   cout<<"  -sqlite   Generated program can be connected to a SQLite database (no Argument)"<<endl;
+   cout<<"  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)"<<endl;
+   cout<<"  -f        Compile flags added to the Makefile"<<endl;
+   cout<<"  -makeflag Options for make command executed in romebuilder"<<endl;
 }
 
 //______________________________________________________________________________
-void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile)
+void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,
+                                  ROMEString& extensionOfFile)
 {
    Ssiz_t ind;
    ROMEString str = file;
@@ -1672,7 +1682,7 @@ void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMESt
    pathOfFile = str(0,ind+1);
    str = str(ind+1,str.Length()-ind-1);
    ind = str.Last('.');
-   if (ind==-1) {
+   if (ind == -1) {
       nameOfFile = str;
       extensionOfFile = "";
    } else {
@@ -1698,10 +1708,10 @@ Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace
       if (backup)
          backupCreated = BackUpFile(filename);
       if (!(fileStream = new fstream(filename,ios::out | ios::trunc))) {
-         if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+         if (makeOutput) cout<<"\n\nError : Failed to open '"<<filename<<"' !!!"<<endl;
          return backupCreated;
       }
-      if (makeOutput) cout << setw(nspace)<< "" << filename << endl;
+      if (makeOutput) cout<<setw(nspace)<< ""<<filename<<endl;
       *fileStream<<body;
       fileStream->close();
       delete fileStream;
@@ -1738,7 +1748,7 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
        !strcmp(type,"Color_t") ||
        !strcmp(type,"Font_t") ||
        !strcmp(type,"Version_t")) {
-      if (version==0) {
+      if (version == 0) {
          buf->AppendFormatted("%s = strtol(%s,&cstop,10)",destination,source);
       } else {
          buf->AppendFormatted("strtol(%s,&cstop,10)",source);
@@ -1746,7 +1756,7 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
    } else if (
        !strcmp(type,"bool") ||
        !strcmp(type,"Bool_t")) {
-      if (version==0) {
+      if (version == 0) {
          buf->AppendFormatted("%s = gAnalyzer->strtobool(%s)",destination,source);
       } else {
          buf->AppendFormatted("gAnalyzer->strtobool(%s)",source);
@@ -1759,7 +1769,7 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
 
        !strcmp(type,"Option_t") ||
        !strcmp(type,"Text_t")) {
-      if (version==0) {
+      if (version == 0) {
          buf->AppendFormatted("strcpy(%s,%s)",destination,source);
       } else {
          buf->AppendFormatted("%s",source);
@@ -1774,13 +1784,13 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
-      if (version==0) {
+      if (version == 0) {
          buf->AppendFormatted("%s = strtod(%s,&cstop)",destination,source);
       } else {
          buf->AppendFormatted("strtod(%s,&cstop)",source);
       }
    } else {
-      if (version==0) {
+      if (version == 0) {
          buf->AppendFormatted("%s = %s",destination,source);
       } else {
          buf->AppendFormatted("%s",source);
@@ -1805,7 +1815,7 @@ bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
               type == "Double_t") {
       midasODBType = "DOUBLE";
    } else {
-      cout << type << " no conversion to a midas odb type available" << endl;
+      cout<<type<<" no conversion to a midas odb type available"<<endl;
       return false;
    }
    return true;
@@ -1869,7 +1879,8 @@ Bool_t ROMEBuilder::isIntType(const char *type)
 }
 
 //______________________________________________________________________________
-ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer)
+ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const char *newType,
+                                     ROMEString& stringBuffer)
 {
    int type = 0;
    if (!strcmp(newType,"int") || !strcmp(newType,"Int_t")) {
@@ -1881,17 +1892,17 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
    } else {
       return stringBuffer;
    }
-   if (type==1 || type==2) {
+   if (type == 1 || type == 2) {
       if (isNumber(oldType) || isBoolType(oldType)) {
-         if (type==1) {
+         if (type == 1) {
             return stringBuffer.SetFormatted("(int)%s",value);
-         } else if (type==2) {
+         } else if (type == 2) {
             return stringBuffer.SetFormatted("(double)%s",value);
          }
       } else {
-         if (type==1) {
+         if (type == 1) {
             stringBuffer.SetFormatted("strtol(%s,&cstop,10)",value);
-         } else if (type==2) {
+         } else if (type == 2) {
             stringBuffer.SetFormatted("strtod(%s,&cstop)",value);
          }
          if (!strcmp(oldType,"std::string")) {
@@ -1901,7 +1912,7 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
          }
          return stringBuffer;
       }
-   } else if (type==3) {
+   } else if (type == 3) {
       if (isBoolType(oldType)) {
          return stringBuffer;
       }
@@ -1928,7 +1939,7 @@ Bool_t ROMEBuilder::isFolder(const char *type)
 {
    int j;
    ROMEString str;
-   for (j=0;j<numOfFolder;j++) {
+   for (j = 0; j < numOfFolder; j++) {
       if (!strcmp(type,folderName[j].Data()))
          return true;
       str.SetFormatted("%s*",folderName[j].Data());
@@ -1955,7 +1966,7 @@ Bool_t ROMEBuilder::isTArrayType(const char *type)
          ,"TArrayS"
       };
 
-   for (j=0;j<6;j++) {
+   for (j = 0; j < 6; j++) {
       if (!strcmp(type,arrayTypes[j]))
          return true;
       str.SetFormatted("%s*",arrayTypes[j]);
@@ -1979,7 +1990,7 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
          ,{"TArrayS","Short_t "}
       };
 
-   for (j=0;j<6;j++) {
+   for (j = 0; j < 6; j++) {
       if (!strcmp(type,arrayTypes[j][0])) {
          standardType = arrayTypes[j][1];
          return standardType.Data();
@@ -2024,31 +2035,31 @@ void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, 
 
       case 2:
          p2 = new T*[x1];
-         for (i=0;i<x1;i++)
+         for (i = 0; i < x1; i++)
             p2[i] = static_cast<T*>(AllocateArray(p0, x2));
          return p2;
 
       case 3:
          p3 = new T**[x1];
-         for (i=0;i<x1;i++)
+         for (i = 0; i < x1; i++)
             p3[i] = static_cast<T**>(AllocateArray(p0, x2, x3));
          return p3;
 
       case 4:
          p4 = new T***[x1];
-         for (i=0;i<x1;i++)
+         for (i = 0; i < x1; i++)
             p4[i] = static_cast<T***>(AllocateArray(p0, x2, x3, x4));
          return p4;
 
       case 5:
          p5 = new T****[x1];
-         for (i=0;i<x1;i++)
+         for (i = 0; i < x1; i++)
             p5[i] = static_cast<T****>(AllocateArray(p0, x2, x3, x4, x5));
          return p5;
 
       case 6:
          p6 = new T*****[x1];
-         for (i=0;i<x1;i++)
+         for (i = 0; i < x1; i++)
             p6[i] = static_cast<T*****>(AllocateArray(p0, x2, x3, x4, x5, x6));
          return p6;
    };
