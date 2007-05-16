@@ -491,8 +491,14 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!%s || number < 0)\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      return;\n");
-               buffer.AppendFormatted("   if (%s->GetEntriesFast() == number)\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   Int_t n = %s->GetEntriesFast();\n", valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (n == number) {\n");
                buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
+               buffer.AppendFormatted("   Int_t i;\n");
+               buffer.AppendFormatted("   for (i = number; i < n; i++) {\n");
+               buffer.AppendFormatted("      %s->RemoveAt(i);\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   %s->ExpandCreate(number);\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("}\n");
@@ -5310,7 +5316,15 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          buffer.AppendFormatted("void %sAnalyzer::Set%sSize(Int_t number) {\n",shortCut.Data(),folderName[i].Data());
          buffer.AppendFormatted("   if (!f%sFolders || number < 0)\n",folderName[i].Data());
          buffer.AppendFormatted("      return;\n");
-         buffer.AppendFormatted("   f%sFolders->ExpandCreate(number);\n",folderName[i].Data());
+         buffer.AppendFormatted("   Int_t n = f%sFolders->GetEntriesFast();\n", folderName[i].Data());
+         buffer.AppendFormatted("   if (n == number) {\n");
+         buffer.AppendFormatted("      return;\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   Int_t i;\n");
+         buffer.AppendFormatted("   for (i = number; i < n; i++) {\n");
+         buffer.AppendFormatted("      f%sFolders->RemoveAt(i);\n", folderName[i].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   f%sFolders->ExpandCreate(number);\n", folderName[i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
