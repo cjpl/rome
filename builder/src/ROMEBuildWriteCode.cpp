@@ -414,18 +414,18 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             break;
          }
       }
-      buffer.AppendFormatted("   if ( fModified ) return true;\n");
+      buffer.AppendFormatted("   if (fModified) return true;\n");
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] == 0) {
-               buffer.AppendFormatted("   if ( %s->isModified() ) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (%s && %s->isModified()) {\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("      return true;\n");
                buffer.AppendFormatted("   }\n");
             } else {
                // check only the first element for speed up.
-               buffer.AppendFormatted("   if ( %s->GetEntries() ) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      if ( ((%s)%s->At(0))->isModified() ) {\n",valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   if (%s->GetEntries()) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if (((%s)%s->At(0))->isModified()) {\n",valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("         SetModified(true);\n");
                buffer.AppendFormatted("         return true;\n");
@@ -440,7 +440,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             if (valueDimension[iFold][i] > 0) {
                buffer.AppendFormatted("   nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   for (i = 1; i < nentry; i++) {\n");
-               buffer.AppendFormatted("      if ( ((%s)%s->At(i))->isModified() ) {\n",valueType[iFold][i].Data(),
+               buffer.AppendFormatted("      if (((%s)%s->At(i))->isModified()) {\n",valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("         SetModified(true);\n");
                buffer.AppendFormatted("         return true;\n");
@@ -698,7 +698,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          if (!isFolder(valueType[iFold][i].Data()))
             continue;
          if (valueDimension[iFold][i] == 0) {
-            buffer.AppendFormatted("      %s->ResetModified();\n",valueName[iFold][i].Data());
+            buffer.AppendFormatted("      if (%s) {%s->ResetModified();}\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          } else {
             buffer.AppendFormatted("      nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
             buffer.AppendFormatted("      for (Int_t i%d = 0; i%d < nentry; i%d++) { ((%s)%s->At(i%d))->ResetModified(); }\n",
@@ -747,7 +747,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       // Reset
       buffer.AppendFormatted("void %s::Reset()\n",clsName.Data());
       buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   if ( !isModified() ) return;\n");
+      buffer.AppendFormatted("   if (!isModified()) return;\n");
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data()) && valueDimension[iFold][i] > 0) {
             buffer.AppendFormatted("      int nentry;\n");
@@ -800,7 +800,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          } else if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] == 0) {
-               buffer.AppendFormatted("      %s->Reset();\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if(%s) {%s->Reset();}\n",valueName[iFold][i].Data(),
+                                      valueName[iFold][i].Data());
             } else {
                buffer.AppendFormatted("      nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      for (int i%d = 0; i%d < nentry; i%d++) { ((%s)%s->At(i%d))->Reset(); }\n",
@@ -7440,7 +7441,7 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
       num = 0;
       if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
          for (j = 0; j < numOfValue[i]; j++) {
-            if ( valueDimension[i][j] > 1 )
+            if (valueDimension[i][j] > 1)
                continue;
             num++;
          }
@@ -14682,7 +14683,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
    buffer.AppendFormatted("   char *cstop;\n");
    buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    for (j = 0; j < numOfValue[numFolder]; j++) {
-      if ( valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
+      if (valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
          continue;
       if (valueIsTObject[numFolder][j] && !isPointerType(valueType[numFolder][j].Data())
           && !valueType[numFolder][j].Contains("TRef") && !valueType[numFolder][j].Contains("TString"))
@@ -15213,10 +15214,12 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          if (folderArray[i] == "1") {
             buffer.AppendFormatted("   gAnalyzer->Get%s()->Reset();\n",folderName[i].Data());
          } else {
-            buffer.AppendFormatted("   nentry = gAnalyzer->Get%ss()->GetEntriesFast();\n",folderName[i].Data());
+            buffer.AppendFormatted("   nentry = gAnalyzer->Get%ss()->GetEntriesFast();\n", folderName[i].Data());
+            buffer.AppendFormatted("   %s%s *p%s;\n", shortCut.Data(), folderName[i].Data(), folderName[i].Data());
             buffer.AppendFormatted("   for (i = 0; i < nentry; i++) {\n");
-            buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->Reset();\n",shortCut.Data(),
-                                   folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("      p%s = static_cast<%s%s*>(gAnalyzer->Get%sAt(i));\n", folderName[i].Data(),
+                                   shortCut.Data(), folderName[i].Data(), folderName[i].Data());
+            buffer.AppendFormatted("      if (p%s) {p%s->Reset();}\n", folderName[i].Data(), folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
       }
