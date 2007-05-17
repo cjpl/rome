@@ -543,7 +543,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (number < 0) return;\n");
                buffer.AppendFormatted("   if (number == %sSize) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      if (fillZero && !copyOldData)\n");
+               buffer.AppendFormatted("      if (fillZero && !copyOldData && number != 0)\n");
                buffer.AppendFormatted("         memset(%s, 0, number * sizeof(%s));\n",
                                       valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("      return;\n");
