@@ -538,19 +538,37 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
 
-               buffer.AppendFormatted("void %s::Set%sSize(Int_t number, Bool_t copyOldData)\n",clsName.Data(),
+               buffer.AppendFormatted("void %s::Set%sSize(Int_t number, Bool_t copyOldData, Bool_t fillZero)\n",clsName.Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (number == %sSize) return;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   if (number < 0) return;\n");
+               buffer.AppendFormatted("   if (number == %sSize) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if (fillZero && !copyOldData)\n");
+               buffer.AppendFormatted("         memset(%s, 0, number * sizeof(%s));\n",
+                                      valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   };\n");
                buffer.AppendFormatted("   %s *tmp = %s;\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   if (number != 0) {\n");
                buffer.AppendFormatted("      %s = new %s[number];\n",valueName[iFold][i].Data(),
                                       valueType[iFold][i].Data());
-               buffer.AppendFormatted("      if (copyOldData)\n");
-               buffer.AppendFormatted("         memcpy(%s, tmp, TMath::Min(%sSize, number) * sizeof(%s));\n",
+               buffer.AppendFormatted("      if (number < %sSize) {\n", valueName[iFold][i].Data());
+               buffer.AppendFormatted("         if (copyOldData)\n");
+               buffer.AppendFormatted("            memcpy(%s, tmp, number * sizeof(%s));\n",
+                                      valueName[iFold][i].Data(), valueType[iFold][i].Data());
+               buffer.AppendFormatted("         else if (fillZero)\n");
+               buffer.AppendFormatted("            memset(%s, 0, number * sizeof(%s));\n",
+                                      valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("      } else {\n");
+               buffer.AppendFormatted("         if (copyOldData)\n");
+               buffer.AppendFormatted("            memcpy(%s, tmp, %sSize * sizeof(%s));\n",
                                       valueName[iFold][i].Data(),valueName[iFold][i].Data(),
                                       valueType[iFold][i].Data());
+               buffer.AppendFormatted("         if (fillZero)\n");
+               buffer.AppendFormatted("            memset(%s + %sSize, 0, (number - %sSize) * sizeof(%s));\n",
+                                      valueName[iFold][i].Data(),valueName[iFold][i].Data(),
+                                      valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("      }\n");
                buffer.AppendFormatted("   } else {\n");
                buffer.AppendFormatted("      %s = 0;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
@@ -1388,7 +1406,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),
                                       valueName[iFold][i].Data(),"","");
-               buffer.AppendFormatted("   void Set%sSize(Int_t number, Bool_t copyOldData = kFALSE);\n",
+               buffer.AppendFormatted("   void Set%sSize(Int_t number, Bool_t copyOldData = kFALSE, Bool_t fillZero = kTRUE);\n",
                                       valueName[iFold][i].Data());
                format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n, const %%s* array);\n",typeLen);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),valueType[iFold][i].Data());
