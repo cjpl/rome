@@ -779,7 +779,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("   if (!isModified()) return;\n");
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data()) && valueDimension[iFold][i] > 0) {
-            buffer.AppendFormatted("      int nentry;\n");
+            buffer.AppendFormatted("   int nentry;\n");
             break;
          }
       }
@@ -788,74 +788,74 @@ Bool_t ROMEBuilder::WriteFolderCpp()
              && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") &&
              !isTArrayType(valueType[iFold][i])) {
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
-               format.SetFormatted("%%%ds      for (int %%c%%d = 0; %%c%%d < %%s; %%c%%d++) {\n",iDm*3);
+               format.SetFormatted("%%%ds   for (int %%c%%d = 0; %%c%%d < %%s; %%c%%d++) {\n",iDm*3);
                buffer.AppendFormatted(format.Data(),"",valueCounter[iDm],i,valueCounter[iDm],i,
                                       valueArray[iFold][i][iDm].Data(),valueCounter[iDm],i);
             }
-            format.SetFormatted("%%%ds      %%s",valueDimension[iFold][i]*3);
+            format.SetFormatted("%%%ds   %%s",valueDimension[iFold][i]*3);
             buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                buffer.AppendFormatted("[%c%d]",valueCounter[iDm],i);
             buffer.AppendFormatted(".Clear();\n");
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
-               format.SetFormatted("%%%ds      }\n",(valueDimension[iFold][i]-iDm - 1)*3);
+               format.SetFormatted("%%%ds   }\n",(valueDimension[iFold][i]-iDm - 1)*3);
                buffer.AppendFormatted(format.Data(),"");
             }
          } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
                  && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
-               format.SetFormatted("%%%ds      for (int %%c%%d = 0; %%c%%d < %%s; %%c%%d++) {\n",iDm*3);
+               format.SetFormatted("%%%ds   for (int %%c%%d = 0; %%c%%d < %%s; %%c%%d++) {\n",iDm*3);
                buffer.AppendFormatted(format.Data(),"",valueCounter[iDm],i,valueCounter[iDm],i,
                                       valueArray[iFold][i][iDm].Data(),valueCounter[iDm],i);
             }
-            format.SetFormatted("%%%ds      if (%%s",valueDimension[iFold][i]*3);
+            format.SetFormatted("%%%ds   if (%%s",valueDimension[iFold][i]*3);
             buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                buffer.AppendFormatted("[%c%d]",valueCounter[iDm],i);
             buffer.AppendFormatted(")\n");
-            format.SetFormatted("%%%ds         %%s",valueDimension[iFold][i]*3);
+            format.SetFormatted("%%%ds      %%s",valueDimension[iFold][i]*3);
             buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                buffer.AppendFormatted("[%c%d]",valueCounter[iDm],i);
             buffer.AppendFormatted("->Clear();\n");
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
-               format.SetFormatted("%%%ds      }\n",(valueDimension[iFold][i]-iDm - 1)*3);
+               format.SetFormatted("%%%ds   }\n",(valueDimension[iFold][i]-iDm - 1)*3);
                buffer.AppendFormatted(format.Data(),"");
             }
          } else if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] == 0) {
                if (!isPointerType(valueType[iFold][i].Data())) {
-                  buffer.AppendFormatted("      %s.Reset();\n",valueName[iFold][i].Data());
+                  buffer.AppendFormatted("   %s.Reset();\n",valueName[iFold][i].Data());
                } else {
-                  buffer.AppendFormatted("      if (%s) %s->Reset();\n",valueName[iFold][i].Data(),
+                  buffer.AppendFormatted("   if (%s) %s->Reset();\n",valueName[iFold][i].Data(),
                                          valueName[iFold][i].Data());
                }
             } else {
-               buffer.AppendFormatted("      nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      for (int i%d = 0; i%d < nentry; i%d++) { ((%s*)%s->At(i%d))->Reset(); }\n",
+               buffer.AppendFormatted("   nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   for (int i%d = 0; i%d < nentry; i%d++) { ((%s*)%s->At(i%d))->Reset(); }\n",
                                       i,i,i,valueType[iFold][i].Data(),valueName[iFold][i].Data(),i);
             }
          } else if (isTArrayType(valueType[iFold][i])) {
-            buffer.AppendFormatted("      %s%sReset(%s);\n",valueName[iFold][i].Data(),Relation(valueType[iFold][i]),
+            buffer.AppendFormatted("   %s%sReset(%s);\n",valueName[iFold][i].Data(),Relation(valueType[iFold][i]),
                                    valueInit[iFold][i].Data());
          } else if (valueArray[iFold][i][0] == "variable") {
-            buffer.AppendFormatted("      for (int i%d = 0; i%d < %sSize; i%d++) {\n",i,i,
+            buffer.AppendFormatted("   for (int i%d = 0; i%d < %sSize; i%d++) {\n",i,i,
                                    valueName[iFold][i].Data(),i);
-            buffer.AppendFormatted("         %s[i%d] = %s;\n",valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
-            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("      %s[i%d] = %s;\n",valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
+            buffer.AppendFormatted("   }\n");
          } else {
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
-               format.SetFormatted("%%%ds      for (int %%c%%d = 0; %%c%%d<%%s; %%c%%d++) {\n",iDm*3);
+               format.SetFormatted("%%%ds   for (int %%c%%d = 0; %%c%%d<%%s; %%c%%d++) {\n",iDm*3);
                buffer.AppendFormatted(format.Data(),"",valueCounter[iDm],i,valueCounter[iDm],i,
                                       valueArray[iFold][i][iDm].Data(),valueCounter[iDm],i);
             }
-            format.SetFormatted("%%%ds      %%s",valueDimension[iFold][i]*3);
+            format.SetFormatted("%%%ds   %%s",valueDimension[iFold][i]*3);
             buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                buffer.AppendFormatted("[%c%d]",valueCounter[iDm],i);
             buffer.AppendFormatted(" = (%s)%s;\n",valueType[iFold][i].Data(),valueInit[iFold][i].Data());
             for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
-               format.SetFormatted("%%%ds      }\n",(valueDimension[iFold][i]-iDm - 1)*3);
+               format.SetFormatted("%%%ds   }\n",(valueDimension[iFold][i]-iDm - 1)*3);
                buffer.AppendFormatted(format.Data(),"");
             }
          }
