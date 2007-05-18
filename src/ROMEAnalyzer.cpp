@@ -336,18 +336,19 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 void ROMEAnalyzer::ParameterUsage()
 {
    ROMEPrint::Print("  -i       Configuration file\n");
+   ROMEPrint::Print("  -r       Runnumbers\n");
+   ROMEPrint::Print("  -e       Eventnumbers\n");
+   ROMEPrint::Print("  -m       Analysing Mode : (online/[offline])\n");
+   ROMEPrint::Print("  -p       Program Mode : (0 : analyzer / 1 : monitor / 2 : analyzer and monitor / 3 : monitor connected to an analyzer)\n");
+   ROMEPrint::Print("  -o       Start Analyzer in Step by Step Mode\n");
+   ROMEPrint::Print("  -I       Go into interactive session directory. Other options are ignored.\n");
    ROMEPrint::Print("  -b       Batch Mode (no Argument)\n");
    ROMEPrint::Print("  -D       Daemon Mode (no Argument)\n");
    ROMEPrint::Print("  -q       Quit Mode (no Argument)\n");
    ROMEPrint::Print("  -v       Verbose level :(mute/error/warning/normal/debug)\n");
-   ROMEPrint::Print("  -ns      Splash Screen is not displayed (no Argument)\n");
-   ROMEPrint::Print("  -m       Analysing Mode : (online/[offline])\n");
-   ROMEPrint::Print("  -r       Runnumbers\n");
-   ROMEPrint::Print("  -e       Eventnumbers\n");
-   ROMEPrint::Print("  -o       Start Analyzer in Step by Step Mode\n");
-   ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
    ROMEPrint::Print("  -ng      No graphics is used\n");
-   ROMEPrint::Print("  -I       Go into interactive session directory. Other options are ignored.\n");
+   ROMEPrint::Print("  -ns      Splash Screen is not displayed (no Argument)\n");
+   ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
    UserParameterUsage();
    return;
 }
@@ -604,6 +605,20 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          } else {
             this->SetOffline();
          }
+         i++;
+      }
+      else if (!strcmp(argv[i],"-p")) {
+         if (i+1 >= argc) {
+            break;
+         }
+         if (!strcmp(argv[i+1],"1"))
+            this->SetStandAloneARGUS();
+         else if (!strcmp(argv[i+1],"2"))
+            this->SetROMEAndARGUS();
+         else if (!strcmp(argv[i+1],"3"))
+            this->SetROMEMonitor();
+         else
+            this->SetStandAloneROME();
          i++;
       }
       else if (!strcmp(argv[i],"-r")&&i<argc-1) {
