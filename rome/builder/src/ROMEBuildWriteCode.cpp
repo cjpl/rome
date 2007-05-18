@@ -1672,6 +1672,7 @@ Bool_t ROMEBuilder::WriteAllFoldersH() {
 Bool_t ROMEBuilder::WriteTaskCpp()
 {
    ROMEString cppFile;
+   ROMEString genFile;
    ROMEString header;
    ROMEString buffer;
    ROMEString clsName;
@@ -1692,6 +1693,46 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       buffer.Resize(0);
       // File name
       cppFile.SetFormatted("%ssrc/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+
+      // Generated Includes
+      buffer.Resize(0);
+      WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
+      genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(), 
+                           taskName[iTask].Data());
+      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+
+      numOfTaskAccessedFolder[iTask] = 0;
+      for (j = 0; j < numOfFolder; j++) {
+         if (accessFolder(fileBuffer,j)) {
+            if (!folderUsed[j])
+               continue;
+            if (numOfValue[j] > 0 && !folderSupport[j]) {
+               taskAccessedFolder[iTask][numOfTaskAccessedFolder[iTask]] = j;
+               if (folderUserCode[j]) {
+                  buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               } else {
+                  buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),
+                                                 folderName[j].Data());
+               }
+               numOfTaskAccessedFolder[iTask]++;
+            }
+         }
+      }
+      if (fileBuffer.Contains("GetWindow"))
+         buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+      if (fileBuffer.Contains("GetGSP"))
+         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      for (j = 0; j < daqNameArray->GetEntriesFast(); j++) {
+         tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
+         tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
+         if (fileBuffer.Contains(tmp) || fileBuffer.Contains(tmp2))
+            buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),
+                                           daqNameArray->At(j).Data());
+      }
+
+      WriteFile(genFile.Data(), buffer.Data(),6);
 
       // Description
       WriteHeader(header, taskAuthor[iTask].Data(), kFALSE);
@@ -1719,7 +1760,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       clsDescription.AppendFormatted("<p>\n");
       clsDescription.AppendFormatted("End_Html\n\n");
       clsDescription.AppendFormatted("The event methods have been written by %s.\n",taskAuthor[iTask].Data());
-      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileStream = new fstream(cppFile.Data(),ios::in);
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;
       bool first = true;
@@ -1776,40 +1817,11 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          clsDescription.AppendFormatted("\n");
          clsDescription.AppendFormatted("Get<Histogram/Graph Name>At(Int_t index)\n");
       }
-      bool folderIncludeFirst = true;
-      numOfTaskAccessedFolder[iTask] = 0;
-      for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer,j)) {
-            if (!folderUsed[j])
-               continue;
-            if (numOfValue[j] > 0 && !folderSupport[j]) {
-               if (folderIncludeFirst) {
-                  folderIncludeFirst = false;
-                  clsDescription.AppendFormatted("\n");
-                  clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
-               }
-               taskAccessedFolder[iTask][numOfTaskAccessedFolder[iTask]] = j;
-               if (folderUserCode[j]) {
-                  clsDescription.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
-               } else {
-                  clsDescription.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),
-                                                 folderName[j].Data());
-               }
-               numOfTaskAccessedFolder[iTask]++;
-            }
-         }
-      }
-      if (fileBuffer.Contains("GetWindow"))
-         clsDescription.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
-      if (fileBuffer.Contains("GetGSP"))
-         clsDescription.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
-      for (j = 0; j < daqNameArray->GetEntriesFast(); j++) {
-         tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
-         tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
-         if (fileBuffer.Contains(tmp) || fileBuffer.Contains(tmp2))
-            clsDescription.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),
-                                           daqNameArray->At(j).Data());
-      }
+      // Generated Includes
+      clsDescription.AppendFormatted("\n");
+      clsDescription.AppendFormatted("Generated header file containing necessary includes\n");
+      clsDescription.AppendFormatted("#include \"generated/%sT%sGeneratedIncludes.h\"\n\n", shortCut.Data(),
+                                     taskName[iTask].Data());
 
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
