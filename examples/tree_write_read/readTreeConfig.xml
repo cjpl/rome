@@ -15,7 +15,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     </Modes>
 
     <Offline>
-      <RunNumbers>1</RunNumbers>
+      <RunNumbers>1-5</RunNumbers>
       <EventNumbers></EventNumbers>
       <InputFileNames></InputFileNames>
     </Offline>

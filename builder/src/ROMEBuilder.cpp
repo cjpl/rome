@@ -1939,17 +1939,21 @@ Bool_t ROMEBuilder::isFolder(const char *type)
 {
    int j;
    ROMEString str;
-   for (j = 0; j < numOfFolder; j++) {
-      if (!strcmp(type,folderName[j].Data()))
-         return true;
+   Int_t n = -1;
+   for (j = 0; j < numOfFolder && n < 0; j++) {
+      if (folderName[j] == type)
+         n = j;
       str.SetFormatted("%s*",folderName[j].Data());
-      if (!strcmp(type,str.Data()))
-         return true;
+      if (str== type)
+         n = j;
+      str.SetFormatted("%s%s",shortCut.Data(),folderName[j].Data());
+      if (str == type)
+         n = j;
       str.SetFormatted("%s%s*",shortCut.Data(),folderName[j].Data());
-      if (!strcmp(type,str.Data()))
-         return true;
+      if (str == type)
+         n = j;
    }
-   return false;
+   return n >= 0  && folderUsed[n] && numOfValue[n] > 0;
 }
 
 //______________________________________________________________________________
