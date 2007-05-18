@@ -1710,7 +1710,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
             }
          }
       }
-      if (fileBuffer.Contains("GetWindow"))
+      if (fileBuffer.Contains("GetWindow") || fileBuffer.Contains("fWindow"))
          buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
       if (fileBuffer.Contains("GetGSP"))
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
