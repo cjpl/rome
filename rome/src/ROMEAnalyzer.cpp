@@ -270,8 +270,6 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (gROME->isNoGraphics())
        SetStandAloneROME();
 
-   if (!CheckDependences()) return false;
-
    if (!gROME->IsFileNameBasedIO() && !gROME->IsRunNumberAndFileNameBasedIO()) {
       // check of tree file name when <InputFileNames> is specified is not implemented yet.
       if (!CheckTreeFileNames()) return false;

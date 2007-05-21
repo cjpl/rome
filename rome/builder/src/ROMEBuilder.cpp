@@ -287,6 +287,7 @@ ROMEBuilder::ROMEBuilder()
 ,tabObjectDisplayObjectTypeIndex(0)
 ,numOfTabObjectDisplayObjectTypes(0)
 ,tabObjectDisplayObjectType(0)
+,hasDependenceCheck(kFALSE)
 ,numOfTree(0)
 ,numOfBranch(0)
 ,numOfRunHeader(0)
@@ -1577,41 +1578,43 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    // count fields
    numOfValue[numOfFolder]++;
    if (numOfValue[numOfFolder] >= maxNumberOfValues) {
-      cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : " 
+      cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
           <<maxNumberOfValues<<" !"<<endl;
       cout<<"Terminating program."<<endl;
       return false;
    }
 
-   // Task active flag
-   for (i = 0; i < numOfTaskHierarchy; i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      tmp.SetFormatted("%s%sTaskActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-      valueName[numOfFolder][numOfValue[numOfFolder]] = tmp;
-      valueType[numOfFolder][numOfValue[numOfFolder]] = "Bool_t";
-      valueComment[numOfFolder][numOfValue[numOfFolder]].SetFormatted("Active flag of %s task",
-                                                                      taskHierarchyName[i].Data());
-      valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
-      valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
-      valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
-      valueInit[numOfFolder][numOfValue[numOfFolder]] = "kFALSE";
-      for (iDm = 0; iDm < maxNumberOfValueDimension; iDm++)
-         valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
-      valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
-      valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
-      valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
-      valueDBIf[numOfFolder][numOfValue[numOfFolder]] = "";
-      csStr += valueName[numOfFolder][numOfValue[numOfFolder]];
-      csStr += valueType[numOfFolder][numOfValue[numOfFolder]];
-      csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
-      // count fields
-      numOfValue[numOfFolder]++;
-      if (numOfValue[numOfFolder] >= maxNumberOfValues) {
-         cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
-             <<maxNumberOfValues<<" !"<<endl;
-         cout<<"Terminating program."<<endl;
-         return false;
+   if (hasDependenceCheck || mainDefinitionVersion != "1") {
+      // Task active flag
+      for (i = 0; i < numOfTaskHierarchy; i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         tmp.SetFormatted("%s%sTaskActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+         valueName[numOfFolder][numOfValue[numOfFolder]] = tmp;
+         valueType[numOfFolder][numOfValue[numOfFolder]] = "Bool_t";
+         valueComment[numOfFolder][numOfValue[numOfFolder]].SetFormatted("Active flag of %s task",
+                                                                         taskHierarchyName[i].Data());
+         valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
+         valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
+         valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
+         valueInit[numOfFolder][numOfValue[numOfFolder]] = "kFALSE";
+         for (iDm = 0; iDm < maxNumberOfValueDimension; iDm++)
+            valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
+         valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueDBIf[numOfFolder][numOfValue[numOfFolder]] = "";
+         csStr += valueName[numOfFolder][numOfValue[numOfFolder]];
+         csStr += valueType[numOfFolder][numOfValue[numOfFolder]];
+         csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
+         // count fields
+         numOfValue[numOfFolder]++;
+         if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+            cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+                <<maxNumberOfValues<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
       }
    }
 

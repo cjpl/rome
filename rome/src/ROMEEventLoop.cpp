@@ -670,12 +670,13 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
       gROME->GetConfiguration()->CheckConfiguration(gROME->GetCurrentRunNumber());
    }
 
+   gROME->UpdateConfigParameters();
+
    // Begin Of Run Of Active DAQ
    if (!gROME->GetActiveDAQ()->BeginOfRunDAQ())
       return false;
    if (this->isEndOfRun())
       return true;
-
 
    // Check Configuration
    if (gROME->isOffline() && gROME->IsFileNameBasedIO()) {
@@ -772,6 +773,13 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
          }
       }
    }
+
+   // Check task tab dependence
+   gROME->GetActiveDAQ()->UpdateConfigParameters();
+   if (!gROME->CheckDependences()) {
+      return false;
+   }
+
    return true;
 }
 

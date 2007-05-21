@@ -2,6 +2,7 @@
 	<Experiment>
 		<ProgramName>Example</ProgramName>
 		<ExperimentShortCut>TH</ExperimentShortCut>
+		<ProgramDefinitionVersion>1</ProgramDefinitionVersion>
 	</Experiment>
 	<Tasks>
 		<Task>
