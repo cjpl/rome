@@ -1465,6 +1465,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #else
          cout<<"Precompiled header is available with GCC 3.4 or later."<<endl;
 #endif
+      } else if (!strcmp(argv[i],"-nopch")) {
+         pch = false;
       } else if (!strcmp(argv[i],"-makeflag")&&i<argc-1) {
          i++;
          makeFlag = ((const char*)argv[i]);
@@ -1667,6 +1669,7 @@ void ROMEBuilder::Usage()
    cout<<"  -nl       No Linking (no Argument)"<<endl;
    cout<<"  -dl       Making dynamic library and ling it to program, only on Un*x (no Argument)"<<endl;
    cout<<"  -pch      Use precompiled header (no Argument)"<<endl;
+   cout<<"  -nopch    Not use precompiled header (no Argument)"<<endl;
 #if defined( R__VISUAL_CPLUSPLUS )
    cout<<"  -minrb    Enables minimal rebuild, only on windows (no Argument)"<<endl;
 #endif
