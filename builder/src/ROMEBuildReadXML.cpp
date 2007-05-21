@@ -1668,6 +1668,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
       if (type == 1 && !strcmp((const char*)name,"Dependence")) {
          xml->GetValue(taskDependence[numOfTask],taskDependence[numOfTask]);
          FormatText(taskDependence[numOfTask], kTRUE);
+         hasDependenceCheck = kTRUE;
       }
       // task description
       if (type == 1 && !strcmp((const char*)name,"TaskDescription")) {
@@ -2380,6 +2381,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
       if (type == 1 && !strcmp(name, "Dependence")) {
          xml->GetValue(tabDependence[currentNumberOfTabs], tabDependence[currentNumberOfTabs]);
          FormatText(tabDependence[currentNumberOfTabs], kTRUE);
+         hasDependenceCheck = kTRUE;
       }
       // tab description
       if (type == 1 && !strcmp(name, "TabDescription")) {
@@ -2623,9 +2625,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      found = false;
                      for (i = 0; i < tabObjectDisplaySupportedObjects.GetEntriesFast() && !found; i++) {
                         for (k = 0; k < tabObjectDisplaySupportedObjects.GetEntriesFast(); k++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                == "TGraphMT" ||
-                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                == tabObjectDisplaySupportedObjects.At(k)) {
                               found = true;
                               tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
@@ -2643,12 +2645,12 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      int num = 0;
                      for (i = 0; i < numOfTaskHierarchy && !found; i++) {
                         for (j = 0; j < numOfHistos[taskHierarchyClassIndex[i]] && !found; j++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                == histoName[taskHierarchyClassIndex[i]][j]) {
                               if (num
                                   == tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
                                  found = true;
-                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                        = histoType[taskHierarchyClassIndex[i]][j];
                                  tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                        = taskHierarchyClassIndex[i];
@@ -2676,12 +2678,12 @@ Bool_t ROMEBuilder::ReadXMLTab()
                            }
                         }
                         for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]] && !found; j++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                == graphName[taskHierarchyClassIndex[i]][j]) {
                               if (num
                                   == tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
                                  found = true;
-                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] 
+                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                        = graphType[taskHierarchyClassIndex[i]][j];
                                  tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                        = taskHierarchyClassIndex[i];

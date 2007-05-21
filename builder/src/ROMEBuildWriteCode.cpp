@@ -1191,7 +1191,6 @@ Bool_t ROMEBuilder::WriteFolderH()
                                 shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
       }
       buffer.AppendFormatted("\n");
-    
       ROMEString separator = "";
       buffer.AppendFormatted("public:\n");
       if (folderUserCode[iFold]) {
@@ -1687,7 +1686,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       // Generated Includes
       buffer.Resize(0);
       WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
-      genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(), 
+      genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(),
                            taskName[iTask].Data());
       fstream *fileStream = new fstream(cppFile.Data(),ios::in);
       fileBuffer.ReadFile(*fileStream);
@@ -3290,7 +3289,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
       // Generated Includes
       buffer.Resize(0);
       WriteHeader(buffer, tabAuthor[iTab].Data(), kTRUE);
-      genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(), 
+      genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(),
                            tabName[iTab].Data());
 #if defined( R__VISUAL_CPLUSPLUS ) // This fixes errors in root includes on windows
       buffer.AppendFormatted("#include <RConfig.h>\n");
@@ -3446,6 +3445,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
       }
 
       // Write file
+#if 0 // this is not necessary already, maybe.
       if (tabObjectDisplay[iTab]) {
          str1.RemoveAll();
          str2.RemoveAll();
@@ -3465,6 +3465,9 @@ Bool_t ROMEBuilder::WriteTabCpp()
       } else {
          ReplaceHeader(cppFile.Data(), header.Data(), buffer.Data(), 6);
       }
+#else
+      ReplaceHeader(cppFile.Data(), header.Data(), buffer.Data(), 6);
+#endif
    }
    return kTRUE;
 }
@@ -4629,6 +4632,7 @@ Bool_t ROMEBuilder::WriteTabH()
          cout<<"The parameter list of the constructor of tabs has changed."<<endl;
          cout<<str.Data()<<endl<<endl;
       }
+#if 0 // this is not necessary already, maybe.
       if (tabObjectDisplay[iTab]) {
          str1.RemoveAll();
          str2.RemoveAll();
@@ -4647,6 +4651,9 @@ Bool_t ROMEBuilder::WriteTabH()
          ReplaceHeader(hFile.Data(), 0, buffer.Data(), 6,str1,str2,cond,equal);
       } else
          ReplaceHeader(hFile.Data(), 0, buffer.Data(), 6);
+#else
+      ReplaceHeader(hFile.Data(), 0, buffer.Data(), 6);
+#endif
    }
 
    return kTRUE;
@@ -4826,7 +4833,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       // InitTab
       buffer.AppendFormatted("   void BaseInit();\n");
       buffer.AppendFormatted("   virtual void Init() = 0;\n");
-      buffer.AppendFormatted("   virtual void EndInit() {}\n");
+      buffer.AppendFormatted("   void EndInit() {}\n");
       buffer.AppendFormatted("\n");
 
       // Display
@@ -4885,15 +4892,15 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       }
 
       // Tab Selected
-      buffer.AppendFormatted("   void BaseTabSelected();\n");
+      buffer.AppendFormatted("   void         BaseTabSelected();\n");
       buffer.AppendFormatted("   virtual void TabSelected() = 0;\n");
       // Tab Unselected
-      buffer.AppendFormatted("   void BaseTabUnSelected();\n");
+      buffer.AppendFormatted("   void         BaseTabUnSelected();\n");
       buffer.AppendFormatted("   virtual void TabUnSelected() = 0;\n");
 
       buffer.AppendFormatted("\n");
       // Menu Clicked
-      buffer.AppendFormatted("   void BaseMenuClicked(TGPopupMenu *menu,Long_t param);\n");
+      buffer.AppendFormatted("   void         BaseMenuClicked(TGPopupMenu *menu,Long_t param);\n");
       buffer.AppendFormatted("   virtual void MenuClicked(TGPopupMenu *menu,Long_t param) = 0;\n");
       buffer.AppendFormatted("\n");
 
@@ -5587,6 +5594,21 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   return ret;\n");
    buffer.AppendFormatted("}\n\n");
 
+   // Update ConfigParameters
+   buffer.AppendFormatted("void %sAnalyzer::UpdateConfigParameters()\n{\n", shortCut.Data());
+   if (hasDependenceCheck || mainDefinitionVersion != "1") {
+      // Task active flag
+      for (i = 0; i < numOfTaskHierarchy; i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("   f%sConfigParametersFolder->Set%s%sTaskActive(static_cast<TTask*>(fTaskObjects->At(%d))->IsActive());\n",
+                                mainProgName.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),
+                                taskHierarchyObjectIndex[i]);
+      }
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Check tree filename
    buffer.AppendFormatted("Bool_t %sAnalyzer::CheckTreeFileNames()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
@@ -5820,15 +5842,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                           mainProgName.Data());
    buffer.AppendFormatted("   f%sConfigParametersFolder->SetConfigString(fConfiguration->GetConfigContent());\n",
                           mainProgName.Data());
-   // Task active flag
-   for (i = 0; i < numOfTaskHierarchy; i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      tmp.SetFormatted("%s%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-      buffer.AppendFormatted("   f%sConfigParametersFolder->Set%sTaskActive(((%sT%s_Base*)GetTaskObjectAt(%d))->IsActive());\n",
-                             mainProgName.Data(),tmp.Data(),shortCut.Data(),taskHierarchyName[i].Data(),
-                             taskHierarchyObjectIndex[i]);
-   }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -5896,7 +5909,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                                          "TaskBase()->Get" + graphName[taskHierarchyClassIndex[i]][j] + "()",
                                          "Get" + taskHierarchyName[i] + taskHierarchySuffix[i] + "TaskBase()->Get" +
                                          graphName[taskHierarchyClassIndex[i]][j] + "GraphStorage()",
-                                         "((" + shortCut + "NetFolderServer*)fNetFolderServer)->Get" + 
+                                         "((" + shortCut + "NetFolderServer*)fNetFolderServer)->Get" +
                                          taskHierarchyName[i] + taskHierarchySuffix[i] + "_" +
                                          graphName[taskHierarchyClassIndex[i]][j] + "GraphActive(i)", false);
          } else {
@@ -6529,11 +6542,12 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // Storage
    buffer.AppendFormatted("   // Storage\n");
-   buffer.AppendFormatted("   void FillObjectStorage();\n");
+   buffer.AppendFormatted("   void   FillObjectStorage();\n");
 
    // check dependence
    buffer.AppendFormatted("   // Check dependence\n");
    buffer.AppendFormatted("   Bool_t CheckDependences();\n");
+   buffer.AppendFormatted("   void   UpdateConfigParameters();\n");
 
    // Check tree names
    buffer.AppendFormatted("   // Check tree names\n");
@@ -6546,10 +6560,10 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i] != "1") {
          if (folderArray[i] != "variable")
             buffer.AppendFormatted("private:\n");
-         buffer.AppendFormatted("   void Set%sSize(Int_t number);\n",folderName[i].Data());
+         buffer.AppendFormatted("   void   Set%sSize(Int_t number);\n",folderName[i].Data());
          if (folderArray[i] != "variable")
             buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   Int_t Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),
+         buffer.AppendFormatted("   Int_t  Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),
                                 folderName[i].Data());
       }
    }
@@ -8942,6 +8956,7 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
          }
       }
    }
+   buffer.AppendFormatted("#include \"generated/%s%sConfigParameters.h\"\n", shortCut.Data(), mainProgName.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -9761,7 +9776,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subsubSubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
             subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
             subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(## == \"true\");", 
+            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(## == \"true\");",
                                                            i);
             subsubSubGroup->GetLastParameter()->AddSetLine("}");
             subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
@@ -9837,11 +9852,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subsubSubGroup->AddParameter(new ROMEConfigParameter("SaveConfiguration", "1", "CheckButton"));
             subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
             subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetSaveConfig(## == \"true\");", 
+            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetSaveConfig(## == \"true\");",
                                                            i);
             subsubSubGroup->GetLastParameter()->AddSetLine("}");
             subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isSaveConfig()?1:0];", 
+            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isSaveConfig()?1:0];",
                                                              i);
             subsubSubGroup->GetLastParameter()->AddWriteLine("}");
 
@@ -10131,11 +10146,11 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Task");
-      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTaskObjectAt(%d)->SetActive(## == \"true\");", 
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTaskObjectAt(%d)->SetActive(## == \"true\");",
                                                taskHierarchyObjectIndex[i]);
       subGroup->GetLastParameter()->AddSetLine("if (## != \"true\") {");
       if (taskHierarchyParentIndex[i] == -1) {
-         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMainHistoFolder()->Remove(gAnalyzer->GetHistoFolderAt(%d));", 
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMainHistoFolder()->Remove(gAnalyzer->GetHistoFolderAt(%d));",
                                                   i);
       } else {
          subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetHistoFolderAt(%d)->Remove(gAnalyzer->GetHistoFolderAt(%d));",
@@ -10967,6 +10982,9 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
                                 parGroup->GetSubGroupAt(i)->GetArraySize().Data());
          buffer.AppendFormatted("%s   ,f%sArrayModified(kFALSE)\n",sTab.Data(),
                                 parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s   ,f%sArraySize(%s)\n",sTab.Data(),
+                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
+                                parGroup->GetSubGroupAt(i)->GetArraySize().Data());
          separator = ",";
       }
    }
@@ -11035,7 +11053,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
                                 parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s      for (i = 0; i < f%sArraySize; i++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());        
+                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s         SafeDelete(f%s[i]);\n",sTab.Data(),
                                 parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
@@ -12606,6 +12624,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%s%sConfigParameters.h\"\n", shortCut.Data(), mainProgName.Data());
    for (i = 0; i < numOfTree; i++) {
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
@@ -12727,6 +12746,33 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       }
    }
 
+   // Update ConfigParameters
+   buffer.AppendFormatted("void %sRomeDAQ::UpdateConfigParameters()\n{\n", shortCut.Data());
+   if (hasDependenceCheck || mainDefinitionVersion != "1") {
+      buffer.AppendFormatted("   Int_t i;\n");
+      buffer.AppendFormatted("   %s%sConfigParameters *p = 0;\n",shortCut.Data(), mainProgName.Data());
+      buffer.AppendFormatted("   for (i = 0; i < %d; i++) {\n", numOfTree);
+      buffer.AppendFormatted("      if (fROMETrees[i]->isRead() && fROMETrees[i]->GetFile()) {\n");
+      buffer.AppendFormatted("         p = static_cast<%s%sConfigParameters*>(fROMETrees[i]->GetFile()->FindObjectAny(\"%sConfigParameters\"));\n",
+                             shortCut.Data(), mainProgName.Data(), mainProgName.Data());
+      buffer.AppendFormatted("         if (p) {\n");
+      // Task active flag
+      for (i = 0; i < numOfTaskHierarchy; i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         tmp.SetFormatted("%s%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+         buffer.AppendFormatted("            if (p->Get%sTaskActive()) {\n", tmp.Data());
+         buffer.AppendFormatted("               gAnalyzer->Get%sConfigParameters()->Set%sTaskActive(kTRUE);\n",
+                                mainProgName.Data(),tmp.Data());
+         buffer.AppendFormatted("            }\n");
+      }
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -12757,7 +12803,6 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    buffer.AppendFormatted("\n\n");
 
    buffer.AppendFormatted("#include \"ROMERomeDAQ.h\"\n");
-
    Int_t j;
    buffer.AppendFormatted("class TClonesArray;\n");
    for (i = 0; i < numOfTree; i++) {
@@ -12788,7 +12833,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    buffer.AppendFormatted("   virtual ~%sRomeDAQ() {}\n",shortCut.Data());
 
    // Run header
-   buffer.AppendFormatted("   void    ReadRunHeaders();\n");
+   buffer.AppendFormatted("   void ReadRunHeaders();\n");
    // Get run header
    for (i = 0; i < numOfTree; i++) {
       for (j = 0; j < numOfRunHeader[i]; j++) {
@@ -12803,6 +12848,9 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
          }
       }
    }
+
+   // Update ConfigParameters
+   buffer.AppendFormatted("   void UpdateConfigParameters();\n");
 
    // File getter
    for (i = 0; i < numOfTree; i++)
@@ -13752,7 +13800,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
             buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",
                                    shortCut.Data(),taskHierarchyName[i].Data(),
                                    histoName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() 
+                                   static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length()
                                                     +taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
             buffer.AppendFormatted("      char* cstop;\n");
@@ -17513,13 +17561,12 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       str1.SetFormatted("Task(%s)", taskHierarchyName[i].Data());
-
-      str2.SetFormatted("((Get%s%sTaskBase()->IsActive() && analyzer)",taskHierarchyName[i].Data(),
-                        taskHierarchySuffix[i].Data());
+      str2.SetFormatted("((f%sConfigParametersFolder->Get%s%sTaskActive() && analyzer)",mainProgName.Data(),
+                        taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
       indx = taskHierarchyParentIndex[i];
       while (indx != -1) {
-         str2.AppendFormatted(" &&\n          (Get%s%sTaskBase()->IsActive() && analyzer)",
-                              taskHierarchyName[indx].Data(),taskHierarchySuffix[indx].Data());
+         str2.AppendFormatted(" &&\n          (f%sConfigParametersFolder->Get%s%sTaskActive() && analyzer)",
+                              mainProgName.Data(), taskHierarchyName[indx].Data(),taskHierarchySuffix[indx].Data());
          indx = taskHierarchyParentIndex[indx];
       }
       str2.Append(")");

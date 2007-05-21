@@ -72,6 +72,8 @@ public:
    void             SetEndOfRun()   { fEventStatus = kEndOfRun;   }
    void             SetTerminate()  { fEventStatus = kTerminate;  }
 
+   virtual void     UpdateConfigParameters() {}
+
    ClassDef(ROMEDAQSystem, 0) // Base DAQ class
 };
 

@@ -368,6 +368,8 @@ protected:
    Int_t        *numOfTabObjectDisplayObjectTypes;
    ROMEString  **tabObjectDisplayObjectType;
 
+   Bool_t        hasDependenceCheck;
+
 // tree
    Int_t         numOfTree;
    Int_t        *numOfBranch;
