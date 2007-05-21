@@ -38,7 +38,7 @@ public:
    TNetFolderServer():fPort(9090) {}
    virtual ~TNetFolderServer(){}
 
-   void               StartServer(TApplication *app,Int_t port,const char* serverName);
+   virtual void       StartServer(TApplication *app,Int_t port,const char* serverName);
    static Int_t       ResponseFunction(TSocket *socket);
 protected:
    static Int_t       CheckCommand(TSocket *socket,char *str);
