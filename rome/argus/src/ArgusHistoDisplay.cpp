@@ -25,7 +25,7 @@
 #include <TRootEmbeddedCanvas.h>
 #include <TText.h>
 #include <TStyle.h>
-#include <TGraphMT.h>
+#include <ROMETGraph.h>
 #include <TSpline.h>
 #include <TGProgressBar.h>
 #include <TGButton.h>
@@ -67,6 +67,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, ROMEStrArray *drawOpt,
 ,fMenuView(0)
 ,fMenuViewDivide(0)
 ,fMenuViewSelect(0)
+,fNumberOfCurrentDisplayTypes(0)
 ,fCurrentDisplayType(0)
 ,fNumberOfDisplayTypes(nDisplayType)
 ,fDisplayTypeOld(0)
@@ -117,6 +118,8 @@ void ArgusHistoDisplay::InitHistoDisplay()
 {
    int i;
    fDisplayObjLoaded = new TArrayI(fNumberOfDisplayTypes);
+   fNumberOfCurrentDisplayTypes = 1;
+   fCurrentDisplayType = new TArrayI(fNumberOfDisplayTypes);
    fDrawOption = new ROMEStrArray();
    fLogScaleX = new TArrayI(fNumberOfDisplayTypes);
    fLogScaleY = new TArrayI(fNumberOfDisplayTypes);
@@ -196,13 +199,13 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
 }
 
 //______________________________________________________________________________
-TGraphMT* ArgusHistoDisplay::GetUserTGraphAt(Int_t indx)
+ROMETGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t indx)
 {
    int i;
    for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
       if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>indx) {
-         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(indx)->ClassName(),"TGraphMT"))
-            return ((TGraphMT*)((TObjArray*)fUserObjects->At(i))->At(indx));
+         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(indx)->ClassName(),"ROMETGraph"))
+            return ((ROMETGraph*)((TObjArray*)fUserObjects->At(i))->At(indx));
       }
    }
    return NULL;
@@ -236,10 +239,10 @@ TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
 }
 
 //______________________________________________________________________________
-TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t indx)
+TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t indx,Int_t typeIndex)
 {
-   if (((TObjArray*)fObjects->At(fCurrentDisplayType))->GetEntriesFast()>indx) {
-      return ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(indx);
+   if (((TObjArray*)fObjects->At(fCurrentDisplayType->At(typeIndex)))->GetEntriesFast()>indx) {
+      return ((TObjArray*)fObjects->At(fCurrentDisplayType->At(typeIndex)))->At(indx);
    }
    return NULL;
 }
@@ -453,16 +456,17 @@ void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
 //______________________________________________________________________________
 void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
-   Int_t i,k;
+   Int_t i,j,k;
+   ROMEString str;
    if (fDisplayObjIndex>=fNumberOfDisplayTypes)
       return;
 
    Bool_t clear = true;
-   if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fCurrentDisplayType)
+   if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fCurrentDisplayType->At(0))
       clear = false;
 
    fStyle->cd();
-   fDisplayTypeOld = fCurrentDisplayType;
+   fDisplayTypeOld = fCurrentDisplayType->At(0);
 
    fChannelNumber = fChannelNumber+gPad->GetNumber()-1;
    if (fChannelNumber < 0)
@@ -487,13 +491,25 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->SetLogy(fLogScaleY->At(fDisplayObjIndex));
          fPad[i]->SetLogz(fLogScaleZ->At(fDisplayObjIndex));
          fPad[i]->cd();
-         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT"))
-            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw("A L");
-//            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
-         else
-            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
-         for (k=0;k<TMath::Min(((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->GetEntriesFast(),fNumberOfUserLines);k++) {
-            ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k)->Draw();
+         for (j=0;j<fNumberOfCurrentDisplayTypes;j++) {
+            if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->ClassName(),"ROMETGraph") ||
+               !strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->ClassName(),"ROMETCutG")) {
+               if (j==0)
+                  ((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->Draw("A L");
+               else
+                  ((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->Draw("L SAME");
+            }
+            else {
+               if (j==0)
+                  ((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
+               else {
+                  str = fDrawOption->At(fDisplayObjIndex)+" SAME";
+                  ((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->Draw(str.Data());
+               }
+            }
+         }
+         for (k=0;k<TMath::Min(((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType->At(0)))->At(i))->GetEntriesFast(),fNumberOfUserLines);k++) {
+            ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType->At(0)))->At(i))->At(k)->Draw();
          }
          SetStatisticBox(true);
       }
@@ -509,7 +525,7 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 //______________________________________________________________________________
 void ArgusHistoDisplay::Modified(Bool_t processEvents)
 {
-   Int_t i;
+   Int_t i,j;
    double x1,x2,y1,y2;
 
    if (!fCanvas)
@@ -519,24 +535,26 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
 
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
-      if (x1!=0 && TMath::Abs((1.1-x2)/1.1)>1e-6 && y1!=0 && TMath::Abs((1.1-y2)/1.1)>1e-6) {
-         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT")) {
-            ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetXaxis()->SetRangeUser(x1,x2);
-            ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+      for (j=0;j<fNumberOfCurrentDisplayTypes;j++) {
+         if (x1!=0 && TMath::Abs((1.1-x2)/1.1)>1e-6 && y1!=0 && TMath::Abs((1.1-y2)/1.1)>1e-6) {
+            if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->ClassName(),"ROMETGraph") ||
+               !strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->ClassName(),"ROMETCutG")) {
+               ((ROMETGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i))->GetXaxis()->SetRangeUser(x1,x2);
+               ((ROMETGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+            }
+            else {
+               ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i))->GetXaxis()->SetRangeUser(x1,x2);
+               ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+            }
          }
-         else {
-            ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetXaxis()->SetRangeUser(x1,x2);
-            ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->ClassName(),"ROMETGraph") ||
+            !strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i)->ClassName(),"ROMETCutG")) {
+            SetStatisticBox(true);
+            // this allows changing X range
+            fPad[i]->cd();
+            ROMETGraph *pgraph = ((ROMETGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType->At(j)))->At(i));
+            SetLimits(pgraph);
          }
-      }
-      if (strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT")) {
-         SetStatisticBox(true);
-      }
-      if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraphMT")) {
-         // this allows changing X range
-         fPad[i]->cd();
-         TGraphMT *pgraph = ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i));
-         SetLimits(pgraph);
       }
       fPad[i]->Modified();
    }
@@ -554,7 +572,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
 }
 
 //______________________________________________________________________________
-void ArgusHistoDisplay::SetLimits(TGraphMT *g)
+void ArgusHistoDisplay::SetLimits(ROMETGraph *g)
 {
    Int_t n = g->GetN();
    if (n<=1)

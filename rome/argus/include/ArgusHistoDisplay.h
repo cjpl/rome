@@ -18,7 +18,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
 #include "ArgusTab.h"
-#include "TGraphMT.h"
+#include "ROMETGraph.h"
 
 class ROMEStrArray;
 class TGMenuBar;
@@ -64,7 +64,8 @@ protected:
    TGPopupMenu         *fMenuView100[10]; //!
    TGPopupMenu         *fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
 
-   Int_t                fCurrentDisplayType;//!
+   Int_t                fNumberOfCurrentDisplayTypes;//!
+   TArrayI             *fCurrentDisplayType;//!
    Int_t                fNumberOfDisplayTypes;//!
    Int_t                fDisplayTypeOld;  //!
    Int_t                fDisplayObjIndex; //!
@@ -108,13 +109,13 @@ public:
    virtual ~ArgusHistoDisplay();
    void      InitHistoDisplay();
 
-   void      SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
-   TGraphMT *GetUserTGraphAt(Int_t index);
-   TH1      *GetUserHistoAt(Int_t index,const char* type);
-   TObject  *GetCurrentObjectAt(Int_t index);
-   void      SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
-   Int_t     GetNumberOfUserLines() { return fNumberOfUserLines; };
-   TLine    *GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
+   void        SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
+   ROMETGraph *GetUserTGraphAt(Int_t index);
+   TH1        *GetUserHistoAt(Int_t index,const char* type);
+   TObject    *GetCurrentObjectAt(Int_t index,Int_t typeIndex=0);
+   void        SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
+   Int_t       GetNumberOfUserLines() { return fNumberOfUserLines; };
+   TLine      *GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
 
    void      SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
    int       GetNumberOfPadsX() { return fNumberOfPadsX; };
@@ -134,7 +135,7 @@ protected:
    void BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw);
    void SetStatisticBox(Bool_t flag);
    void Modified(Bool_t processEvents=true);
-   void SetLimits(TGraphMT *g);
+   void SetLimits(ROMETGraph *g);
 
    virtual void Init() = 0;
    virtual void EndInit() = 0;

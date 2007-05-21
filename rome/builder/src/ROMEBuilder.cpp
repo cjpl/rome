@@ -277,6 +277,7 @@ ROMEBuilder::ROMEBuilder()
 ,numOfTabObjectDisplays(0)
 ,tabObjectDisplayName(0)
 ,tabObjectDisplayTitle(0)
+,numOfTabObjectDisplayObjects(0)
 ,tabObjectDisplayObject(0)
 ,tabObjectDisplayType(0)
 ,tabObjectDisplayTaskHierarchyIndex(0)
@@ -647,6 +648,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabSingleObjectIndexMax;
    delete [] tabObjectDisplayName;
    delete [] tabObjectDisplayTitle;
+   delete [] numOfTabObjectDisplayObjects;
    delete [] tabObjectDisplayObject;
    delete [] tabObjectDisplayType;
    delete [] tabObjectDisplayTaskHierarchyIndex;
@@ -755,7 +757,8 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString oldFile;
    ROMEString newFile;
 
-   tabObjectDisplaySupportedObjects.AddLast("TGraphMT");
+   tabObjectDisplaySupportedObjects.AddLast("ROMETGraph");
+   tabObjectDisplaySupportedObjects.AddLast("ROMETCutG");
 //   tabObjectDisplaySupportedObjects.AddLast("TGraph2D");
    tabObjectDisplaySupportedObjects.AddLast("TH1C");
    tabObjectDisplaySupportedObjects.AddLast("TH1S");
@@ -1379,6 +1382,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          minRebuild = true;
          outDir = "C:/rome/examples/rootDAQ/";
          xmlFile = "C:/rome/examples/rootDAQ/rootDAQ.xml";
+      } else if (!strcmp(argv[i],"-cutg")) {
+         noLink = true;
+         minRebuild = true;
+         outDir = "C:/rome/examples/cutg/";
+         xmlFile = "C:/rome/examples/cutg/cutg.xml";
       } else if (!strcmp(argv[i],"-lp")) {
          makeOutput = true;
          midas = true;

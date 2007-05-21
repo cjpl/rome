@@ -66,7 +66,8 @@ void ROMEBuilder::AddPrecompiledHeaders()
    precompiledIncludeHeaders->AddFormatted("TH1F.h");
    precompiledIncludeHeaders->AddFormatted("TH2F.h");
    precompiledIncludeHeaders->AddFormatted("TH3F.h");
-   precompiledIncludeHeaders->AddFormatted("TGraphMT.h");
+   precompiledIncludeHeaders->AddFormatted("ROMETGraph.h");
+   precompiledIncludeHeaders->AddFormatted("ROMETCutG.h");
 }
 
 //______________________________________________________________________________
@@ -116,7 +117,8 @@ void ROMEBuilder::AddRomeHeaders()
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
    romeHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
 #endif
-   romeHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMETGraph.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMETCutG.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
@@ -198,7 +200,9 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
       romeLinkDefSuffix->Add("-");
 #endif
-      romeDictHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETGraph.h");
+      romeLinkDefSuffix->Add("+");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETCutG.h");
       romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
       romeLinkDefSuffix->Add("+");
@@ -311,7 +315,8 @@ void ROMEBuilder::AddRomeSources()
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
       romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
 #endif
-      romeSources->Add("$(ROMESYS)/src/TGraphMT.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMETGraph.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMETCutG.cpp");
       romeSources->Add("$(ROMESYS)/src/strlcpy.c");
       romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
       romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");

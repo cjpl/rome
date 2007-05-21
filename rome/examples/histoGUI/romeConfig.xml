@@ -47,7 +47,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <DivByZero>false</DivByZero>
         <Overflow>false</Overflow>
         <Underflow>false</Underflow>
-        <Inexact>true</Inexact>
+        <Inexact>false</Inexact>
       </FloatingPointExceptionTrap>
 
       <SocketServer>
@@ -101,6 +101,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Active>true</Active>
           <SingleObject>
             <SingleObjectName>MyHisto</SingleObjectName>
+            <DrawOption></DrawOption>
             <LogScaleX>true</LogScaleX>
             <LogScaleY>false</LogScaleY>
             <LogScaleZ>false</LogScaleZ>
@@ -108,6 +109,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
           <SingleObject>
             <SingleObjectName>MyOtherHisto</SingleObjectName>
+            <DrawOption></DrawOption>
             <LogScaleX>false</LogScaleX>
             <LogScaleY>false</LogScaleY>
             <LogScaleZ>false</LogScaleZ>
@@ -115,6 +117,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
           <SingleObject>
             <SingleObjectName>MyGraph</SingleObjectName>
+            <DrawOption></DrawOption>
             <LogScaleX>false</LogScaleX>
             <LogScaleY>false</LogScaleY>
             <LogScaleZ>false</LogScaleZ>
