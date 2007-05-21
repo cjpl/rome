@@ -2288,6 +2288,16 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
          }
          // Check Tab Objects
+         for (i = 0; i < numOfTabObjectDisplays[currentNumberOfTabs]; i++) {
+            for (l = 0; l < numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]; l++) {
+               if (tabObjectDisplayType[currentNumberOfTabs][i][l] == "none") {
+                  cout<<"Object "<<l<<" of tab object display "<<tabObjectDisplayName[currentNumberOfTabs][i].Data()<<" of tab "<<
+                     tabName[currentNumberOfTabs].Data()<<" not found!"<<endl;
+                  cout<<"Terminating program."<<endl;
+                  return kFALSE;
+               }
+            }
+         }
          if (numOfTabObjectDisplays[currentNumberOfTabs] == 0 && tabObjectDisplay[currentNumberOfTabs])
             tabObjectDisplay[currentNumberOfTabs] = false;
 
@@ -2723,9 +2733,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      }
                      for (l = 0; l < numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]; l++) {
                         if (!objectFound[l]) {
-                           cout<<"Object "<<l<<" of tab object display "<<tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data()<<" not found!"<<endl;
-                           cout<<"Terminating program."<<endl;
-                           return kFALSE;
+                           tabObjectDisplayType[currentNumberOfTabs][i][l] = "none";
                         }
                      }
                      for (l = 0; l < numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]; l++) {
