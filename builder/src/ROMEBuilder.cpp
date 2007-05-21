@@ -1737,67 +1737,69 @@ Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace
 void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *source,const char *type,Int_t version)
 {
    buf->Resize(0);
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
    // returns code which transformes a source variable of any type into a destination variable of type character
    if (
-       !strcmp(type,"int") ||
-       !strcmp(type,"unsigned int") ||
-       !strcmp(type,"Int_t") ||
-       !strcmp(type,"UInt_t") ||
+       typeStr == "int" ||
+       typeStr == "unsigned int" ||
+       typeStr == "Int_t" ||
+       typeStr == "UInt_t" ||
 
-       !strcmp(type,"long") ||
-       !strcmp(type,"unsigned long") ||
-       !strcmp(type,"Long_t") ||
-       !strcmp(type,"ULong_t") ||
+       typeStr == "long" ||
+       typeStr == "unsigned long" ||
+       typeStr == "Long_t" ||
+       typeStr == "ULong_t" ||
 
-       !strcmp(type,"short") ||
-       !strcmp(type,"unsigned short") ||
-       !strcmp(type,"Short_t") ||
-       !strcmp(type,"UShort_t") ||
+       typeStr == "short" ||
+       typeStr == "unsigned short" ||
+       typeStr == "Short_t" ||
+       typeStr == "UShort_t" ||
 
-       !strcmp(type,"long long") ||
-       !strcmp(type,"unsigned long long") ||
+       typeStr == "long long" ||
+       typeStr == "unsigned long long" ||
 
-       !strcmp(type,"Style_t") ||
-       !strcmp(type,"Marker_t") ||
-       !strcmp(type,"Color_t") ||
-       !strcmp(type,"Font_t") ||
-       !strcmp(type,"Version_t")) {
+       typeStr == "Style_t" ||
+       typeStr == "Marker_t" ||
+       typeStr == "Color_t" ||
+       typeStr == "Font_t" ||
+       typeStr == "Version_t") {
       if (version == 0) {
          buf->AppendFormatted("%s = strtol(%s,&cstop,10)",destination,source);
       } else {
          buf->AppendFormatted("strtol(%s,&cstop,10)",source);
       }
    } else if (
-       !strcmp(type,"bool") ||
-       !strcmp(type,"Bool_t")) {
+       typeStr == "bool" ||
+       typeStr == "Bool_t") {
       if (version == 0) {
          buf->AppendFormatted("%s = gAnalyzer->strtobool(%s)",destination,source);
       } else {
          buf->AppendFormatted("gAnalyzer->strtobool(%s)",source);
       }
    } else if (
-       !strcmp(type,"char") ||
-       !strcmp(type,"unsigned char") ||
-       !strcmp(type,"Char_t") ||
-       !strcmp(type,"UChar_t") ||
+       typeStr == "char" ||
+       typeStr == "unsigned char" ||
+       typeStr == "Char_t" ||
+       typeStr == "UChar_t" ||
 
-       !strcmp(type,"Option_t") ||
-       !strcmp(type,"Text_t")) {
+       typeStr == "Option_t" ||
+       typeStr == "Text_t") {
       if (version == 0) {
          buf->AppendFormatted("strcpy(%s,%s)",destination,source);
       } else {
          buf->AppendFormatted("%s",source);
       }
    } else if (
-       !strcmp(type,"float") ||
-       !strcmp(type,"Float_t") ||
+       typeStr == "float" ||
+       typeStr == "Float_t" ||
 
-       !strcmp(type,"double") ||
-       !strcmp(type,"Double_t") ||
-       !strcmp(type,"Double32_t") ||
+       typeStr == "double" ||
+       typeStr == "Double_t" ||
+       typeStr == "Double32_t" ||
 
-       !strcmp(type,"Stat_t") ||
-       !strcmp(type,"Axis_t")) {
+       typeStr == "Stat_t" ||
+       typeStr == "Axis_t") {
       if (version == 0) {
          buf->AppendFormatted("%s = strtod(%s,&cstop)",destination,source);
       } else {
@@ -1816,17 +1818,19 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
 bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
 {
    // converts c++ types to midas odb compatible types
-   if (type == "int" ||
-       type == "Int_t") {
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
+   if (typeStr == "int" ||
+       typeStr == "Int_t") {
       midasODBType = "INT";
-   } else if (type == "bool" ||
-              type == "Bool_t") {
+   } else if (typeStr == "bool" ||
+              typeStr == "Bool_t") {
       midasODBType = "BOOL";
-   } else if (type == "float" ||
-              type == "Float_t") {
+   } else if (typeStr == "float" ||
+              typeStr == "Float_t") {
       midasODBType = "FLOAT";
-   } else if (type == "double" ||
-              type == "Double_t") {
+   } else if (typeStr == "double" ||
+              typeStr == "Double_t") {
       midasODBType = "DOUBLE";
    } else {
       cout<<type<<" no conversion to a midas odb type available"<<endl;
@@ -1838,16 +1842,18 @@ bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
 //______________________________________________________________________________
 Bool_t ROMEBuilder::isNumber(const char* str)
 {
-   if (strcmp(str,"float")&&strcmp(str,"Float_t")&&
-       strcmp(str,"double")&&strcmp(str,"Double_t")&&strcmp(str,"Double32_t")&&
-       strcmp(str,"int")&&strcmp(str,"Int_t")&&
-       strcmp(str,"unsigned int")&&strcmp(str,"UInt_t")&&
-       strcmp(str,"long")&&strcmp(str,"Long_t")&&
-       strcmp(str,"unsigned long")&&strcmp(str,"ULong_t")&&
-       strcmp(str,"short")&&strcmp(str,"Short_t")&&
-       strcmp(str,"unsigned short")&&strcmp(str,"UShort_t")&&
-       strcmp(str,"Long64_t")&&strcmp(str,"ULong64_t")&&
-       strcmp(str,"long long")&&strcmp(str,"unsigned long long"))
+   ROMEString typeStr = str;
+   typeStr.StripSpaces();
+   if (typeStr != "float" && typeStr != "Float_t" &&
+       typeStr != "double" && typeStr != "Double_t" && typeStr != "Double32_t" &&
+       typeStr != "int" && typeStr != "Int_t" &&
+       typeStr != "unsigned int" && typeStr != "UInt_t" &&
+       typeStr != "long" && typeStr != "Long_t" &&
+       typeStr != "unsigned long" && typeStr != "ULong_t" &&
+       typeStr != "short" && typeStr != "Short_t" &&
+       typeStr != "unsigned short" && typeStr != "UShort_t" &&
+       typeStr != "Long64_t" && typeStr != "ULong64_t" &&
+       typeStr != "long long" && typeStr != "unsigned long long")
       return false;
    return true;
 }
@@ -1855,16 +1861,19 @@ Bool_t ROMEBuilder::isNumber(const char* str)
 //______________________________________________________________________________
 Bool_t ROMEBuilder::isFloatingType(const char *type)
 {
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
+
    if (
-       !strcmp(type,"float") ||
-       !strcmp(type,"Float_t") ||
+       typeStr == "float" ||
+       typeStr == "Float_t" ||
 
-       !strcmp(type,"double") ||
-       !strcmp(type,"Double_t") ||
-       !strcmp(type,"Double32_t") ||
+       typeStr == "double" ||
+       typeStr == "Double_t" ||
+       typeStr == "Double32_t" ||
 
-       !strcmp(type,"Stat_t") ||
-       !strcmp(type,"Axis_t")) {
+       typeStr == "Stat_t" ||
+       typeStr == "Axis_t") {
       return true;
    }
    return false;
@@ -1873,9 +1882,9 @@ Bool_t ROMEBuilder::isFloatingType(const char *type)
 //______________________________________________________________________________
 Bool_t ROMEBuilder::isBoolType(const char *type)
 {
-   if (
-       !strcmp(type,"bool") ||
-       !strcmp(type,"Bool_t")) {
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
+   if (typeStr == "bool" || typeStr == "Bool_t") {
       return true;
    }
    return false;
@@ -1886,10 +1895,9 @@ Bool_t ROMEBuilder::isIntType(const char *type)
 {
 // check if the type is valid for array length specifier in TTree.
 // unsigned, char, short, Long64_t are not valid.
-   return (
-      !strcmp(type,"int")
-      || !strcmp(type,"Int_t")
-      );
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
+   return (typeStr == "int" || typeStr == "Int_t");
 }
 
 //______________________________________________________________________________
@@ -1897,11 +1905,15 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
                                      ROMEString& stringBuffer)
 {
    int type = 0;
-   if (!strcmp(newType,"int") || !strcmp(newType,"Int_t")) {
+   ROMEString newTypeStr = newType;
+   ROMEString oldTypeStr = oldType;
+   newTypeStr.StripSpaces();
+   oldTypeStr.StripSpaces();
+   if (newTypeStr == "int" || newTypeStr == "Int_t") {
       type = 1;
-   } else if (!strcmp(newType,"double") || !strcmp(newType,"Double_t")) {
+   } else if (newTypeStr == "double" || newTypeStr == "Double_t") {
       type = 2;
-   } else if (!strcmp(newType,"ROMEString&")) {
+   } else if (newTypeStr == "ROMEString&") {
       type = 3;
    } else {
       return stringBuffer;
@@ -1919,9 +1931,9 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
          } else if (type == 2) {
             stringBuffer.SetFormatted("strtod(%s,&cstop)",value);
          }
-         if (!strcmp(oldType,"std::string")) {
+         if (oldTypeStr == "std::string") {
             stringBuffer.Insert(strlen(value)+7,".c_str()");
-         } else if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString")) {
+         } else if (oldTypeStr == "ROMEString" || oldTypeStr == "TString") {
             stringBuffer.Insert(strlen(value)+7,".Data()");
          }
          return stringBuffer;
@@ -1931,9 +1943,9 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
          return stringBuffer;
       }
       ROMEString tmp = stringBuffer;
-      if (!strcmp(oldType,"std::string")) {
+      if (oldTypeStr == "std::string") {
          return stringBuffer.SetFormatted("%s=%s.c_str()",tmp.Data(),value);
-      } else if (!strcmp(oldType,"ROMEString") || !strcmp(oldType,"TString")) {
+      } else if (oldTypeStr == "ROMEString" || oldTypeStr == "TString") {
          return stringBuffer.SetFormatted("%s=%s",tmp.Data(),value);
       } else if (isFloatingType(oldType)) {
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%.16g\",%s)",tmp.Data(),value);
@@ -1974,6 +1986,8 @@ Bool_t ROMEBuilder::isFolder(const char *type)
 Bool_t ROMEBuilder::isTArrayType(const char *type)
 {
    int j;
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
    ROMEString str;
    const char arrayTypes[][8]
       = {"TArrayC"
@@ -1985,10 +1999,10 @@ Bool_t ROMEBuilder::isTArrayType(const char *type)
       };
 
    for (j = 0; j < 6; j++) {
-      if (!strcmp(type,arrayTypes[j]))
+      if (typeStr == arrayTypes[j])
          return true;
       str.SetFormatted("%s*",arrayTypes[j]);
-      if (!strcmp(type,str.Data()))
+      if (typeStr == str.Data())
          return true;
    }
    return false;
@@ -1999,6 +2013,8 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
 {
    int j;
    ROMEString str;
+   ROMEString typeStr = type;
+   typeStr.StripSpaces();
    const char arrayTypes[][2][9]
       = { {"TArrayC","Char_t  "}
          ,{"TArrayI","Int_t   "}
@@ -2009,12 +2025,12 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
       };
 
    for (j = 0; j < 6; j++) {
-      if (!strcmp(type,arrayTypes[j][0])) {
+      if (typeStr == arrayTypes[j][0]) {
          standardType = arrayTypes[j][1];
          return standardType.Data();
       }
       str.SetFormatted("%s*",(char*)arrayTypes[j]);
-      if (!strcmp(type,str.Data())) {
+      if (typeStr == str.Data()) {
          standardType = arrayTypes[j][1];
          return standardType.Data();
       }
