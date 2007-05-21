@@ -5,7 +5,7 @@
 //
 //  ROMETCutG class for ROME. Fixes problems in the operator=.
 //
-//  $Id: ROMETCutG.cpp 1860 2007-05-04 06:08:58Z schneebeli_m $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
