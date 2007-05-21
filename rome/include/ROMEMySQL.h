@@ -34,7 +34,8 @@ public:
    ROMEMySQL();
    virtual ~ROMEMySQL();
 
-   Bool_t  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
+   Bool_t  Connect(const char *server,const char *user,const char *passwd,const char *database,
+                   const char *port);
    Bool_t  DisConnect();
    Bool_t  MakeQuery(const char* query,Bool_t store);
    Bool_t  StoreResult();

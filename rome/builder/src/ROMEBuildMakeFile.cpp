@@ -1682,7 +1682,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
 #endif
    ROMEString objdirectory;
    if (objdir) {
-      objdirectory = *objdir; 
+      objdirectory = *objdir;
    } else {
       objdirectory = "obj";
    }
