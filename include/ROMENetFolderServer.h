@@ -21,7 +21,7 @@ protected:
 
 public:
    void              StartServer(TApplication *app,Int_t port,const char* serverName);
-   static Int_t      ResponseFunction(TSocket *socket);
+   static  Int_t     ResponseFunction(TSocket *socket);
    virtual Bool_t    UpdateObjects() = 0;
    virtual void      ConstructObjects(TSocket* socket) = 0;
    virtual void      DestructObjects(TSocket* socket) = 0;

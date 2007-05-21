@@ -106,22 +106,22 @@ public:
    ArgusHistoDisplay(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TArrayI *logY, TArrayI *logZ,
                      const char* inheritName, Int_t nDisplayType);
    virtual ~ArgusHistoDisplay();
-   void InitHistoDisplay();
+   void      InitHistoDisplay();
 
-   void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
-   TGraphMT* GetUserTGraphAt(Int_t index);
-   TH1* GetUserHistoAt(Int_t index,const char* type);
-   TObject* GetCurrentObjectAt(Int_t index);
-   void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
-   Int_t GetNumberOfUserLines() { return fNumberOfUserLines; };
-   TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
+   void      SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
+   TGraphMT *GetUserTGraphAt(Int_t index);
+   TH1      *GetUserHistoAt(Int_t index,const char* type);
+   TObject  *GetCurrentObjectAt(Int_t index);
+   void      SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
+   Int_t     GetNumberOfUserLines() { return fNumberOfUserLines; };
+   TLine    *GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
 
-   void SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
-   int  GetNumberOfPadsX() { return fNumberOfPadsX; };
-   void SetNumberOfPadsY(int n) { fNumberOfPadsY = n; };
-   int  GetNumberOfPadsY() { return fNumberOfPadsY; };
-   void   SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
-   Bool_t IsPadConfigActive() { return fPadConfigActive; };
+   void      SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
+   int       GetNumberOfPadsX() { return fNumberOfPadsX; };
+   void      SetNumberOfPadsY(int n) { fNumberOfPadsY = n; };
+   int       GetNumberOfPadsY() { return fNumberOfPadsY; };
+   void      SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
+   Bool_t    IsPadConfigActive() { return fPadConfigActive; };
 
    virtual void RegisterObjects() = 0;
    virtual void UnRegisterObjects() = 0;
