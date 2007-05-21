@@ -1,21 +1,21 @@
 // Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
 //
-//  TGraphMT
+//  ROMETGraph
 //
-//  TGraph class for multi-threaded programs.
+//  TGraph class for ROME. Fixes problems when used in multi-threaded programs and in the operator=.
 //
 //  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "TGraphMT.h"
+#include "ROMETGraph.h"
 #include <TList.h>
 
-ClassImp(TGraphMT)
+ClassImp(ROMETGraph)
 
 //______________________________________________________________________________
-void TGraphMT::SetPoint(Int_t i, Double_t x, Double_t y)
+void ROMETGraph::SetPoint(Int_t i, Double_t x, Double_t y)
 {
    // Set x and y values for point number i.
 
@@ -36,7 +36,7 @@ void TGraphMT::SetPoint(Int_t i, Double_t x, Double_t y)
 }
 
 //______________________________________________________________________________
-TGraphMT& TGraphMT::operator=(const TGraphMT &gr)
+ROMETGraph& ROMETGraph::operator=(const ROMETGraph &gr)
 {
 // Equal operator for this graph
    if(this!=&gr) {

@@ -36,6 +36,7 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="TGraph"/>
 			<xs:enumeration value="TGraph2D"/>
+			<xs:enumeration value="TCutG"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="ValueTypeDesc">
@@ -918,9 +919,9 @@
 					<xs:documentation>Title of the entry in the drop down menu.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="ObjectDisplayObject" type="xs:string">
+			<xs:element name="ObjectDisplayObject" type="xs:string" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>Object reference. This can be either the name of a histogram defined in the task section or a root histogram typ or 'TGraph'. If a histogram name is specified this histogram will be displayed. If a root histogram or graph class name is specified then the objects have to be filled inside the tab user code.</xs:documentation>
+					<xs:documentation>Object reference. This can be either the name of a histogram/graph/cutg defined in the task section or a root histogram, graph or cutg typ. If a histogram/graph/cutg name is specified this histogram/graph/cutg will be displayed. If a root histogram, graph or cutg class name is specified then the objects have to be filled inside the tab user code.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ObjectDisplayTaskHierarchyIndex" type="xs:integer" default="0" minOccurs="0">
