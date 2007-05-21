@@ -3592,7 +3592,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             }
          }
       }
-      delete taskListed;
+      delete [] taskListed;
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
 
@@ -17025,11 +17025,11 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    // Write File
    WriteFile(cFile.Data(),buffer.Data(),6);
 
-   delete isBranch;
+   delete [] isBranch;
    for (i = 0; i < maxNumberOfTrees; i++) {
-      delete branchFolderNum[i];
+      delete [] branchFolderNum[i];
    }
-   delete branchFolderNum;
+   delete [] branchFolderNum;
    return true;
 }
 
