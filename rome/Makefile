@@ -206,6 +206,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMELabel.o \
               obj/ROMECompositeFrame.o \
               obj/ROMEHisto.o \
+              obj/ROMETGraph.o \
               obj/TNetFolder.o \
               obj/TNetFolderServer.o \
               obj/XMLToForm.o \
@@ -217,7 +218,6 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ArgusHistoDisplay.o \
               obj/ArgusTextDialog.o \
               obj/ArgusWindow.o \
-              obj/TGraphMT.o \
               obj/mxml.o \
               obj/strlcpy.o
 ifeq ($(NEED_TARRAYL64), yes)
@@ -257,6 +257,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMECompositeFrame.h \
                   include/ROMEHisto.h \
                   include/ROMEConfigHisto.h \
+                  include/ROMETGraph.h \
                   include/TNetFolder.h \
                   include/TNetFolderServer.h \
                   include/XMLToFormWindow.h \
@@ -265,7 +266,6 @@ LibDictHeaders := include/ROMEString.h \
                   include/XMLToFormElementSignal.h \
                   include/XMLToFormFrame.h \
                   include/XMLToFormWindow.h \
-                  include/TGraphMT.h \
                   argus/include/ArgusWindow.h \
                   argus/include/ArgusTextDialog.h \
                   argus/include/ArgusAnalyzerController.h \

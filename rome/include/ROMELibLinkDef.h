@@ -38,6 +38,7 @@
 #pragma link C++ class ROMECompositeFrame;
 #pragma link C++ class ROMEHisto;
 #pragma link C++ class ROMEConfigHisto;
+#pragma link C++ class ROMETGraph+;
 #pragma link C++ class TNetFolder;
 #pragma link C++ class TNetFolderServer;
 #pragma link C++ class XMLToFormWindow;
@@ -46,7 +47,6 @@
 #pragma link C++ class XMLToFormElementSignal;
 #pragma link C++ class XMLToFormFrame;
 #pragma link C++ class XMLToFormWindow;
-#pragma link C++ class TGraphMT+;
 #pragma link C++ class ArgusWindow;
 #pragma link C++ class ArgusTextDialog;
 #pragma link C++ class ArgusAnalyzerController;
