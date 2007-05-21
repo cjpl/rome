@@ -34,6 +34,7 @@ export TMOPT    =$(OPT)
 export TTOPT    =$(OPT)
 export TWROPT   =$(OPT)
 export TWR2OPT  =$(OPT)
+export TCUTGOPT =$(OPT)
 
 ROMEProjects = multirun/mranalyzer.exe \
                dbexample/rdbframework.exe \
@@ -51,7 +52,8 @@ ROMEProjects = multirun/mranalyzer.exe \
                displayobjects/doexample.exe \
                taskhierarchyandhistos/thhexample.exe \
                taskhierarchydependence/thexample.exe \
-               macros/mcranalyzer.exe
+               macros/mcranalyzer.exe \
+               cutg/tcutgexample.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
                 argus/timer/ttmonitor.exe \
@@ -147,6 +149,10 @@ macros/mcranalyzer.exe:
 	$(ROMESYS)/bin/romebuilder.exe -i macros/macros.xml -o macros -nl;
 	make $(JOBSFLAG) -C macros/
 
+cutg/tcutgexample.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i cutg/cutg.xml -o cutg -nl;
+	make $(JOBSFLAG) -C cutg/
+
 argus/file/flmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -nl 
 	make $(JOBSFLAG) -C argus/file/
@@ -239,6 +245,8 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 #	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1
 
 	cd macros; ./mcranalyzer.exe -i romeConfig.xml -q
+
+	cd cutg; ./tcutgexample.exe -i romeConfig.xml -q -e 0-9
 
 	cd argus/file; ./flmonitor.exe -i romeConfig.xml -q -e 0-99
 
