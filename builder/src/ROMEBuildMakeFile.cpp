@@ -804,6 +804,10 @@ void ROMEBuilder::AddRootLibraries()
    rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libMinuit.lib");
    rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeom.lib");
    rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeomPainter.lib");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0))
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libRIO.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libNet.lib");
+#endif
 }
 
 //______________________________________________________________________________

@@ -7632,6 +7632,7 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n", shortCut.Data());
+   buffer.AppendFormatted("#include \"TMath.h\"\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("\n");
 
