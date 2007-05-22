@@ -1202,7 +1202,6 @@ void ROMEAnalyzer::Cleaning()
    // all functions should be static
    ss_getchar(1);
    restoreOutput();
-   cout<<"\n"<<endl;
 }
 
 //______________________________________________________________________________
