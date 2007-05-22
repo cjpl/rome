@@ -95,6 +95,7 @@ ROMEBuilder::ROMEBuilder()
 ,folderDescription(0)
 ,folderShortDescription(0)
 ,folderParentName(0)
+,folderInheritName(0)
 ,folderTitle(0)
 ,folderArray(0)
 ,folderAuthor(0)
@@ -468,6 +469,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] folderDescription;
    delete [] folderShortDescription;
    delete [] folderParentName;
+   delete [] folderInheritName;
    delete [] folderTitle;
    delete [] folderArray;
    delete [] folderAuthor;
@@ -1387,6 +1389,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          minRebuild = true;
          outDir = "C:/rome/examples/cutg/";
          xmlFile = "C:/rome/examples/cutg/cutg.xml";
+      } else if (!strcmp(argv[i],"-basefolder")) {
+         noLink = true;
+         minRebuild = true;
+         outDir = "C:/rome/examples/basefolder/";
+         xmlFile = "C:/rome/examples/basefolder/basefolder.xml";
       } else if (!strcmp(argv[i],"-lp")) {
          makeOutput = true;
          midas = true;
@@ -1540,6 +1547,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    folderNoResetModified[numOfFolder] = false;
    folderHasClassField[numOfFolder] = false;
    folderParentName[numOfFolder] = "GetMainFolder()";
+   folderInheritName[numOfFolder] = "";
    folderSupport[numOfFolder] = false;
 
    // Config file name

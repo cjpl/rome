@@ -1,0 +1,38 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>BF</ExperimentShortCut>
+		<ProgramName>Sample</ProgramName>
+		<ProgramDefinitionVersion>$Rev: 1810 $</ProgramDefinitionVersion>
+	</Experiment>
+	<Folders>
+		<Folder>
+			<FolderName>MyFolder</FolderName>
+			<Inherit>MyBaseFolder</Inherit>
+			<Field>
+				<FieldName>MyValue</FieldName>
+				<FieldType>Int_t</FieldType>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>MyBaseFolder</FolderName>
+			<Field>
+				<FieldName>MyBaseValue</FieldName>
+				<FieldType>Int_t</FieldType>
+			</Field>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>FillFolder</TaskName>
+		</Task>
+	</Tasks>
+	<Trees>
+		<Tree>
+			<TreeName>MyTree</TreeName>
+			<Branch>
+				<BranchName>MyBranch</BranchName>
+				<RelatedFolder>MyFolder</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
+</ROMEFrameworkDefinition>
