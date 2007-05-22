@@ -2733,7 +2733,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      }
                      for (l = 0; l < numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]; l++) {
                         if (!objectFound[l]) {
-                           tabObjectDisplayType[currentNumberOfTabs][i][l] = "none";
+                           tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][l] = "none";
                         }
                      }
                      for (l = 0; l < numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]; l++) {
