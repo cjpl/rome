@@ -3604,7 +3604,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          taskListed[i] = false;
       }
       for (i = 0; i < numOfTabObjectDisplays[iTab]; i++) {
-         if (!taskUsed[tabObjectDisplayTaskIndex[iTab][i]])
+         if (tabObjectDisplayTaskIndex[iTab][i] > -1 && !taskUsed[tabObjectDisplayTaskIndex[iTab][i]])
             continue;
          indx = tabObjectDisplayTaskHierarchyIndex[iTab][i];
          while (indx != -1 && !taskListed[taskHierarchyClassIndex[indx]]) {
