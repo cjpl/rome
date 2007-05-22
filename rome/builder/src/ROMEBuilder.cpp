@@ -2070,9 +2070,21 @@ void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, 
       break;
    }
 
+   bool reset = (typeid(T) == typeid(char)) ||
+         (typeid(T) == typeid(UChar_t)) ||
+         (typeid(T) == typeid(Short_t)) ||
+         (typeid(T) == typeid(UShort_t)) ||
+         (typeid(T) == typeid(Int_t)) ||
+         (typeid(T) == typeid(UInt_t)) ||
+         (typeid(T) == typeid(Long64_t)) ||
+         (typeid(T) == typeid(ULong64_t)) ||
+         (typeid(T) == typeid(Float_t)) ||
+         (typeid(T) == typeid(Double_t));
+
    switch(n) {
       case 1:
          p1 = new T[x1];
+         if (reset) memset(p1, 0, sizeof(T) * x1);
          return p1;
 
       case 2:
