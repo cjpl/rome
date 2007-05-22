@@ -847,7 +847,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         break;
                   }
                   numOfTaskHierarchy++;
-                  delete parentIndex;
+                  delete [] parentIndex;
                   continue;
                }
                if (!strcmp((const char*)name,"Tabs")) {
@@ -2258,6 +2258,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    numOfSteerChildren[currentNumberOfTabs+numOfTask + 1][0] = 0;
    numOfTabObjectDisplays[currentNumberOfTabs] = 0;
    numOfTabObjectDisplayObjectTypes[currentNumberOfTabs] = 0;
+   memset(numOfTabObjectDisplayObjects[currentNumberOfTabs], 0, sizeof(Int_t) * maxNumberOfTabObjectDisplays);
 
    while (xml->NextLine()) {
       type = xml->GetType();
