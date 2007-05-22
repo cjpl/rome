@@ -131,10 +131,11 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted(" )\n");
 
-      if (folderInheritName[iFold].Length()>0)
+      if (folderInheritName[iFold].Length() > 0) {
          buffer.AppendFormatted(":%s%s()\n",shortCut.Data(),folderInheritName[iFold].Data());
-      else
+      } else {
          buffer.AppendFormatted(":TObject()\n");
+      }
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             tmp = valueType[iFold][i];
@@ -178,7 +179,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-      buffer.AppendFormatted(",fModified(kFALSE)\n");
+      if (folderInheritName[iFold].Length() == 0) {
+         buffer.AppendFormatted(",fModified(kFALSE)\n");
+      }
 
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
@@ -415,7 +418,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             break;
          }
       }
-      buffer.AppendFormatted("   if (fModified) return true;\n");
+      if (folderInheritName[iFold].Length() > 0) {
+         buffer.AppendFormatted("   if (%s%s::isModified()) return true;\n",shortCut.Data(),
+                                folderInheritName[iFold].Data());
+      } else {
+         buffer.AppendFormatted("   if (fModified) return true;\n");
+      }
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] == 0) {
@@ -737,7 +745,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                    i,i,i,valueType[iFold][i].Data(),valueName[iFold][i].Data(),i);
          }
       }
-      buffer.AppendFormatted("      SetModified(false);\n");
+      if (folderInheritName[iFold].Length() > 0) {
+         buffer.AppendFormatted("      %s%s::ResetModified();\n",shortCut.Data(),
+                                folderInheritName[iFold].Data());
+      } else {
+         buffer.AppendFormatted("      SetModified(false);\n");
+      }
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
@@ -785,6 +798,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             buffer.AppendFormatted("   int nentry;\n");
             break;
          }
+      }
+      if (folderInheritName[iFold].Length() > 0) {
+         buffer.AppendFormatted("   %s%s::Reset();\n",shortCut.Data(),
+                                folderInheritName[iFold].Data());
+      } else {
+         buffer.AppendFormatted("   fModified = false;\n");
       }
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
@@ -863,7 +882,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-      buffer.AppendFormatted("   fModified = false;\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
@@ -1142,7 +1160,9 @@ Bool_t ROMEBuilder::WriteFolderH()
       int arrayLen = 0;
       int iDm;
       for (i = 0; i < numOfValue[iFold]; i++) {
-         if (typeLen < valueType[iFold][i].Length()) typeLen = valueType[iFold][i].Length();
+         if (typeLen < valueType[iFold][i].Length()) {
+            typeLen = valueType[iFold][i].Length();
+         }
          nameLenT = (int)valueName[iFold][i].Length();
          for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
             nameLenT += (int)(2+valueArray[iFold][i][iDm].Length());
@@ -1181,8 +1201,10 @@ Bool_t ROMEBuilder::WriteFolderH()
             buffer.AppendFormatted(format.Data(),"",ProcessCommentCPP(valueComment[iFold][i],tmp).Data());
          }
       }
-      format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-9);
-      buffer.AppendFormatted(format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
+      if (folderInheritName[iFold].Length() == 0) {
+         format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-9);
+         buffer.AppendFormatted(format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
+      }
       buffer.AppendFormatted("\n");
 
       // Methods
@@ -1342,7 +1364,11 @@ Bool_t ROMEBuilder::WriteFolderH()
       buffer.AppendFormatted("\n");
 
       // isModified
-      format.SetFormatted("   %%-%ds  is%%s();\n",typeLen);
+      if (folderInheritName[iFold].Length() == 0) {
+         format.SetFormatted("   virtual %%-%ds  is%%s();\n",typeLen);
+      } else {
+         format.SetFormatted("   %%-%ds  is%%s();\n",typeLen);
+      }
       buffer.AppendFormatted(format.Data(),"Bool_t","Modified");
       buffer.AppendFormatted("\n");
 
@@ -1487,17 +1513,28 @@ Bool_t ROMEBuilder::WriteFolderH()
 
       // SetModified
       int lb = nameLen-8;
-      format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds}\n",lb,typeLen,lb,lb,lb);
-      buffer.AppendFormatted(format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
-      buffer.AppendFormatted("\n");
+      if (folderInheritName[iFold].Length() == 0) {
+         format.SetFormatted("   virtual void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds}\n",
+                             lb,typeLen,lb,lb,lb);
+         buffer.AppendFormatted(format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
+         buffer.AppendFormatted("\n");
+      }
 
       // ResetModified
-      buffer.AppendFormatted("   void ResetModified();\n");
+      if (folderInheritName[iFold].Length() == 0) {
+         buffer.AppendFormatted("   virtual void ResetModified();\n");
+      } else {
+         buffer.AppendFormatted("   void ResetModified();\n");
+      }
       buffer.AppendFormatted("\n");
 
       // Set All
       if (numOfValue[iFold] < 40) { // rootcint does not accept more than 40
-         buffer.AppendFormatted("   void SetAll( ");
+         if (folderInheritName[iFold].Length() == 0) {
+            buffer.AppendFormatted("   virtual void SetAll( ");
+         } else {
+            buffer.AppendFormatted("   void SetAll( ");
+         }
          for (i = 0; i < numOfValue[iFold]; i++) {
             if (isFolder(valueType[iFold][i].Data()))
                continue;
@@ -1519,7 +1556,11 @@ Bool_t ROMEBuilder::WriteFolderH()
       }
       buffer.AppendFormatted("\n");
       // Reset
-      buffer.AppendFormatted("   void Reset();\n");
+      if (folderInheritName[iFold].Length() == 0) {
+         buffer.AppendFormatted("   virtual void Reset();\n");
+      } else {
+         buffer.AppendFormatted("   void Reset();\n");
+      }
       buffer.AppendFormatted("\n");
 
       // Private
@@ -2979,11 +3020,11 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
-         buffer.AppendFormatted("   virtual void Init();\n");
-         buffer.AppendFormatted("   virtual void BeginOfRun();\n");
-         buffer.AppendFormatted("   virtual void Event();\n");
-         buffer.AppendFormatted("   virtual void EndOfRun();\n");
-         buffer.AppendFormatted("   virtual void Terminate();\n\n");
+         buffer.AppendFormatted("   void Init();\n");
+         buffer.AppendFormatted("   void BeginOfRun();\n");
+         buffer.AppendFormatted("   void Event();\n");
+         buffer.AppendFormatted("   void EndOfRun();\n");
+         buffer.AppendFormatted("   void Terminate();\n\n");
          buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)",shortCut.Data(),taskName[iTask].Data(),
                                 taskVersion[iTask].Data());
          if (taskShortDescription[iTask].Length())
@@ -3254,14 +3295,14 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       buffer.AppendFormatted("   virtual void Terminate() = 0;\n\n");
       // Histo Methods
       buffer.AppendFormatted("   // Histo Methods\n");
-      buffer.AppendFormatted("   virtual void BookHisto();\n");
-      buffer.AppendFormatted("   virtual void ReBookHisto();\n");
-      buffer.AppendFormatted("   virtual void ResetHisto();\n\n");
+      buffer.AppendFormatted("   void BookHisto();\n");
+      buffer.AppendFormatted("   void ReBookHisto();\n");
+      buffer.AppendFormatted("   void ResetHisto();\n\n");
       // Graph Methods
       buffer.AppendFormatted("   // Graph Methods\n");
-      buffer.AppendFormatted("   virtual void BookGraph();\n");
-      buffer.AppendFormatted("   virtual void ReBookGraph();\n");
-      buffer.AppendFormatted("   virtual void ResetGraph();\n\n");
+      buffer.AppendFormatted("   void BookGraph();\n");
+      buffer.AppendFormatted("   void ReBookGraph();\n");
+      buffer.AppendFormatted("   void ResetGraph();\n\n");
       // Footer
       buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s) // Base class of %sT%s\n",shortCut.Data(),
                              taskName[iTask].Data(),taskVersion[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
