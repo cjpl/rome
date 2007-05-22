@@ -131,7 +131,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted(" )\n");
 
-      buffer.AppendFormatted(":TObject()\n");
+      if (folderInheritName[iFold].Length()>0)
+         buffer.AppendFormatted(":%s%s()\n",shortCut.Data(),folderInheritName[iFold].Data());
+      else
+         buffer.AppendFormatted(":TObject()\n");
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             tmp = valueType[iFold][i];
@@ -1115,12 +1118,19 @@ Bool_t ROMEBuilder::WriteFolderH()
             }
          }
       }
+      if (folderInheritName[iFold].Length()>0) {
+         buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderInheritName[iFold].Data());
+      }
 
       // Class
-      if (folderUserCode[iFold]) {
-         buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+      if (folderInheritName[iFold].Length()>0) {
+         buffer.AppendFormatted("\nclass %s%s : public %s%s\n",shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderInheritName[iFold].Data());
       } else {
-         buffer.AppendFormatted("\nclass %s%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+         if (folderUserCode[iFold]) {
+            buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+         } else {
+            buffer.AppendFormatted("\nclass %s%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+         }
       }
       buffer.AppendFormatted("{\n");
 

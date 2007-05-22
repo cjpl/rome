@@ -161,6 +161,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    folderDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderParentName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderInheritName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderArray = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
@@ -1004,6 +1005,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    folderVersion[numOfFolder] = "1";
    folderDescription[numOfFolder] = "";
    folderShortDescription[numOfFolder] = "";
+   folderInheritName[numOfFolder] = "";
    folderAuthor[numOfFolder] = mainAuthor;
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;
@@ -1136,6 +1138,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       if (type == 1 && !strcmp((const char*)name,"FolderShortDescription")) {
          xml->GetValue(folderShortDescription[numOfFolder],folderShortDescription[numOfFolder]);
          FormatText(folderShortDescription[numOfFolder], kTRUE);
+      }
+      // folder inherit name
+      if (type == 1 && !strcmp((const char*)name,"Inherit")) {
+         xml->GetValue(folderInheritName[numOfFolder],folderInheritName[numOfFolder]);
+         FormatText(folderInheritName[numOfFolder], kTRUE);
       }
       // folder author
       if (type == 1 && !strcmp((const char*)name,"Author")) {

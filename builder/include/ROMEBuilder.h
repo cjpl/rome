@@ -164,6 +164,7 @@ protected:
    ROMEString   *folderDescription;
    ROMEString   *folderShortDescription;
    ROMEString   *folderParentName;
+   ROMEString   *folderInheritName;
    ROMEString   *folderTitle;
    ROMEString   *folderArray;
    ROMEString   *folderAuthor;
