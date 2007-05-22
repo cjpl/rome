@@ -1483,7 +1483,7 @@ PMXML_NODE mxml_parse_buffer(const char *buf, char *error, int error_size)
                   if (!*pv)
                      return read_error(HERE, "Unexpected end of file");
 
-                  if (*pv == '<') {
+                  if (*pv == '<' && *(pv+1) != '/') {
 
                      /* start new subtree */
                      ptree = pnew;
