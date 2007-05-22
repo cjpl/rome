@@ -3559,8 +3559,9 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("#include \"tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       // Task class includes
       Bool_t *taskListed = new Bool_t[numOfTask];
-      for (i = 0; i < numOfTask; i++)
+      for (i = 0; i < numOfTask; i++) {
          taskListed[i] = false;
+      }
       for (i = 0; i < numOfTabObjectDisplays[iTab]; i++) {
          if (!taskUsed[tabObjectDisplayTaskIndex[iTab][i]])
             continue;

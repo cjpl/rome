@@ -284,30 +284,30 @@ void mxml_decode(char *str)
    while ((p = strchr(p, '&')) != NULL) {
       if (strncmp(p, "&lt;", 4) == 0) {
          *(p++) = '<';
-         strcpy(p, p+3);
+         memmove(p, p+3, strlen(p+3) + 1);
       }
       else if (strncmp(p, "&gt;", 4) == 0) {
          *(p++) = '>';
-         strcpy(p, p+3);
+         memmove(p, p+3, strlen(p+3) + 1);
       }
       else if (strncmp(p, "&amp;", 5) == 0) {
          *(p++) = '&';
-         strcpy(p, p+4);
+         memmove(p, p+4, strlen(p+4) + 1);
       }
       else if (strncmp(p, "&quot;", 6) == 0) {
          *(p++) = '\"';
-         strcpy(p, p+5);
+         memmove(p, p+5, strlen(p+5) + 1);
       }
       else if (strncmp(p, "&apos;", 6) == 0) {
          *(p++) = '\'';
-         strcpy(p, p+5);
+         memmove(p, p+5, strlen(p+5) + 1);
       }
       else {
          p++; // skip unknown entity
       }
    }
 /*   if (str[0] == '\"' && str[strlen(str)-1] == '\"') {
-      strcpy(str, str+1);
+      memmove(str, str+1, strlen(str+1) + 1);
       str[strlen(str)-1] = 0;
    }*/
 }
