@@ -2,7 +2,7 @@
 	<Experiment>
 		<ExperimentShortCut>BF</ExperimentShortCut>
 		<ProgramName>Sample</ProgramName>
-		<ProgramDefinitionVersion>$Rev: 1810 $</ProgramDefinitionVersion>
+		<ProgramDefinitionVersion>$Rev$</ProgramDefinitionVersion>
 	</Experiment>
 	<Folders>
 		<Folder>
