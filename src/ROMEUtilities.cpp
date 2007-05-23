@@ -199,15 +199,17 @@ Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
 //______________________________________________________________________________
 ROMEString& ROMEUtilities::ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename)
 {
-   if (base.BeginsWith("/") || base.BeginsWith("./") || base.BeginsWith("../")) {
+   ROMEString basetmp = base;
+   gSystem->ExpandPathName(basetmp);
+   if (basetmp.BeginsWith("/") || basetmp.BeginsWith("./") || basetmp.BeginsWith("../")) {
       // Ignore InputDir.
-      filename = base;
+      filename = basetmp;
    } else {
       filename = dir;
       if (filename.Length() && !filename.EndsWith("/")) {
          filename += "/";
       }
-      filename += base;
+      filename += basetmp;
    }
    filename.StripSpaces();
    gSystem->ExpandPathName(filename);
