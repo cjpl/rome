@@ -12,6 +12,7 @@
 #include <TBranchElement.h>
 #include "ROMEAnalyzer.h"
 #include "ROMERootDAQ.h"
+#include "ROMEUtilities.h"
 
 ClassImp(ROMERootDAQ)
 
@@ -50,7 +51,8 @@ Bool_t ROMERootDAQ::BeginOfRun() {
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
    fRootFiles = new TFile*[nInputFile];
    for (i=0;i<nInputFile;i++) {
-      filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
+      ROMEUtilities::ConstructFilePath(gROME->GetInputDirString(), gROME->GetInputFileNameAt(i), filename);
+      gROME->ReplaceWithRunAndEventNumber(filename);
       fRootFiles[i] = new TFile(filename.Data(),"READ");
       if (fRootFiles[i]->IsZombie()) {
          ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());

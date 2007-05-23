@@ -86,7 +86,8 @@ Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* /*co
 }
 
 //______________________________________________________________________________
-Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/) {
+Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,
+                              Long64_t /*runNumber*/,Long64_t /*eventNumber*/) {
    Ssiz_t     ps,pe;
    Int_t      iRow;
    Int_t      iCol = 0;

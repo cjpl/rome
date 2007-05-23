@@ -25,6 +25,7 @@
 #include "ROMERomeDAQ.h"
 #include "ROMETree.h"
 #include "ROMETreeInfo.h"
+#include "ROMEUtilities.h"
 
 ClassImp(ROMERomeDAQ)
 
@@ -75,7 +76,7 @@ Bool_t ROMERomeDAQ::Init() {
       if ((gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
          fRootFiles = new TFile*[nInputFile];
          for (i=0;i<nInputFile;i++) {
-            filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
+            ROMEUtilities::ConstructFilePath(gROME->GetInputDirString(),gROME->GetInputFileNameAt(i),filename);
             gROME->ReplaceWithRunAndEventNumber(filename);
             fRootFiles[i] = new TFile(filename.Data(),"READ");
             gROOT->cd();
@@ -139,7 +140,8 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
 
             if (gROME->IsRunNumberBasedIO()) {
                if(romeTree->GetConfigInputFileName().Length()) {
-                  filename.SetFormatted("%s%s",gROME->GetInputDir(),romeTree->GetConfigInputFileName().Data());
+                  ROMEUtilities::ConstructFilePath(gROME->GetInputDirString(), romeTree->GetConfigInputFileName(),
+                                                   filename);
                   gROME->ReplaceWithRunAndEventNumber(filename);
                } else {
                   filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
@@ -179,7 +181,10 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   }
                   gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex).Data());
                   fRootFiles[fInputFileNameIndex]->cd();
-                  ROMEPrint::Print("Reading %s%s\n",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
+                  ROMEPrint::Print("Reading %s\n",
+                                   ROMEUtilities::ConstructFilePath(gROME->GetInputDirString(),
+                                                                    gROME->GetCurrentInputFileName(),
+                                                                    filename).Data());
                   if (!tree->Read(romeTree->GetName())) {
                      return false;
                   }
@@ -205,7 +210,10 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                      tree->GetBranch("Info")->GetEntry(0);
                      if (fTreeInfo->GetRunNumber()==gROME->GetCurrentRunNumber()) {
                         gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(i));
-                        ROMEPrint::Print("Reading %s%s\n",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
+                        ROMEPrint::Print("Reading %s%s\n",
+                                         ROMEUtilities::ConstructFilePath(gROME->GetInputDirString(),
+                                                                          gROME->GetCurrentInputFileName(),
+                                                                          filename).Data());
                         tree->SetName(fCurrentTreeName.Data());
                         fInputFileNameIndex = i;
                         break;
@@ -214,10 +222,12 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                }
                if (fInputFileNameIndex==-1) {
 #if defined( R__VISUAL_CPLUSPLUS )
-                  ROMEPrint::Warning("Run %I64d not found in the specified input files !\n",gROME->GetCurrentRunNumber());
+                  ROMEPrint::Warning("Run %I64d not found in the specified input files !\n",
+                                     gROME->GetCurrentRunNumber());
                   ROMEPrint::Warning("Skipping run %I64d.\n",gROME->GetCurrentRunNumber());
 #else
-                  ROMEPrint::Warning("Run %lld not found in the specified input files !\n",gROME->GetCurrentRunNumber());
+                  ROMEPrint::Warning("Run %lld not found in the specified input files !\n",
+                                     gROME->GetCurrentRunNumber());
                   ROMEPrint::Warning("Skipping run %lld.\n",gROME->GetCurrentRunNumber());
 #endif
                   this->SetEndOfRun();
@@ -364,6 +374,3 @@ Bool_t ROMERomeDAQ::Terminate() {
    }
    return true;
 }
-
-
-

@@ -35,7 +35,8 @@ ROMESQLite3::~ROMESQLite3() {
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::Connect(const char *server,const char * /*user*/,const char * /*passwd*/,const char *database,const char * /*port*/)
+Bool_t ROMESQLite3::Connect(const char *server,const char * /*user*/,const char * /*passwd*/,
+                            const char *database,const char * /*port*/)
 {
    TString filename = server;
    if(strlen(database) && strlen(server)){

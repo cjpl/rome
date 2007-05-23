@@ -15278,6 +15278,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
@@ -15580,27 +15581,34 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                           shortCut.Data());
    if (numOfTree>0) {
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
+      buffer.AppendFormatted("   ROMEString base;\n");
       buffer.AppendFormatted("   switch (treeIndex) {\n");
    }
    for (i = 0; i < numOfTree; i++) {
       buffer.AppendFormatted("      case %d:\n",i);
       buffer.AppendFormatted("         romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
       buffer.AppendFormatted("         if (inputFile)\n");
-      buffer.AppendFormatted("            buffer = romeTree->GetConfigInputFileName();\n");
+      buffer.AppendFormatted("            base = romeTree->GetConfigInputFileName();\n");
       buffer.AppendFormatted("         else\n");
-      buffer.AppendFormatted("            buffer = romeTree->GetConfigOutputFileName();\n");
-      buffer.AppendFormatted("         if (buffer.Length() == 0) {\n");
+      buffer.AppendFormatted("            base = romeTree->GetConfigOutputFileName();\n");
+      buffer.AppendFormatted("         if (base.Length() == 0) {\n");
       if (treeFileName[i].Length() == 0) {
-         buffer.AppendFormatted("            buffer.SetFormatted(\"%s#.root\");\n",treeName[i].Data());
+         buffer.AppendFormatted("            base.SetFormatted(\"%s#.root\");\n",treeName[i].Data());
       } else {
-         buffer.AppendFormatted("            buffer.SetFormatted(%s);\n",treeFileName[i].Data());
+         buffer.AppendFormatted("            base.SetFormatted(%s);\n",treeFileName[i].Data());
       }
       buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         gROME->ReplaceWithRunAndEventNumber(buffer);\n");
+      buffer.AppendFormatted("         if (inputFile)\n");
+      buffer.AppendFormatted("            ROMEUtilities::ConstructFilePath(gAnalyzer->GetInputDirString(),\n");
+      buffer.AppendFormatted("                                             base, buffer);\n");
+      buffer.AppendFormatted("         else\n");
+      buffer.AppendFormatted("            ROMEUtilities::ConstructFilePath(gAnalyzer->GetOutputDirString(),\n");
+      buffer.AppendFormatted("                                             base, buffer);\n");
       buffer.AppendFormatted("         break;\n");
    }
    if (numOfTree>0) {
       buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   gROME->ReplaceWithRunAndEventNumber(buffer);\n");
    }
    buffer.AppendFormatted("   return;\n");
    if (numOfTree <= 0) {
