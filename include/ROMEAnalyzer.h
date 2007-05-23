@@ -323,10 +323,14 @@ public:
    void            SetOffline() { fAnalysisMode = kAnalyzeOffline; }
 
    // Directories
-   const char     *GetInputDir() { return fInputDir.Data(); }
-   const char     *GetOutputDir() { return fOutputDir.Data(); }
-   const char     *GetDataBaseDir(Int_t i) { return fDataBaseDir[i].Data(); }
-   const char     *GetConfigDir() { return fConfigDir.Data(); }
+   const char     *GetInputDir()            { return fInputDir.Data(); }
+   const char     *GetOutputDir()           { return fOutputDir.Data(); }
+   const char     *GetDataBaseDir(Int_t i)  { return fDataBaseDir[i].Data(); }
+   const char     *GetConfigDir()           { return fConfigDir.Data(); }
+   const ROMEString &GetInputDirString()           { return fInputDir; }
+   const ROMEString &GetOutputDirString()          { return fOutputDir; }
+   const ROMEString &GetDataBaseDirString(Int_t i) { return fDataBaseDir[i]; }
+   const ROMEString &GetConfigDirString()          { return fConfigDir; }
 
    void            SetInputDir(const char *dir) { fInputDir = dir; }
    void            SetInputDir(ROMEString &dir) { fInputDir = dir; }

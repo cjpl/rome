@@ -196,6 +196,24 @@ Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
 #endif
 }
 
+//______________________________________________________________________________
+ROMEString& ROMEUtilities::ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename)
+{
+   if (base.BeginsWith("/") || base.BeginsWith("./") || base.BeginsWith("../")) {
+      // Ignore InputDir.
+      filename = base;
+   } else {
+      filename = dir;
+      if (filename.Length() && !filename.EndsWith("/")) {
+         filename += "/";
+      }
+      filename += base;
+   }
+   filename.StripSpaces();
+   gSystem->ExpandPathName(filename);
+   return filename;
+}
+
 #if !defined(__CINT__)
 //______________________________________________________________________________
 const char* ROMEUtilities::GetFormat(const type_info &t)
