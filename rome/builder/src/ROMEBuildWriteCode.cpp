@@ -209,12 +209,15 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          } else {
             if (valueDimension[iFold][i] == 0) {
             } else if (valueArray[iFold][i][0] == "variable") {
-               buffer.AppendFormatted("   if (%s > 0) {\n",valueArraySpecifier[iFold][i].Data());
-               buffer.AppendFormatted("      %s = new %s[%s];\n",valueName[iFold][i].Data(),valueType[iFold][i].Data(),
-                                      valueArraySpecifier[iFold][i].Data());
-               buffer.AppendFormatted("      %sSize = %s;\n",valueName[iFold][i].Data(),
-                                      valueArraySpecifier[iFold][i].Data());
-               buffer.AppendFormatted("   }\n");
+               if (valueArraySpecifier[iFold][i].Length()) {
+                  buffer.AppendFormatted("   if (%s > 0) {\n",valueArraySpecifier[iFold][i].Data());
+                  buffer.AppendFormatted("      %s = new %s[%s];\n",valueName[iFold][i].Data(),
+                                         valueType[iFold][i].Data(),
+                                         valueArraySpecifier[iFold][i].Data());
+                  buffer.AppendFormatted("      %sSize = %s;\n",valueName[iFold][i].Data(),
+                                         valueArraySpecifier[iFold][i].Data());
+                  buffer.AppendFormatted("   }\n");
+               }
             } else {
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   format.SetFormatted("%%%ds   for (int %%c%%d = 0; %%c%%d < %%s; %%c%%d++) {\n",iDm*3);
