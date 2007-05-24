@@ -210,7 +210,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                      tree->GetBranch("Info")->GetEntry(0);
                      if (fTreeInfo->GetRunNumber()==gROME->GetCurrentRunNumber()) {
                         gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(i));
-                        ROMEPrint::Print("Reading %s%s\n",
+                        ROMEPrint::Print("Reading %s\n",
                                          ROMEUtilities::ConstructFilePath(gROME->GetInputDirString(),
                                                                           gROME->GetCurrentInputFileName(),
                                                                           filename).Data());
