@@ -383,6 +383,8 @@ public:
    void            SetHistosRun(Int_t runNumber) { fHistoRun = runNumber; }
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
+   ROMEString&     ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);
+
    // Run Number
    void            GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format = 0);
    Long64_t        GetRunNumberAt(Int_t i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
