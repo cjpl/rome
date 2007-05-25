@@ -23,6 +23,9 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
+#if defined(R__MACOSX) && !defined(__xlC__) && !defined(__i386__) && !defined(__x86_64__)
+#   include <fenv.h>
+#endif
 
 //______________________________________________________________________________
 void ROMEUtilities::GetMidasTID(ROMEString *buf, Char_t *type)
@@ -192,6 +195,9 @@ Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    _control87(cm, MCW_EM);
    return old;
 #else // UNIX
+#   if defined(R__MACOSX) && !defined(__xlC__) && !defined(__i386__) && !defined(__x86_64__)
+   feclearexcept(FE_ALL_EXCEPT);
+#   endif
    return gSystem->SetFPEMask(mask);
 #endif
 }
