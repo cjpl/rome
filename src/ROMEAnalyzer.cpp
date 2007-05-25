@@ -1494,6 +1494,29 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
 }
 
 //______________________________________________________________________________
+ROMEString& ROMEAnalyzer::ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename)
+{
+   ROMEString basetmp = base;
+   ROMEString dirtmp = dir;
+   ReplaceWithRunAndEventNumber(dirtmp);
+   ReplaceWithRunAndEventNumber(basetmp);
+   gSystem->ExpandPathName(basetmp);
+   if (basetmp.BeginsWith("/") || basetmp.BeginsWith("./") || basetmp.BeginsWith("../")) {
+      // Ignore InputDir.
+      filename = basetmp;
+   } else {
+      filename = dirtmp;
+      if (filename.Length() && !filename.EndsWith("/")) {
+         filename += "/";
+      }
+      filename += basetmp;
+   }
+   filename.StripSpaces();
+   gSystem->ExpandPathName(filename);
+   return filename;
+}
+
+//______________________________________________________________________________
 void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 {
 // replace ### with PID.

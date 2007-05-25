@@ -15281,7 +15281,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
@@ -15602,10 +15601,10 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       }
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         if (inputFile)\n");
-      buffer.AppendFormatted("            ROMEUtilities::ConstructFilePath(gAnalyzer->GetInputDirString(),\n");
+      buffer.AppendFormatted("            gAnalyzer->ConstructFilePath(gAnalyzer->GetInputDirString(),\n");
       buffer.AppendFormatted("                                             base, buffer);\n");
       buffer.AppendFormatted("         else\n");
-      buffer.AppendFormatted("            ROMEUtilities::ConstructFilePath(gAnalyzer->GetOutputDirString(),\n");
+      buffer.AppendFormatted("            gAnalyzer->ConstructFilePath(gAnalyzer->GetOutputDirString(),\n");
       buffer.AppendFormatted("                                             base, buffer);\n");
       buffer.AppendFormatted("         break;\n");
    }

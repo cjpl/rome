@@ -50,8 +50,6 @@ namespace ROMEUtilities {
    const char* FastCrypt(const char *str);
    const char* FastDecrypt(const char *str);
 
-   ROMEString& ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);
-
 #if !defined(__CINT__)
    const char* GetFormat(const type_info &t);
 #endif
