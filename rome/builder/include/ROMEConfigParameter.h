@@ -81,6 +81,7 @@ private:
    ROMEString         fArrayIdentifier;
    ROMEString         fTagName;
    ROMEString         fComment;
+   ROMEString         fInfo;
    Int_t              fCommentLevel;
    Int_t              fMultiplicity;
    TObjArray*         fParameters;
@@ -96,7 +97,8 @@ public:
    ROMEConfigParameterGroup(ROMEString groupName, ROMEString arraySize = "1",
                             ROMEString groupIdentifier = "", ROMEString nameIdentifier = "",
                             ROMEString arrayIdentifier = "", ROMEString tagName = "",
-                            Int_t multiplicity = 1, Bool_t emptyline=kTRUE);
+                            Int_t multiplicity = 1, Bool_t emptyline=kTRUE,
+                            ROMEString info = "");
    ROMEConfigParameterGroup(const ROMEConfigParameterGroup &group);
    ROMEConfigParameterGroup &operator=(const ROMEConfigParameterGroup &rhs);
    virtual ~ROMEConfigParameterGroup();
@@ -108,6 +110,7 @@ public:
    ROMEString&                GetArrayIdentifier() { return fArrayIdentifier; }
    ROMEString&                GetTagName() { return fTagName; }
    ROMEString&                GetComment() { return fComment; }
+   ROMEString&                GetInfo() { return fInfo; }
    Int_t                      GetCommentLevel() { return fCommentLevel; }
    Int_t                      GetMultiplicity() { return fMultiplicity; }
    Int_t                      GetHierarchyLevel() { return fHierarchyLevel; }
