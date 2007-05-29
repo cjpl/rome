@@ -6862,7 +6862,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   Bool_t   ShowConfigurationFile();\n");
    // Config to form save
-   buffer.AppendFormatted("   Bool_t   SaveHisto(%sConfigToForm *dialog,const char* path,ROMEHisto* histo,ROMEConfigHisto* configHisto,Int_t histoDimension);\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("   Bool_t   SaveHisto(%sConfigToForm *dialog,const char* path,ROMEHisto* histo,ROMEConfigHisto* configHisto,Int_t histoDimension);\n",shortCut.Data());
    for (i = 0; i < mainParGroup->GetNumberOfSubGroups(); i++) {
       buffer.AppendFormatted("   Bool_t   Save%s(%sConfigToForm *dialog);\n",
                              mainParGroup->GetSubGroupAt(i)->GetGroupName().Data(),shortCut.Data());
