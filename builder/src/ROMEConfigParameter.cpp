@@ -97,7 +97,8 @@ void ROMEConfigParameter::AddComboBoxEntry(const char* va_(fmt),...) {
 ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName, ROMEString arraySize,
                                                    ROMEString groupIdentifier, ROMEString nameIdentifier,
                                                    ROMEString arrayIdentifier, ROMEString tagName,
-                                                   Int_t multiplicity, Bool_t emptyline)
+                                                   Int_t multiplicity, Bool_t emptyline,
+                                                   ROMEString info)
 :TObject()
 ,fGroupName(groupName)
 ,fArraySize(arraySize)
@@ -106,6 +107,7 @@ ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName, ROMEStr
 ,fArrayIdentifier("")
 ,fTagName("")
 ,fComment("")
+,fInfo(info)
 ,fCommentLevel(0)
 ,fMultiplicity(multiplicity)
 ,fParameters(new TObjArray(10))

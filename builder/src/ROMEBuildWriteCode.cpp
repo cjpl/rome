@@ -6393,6 +6393,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
 Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
 {
    int i;
+   Bool_t isY,isZ;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -6470,6 +6471,59 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
 
    WriteConfigToFormSave(buffer,mainParGroup,"","","", 0, 1,"");
    buffer.AppendFormatted("\n");
+
+   // SaveHisto
+   buffer.AppendFormatted("Bool_t %sAnalyzer::SaveHisto(%sConfigToForm *dialog,const char* path,ROMEHisto* histo,ROMEConfigHisto* configHisto,Int_t histoDimension)\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   ROMEString writeString;\n");
+   buffer.AppendFormatted("   ROMEString str;\n");
+   for (i = 0; i < histoParameters->GetEntriesFast(); i++) {
+      isY = false;
+      isZ = false;
+      if (histoParameters->At(i).Index("Ym")!=-1 ||
+         histoParameters->At(i).Index("YN")!=-1 ||
+         histoParameters->At(i).Index("ZL")!=-1)
+         isY = true;
+      if (histoParameters->At(i).Index("Zm")!=-1 ||
+         histoParameters->At(i).Index("ZN")!=-1)
+         isZ = true;
+      if (isY)
+         buffer.AppendFormatted("   if (histoDimension>1) {\n");
+      else if (isZ)
+         buffer.AppendFormatted("   if (histoDimension>2) {\n");
+      else
+         buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("      // %s;\n",histoParameters->At(i).Data());
+      buffer.AppendFormatted("      str = path;\n");
+      buffer.AppendFormatted("      str += \"Hist%s\";\n",histoParameters->At(i).Data());
+      buffer.AppendFormatted("      str = dialog->GetValue(str.Data());\n");
+      if (histoParameterTypes->At(i) == "bool") {
+         buffer.AppendFormatted("      writeString = kFalseTrueString[histo->Is%s()?1:0];\n",
+                                histoParameters->At(i).Data());
+      } else {
+         buffer.AppendFormatted("      writeString.SetFormatted(\"%s\",histo->Get%s());\n",
+                                histoParameterTypes->At(i).Data(),histoParameters->At(i).Data());
+      }
+      buffer.AppendFormatted("      if (str != writeString) {\n");
+      buffer.AppendFormatted("         configHisto->fHist%sModified = true;\n",histoParameters->At(i).Data());
+      buffer.AppendFormatted("         configHisto->fHist%s = str;\n",histoParameters->At(i).Data());
+      if (histoParameters->At(i)=="Active")
+         buffer.AppendFormatted("         histo->Set%s(str == \"true\");\n",histoParameters->At(i).Data());
+      else
+         buffer.AppendFormatted("         histo->Set%s(str);\n",histoParameters->At(i).Data());
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("   // HistAccumulate;\n");
+   buffer.AppendFormatted("   str = dialog->GetValue(path);\n");
+   buffer.AppendFormatted("   writeString = kFalseTrueString[histo->isAccumulation()?1:0];\n");
+   buffer.AppendFormatted("   if (str != writeString) {\n");
+   buffer.AppendFormatted("      configHisto->fHistAccumulateModified = true;\n");
+   buffer.AppendFormatted("      configHisto->fHistAccumulate = str;\n");
+   buffer.AppendFormatted("      histo->SetAccumulation(str != \"false\");\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -6808,6 +6862,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   Bool_t   ShowConfigurationFile();\n");
    // Config to form save
+   buffer.AppendFormatted("   Bool_t   SaveHisto(%sConfigToForm *dialog,const char* path,ROMEHisto* histo,ROMEConfigHisto* configHisto,Int_t histoDimension);\n",shortCut.Data(),shortCut.Data());
    for (i = 0; i < mainParGroup->GetNumberOfSubGroups(); i++) {
       buffer.AppendFormatted("   Bool_t   Save%s(%sConfigToForm *dialog);\n",
                              mainParGroup->GetSubGroupAt(i)->GetGroupName().Data(),shortCut.Data());
@@ -8086,6 +8141,7 @@ Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHer
 //______________________________________________________________________________
 Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    int i;
+   Bool_t isY,isZ;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString clsName;
@@ -8171,28 +8227,44 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("\n");
 
    // AddHisto
-   buffer.AppendFormatted("void %sConfigToForm::AddHisto(XMLToFormFrame *frame,ROMEHisto* histo)\n",shortCut.Data());
+   buffer.AppendFormatted("void %sConfigToForm::AddHisto(XMLToFormFrame *frame,ROMEHisto* histo,Int_t histoDimension)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   ROMEString comment;\n");
    buffer.AppendFormatted("   ROMEStrArray entries;\n");
    for (i = 0; i < histoParameters->GetEntriesFast(); i++) {
-      buffer.AppendFormatted("   // %s;\n",histoParameters->At(i).Data());
+      isY = false;
+      isZ = false;
+      if (histoParameters->At(i).Index("Ym")!=-1 ||
+         histoParameters->At(i).Index("YN")!=-1 ||
+         histoParameters->At(i).Index("ZL")!=-1)
+         isY = true;
+      if (histoParameters->At(i).Index("Zm")!=-1 ||
+         histoParameters->At(i).Index("ZN")!=-1)
+         isZ = true;
+      if (isY)
+         buffer.AppendFormatted("   if (histoDimension>1) {\n");
+      else if (isZ)
+         buffer.AppendFormatted("   if (histoDimension>2) {\n");
+      else
+         buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("      // %s;\n",histoParameters->At(i).Data());
       if (histoParameterTypes->At(i) == "bool") {
-         buffer.AppendFormatted("   writeString = kFalseTrueString[histo->Is%s()?1:0];\n",
+         buffer.AppendFormatted("      writeString = kFalseTrueString[histo->Is%s()?1:0];\n",
                                 histoParameters->At(i).Data());
       } else {
-         buffer.AppendFormatted("   writeString.SetFormatted(\"%s\",histo->Get%s());\n",
+         buffer.AppendFormatted("      writeString.SetFormatted(\"%s\",histo->Get%s());\n",
                                 histoParameterTypes->At(i).Data(),histoParameters->At(i).Data());
       }
-      buffer.AppendFormatted("   comment = \"\";\n");
-      buffer.AppendFormatted("   if (fCommentLevel >= %d)\n",ROMEConfig::kCommentLevelParam);
+      buffer.AppendFormatted("      comment = \"\";\n");
+      buffer.AppendFormatted("      if (fCommentLevel >= %d)\n",ROMEConfig::kCommentLevelParam);
       path.SetFormatted("/xs:schema/xs:complexType[@name='HistogramDesc']/xs:sequence/xs:element[@name=Hist%s]/xs:annotation/xs:documentation",
                         histoParameters->At(i).Data());
       configXSD->GetPathValue(path, str, "");
-      buffer.AppendFormatted("      comment = \"%s\";\n",str.Data());
-      buffer.AppendFormatted("   frame->AddElement(new XMLToFormElement(\"%s\",\"Hist%s\",writeString.Data(),\"\", 0, &entries,comment.Data()));\n",
+      buffer.AppendFormatted("         comment = \"%s\";\n",str.Data());
+      buffer.AppendFormatted("      frame->AddElement(new XMLToFormElement(\"%s\",\"Hist%s\",writeString.Data(),\"\", 0, &entries,comment.Data()));\n",
                              histoParameterWidgetTypes->At(i).Data(),histoParameters->At(i).Data());
+      buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("   // Accumulation;\n");
    buffer.AppendFormatted("   writeString = kFalseTrueString[histo->isAccumulation()?1:0];\n");
@@ -8243,7 +8315,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,
                                                 ROMEString tabPointer,ROMEString configPointer,int level,int tab)
 {
-   int i,j;
+   int i,j,histoDimension;
    ROMEString sTab = "";
    for (i = 0; i < tab; i++)
       sTab += "   ";
@@ -8254,7 +8326,12 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
    if (parGroup->GetGroupIdentifier() == "Histogram") {
       temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0, temp.Last('-'));
-      buffer.AppendFormatted("%sAddHisto(tempFrame[%d],%s);\n",sTab.Data(),level,temp.Data());
+      histoDimension = 3;
+      if (parGroup->GetInfo().Index("TH1") == 0)
+         histoDimension = 1;
+      if (parGroup->GetInfo().Index("TH2") == 0)
+         histoDimension = 2;
+      buffer.AppendFormatted("%sAddHisto(tempFrame[%d],%s,%d);\n",sTab.Data(),level,temp.Data(),histoDimension);
    } else if (parGroup->GetGroupIdentifier() == "Graph") {
       temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0, temp.Last('-'));
@@ -8417,46 +8494,61 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
    ROMEString newConfigPointer;
    ROMEString newIndexes;
    ROMEString temp;
-   for (i = 0; i < parGroup->GetNumberOfParameters(); i++) {
-      if (parGroup->GetParameterAt(i)->GetArraySize() == "1") {
-         buffer.AppendFormatted("%s   // %s%s\n",sTab.Data(),tabPointer.Data(),parGroup->GetParameterAt(i)->GetName());
-         if (parGroup->GetArraySize() == "unknown") {
-            buffer.AppendFormatted("%s   str.SetFormatted(\"%s %%d/%s\"%s,i);\n",sTab.Data(),pointer.Data(),
-                                   parGroup->GetParameterAt(i)->GetName(),indexes.Data());
-            buffer.AppendFormatted("%s   str = dialog->GetValue(str.Data());\n",sTab.Data());
-         } else {
-            if (indexes.Length() == 0) {
-               buffer.AppendFormatted("%s   str = dialog->GetValue(\"%s%s\");\n",sTab.Data(),pointer.Data(),
-                                      parGroup->GetParameterAt(i)->GetName());
-            } else {
-               buffer.AppendFormatted("%s   str.SetFormatted(\"%s%s\"%s);\n",sTab.Data(),pointer.Data(),
+   ROMEString temp2;
+   Int_t histoDimension; 
+   if (parGroup->GetGroupIdentifier() == "Histogram") {
+      temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
+      temp = temp(0, temp.Last('-'));
+      temp2 = "(("+shortCut+"Config*)fConfiguration)->fConfigData[0]->"+configPointer;
+      temp2 = temp2(0, temp2.Last('-'));
+      histoDimension = 3;
+      if (parGroup->GetInfo().Index("TH1") == 0)
+         histoDimension = 1;
+      if (parGroup->GetInfo().Index("TH2") == 0)
+         histoDimension = 2;
+      buffer.AppendFormatted("%s   SaveHisto(dialog,\"%s\",%s,%s,%d);\n",sTab.Data(),pointer.Data(),temp.Data(),temp2.Data(),histoDimension);
+   } else {
+      for (i = 0; i < parGroup->GetNumberOfParameters(); i++) {
+         if (parGroup->GetParameterAt(i)->GetArraySize() == "1") {
+            buffer.AppendFormatted("%s   // %s%s\n",sTab.Data(),tabPointer.Data(),parGroup->GetParameterAt(i)->GetName());
+            if (parGroup->GetArraySize() == "unknown") {
+               buffer.AppendFormatted("%s   str.SetFormatted(\"%s %%d/%s\"%s,i);\n",sTab.Data(),pointer.Data(),
                                       parGroup->GetParameterAt(i)->GetName(),indexes.Data());
                buffer.AppendFormatted("%s   str = dialog->GetValue(str.Data());\n",sTab.Data());
+            } else {
+               if (indexes.Length() == 0) {
+                  buffer.AppendFormatted("%s   str = dialog->GetValue(\"%s%s\");\n",sTab.Data(),pointer.Data(),
+                                         parGroup->GetParameterAt(i)->GetName());
+               } else {
+                  buffer.AppendFormatted("%s   str.SetFormatted(\"%s%s\"%s);\n",sTab.Data(),pointer.Data(),
+                                         parGroup->GetParameterAt(i)->GetName(),indexes.Data());
+                  buffer.AppendFormatted("%s   str = dialog->GetValue(str.Data());\n",sTab.Data());
+               }
             }
-         }
-         if (!parGroup->GetParameterAt(i)->IsWriteLinesAlways()) {
-            for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfWriteLines(); j++) {
-               buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetParameterAt(i)->GetWriteLineAt(j));
-            }
-            buffer.AppendFormatted("%s   if (str != writeString) {\n",sTab.Data());
-            buffer.AppendFormatted("%s      ((%sConfig*)fConfiguration)->fConfigData[0]->%sf%sModified = true;\n",
-                                   sTab.Data(),shortCut.Data(),configPointer.Data(),
-                                   parGroup->GetParameterAt(i)->GetName());
-            buffer.AppendFormatted("%s      ((%sConfig*)fConfiguration)->fConfigData[0]->%sf%s = str;\n",sTab.Data(),
-                                   shortCut.Data(),configPointer.Data(),parGroup->GetParameterAt(i)->GetName());
-            for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfSetLines(); j++) {
-               temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
-               temp.ReplaceAll("##","str");
-               temp.ReplaceAll("configData","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
-               buffer.AppendFormatted("%s      %s\n",sTab.Data(),temp.Data());
-            }
-            buffer.AppendFormatted("%s   }\n",sTab.Data());
-         } else {
-            for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfSetLines(); j++) {
-               temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
-               temp.ReplaceAll("##","str");
-               temp.ReplaceAll("configData","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
-               buffer.AppendFormatted("%s   %s\n",sTab.Data(),temp.Data());
+            if (!parGroup->GetParameterAt(i)->IsWriteLinesAlways()) {
+               for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfWriteLines(); j++) {
+                  buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetParameterAt(i)->GetWriteLineAt(j));
+               }
+               buffer.AppendFormatted("%s   if (str != writeString) {\n",sTab.Data());
+               buffer.AppendFormatted("%s      ((%sConfig*)fConfiguration)->fConfigData[0]->%sf%sModified = true;\n",
+                                      sTab.Data(),shortCut.Data(),configPointer.Data(),
+                                      parGroup->GetParameterAt(i)->GetName());
+               buffer.AppendFormatted("%s      ((%sConfig*)fConfiguration)->fConfigData[0]->%sf%s = str;\n",sTab.Data(),
+                                      shortCut.Data(),configPointer.Data(),parGroup->GetParameterAt(i)->GetName());
+               for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfSetLines(); j++) {
+                  temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
+                  temp.ReplaceAll("##","str");
+                  temp.ReplaceAll("configData","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
+                  buffer.AppendFormatted("%s      %s\n",sTab.Data(),temp.Data());
+               }
+               buffer.AppendFormatted("%s   }\n",sTab.Data());
+            } else {
+               for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfSetLines(); j++) {
+                  temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
+                  temp.ReplaceAll("##","str");
+                  temp.ReplaceAll("configData","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
+                  buffer.AppendFormatted("%s   %s\n",sTab.Data(),temp.Data());
+               }
             }
          }
       }
@@ -8588,7 +8680,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
    buffer.AppendFormatted("   virtual ~%sConfigToForm() {}\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   void AddConfig(XMLToFormFrame *frame);\n");
-   buffer.AppendFormatted("   void AddHisto(XMLToFormFrame *frame,ROMEHisto* histo);\n");
+   buffer.AppendFormatted("   void AddHisto(XMLToFormFrame *frame,ROMEHisto* histo,Int_t histoDimension);\n");
    buffer.AppendFormatted("   void AddGraph(XMLToFormFrame *frame,ROMEGraph* graph);\n");
    for (i = 0; i < mainParGroup->GetNumberOfSubGroups(); i++) {
       buffer.AppendFormatted("   void Add%sFrame(XMLToFormFrame *frame);\n",
@@ -10292,7 +10384,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
       parGroup->AddSubGroup(subGroup);
       for (j = 0; j < numOfHistos[taskHierarchyClassIndex[i]]; j++) {
          subSubGroup = new ROMEConfigParameterGroup(histoName[taskHierarchyClassIndex[i]][j],"1","Histogram",
-                                                    "HistName");
+                                                    "HistName","","",1,kTRUE,histoType[taskHierarchyClassIndex[i]][j]);
          subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Histogram");
          subSubGroup->AddParameter(new ROMEConfigParameter("HistActive"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
