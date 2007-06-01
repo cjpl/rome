@@ -498,7 +498,6 @@
 			<Branch>
 				<BranchName>branch</BranchName>
 				<RelatedFolder>MyFolder</RelatedFolder>
-				<SplitLevel>1</SplitLevel>
 			</Branch>
 		</Tree>
 	</Trees>

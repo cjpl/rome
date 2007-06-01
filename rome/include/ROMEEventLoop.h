@@ -165,7 +165,6 @@ protected:
    Bool_t       IsTerminal();
 
    // virtual methods
-   virtual void InitSingleFolders() = 0;
    virtual void InitArrayFolders() = 0;
    virtual void CleanUpFolders() = 0;
    virtual void ResetFolders() = 0;

@@ -123,6 +123,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
             <HistName>MyHisto</HistName>
             <!--  -->
             <HistTitle>MyFirstHisto</HistTitle>
+            <!--  -->
+            <HistAccumulate>true</HistAccumulate>
           </Histogram>
           <SteeringParameterField>
             <SPName>MeanValue</SPName>
@@ -139,6 +141,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
             <HistName>MyHisto</HistName>
             <!--  -->
             <HistTitle>MySecondHisto</HistTitle>
+            <!--  -->
+            <HistAccumulate>true</HistAccumulate>
           </Histogram>
           <SteeringParameterField>
             <SPName>MeanValue</SPName>
