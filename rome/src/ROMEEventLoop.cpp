@@ -272,15 +272,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
-            if (IsTerminal()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-               ROMEPrint::Print("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
-               ROMEPrint::Print("%I64d events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
+            ROMEPrint::Print("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
+            ROMEPrint::Print("%I64d events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
 #else
-               ROMEPrint::Print("Run %lld stopped                                             \n",gROME->GetCurrentRunNumber());
-               ROMEPrint::Print("%lld events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
+            ROMEPrint::Print("Run %lld stopped                                             \n",gROME->GetCurrentRunNumber());
+            ROMEPrint::Print("%lld events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
 #endif
-            }
          }
 
          // End of Run Tasks
