@@ -567,7 +567,6 @@ Bool_t ROMEEventLoop::DAQInit()
 #if defined( HAVE_MIDAS )
    this->InitHotLinks();
 #endif // HAVE_MIDAS
-   this->InitSingleFolders();
    gROME->FillConfigParametersFolder();
 
    // Check IO System

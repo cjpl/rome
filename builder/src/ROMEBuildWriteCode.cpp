@@ -15558,33 +15558,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    buffer.AppendFormatted("}\n\n");
 
-   // Initialize Single Folders
-   buffer.AppendFormatted("void %sEventLoop::InitSingleFolders() {\n",shortCut.Data());
-   ROMEString separator;
-   for (i = 0; i < numOfFolder; i++) {
-      separator = "";
-      if (!folderUsed[i])
-         continue;
-      if (numOfValue[i] > 0 && !folderSupport[i]) {
-         if (folderArray[i] == "1") {
-            buffer.AppendFormatted("   new(gAnalyzer->Get%s()) %s%s(",folderName[i].Data(),shortCut.Data(),
-                                   folderName[i].Data());
-            if (numOfValue[i] < 40) { // rootcint does not accept more than 40
-               for (j = 0; j < numOfValue[i]; j++) {
-                  if (isFolder(valueType[i][j].Data()))
-                     continue;
-                  if (valueDimension[i][j] == 0) {
-                     buffer.AppendFormatted("%s%s",separator.Data(),valueInit[i][j].Data());
-                     separator = ", ";
-                  }
-               }
-            }
-            buffer.AppendFormatted(" );\n");
-         }
-      }
-   }
-   buffer.AppendFormatted("}\n\n");
-
    // Initialize Array Folders
    buffer.AppendFormatted("void %sEventLoop::InitArrayFolders() {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
@@ -15952,7 +15925,6 @@ Bool_t ROMEBuilder::WriteEventLoopH()
 
    // Folders
    buffer.AppendFormatted("   // Folder Methodes\n");
-   buffer.AppendFormatted("   void InitSingleFolders();\n");
    buffer.AppendFormatted("   void InitArrayFolders();\n");
    buffer.AppendFormatted("   void ResetFolders();\n");
    buffer.AppendFormatted("   void CleanUpFolders();\n");
@@ -16854,7 +16826,7 @@ void ROMEBuilder::WriteHTMLDoku()
    }
 
    // Write UserHTML
-/*
+#if 0
    ROMEString userHtmlFile;
    userHtmlFile.SetFormatted("%s/%sUserHTML.html",outDir.Data(),shortCut.Data());
    if (gSystem->AccessPathName(userHtmlFile.Data(),kFileExists)) {
@@ -16890,7 +16862,7 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("</html>");
       WriteFile(userHtmlFile.Data(),buffer.Data(), 0);
    }
-*/
+#endif
 }
 
 //______________________________________________________________________________
