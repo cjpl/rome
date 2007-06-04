@@ -23,8 +23,23 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
-#if defined(R__MACOSX) && !defined(__xlC__) && !defined(__i386__) && !defined(__x86_64__)
+#if defined(R__MACOSX)
 #   include <fenv.h>
+#   if defined(__i386__) || defined(__x86_64__)
+#      include <string.h>
+#      define _FPU_MASK_IM  0x01
+#      define _FPU_MASK_DM  0x02
+#      define _FPU_MASK_ZM  0x04
+#      define _FPU_MASK_OM  0x08
+#      define _FPU_MASK_UM  0x10
+#      define _FPU_MASK_PM  0x20
+       typedef unsigned int fpu_control_t __attribute__ ((__mode__(__HI__)));
+#      define _FPU_GETCW(cw) __asm__ __volatile__ ("fnstcw %0" : "=m" (*&cw))
+#      define _FPU_SETCW(cw) __asm__ __volatile__ ("fldcw %0" : : "m" (*&cw))
+       extern fpu_control_t __fpu_control;
+#      define _FPU_GETMXCSR(cw_sse) asm volatile ("stmxcsr %0" : "=m" (cw_sse))
+#      define _FPU_SETMXCSR(cw_sse) asm volatile ("ldmxcsr %0" : : "m" (cw_sse))
+#   endif
 #endif
 
 //______________________________________________________________________________
@@ -169,7 +184,31 @@ Int_t ROMEUtilities::GetFPEMask()
 
    return static_cast<Int_t>(mask);
 #else
+#   if defined(R__MACOSX) && (defined(__i386__) || defined(__x86_64__))
+   Int_t mask = 0;
+   fpu_control_t mode, mode_sse;
+
+   _FPU_GETCW(mode);
+
+   if ((~mode) & _FPU_MASK_IM) mask |= kInvalid;
+   if ((~mode) & _FPU_MASK_ZM) mask |= kDivByZero;
+   if ((~mode) & _FPU_MASK_OM) mask |= kOverflow;
+   if ((~mode) & _FPU_MASK_UM) mask |= kUnderflow;
+   if ((~mode) & _FPU_MASK_PM) mask |= kInexact;
+   // if ((~mode) & _FPU_MASK_DM) // Denormal
+
+   _FPU_GETMXCSR(mode_sse);
+   if ((~mode_sse) & (_FPU_MASK_IM << 7)) mask |= kInvalid;
+   if ((~mode_sse) & (_FPU_MASK_ZM << 7)) mask |= kDivByZero;
+   if ((~mode_sse) & (_FPU_MASK_OM << 7)) mask |= kOverflow;
+   if ((~mode_sse) & (_FPU_MASK_UM << 7)) mask |= kUnderflow;
+   if ((~mode_sse) & (_FPU_MASK_PM << 7)) mask |= kInexact;
+   // if ((~mode_sse) & (_FPU_MASK_DM) << 7)) // Denormal
+
+   return mask;
+#   else
  return gSystem->GetFPEMask();
+#   endif
 #endif
 }
 
@@ -195,10 +234,42 @@ Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    _control87(cm, MCW_EM);
    return old;
 #else // UNIX
-#   if defined(R__MACOSX) && !defined(__xlC__) && !defined(__i386__) && !defined(__x86_64__)
+#   if defined(R__MACOSX)
    feclearexcept(FE_ALL_EXCEPT);
-#   endif
+#      if defined(__i386__) || defined(__x86_64__)
+   fpu_control_t mode, mode_sse;
+   Int_t old = GetFPEMask();
+
+   _FPU_GETCW(mode);
+   mode |= _FPU_MASK_IM | _FPU_MASK_DM | _FPU_MASK_ZM | _FPU_MASK_OM | _FPU_MASK_UM | _FPU_MASK_PM;
+
+   if (mask & kInvalid  ) mode &= ~_FPU_MASK_IM;
+   if (mask & kDivByZero) mode &= ~_FPU_MASK_ZM;
+   if (mask & kOverflow ) mode &= ~_FPU_MASK_OM;
+   if (mask & kUnderflow) mode &= ~_FPU_MASK_UM;
+   if (mask & kInexact  ) mode &= ~_FPU_MASK_PM;
+   // mode &= ~_FPU_MASK_DM; // Denormal
+   _FPU_SETCW(mode);
+
+   _FPU_GETMXCSR(mode_sse);
+   mode_sse &= 0xFFFF0000;
+   mode_sse |= (_FPU_MASK_IM | _FPU_MASK_DM | _FPU_MASK_ZM | _FPU_MASK_OM | _FPU_MASK_UM | _FPU_MASK_PM) << 7;
+
+   if (mask & kInvalid  ) mode_sse &= ~(_FPU_MASK_IM << 7);
+   if (mask & kDivByZero) mode_sse &= ~(_FPU_MASK_ZM << 7);
+   if (mask & kOverflow ) mode_sse &= ~(_FPU_MASK_OM << 7);
+   if (mask & kUnderflow) mode_sse &= ~(_FPU_MASK_UM << 7);
+   if (mask & kInexact  ) mode_sse &= ~(_FPU_MASK_PM << 7);
+   // mode_sse &= ~(_FPU_MASK_DM << 7); // Denormal
+   _FPU_SETMXCSR(mode_sse);
+
+   return old;
+#      else
    return gSystem->SetFPEMask(mask);
+#      endif
+#   else
+   return gSystem->SetFPEMask(mask);
+#   endif
 #endif
 }
 

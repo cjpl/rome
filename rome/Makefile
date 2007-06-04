@@ -64,7 +64,7 @@ ROOT_MINOR_MIN = 02
 ROOT_PATCH_MIN = 00
 
 # Local ROOT version
-ROOT_VERSION := $(shell root-config --version)
+ROOT_VERSION := $(shell $(ROOTSYS)/bin/root-config --version)
 ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
 ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
 ROOT_PATCH := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f2)
