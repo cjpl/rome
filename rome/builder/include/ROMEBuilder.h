@@ -736,6 +736,7 @@ private:
    void    RemoveDepFiles(const char* str = 0);
    void    RelativeWindowsPath(ROMEString &path,const char *referencePath);
    ROMEString& GetSteerPath(ROMEString& steerPath,int iTask,int iSteer,int iField,const char* seperator);
+   Bool_t  FolderToBeGenerated(Int_t iFold) { return numOfValue[iFold] > 0 || folderInheritName[iFold].Length(); }
 
    // Visual Project Methods
    void    WriteVisualProjects(Int_t version);
