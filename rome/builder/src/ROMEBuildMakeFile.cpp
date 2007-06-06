@@ -1627,7 +1627,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
                           shortCut.Data());
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then $(RM) dict/%sUserDict.h; fi;\n",shortCut.Data(),
                           shortCut.Data());
-   buffer.AppendFormatted("\t$(call %sechoing, \"creating dict/%sUserDict.h dict/%sUserDict.cpp\")\n",
+   buffer.AppendFormatted("\t$(call %sechoing, \"creating  dict/%sUserDict.h dict/%sUserDict.cpp\")\n",
                           shortCut.ToLower(tmp),shortCut.Data(),shortCut.Data());
 #endif
    ROMEString arguments;
