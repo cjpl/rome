@@ -107,7 +107,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       // Constructor
       ROMEString separator = "";
       buffer.AppendFormatted("%s::%s(",clsName.Data(),clsName.Data());
-      if (numOfValue[iFold] < 40) { // rootcint does not accept more than 40
+      if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
          for (i = 0; i < numOfValue[iFold]; i++) {
             if (valueDimension[iFold][i] == 0) {
                if (isFolder(valueType[iFold][i].Data())) {
@@ -167,7 +167,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          } else {
             if (valueDimension[iFold][i] == 0) {
-               if (numOfValue[iFold] < 40) { // rootcint does not accept more than 40
+               if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
                   buffer.AppendFormatted(",%s(%s_value)\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
                } else {
                   buffer.AppendFormatted(",%s(%s)\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
@@ -760,14 +760,14 @@ Bool_t ROMEBuilder::WriteFolderCpp()
 
       // Set All
       if (folderInheritName[iFold].Length() == 0) { // only base class can have SetAll
-         if (numOfValue[iFold] < 40) { // rootcint does not accept more than 40
+         if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
             buffer.AppendFormatted("void %s::SetAll( ",clsName.Data());
             for (i = 0; i < numOfValue[iFold]; i++) {
                if (isFolder(valueType[iFold][i].Data()))
                   continue;
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
-               continue;
+                  continue;
                if (valueDimension[iFold][i] == 0) {
                   if (valueType[iFold][i] == "TRef") {
                      buffer.AppendFormatted("TObject* %s_value,",valueName[iFold][i].Data());
@@ -1235,7 +1235,7 @@ Bool_t ROMEBuilder::WriteFolderH()
       } else {
          buffer.AppendFormatted("   %s%s(",shortCut.Data(),folderName[iFold].Data());
       }
-      if (numOfValue[iFold] < 40) { // rootcint does not accept more than 40
+      if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
          for (i = 0; i < numOfValue[iFold]; i++) {
             if (valueDimension[iFold][i] == 0) {
                if (isFolder(valueType[iFold][i].Data()))
@@ -1535,7 +1535,7 @@ Bool_t ROMEBuilder::WriteFolderH()
 
       // Set All
       if (folderInheritName[iFold].Length() == 0) { // only base class can have SetAll
-         if (numOfValue[iFold] < 40) { // rootcint does not accept more than 40
+         if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
             buffer.AppendFormatted("   void SetAll( ");
             for (i = 0; i < numOfValue[iFold]; i++) {
                if (isFolder(valueType[iFold][i].Data()))

@@ -46,6 +46,7 @@ const Int_t maxNumberOfMFWinLibFlags = 10;
 const Int_t maxNumberOfMFUnixLibFlags = 10;
 const Int_t maxNumberOfMFSourceFlags = 10;
 const Int_t maxNumberOfAffiliations = 20;
+const Int_t maxNumberOfArguments = 40;
 
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
