@@ -429,7 +429,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
-      if (numOfValue[i] > 0) {
+      if (FolderToBeGenerated(i)) {
          if (folderUserCode[i]) {
             generatedHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
          } else {
@@ -511,7 +511,7 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders()
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
-      if (numOfValue[i] > 0 && !folderSupport[i]) {
+      if (FolderToBeGenerated(i) && !folderSupport[i]) {
          if (folderUserCode[i]) {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),
                                                      folderName[i].Data());
@@ -533,7 +533,7 @@ void ROMEBuilder::AddGeneratedSupportFolderDictHeaders()
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
-      if (numOfValue[i] > 0 && folderSupport[i]) {
+      if (FolderToBeGenerated(i) && folderSupport[i]) {
          if (folderUserCode[i]) {
             generatedSupportFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),
                                                             folderName[i].Data());
@@ -637,7 +637,7 @@ void ROMEBuilder::AddFolderHeaders()
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
-      if (numOfValue[i] > 0) {
+      if (FolderToBeGenerated(i)) {
          if (folderUserCode[i]) {
             folderHeaders->AddFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[i].Data());
             folderLinkDefSuffix->Add("+");
@@ -654,7 +654,7 @@ void ROMEBuilder::AddFolderSources()
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
-      if (numOfValue[i] > 0) {
+      if (FolderToBeGenerated(i)) {
          if (folderUserCode[i]) {
             folderSources->AddFormatted("src/generated/%s%s_Base.cpp",shortCut.Data(),folderName[i].Data());
             folderSources->AddFormatted("src/folders/%s%s.cpp",shortCut.Data(),folderName[i].Data());
