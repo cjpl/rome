@@ -1987,7 +1987,7 @@ Bool_t ROMEBuilder::isFolder(const char *type)
       if (str == type)
          n = j;
    }
-   return n >= 0  && folderUsed[n] && numOfValue[n] > 0;
+   return n >= 0  && folderUsed[n] && FolderToBeGenerated(n);
 }
 
 //______________________________________________________________________________
