@@ -189,9 +189,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
 ,fMidasOnlineDataBase(0)
 {
 // Initialisations
-#if defined( R__UNIX )
-   fQuitMode = fQuitMode || !isatty(fileno(stdout));
-#endif
+   fQuitMode = fQuitMode || !STDOutIsTerminal();
    fRunNumber.Reset();
    fEventNumber.Reset();
 //   fInputFileNames.Reset();
@@ -662,9 +660,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    }
    fNoGraphics = fBatchMode || fDaemonMode || fNoGraphics;
    fQuitMode = fBatchMode || fDaemonMode || fQuitMode;
-#if defined( R__UNIX )
-   fQuitMode = fQuitMode || !isatty(fileno(stdout));
-#endif
+   fQuitMode = fQuitMode || !STDOutIsTerminal();
    fSplashScreen =  fSplashScreen && !fNoGraphics;
 
    return true;
@@ -856,7 +852,7 @@ Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 #if defined( R__UNIX )
 
    // do nothing when STDIN is redirected
-   if(!isatty(fileno(stdout)))
+   if(!STDOutIsTerminal())
       return 0;
 
    static unsigned long int init = 0;
@@ -1704,4 +1700,24 @@ Bool_t ROMEAnalyzer::IsProgramTerminated()
    } else {
       return fProgramTerminated;
    }
+}
+
+//______________________________________________________________________________
+Bool_t ROMEAnalyzer::STDOutIsTerminal()
+{
+#if defined( R__UNIX )
+   return isatty(fileno(stdout));
+#else
+   return kTRUE;
+#endif
+}
+
+//______________________________________________________________________________
+Bool_t ROMEAnalyzer::STDErrIsTerminal()
+{
+#if defined( R__UNIX )
+   return isatty(fileno(stderr));
+#else
+   return kTRUE;
+#endif
 }
