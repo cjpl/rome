@@ -632,6 +632,8 @@ public:
    static void     redirectOutput(Bool_t redirect = kTRUE);
    static void     restoreOutput() { redirectOutput(kFALSE); }
    static void     Cleaning();
+   static Bool_t   STDOutIsTerminal();
+   static Bool_t   STDErrIsTerminal();
 
    void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
    virtual Bool_t  CheckDependences() { return kTRUE; }
