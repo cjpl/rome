@@ -66,20 +66,24 @@ Int_t ROMEStr2DArray::GetEntriesFast()
 //______________________________________________________________________________
 Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx)
 {
-   if (idx<0||idx>=array->GetEntriesFast())
+   if (idx<0||idx>=array->GetEntriesFast()) {
       return 0;
-   if (array->At(idx)==NULL)
+   }
+   if (array->At(idx)==NULL) {
       return 0;
+   }
    return ((TObjArray*)array->At(idx))->GetEntries();
 }
 
 //______________________________________________________________________________
 Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx)
 {
-   if (idx<0||idx>=array->GetEntriesFast())
+   if (idx<0||idx>=array->GetEntriesFast()) {
       return 0;
-   if (array->At(idx)==NULL)
+   }
+   if (array->At(idx)==NULL) {
       return 0;
+   }
    return ((TObjArray*)array->At(idx))->GetEntriesFast();
 }
 
@@ -132,15 +136,19 @@ void ROMEStr2DArray::SetAt(ROMEStrArray *str, Int_t idx, Int_t idy)
 //______________________________________________________________________________
 void ROMEStr2DArray::RemoveAt(Int_t idx, Int_t idy)
 {
-   if (idx<0||idx>=array->GetEntriesFast())
+   if (idx<0||idx>=array->GetEntriesFast()) {
       return;
-   if (array->At(idx)==NULL)
+   }
+   if (array->At(idx)==NULL) {
       return;
+   }
    TObjArray *subArray = (TObjArray*)array->At(idx);
-   if (idy>=subArray->GetEntriesFast()||idy<0)
+   if (idy>=subArray->GetEntriesFast()||idy<0) {
       return;
-   if (subArray->At(idy)==NULL)
+   }
+   if (subArray->At(idy)==NULL) {
       return;
+   }
    delete subArray->At(idy);
    subArray->RemoveAt(idy);
 }
@@ -148,10 +156,12 @@ void ROMEStr2DArray::RemoveAt(Int_t idx, Int_t idy)
 //______________________________________________________________________________
 void ROMEStr2DArray::RemoveAllAt(Int_t idx)
 {
-   if (idx<0||idx>=array->GetEntriesFast())
+   if (idx<0||idx>=array->GetEntriesFast()) {
       return;
-   if (array->At(idx)==NULL)
+   }
+   if (array->At(idx)==NULL) {
       return;
+   }
    TObjArray *subArray = (TObjArray*)array->At(idx);
    const Int_t nStr = subArray->GetEntriesFast();
    for (int i=0;i<nStr;i++) {
@@ -169,8 +179,9 @@ void ROMEStr2DArray::RemoveAll()
    Int_t nStr;
    for (int i=0;i<nArray;i++) {
       TObjArray *subArray = (TObjArray*)array->At(i);
-      if (subArray==NULL)
+      if (subArray==NULL) {
          continue;
+      }
       nStr = subArray->GetEntriesFast();
       for (int j=0;j<nStr;j++) {
          delete subArray->At(j);
@@ -184,14 +195,18 @@ void ROMEStr2DArray::RemoveAll()
 //______________________________________________________________________________
 TString ROMEStr2DArray::At(Int_t idx, Int_t idy)
 {
-   if (idx<0||idx>=array->GetEntriesFast())
+   if (idx<0||idx>=array->GetEntriesFast()) {
       return "";
-   if (array->At(idx)==NULL)
+   }
+   if (array->At(idx)==NULL) {
       return "";
+   }
    TObjArray *subArray = (TObjArray*)array->At(idx);
-   if (idy<0||idy>=subArray->GetEntriesFast())
+   if (idy<0||idy>=subArray->GetEntriesFast()) {
       return "";
-   if (subArray->At(idy)==NULL)
+   }
+   if (subArray->At(idy)==NULL) {
       return "";
+   }
    return ((TObjString*)subArray->At(idy))->GetString();
 }
