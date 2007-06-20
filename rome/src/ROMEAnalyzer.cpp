@@ -387,18 +387,19 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             break;
          }
          Int_t verboseLevel = strtol(argv[i+1], &cstop, 10);
-         if (!strcmp(argv[i+1],"mute") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kMute))
+         if (!strcmp(argv[i+1],"mute") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kMute)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
-         else if (!strcmp(argv[i+1],"error") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kError))
+         } else if (!strcmp(argv[i+1],"error") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kError)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kError);
-         else if (!strcmp(argv[i+1],"warning") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kWarning))
+         } else if (!strcmp(argv[i+1],"warning") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kWarning)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);
-         else if (!strcmp(argv[i+1],"normal") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kNormal))
+         } else if (!strcmp(argv[i+1],"normal") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kNormal)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
-         else if (!strcmp(argv[i+1],"verbose") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kVerbose))
+         } else if (!strcmp(argv[i+1],"verbose") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kVerbose)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);
-         else if (!strcmp(argv[i+1],"debug") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kDebug))
+         } else if (!strcmp(argv[i+1],"debug") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kDebug)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
+         }
          i++;
       }
    }
@@ -554,11 +555,11 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       return false;
    }
+   ROMEPrint::Print("Using configuration file %s\n", configFile.Data());
    if (!this->GetConfiguration()->ReadConfigurationFile(configFile.Data())) {
       ROMEPrint::Print("\nTerminate program.\n");
       return false;
    }
-   ROMEPrint::Print("Using configuration file %s\n", configFile.Data());
    if (isGraphicalConfigEdit() && !isNoGraphics() && !noGraphicalConfigEdit) {
       if (!this->ShowConfigurationFile()) {
          ROMEPrint::Print("\nTerminate program.\n");
