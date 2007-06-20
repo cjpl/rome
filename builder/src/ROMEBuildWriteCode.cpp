@@ -17490,6 +17490,8 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
 {
    if (folderSupport[numFolder])
       return false;
+   if (!FolderToBeGenerated(numFolder))
+      return false;
 
    ROMEString str;
 
