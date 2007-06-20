@@ -6,6 +6,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class ROMEString+;
+#pragma link C++ class ROMEStrArray+;
 #pragma link C++ class ROMEXML;
-#pragma link C++ class ROMEPrint;
 #endif

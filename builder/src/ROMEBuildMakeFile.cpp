@@ -206,8 +206,6 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
       romeLinkDefSuffix->Add("+");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEPrint.h");
-      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
       romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");

@@ -319,6 +319,8 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    fMainTask->ExecuteTask("start");
 
+   ROMEPrint::ReportSummary();
+
    ss_getchar(1);
 
    if (fTerminate) {
@@ -386,11 +388,13 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (!strcmp(argv[i+1],"mute"))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
          else if (!strcmp(argv[i+1],"error"))
-            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorOnly);
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kError);
          else if (!strcmp(argv[i+1],"warning"))
-            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorAndWarning);
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);
          else if (!strcmp(argv[i+1],"normal"))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
+         else if (!strcmp(argv[i+1],"verbose"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);
          else if (!strcmp(argv[i+1],"debug"))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          i++;
@@ -579,11 +583,13 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (!strcmp(argv[i+1],"mute")) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
          } else if (!strcmp(argv[i+1],"error")) {
-            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorOnly);
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kError);
          } else if (!strcmp(argv[i+1],"warning")) {
-            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorAndWarning);
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);
          } else if (!strcmp(argv[i+1],"normal")) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
+         } else if (!strcmp(argv[i+1],"verbose")) {
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);
          } else if (!strcmp(argv[i+1],"debug")) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          }

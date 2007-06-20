@@ -8,7 +8,6 @@
 #pragma link C++ class ROMEString+;
 #pragma link C++ class ROMEStrArray+;
 #pragma link C++ class ROMEStr2DArray+;
-#pragma link C++ class ROMEPrint;
 #pragma link C++ class ROMEXML;
 #pragma link C++ class ROMETask;
 #pragma link C++ class ROMETreeInfo+;

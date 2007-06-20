@@ -9724,21 +9724,25 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->AddSetLine("if (## == \"mute\")");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);");
          subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"error\")");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorOnly);");
+         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kError);");
          subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"warning\")");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorAndWarning);");
+         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);");
          subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"normal\")");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);");
+         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"verbose\")");
+         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);");
          subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"debug\")");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);");
          subsubGroup->GetLastParameter()->AddWriteLine("if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kMute)");
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"mute\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kErrorOnly)");
+         subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kError)");
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"error\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kErrorAndWarning)");
+         subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kWarning)");
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"warning\";");
          subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kNormal)");
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
+         subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kVerbose)");
+         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"verbose\";");
          subsubGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kDebug)");
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"debug\";");
          subsubGroup->GetLastParameter()->AddWriteLine("else");
@@ -9748,6 +9752,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->AddComboBoxEntry("warning");
          subsubGroup->GetLastParameter()->AddComboBoxEntry("normal");
          subsubGroup->GetLastParameter()->AddComboBoxEntry("verbose");
+         subsubGroup->GetLastParameter()->AddComboBoxEntry("debug");
+         // ReportMaxCount
+         subsubGroup->AddParameter(new ROMEConfigParameter("ReportMaxCount"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("ROMEPrint::SetReportMaxCount(strtol(##,&cstop, 10));");
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", ROMEPrint::GetReportMaxCount());");
          // ConfigCommentLevel
          subsubGroup->AddParameter(new ROMEConfigParameter("ConfigCommentLevel","1","ComboBox"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
