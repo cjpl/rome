@@ -121,7 +121,12 @@
 		<xs:sequence>
 			<xs:element name="VerboseLevel" type="xs:string" default="false" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal.</xs:documentation>
+					<xs:documentation>Specify amount of messages from framework. mute, error, warning, normal, verbose or debug. default is normal.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ReportMaxCount" type="xs:integer" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specify max number of prints of an identical error or warning by ROMEPrint::Report. No limit when this is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ConfigCommentLevel" type="xs:string" default="false" minOccurs="0">

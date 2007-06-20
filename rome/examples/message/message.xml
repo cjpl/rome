@@ -1,0 +1,11 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>MSG</ExperimentShortCut>
+		<ProgramName>Analyzer</ProgramName>
+	</Experiment>
+	<Tasks>
+		<Task>
+			<TaskName>PrintMessage</TaskName>
+		</Task>
+	</Tasks>
+</ROMEFrameworkDefinition>

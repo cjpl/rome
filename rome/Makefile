@@ -153,23 +153,23 @@ BldObjects := obj/ROMEBuilder.o \
               obj/ROMEBuildReadXML.o \
               obj/ROMEBuildWriteCode.o \
               obj/ROMEBuildMakeFile.o \
-              obj/ROMEStr2DArray.o \
-              obj/ROMEStrArray.o \
-              obj/ROMEPrint.o \
               obj/ROMEString.o \
+              obj/ROMEStrArray.o \
+              obj/ROMEStr2DArray.o \
               obj/ROMEXML.o \
+              obj/ROMEPrint.o \
               obj/ROMEBuilderDict.o \
               obj/ROMEConfigParameter.o \
               obj/mxml.o \
               obj/strlcpy.o
 
 BldDictHeaders := include/ROMEString.h \
-                  include/ROMEPrint.h \
                   include/ROMEStrArray.h \
                   include/ROMEStr2DArray.h \
                   include/ROMEXML.h
 
 UpHObjects := obj/ROMEString.o \
+              obj/ROMEStrArray.o \
               obj/ROMEXML.o \
               obj/ROMEPrint.o \
               obj/mxml.o \
@@ -177,8 +177,8 @@ UpHObjects := obj/ROMEString.o \
               obj/UpdateVersionHDict.o
 
 UpHDictHeaders := include/ROMEString.h \
+                  include/ROMEStrArray.h \
                   include/ROMEXML.h \
-                  include/ROMEPrint.h
 
 LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEStrArray.o \
@@ -228,7 +228,6 @@ endif
 LibDictHeaders := include/ROMEString.h \
                   include/ROMEStrArray.h \
                   include/ROMEStr2DArray.h \
-                  include/ROMEPrint.h \
                   include/ROMEXML.h \
                   include/ROMETask.h \
                   include/ROMETreeInfo.h \
