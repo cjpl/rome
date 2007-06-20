@@ -357,6 +357,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    // Reads the Inputlineparameters
    int i;
    bool noGraphicalConfigEdit = false;
+   char *cstop = 0;
 
    ROMEString configFile("");
 
@@ -385,17 +386,18 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (i+1 >= argc) {
             break;
          }
-         if (!strcmp(argv[i+1],"mute"))
+         Int_t verboseLevel = strtol(argv[i+1], &cstop, 10);
+         if (!strcmp(argv[i+1],"mute") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kMute))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
-         else if (!strcmp(argv[i+1],"error"))
+         else if (!strcmp(argv[i+1],"error") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kError))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kError);
-         else if (!strcmp(argv[i+1],"warning"))
+         else if (!strcmp(argv[i+1],"warning") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kWarning))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);
-         else if (!strcmp(argv[i+1],"normal"))
+         else if (!strcmp(argv[i+1],"normal") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kNormal))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
-         else if (!strcmp(argv[i+1],"verbose"))
+         else if (!strcmp(argv[i+1],"verbose") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kVerbose))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);
-         else if (!strcmp(argv[i+1],"debug"))
+         else if (!strcmp(argv[i+1],"debug") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kDebug))
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          i++;
       }
@@ -466,7 +468,6 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    char answer = 0;
    bool overwrite = true;
-   char* cstop;
    if ( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
       if (isBatchMode() || isDaemonMode()) {
          if (configFile.Length()) {
@@ -580,17 +581,18 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (i+1 >= argc) {
             break;
          }
-         if (!strcmp(argv[i+1],"mute")) {
+         Int_t verboseLevel = strtol(argv[i+1], &cstop, 10);
+         if (!strcmp(argv[i+1],"mute") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kMute)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
-         } else if (!strcmp(argv[i+1],"error")) {
+         } else if (!strcmp(argv[i+1],"error") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kError)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kError);
-         } else if (!strcmp(argv[i+1],"warning")) {
+         } else if (!strcmp(argv[i+1],"warning") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kWarning)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);
-         } else if (!strcmp(argv[i+1],"normal")) {
+         } else if (!strcmp(argv[i+1],"normal") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kNormal)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
-         } else if (!strcmp(argv[i+1],"verbose")) {
+         } else if (!strcmp(argv[i+1],"verbose") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kVerbose)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);
-         } else if (!strcmp(argv[i+1],"debug")) {
+         } else if (!strcmp(argv[i+1],"debug") || ((!cstop || !strlen(cstop)) && verboseLevel == ROMEPrint::kDebug)) {
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          }
          i++;

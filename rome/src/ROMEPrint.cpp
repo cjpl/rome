@@ -171,7 +171,7 @@ void ROMEPrint::Error(const char* va_(fmt),...)
 
 //______________________________________________________________________________
 void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const char *funcName, Int_t lineNumber,
-                       const Long64_t run, const Long64_t event, const char* va_(fmt),...)
+                       const Long64_t run, const Long64_t event, const Bool_t printHeader, const char* va_(fmt),...)
 {
    // Messaging system of ROME. This function is called from user code.
    // ROME framework or generated code does not call this.
@@ -194,6 +194,30 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
    }
 
    if (va_(fmt) == 0) {
+      return;
+   }
+
+   if (!printHeader) {
+      // Just print and return
+      va_list ap;
+      va_start(ap,va_(fmt));
+      ROMEString report = ROMEString::Format(va_(fmt), ap);
+      if (!report.EndsWith("\n")) {
+         report += '\n';
+      }
+      if (verboseLevel <= kWarning) {
+         cerr<<report<<flush;
+      } else {
+         cout<<report<<flush;
+      }
+#if defined( HAVE_MIDAS )
+      if (verboseLevel <= kWarning) {
+         cm_msg(MERROR, "ROMEPrint::Report", report.Data());
+      } else {
+         cm_msg(MINFO, "ROMEPrint::Report", report.Data());
+      }
+#endif
+      va_end(ap);
       return;
    }
 
@@ -284,19 +308,17 @@ void ROMEPrint::ReportSummary()
    for (i = 1; i <= n; i++) {
       PrintSummary(kWarning, i);
    }
-   if (gVerboseLevel >= kVerbose) {
-      // info
-      for (i = 1; i <= n; i++) {
-         PrintSummary(kNormal, i);
-      }
-      // verbose
-      for (i = 1; i <= n; i++) {
-         PrintSummary(kVerbose, i);
-      }
-      // debug
-      for (i = 1; i <= n; i++) {
-         PrintSummary(kDebug, i);
-      }
+   // info
+   for (i = 1; i <= n; i++) {
+      PrintSummary(kNormal, i);
+   }
+   // verbose
+   for (i = 1; i <= n; i++) {
+      PrintSummary(kVerbose, i);
+   }
+   // debug
+   for (i = 1; i <= n; i++) {
+      PrintSummary(kDebug, i);
    }
    cout<<endl<<"******************************************************************************"<<endl;
 }

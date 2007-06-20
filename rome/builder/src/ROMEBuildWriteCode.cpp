@@ -8575,6 +8575,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   char *cstop;\n");
          buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   int inttmp;\n");
+         buffer.AppendFormatted("   inttmp = 0;\n"); // to suppress unused warning
          tab = 0;
          sTab = "";
       }
@@ -9227,6 +9229,8 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   char* cstop;\n");
    buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   Int_t inttmp;\n");
+   buffer.AppendFormatted("   inttmp = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString path = \"\";\n");
    buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
    buffer.AppendFormatted("   int ind;\n");
@@ -9721,17 +9725,18 @@ Bool_t ROMEBuilder::AddConfigParameters()
          // VerboseLevel
          subsubGroup->AddParameter(new ROMEConfigParameter("VerboseLevel","1","ComboBox"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("if (## == \"mute\")");
+         subsubGroup->GetLastParameter()->AddSetLine("inttmp = strtol(##,&cstop, 10);");
+         subsubGroup->GetLastParameter()->AddSetLine("if (## == \"mute\" || ((!cstop || !strlen(cstop) && inttmp == ROMEPrint::kMute))");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"error\")");
+         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"error\" || ((!cstop || !strlen(cstop) && inttmp == ROMEPrint::kError))");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kError);");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"warning\")");
+         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"warning\" || ((!cstop || !strlen(cstop) && inttmp == ROMEPrint::kWarning))");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"normal\")");
+         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"normal\" || ((!cstop || !strlen(cstop) && inttmp == ROMEPrint::kNormal))");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"verbose\")");
+         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"verbose\" || ((!cstop || !strlen(cstop) && inttmp == ROMEPrint::kVerbose))");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"debug\")");
+         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"debug\" || ((!cstop || !strlen(cstop) && inttmp == ROMEPrint::kDebug))");
          subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);");
          subsubGroup->GetLastParameter()->AddWriteLine("if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kMute)");
          subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"mute\";");

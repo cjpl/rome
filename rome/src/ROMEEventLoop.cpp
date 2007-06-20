@@ -346,7 +346,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
       if (!gROME->isQuitMode()) {
          gROME->GetApplication()->Run(true);
-         ROMEPrint::Print("\n");
+         ROMEPrint::PrintAlways("\n");
       }
    }
 
@@ -1151,6 +1151,7 @@ Bool_t ROMEEventLoop::UserInput()
          prompt += " [%d] ";
          gROME->GetApplication()->SetPrompt(prompt.Data());
          gROME->GetApplication()->Run(true);
+         ROMEPrint::PrintAlways("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
          gSystem->Init();
 #endif
