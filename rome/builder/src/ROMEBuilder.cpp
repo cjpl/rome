@@ -1293,6 +1293,19 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
          affiliations.AddAtAndExpand("dchcabling",1);
+      } else if (!strcmp(argv[i],"-dchtic")) {
+         makeOutput = false;
+         midas = true;
+         noLink = true;
+         minRebuild = true;
+         sql = false;
+         mysql = true;
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("dch",0);
+         affiliations.AddAtAndExpand("dchtic",1);
+         affiliations.AddAtAndExpand("ticp",2);
+         affiliations.AddAtAndExpand("ticz",3);
       } else if (!strcmp(argv[i],"-dchhv")) {
          makeOutput = false;
          midas = true;
