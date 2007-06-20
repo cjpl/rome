@@ -66,6 +66,7 @@ void MSGTPrintMessage::BeginOfRun()
 void MSGTPrintMessage::Event()
 {
    Report(R_INFO, "This is an info");
+   Report(R_PLAIN, "This is a plain message");
    Report(R_VERBOSE, "This is shown when verbose level is more than 'verbose'");
    Report(R_WARNING, "This is a warning at event-%d", static_cast<Int_t>(gAnalyzer->GetCurrentEventNumber()));
    Report(R_ERROR, "This is an error at event-%d", static_cast<Int_t>(gAnalyzer->GetCurrentEventNumber()));

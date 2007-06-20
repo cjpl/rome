@@ -37,7 +37,7 @@ namespace ROMEPrint
    void  Error(const char *msgfmt, ...)       G_GNUC_PRINTF(1, 2);
 
    void  Report(const Int_t verboseLevel, const char* fileName, const char *funcName, Int_t lineNumber,
-                const Long64_t run, const Long64_t event, const char* va_(fmt),...) G_GNUC_PRINTF(7, 8);
+                const Long64_t run, const Long64_t event, const Bool_t printHeader, const char* va_(fmt),...) G_GNUC_PRINTF(8, 9);
    void  ReportSummary();
 
    inline Int_t GetVerboseLevel() { return gVerboseLevel; }
@@ -47,18 +47,29 @@ namespace ROMEPrint
    inline void  SetReportMaxCount(Int_t max = 20) { gReportMaxCount = max; }
 };
 
+// Report styles
+//  R_ERROR   : Printed when gVerboseLevel >= kError
+//  R_WARNING : Printed when gVerboseLevel >= kWarning
+//  R_PLAIN   : Printed when gVerboseLevel >= kNormal, without line header (run number, event number, filename and line number)
+//  R_INFO    : Printed when gVerboseLevel >= kNormal
+//  R_VERBOSE : Printed when gVerboseLevel >= kVerbose
+//  R_DEBUG   : Printed when gVerboseLevel >= kDebug
+
 #if defined(R__UNIX)
-#define R_ERROR   kError,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_WARNING kWarning, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_INFO    kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_VERBOSE kVerbose, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_DEBUG   kDebug,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
+#define R_ERROR   kError,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_WARNING kWarning, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_PLAIN   kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kFALSE
+#define R_INFO    kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_VERBOSE kVerbose, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_DEBUG   kDebug,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
 #else
-#define R_ERROR   kError,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_WARNING kWarning, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_INFO    kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_VERBOSE kVerbose, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
-#define R_DEBUG   kDebug,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber()
+#define R_ERROR   kError,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_WARNING kWarning, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_PLAIN   kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kFALSE
+#define R_INFO    kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_VERBOSE kVerbose, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_DEBUG   kDebug,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+
 #endif
 
 using namespace ROMEPrint;
