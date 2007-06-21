@@ -52,8 +52,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <!-- Describes the framework specifications, which are common for analyzer and monitors. -->
       <Settings>
         <!-- Description of the common settings of the framework. -->
-        <!-- Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal. -->
+        <!-- Specify amount of messages from framework. mute, error, warning, normal, verbose or debug. default is normal. -->
         <VerboseLevel>normal</VerboseLevel>
+        <!-- Specify max number of prints of an identical error or warning by ROMEPrint::Report. No limit when this is 0. -->
+        <ReportMaxCount>20</ReportMaxCount>
         <!-- Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1. -->
         <ConfigCommentLevel>5</ConfigCommentLevel>
         <!-- If true, the program doesn't start a root session at the end. Default is false. -->
