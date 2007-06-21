@@ -56,6 +56,11 @@ extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
 const Int_t kMaxSocketClients = 100;
 
+const Int_t kEventNumberInit       = -1;
+const Int_t kEventNumberBeginOfRun = -2;
+const Int_t kEventNumberEndOfRun   = -3;
+const Int_t kEventNumberTerminate  = -4;
+
 class ROMEAnalyzer : public TObject
 {
 friend class ArgusWindow;
@@ -113,7 +118,7 @@ protected:
    Bool_t         fDaemonMode;                   //! Daemon mode flag
    Bool_t         fQuitMode;                     //! Quit mode flag
    Bool_t         fGraphicalConfigEdit;          //! Configuration edit flag
-   Bool_t         fPreserveConfig;              //! Flag if analyzer overwrites existing config file
+   Bool_t         fPreserveConfig;               //! Flag if analyzer overwrites existing config file
    Bool_t         fNoGraphics;                   //! No graphics flag
    Bool_t         fSplashScreen;                 //! Splash screen flag
 
