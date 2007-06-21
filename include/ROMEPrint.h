@@ -56,19 +56,19 @@ namespace ROMEPrint
 //  R_DEBUG   : Printed when gVerboseLevel >= kDebug
 
 #if defined(R__UNIX)
-#define R_ERROR   kError,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_WARNING kWarning, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_PLAIN   kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kFALSE
-#define R_INFO    kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_VERBOSE kVerbose, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_DEBUG   kDebug,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_ERROR   ROMEPrint::kError,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_WARNING ROMEPrint::kWarning, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_PLAIN   ROMEPrint::kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kFALSE
+#define R_INFO    ROMEPrint::kNormal,  __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_VERBOSE ROMEPrint::kVerbose, __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_DEBUG   ROMEPrint::kDebug,   __FILE__, __func__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
 #else
-#define R_ERROR   kError,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_WARNING kWarning, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_PLAIN   kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kFALSE
-#define R_INFO    kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_VERBOSE kVerbose, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
-#define R_DEBUG   kDebug,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_ERROR   ROMEPrint::kError,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_WARNING ROMEPrint::kWarning, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_PLAIN   ROMEPrint::kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kFALSE
+#define R_INFO    ROMEPrint::kNormal,  __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_VERBOSE ROMEPrint::kVerbose, __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
+#define R_DEBUG   ROMEPrint::kDebug,   __FILE__, __FUNCTION__, __LINE__, gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber(),kTRUE
 
 #endif
 
