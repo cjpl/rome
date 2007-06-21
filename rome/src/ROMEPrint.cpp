@@ -49,15 +49,15 @@ void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength)
       report.ReplaceAll("\n", " ");
       messageLength = 76 - kCountLength - funcFileLineLength - 4;
       if (messageLength > 0) {
-	if (report.Length() > messageLength + 1) {
-	  report.Resize(messageLength + 1);
-	  report[messageLength - 2] = report[messageLength - 1] = report[messageLength] = '.';
-	}
-	if (!report.EndsWith("\n")) {
-	  report += '\n';
-	}
+         if (report.Length() > messageLength + 1) {
+            report.Resize(messageLength + 1);
+            report[messageLength - 2] = report[messageLength - 1] = report[messageLength] = '.';
+         }
+         if (!report.EndsWith("\n")) {
+            report += '\n';
+         }
       } else {
-	report.Resize(0);
+         report.Resize(0);
       }
       cout<<setw(kCountLength)<<fgReportPrintCount.At(reportIndex)<<" "
           <<kReportLevelLetter[fgReportLevel.At(reportIndex)]<<" "
