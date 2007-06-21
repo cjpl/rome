@@ -10,6 +10,7 @@
 #include <RConfig.h>
 #include <Rtypes.h>
 #include <Varargs.h>
+#include "ROMEAnalyzer.h"
 #include "ROME.h"
 
 namespace ROMEPrint

@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <map>
+#include <math.h>
 #include <TArrayI.h>
 #if defined( HAVE_MIDAS )
 #   include "midas.h"
@@ -34,20 +35,18 @@ ROMEStrArray       fgReportMessage;          // function name of reports
 Int_t              fgReportHeaderLength;     // length of line header
 
 //______________________________________________________________________________
-void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength)
+void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_t countLength)
 {
    ROMEString funcFileLine;
    ROMEString report;
-   Int_t messageLength;
-
-   const Int_t kCountLength = 6;
+   Int_t      messageLength;
 
    if (fgReportLevel.At(reportIndex) == level) {
       funcFileLine.SetFormatted("%s:%d:%s", gSystem->BaseName(fgReportFile.At(reportIndex).Data()),
                                 fgReportLine.At(reportIndex), fgReportFunction.At(reportIndex).Data());
       report = fgReportMessage.At(reportIndex);
       report.ReplaceAll("\n", " ");
-      messageLength = 76 - kCountLength - funcFileLineLength - 4;
+      messageLength = 76 - countLength - funcFileLineLength - 4;
       if (messageLength > 0) {
          if (report.Length() > messageLength + 1) {
             report.Resize(messageLength + 1);
@@ -59,7 +58,7 @@ void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength)
       } else {
          report.Resize(0);
       }
-      cout<<setw(kCountLength)<<fgReportPrintCount.At(reportIndex)<<" "
+      cout<<setw(countLength)<<fgReportPrintCount.At(reportIndex)<<" "
           <<kReportLevelLetter[fgReportLevel.At(reportIndex)]<<" "
           <<left<<setw(funcFileLineLength)<<funcFileLine<<" "
           <<report<<right<<flush;
@@ -253,9 +252,39 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       ROMEString text;
       ROMEString tmp;
 #if defined(R__UNIX)
-      lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+      switch (event) {
+      case kEventNumberInit:
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'i', fileLine.Data());
+         break;
+      case kEventNumberBeginOfRun:
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'b', fileLine.Data());
+         break;
+      case kEventNumberEndOfRun:
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'e', fileLine.Data());
+         break;
+      case kEventNumberTerminate:
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 't', fileLine.Data());
+         break;
+      default:
+         lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+      }
 #else
-      lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+      switch (event) {
+      case kEventNumberInit:
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'i', fileLine.Data());
+         break;
+      case kEventNumberBeginOfRun:
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'b', fileLine.Data());
+         break;
+      case kEventNumberEndOfRun:
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'e', fileLine.Data());
+         break;
+      case kEventNumberTerminate:
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 't', fileLine.Data());
+         break;
+      default:
+         lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+      }
 #endif
       if (fgReportHeaderLength < lineHeader.Length()) {
          fgReportHeaderLength = lineHeader.Length();
@@ -309,34 +338,40 @@ void ROMEPrint::ReportSummary()
 
    Int_t maxFuncFileLineLength = 0;
    Int_t funcFileLineLength;
+   Int_t maxCountLength = 0;
+   Int_t countLength;
    for (i = 1; i <= n; i++) {
       funcFileLineLength = strlen(gSystem->BaseName(fgReportFile.At(i).Data())) + 4 /* line number */ +
             fgReportFunction.At(i).Length() + 2/* : : */;
       if (maxFuncFileLineLength < funcFileLineLength) {
          maxFuncFileLineLength = funcFileLineLength;
       }
+      countLength = static_cast<Int_t>(log10(static_cast<Double_t>(fgReportPrintCount.At(i)))) + 1;
+      if (maxCountLength < countLength) {
+         maxCountLength = countLength;
+      }
    }
 
    cout<<"*************************** Report Message Summary ***************************"<<endl<<endl;
    // error
    for (i = 1; i <= n; i++) {
-      PrintSummary(kError, i, maxFuncFileLineLength);
+      PrintSummary(kError, i, maxFuncFileLineLength, maxCountLength);
    }
    // warning
    for (i = 1; i <= n; i++) {
-      PrintSummary(kWarning, i, maxFuncFileLineLength);
+      PrintSummary(kWarning, i, maxFuncFileLineLength, maxCountLength);
    }
    // info
    for (i = 1; i <= n; i++) {
-      PrintSummary(kNormal, i, maxFuncFileLineLength);
+      PrintSummary(kNormal, i, maxFuncFileLineLength, maxCountLength);
    }
    // verbose
    for (i = 1; i <= n; i++) {
-      PrintSummary(kVerbose, i, maxFuncFileLineLength);
+      PrintSummary(kVerbose, i, maxFuncFileLineLength, maxCountLength);
    }
    // debug
    for (i = 1; i <= n; i++) {
-      PrintSummary(kDebug, i, maxFuncFileLineLength);
+      PrintSummary(kDebug, i, maxFuncFileLineLength, maxCountLength);
    }
    cout<<endl<<"******************************************************************************"<<endl;
 }

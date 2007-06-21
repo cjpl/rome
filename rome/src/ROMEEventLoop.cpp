@@ -556,6 +556,7 @@ Bool_t ROMEEventLoop::DAQInit()
 {
    // Initialize the analyzer. Called before the init tasks.
    ROMEPrint::Debug("Executing DAQ Init\n");
+   gROME->SetCurrentEventNumber(kEventNumberInit);
 
    int j;
    this->SetRunning();
@@ -644,6 +645,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 {
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEPrint::Debug("Executing DAQ BeginOfRun\n");
+   gROME->SetCurrentEventNumber(kEventNumberBeginOfRun);
 
    // Statistics
    Statistics *stat = gROME->GetTriggerStatistics();
@@ -1186,6 +1188,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    // Disconnects the current run. Called after the EndOfRun tasks.
    // Write non accumulative output tree files
    ROMEPrint::Debug("Executing DAQ EndOfRun\n");
+   gROME->SetCurrentEventNumber(kEventNumberEndOfRun);
 
    // Write Histos
    ROMEString filename;
@@ -1266,6 +1269,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
    // Write accumulative output tree files
    // Close all files
    ROMEPrint::Debug("Executing DAQ Terminate\n");
+   gROME->SetCurrentEventNumber(kEventNumberTerminate);
 
    ROMEString filename;
    ROMETree *romeTree;
