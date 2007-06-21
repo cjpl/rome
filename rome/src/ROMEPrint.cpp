@@ -254,16 +254,16 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
 #if defined(R__UNIX)
       switch (event) {
       case kEventNumberInit:
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'i', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
          break;
       case kEventNumberBeginOfRun:
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'b', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
          break;
       case kEventNumberEndOfRun:
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'e', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
          break;
       case kEventNumberTerminate:
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 't', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
          break;
       default:
          lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
@@ -271,16 +271,16 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
 #else
       switch (event) {
       case kEventNumberInit:
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'i', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
          break;
       case kEventNumberBeginOfRun:
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'b', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
          break;
       case kEventNumberEndOfRun:
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'e', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
          break;
       case kEventNumberTerminate:
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 't', fileLine.Data());
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
          break;
       default:
          lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
