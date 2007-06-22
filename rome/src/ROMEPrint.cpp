@@ -355,6 +355,7 @@ void ROMEPrint::ReportSummary()
       }
       fileLine = gSystem->BaseName(fgReportFile.At(i));
       fileLine += fgReportLine.At(i);
+      fileLine.ToLower();
       strArraySort.AddAtAndExpand(fileLine.Data(), i);
    }
 
