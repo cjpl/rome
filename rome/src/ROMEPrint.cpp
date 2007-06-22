@@ -41,7 +41,7 @@ void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_
    ROMEString report;
    Int_t      messageLength;
 
-   if (fgReportLevel.At(reportIndex) == level) {
+   if (fgReportLevel.At(reportIndex) == level || level < 0) {
       funcFileLine.SetFormatted("%s:%d:%s", gSystem->BaseName(fgReportFile.At(reportIndex).Data()),
                                 fgReportLine.At(reportIndex), fgReportFunction.At(reportIndex).Data());
       report = fgReportMessage.At(reportIndex);
@@ -333,13 +333,16 @@ void ROMEPrint::ReportSummary()
       return;
    }
 
-   ROMEString fileLine;
-   ROMEString report;
+   ROMEString    fileLine;
+   Int_t         maxFuncFileLineLength = 0;
+   Int_t         funcFileLineLength;
+   Int_t         maxCountLength = 0;
+   Int_t         countLength;
+   ROMEStrArray  strArraySort;
+   Int_t        *sortIndex = new Int_t[n + 1];
 
-   Int_t maxFuncFileLineLength = 0;
-   Int_t funcFileLineLength;
-   Int_t maxCountLength = 0;
-   Int_t countLength;
+   strArraySort.AddAtAndExpand("", 0); // dummy
+
    for (i = 1; i <= n; i++) {
       funcFileLineLength = strlen(gSystem->BaseName(fgReportFile.At(i).Data())) + 4 /* line number */ +
             fgReportFunction.At(i).Length() + 2/* : : */;
@@ -350,28 +353,41 @@ void ROMEPrint::ReportSummary()
       if (maxCountLength < countLength) {
          maxCountLength = countLength;
       }
+      fileLine = gSystem->BaseName(fgReportFile.At(i));
+      fileLine += fgReportLine.At(i);
+      strArraySort.AddAtAndExpand(fileLine.Data(), i);
    }
 
+   strArraySort.Sort(sortIndex, kFALSE);
+
    cout<<"*************************** Report Message Summary ***************************"<<endl<<endl;
+#if 0
    // error
    for (i = 1; i <= n; i++) {
-      PrintSummary(kError, i, maxFuncFileLineLength, maxCountLength);
+      PrintSummary(kError, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // warning
    for (i = 1; i <= n; i++) {
-      PrintSummary(kWarning, i, maxFuncFileLineLength, maxCountLength);
+      PrintSummary(kWarning, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // info
    for (i = 1; i <= n; i++) {
-      PrintSummary(kNormal, i, maxFuncFileLineLength, maxCountLength);
+      PrintSummary(kNormal, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // verbose
    for (i = 1; i <= n; i++) {
-      PrintSummary(kVerbose, i, maxFuncFileLineLength, maxCountLength);
+      PrintSummary(kVerbose, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // debug
    for (i = 1; i <= n; i++) {
-      PrintSummary(kDebug, i, maxFuncFileLineLength, maxCountLength);
+      PrintSummary(kDebug, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
+#else
+   for (i = 1; i <= n; i++) {
+      PrintSummary(-1, sortIndex[i], maxFuncFileLineLength, maxCountLength);
+   }
+#endif
    cout<<endl<<"******************************************************************************"<<endl;
+
+   delete [] sortIndex;
 }

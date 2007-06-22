@@ -249,3 +249,70 @@ Int_t ROMEStrArray::IndexOf(const char *text) const
 
    return -1;
 }
+
+//______________________________________________________________________________
+void ROMEStrArray::Sort(Int_t *indx, Bool_t down)
+{
+   // Sort strings in an instance.
+   // In output the array indx contains the indices of the sorted array.
+   // If down is false sort in increasing order (default is decreasing order).
+   // This is a translation of the CERNLIB routine sortzv (M101)
+   // based on the quicksort algorithm.
+   // NOTE that the array indx must be created with a length >= n1
+   // before calling this function.
+
+   const Int_t n1 = GetEntries();
+   Int_t i,i1,n,i2,i3,i33,i222,iswap,n2;
+   Int_t i22 = 0;
+   TString ai;
+   n = n1;
+   if (n <= 0) return;
+   if (n == 1) {indx[0] = 0; return;}
+   for (i=0;i<n;i++) indx[i] = i+1;
+   for (i1=2;i1<=n;i1++) {
+      i3 = i1;
+      i33 = indx[i3-1];
+      ai  = At(i33-1);
+      while(1) {
+         i2 = i3/2;
+         if (i2 <= 0) break;
+         i22 = indx[i2-1];
+         if (strcmp(ai.Data(), At(i22-1).Data()) <= 0) break;
+         indx[i3-1] = i22;
+         i3 = i2;
+      }
+      indx[i3-1] = i33;
+   }
+
+   while(1) {
+      i3 = indx[n-1];
+      indx[n-1] = indx[0];
+      ai = At(i3-1);
+      n--;
+      if(n-1 < 0) {indx[0] = i3; break;}
+      i1 = 1;
+      while(2) {
+         i2 = i1+i1;
+         if (i2 <= n) i22 = indx[i2-1];
+         if (i2-n > 0) {indx[i1-1] = i3; break;}
+         if (i2-n < 0) {
+            i222 = indx[i2];
+            if (strcmp(At(i22-1).Data(), At(i222-1).Data()) < 0) {
+               i2++;
+               i22 = i222;
+            }
+         }
+         if (strcmp(ai.Data(), At(i22-1).Data()) > 0) {indx[i1-1] = i3; break;}
+         indx[i1-1] = i22;
+         i1 = i2;
+      }
+   }
+   for (i=0;i<n1;i++) indx[i]--;
+   if (!down) return;
+   n2 = n1/2;
+   for (i=0;i<n2;i++) {
+      iswap        = indx[i];
+      indx[i]      = indx[n1-i-1];
+      indx[n1-i-1] = iswap;
+   }
+}
