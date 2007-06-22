@@ -57,6 +57,8 @@ public:
    Int_t            IndexOf(const char *text) const;
    Int_t            IndexOf(const TString &text) const { return IndexOf(text.Data()); }
 
+   void             Sort(Int_t *index, Bool_t down = kTRUE);
+
    ClassDef(ROMEStrArray,1) // 1 dimensional ROMEString array
 };
 
