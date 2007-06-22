@@ -115,7 +115,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
 ,fCurrentRunNumber(0)
 ,fRunNumber()
 ,fRunNumberString("")
-,fCurrentEventNumber(kEventNumberInit)
+,fCurrentEventNumber(0)
 ,fEventNumber()
 ,fEventNumberString("")
 ,fCurrentInputFileName("")
