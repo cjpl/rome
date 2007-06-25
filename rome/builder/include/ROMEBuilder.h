@@ -47,6 +47,7 @@ const Int_t maxNumberOfMFUnixLibFlags = 10;
 const Int_t maxNumberOfMFSourceFlags = 10;
 const Int_t maxNumberOfAffiliations = 20;
 const Int_t maxNumberOfArguments = 40;
+const Int_t maxNumberOfClassesInDictionary = 20;
 
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
@@ -539,6 +540,9 @@ protected:
    ROMEStrArray* databaseHeaders;
    ROMEStrArray* databaseSources;
    ROMEStrArray* databaseLinkDefSuffix;
+   ROMEStrArray* additionalDictHeaders;
+   ROMEStrArray* additionalDictSources;
+   ROMEStrArray* additionalDictLinkDefSuffix;
    ROMEStrArray* rootLibraries;
    ROMEStrArray* mysqlLibraries;
    ROMEStrArray* daqLibraries;
@@ -692,6 +696,8 @@ private:
    void    AddDAQSources();
    void    AddDatabaseHeaders();
    void    AddDatabaseSources();
+   void    AddAdditionalDictHeaders();
+   void    AddAdditionalDictSources();
    void    AddRootLibraries();
    void    AddMysqlLibraries();
    void    AddDAQLibraries();
@@ -708,12 +714,11 @@ private:
    void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
    void    WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
-   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath=false);
+   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath=false, Int_t iFile = 0);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);
    void    GetUserDictIncludeDirString(ROMEString& buffer,const char* separator);
-   void    GetUserDictHeaderString(ROMEString& buffer,const char* separator);
    void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0,ROMEString *objdir = 0);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
