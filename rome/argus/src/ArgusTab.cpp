@@ -18,10 +18,10 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include "ROMEiostream.h"
 #include "ArgusTab.h"
 #include "ArgusWindow.h"
 #include "ROMEAnalyzer.h"
+#include "ROMEiostream.h"
 
 ClassImp(ArgusTab)
 

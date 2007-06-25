@@ -1306,6 +1306,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          affiliations.AddAtAndExpand("dchtic",1);
          affiliations.AddAtAndExpand("ticp",2);
          affiliations.AddAtAndExpand("ticz",3);
+         affiliations.AddAtAndExpand("dchcabling",4);
       } else if (!strcmp(argv[i],"-dchhv")) {
          makeOutput = false;
          midas = true;
