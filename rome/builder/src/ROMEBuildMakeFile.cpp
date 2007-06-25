@@ -343,17 +343,6 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMESQL.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMESQLDataBase.cpp");
    }
-   Int_t n = romeDictHeaders->GetEntriesFast();
-   Int_t i;
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         if (!librome) {
-            romeSources->AddFormatted("dict/ROMEDict%d.cpp", i);
-         } else {
-            romeSources->AddFormatted("dict/ROMESDict%d.cpp", i);
-         }
-      }
-   }
 #if defined( R__VISUAL_CPLUSPLUS )
    // temporary
    if (midas) {
@@ -613,37 +602,6 @@ void ROMEBuilder::AddGeneratedSources()
          continue;
       generatedSources->AddFormatted("src/generated/%sT%s_Base.cpp",shortCut.Data(),tabName[i].Data());
    }
-   Int_t n;
-   n = generatedDictHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         generatedSources->AddFormatted("dict/%sGeneratedDict%d.cpp",shortCut.Data(), i);
-      }
-   }
-   n = generatedFolderDictHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         generatedSources->AddFormatted("dict/%sGeneratedFolderDict%d.cpp",shortCut.Data(), i);
-      }
-   }
-   n = generatedSupportFolderDictHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         generatedSources->AddFormatted("dict/%sGeneratedSupportFolderDict%d.cpp",shortCut.Data(), i);
-      }
-   }
-   n = generatedTaskDictHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         generatedSources->AddFormatted("dict/%sGeneratedTaskDict%d.cpp",shortCut.Data(), i);
-      }
-   }
-   n = generatedTabDictHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         generatedSources->AddFormatted("dict/%sGeneratedTabDict%d.cpp",shortCut.Data(), i);
-      }
-   }
 }
 
 //______________________________________________________________________________
@@ -681,13 +639,6 @@ void ROMEBuilder::AddFolderSources()
          }
       }
    }
-   Int_t n;
-   n = folderHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         folderSources->AddFormatted("dict/%sFolderDict%d.cpp",shortCut.Data(), i);
-      }
-   }
 }
 
 //______________________________________________________________________________
@@ -713,13 +664,6 @@ void ROMEBuilder::AddTaskSources()
       if (!taskUsed[i])
          continue;
       taskSources->AddFormatted("src/tasks/%sT%s.cpp",shortCut.Data(),taskName[i].Data());
-   }
-   Int_t n;
-   n = taskHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         taskSources->AddFormatted("dict/%sTaskDict%d.cpp",shortCut.Data(), i);
-      }
    }
 }
 
@@ -747,13 +691,6 @@ void ROMEBuilder::AddTabSources()
          continue;
       tabSources->AddFormatted("src/tabs/%sT%s.cpp",shortCut.Data(),tabName[i].Data());
    }
-   Int_t n;
-   n = tabHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         tabSources->AddFormatted("dict/%sTabDict%d.cpp",shortCut.Data(), i);
-      }
-   }
 }
 
 //______________________________________________________________________________
@@ -780,13 +717,6 @@ void ROMEBuilder::AddDAQSources()
          continue;
       daqSources->AddFormatted("src/daqs/%s%sDAQ.cpp",shortCut.Data(),daqName[i].Data());
    }
-   Int_t n;
-   n = daqHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         daqSources->AddFormatted("dict/%sDAQDict%d.cpp", shortCut.Data(), i);
-      }
-   }
 }
 
 //______________________________________________________________________________
@@ -809,13 +739,6 @@ void ROMEBuilder::AddDatabaseSources()
    for (i = 0; i < numOfDB; i++) {
       databaseSources->AddFormatted("src/databases/%s%sDataBase.cpp",shortCut.Data(),dbName[i].Data());
    }
-   Int_t n;
-   n = databaseHeaders->GetEntriesFast();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         databaseSources->AddFormatted("dict/%sDBDict%d.cpp", shortCut.Data(),i);
-      }
-   }
 }
 
 //______________________________________________________________________________
@@ -833,15 +756,93 @@ void ROMEBuilder::AddAdditionalDictHeaders()
 }
 
 //______________________________________________________________________________
-void ROMEBuilder::AddAdditionalDictSources()
+void ROMEBuilder::AddDictionaryHeaders()
 {
    int i;
-   additionalDictSources = new ROMEStrArray(TMath::Max(numOfMFDictHeaders,0));
-   Int_t n;
-   n = additionalDictHeaders->GetEntriesFast();
+
+   Int_t nROME         = romeDictHeaders->GetEntries();
+   Int_t nArgus        = argusHeaders->GetEntries();
+   Int_t nGen          = generatedDictHeaders->GetEntries();
+   Int_t nGenFolder    = generatedFolderDictHeaders->GetEntries();
+   Int_t nGenSupFolder = generatedSupportFolderDictHeaders->GetEntries();
+   Int_t nGenTask      = generatedTaskDictHeaders->GetEntries();
+   Int_t nGenTab       = generatedTabDictHeaders->GetEntries();
+   Int_t nFolder       = folderHeaders->GetEntries();
+   Int_t nTask         = taskHeaders->GetEntries();
+   Int_t nTab          = tabHeaders->GetEntries();
+   Int_t nDAQ          = daqHeaders->GetEntries();
+   Int_t nDB           = databaseHeaders->GetEntries();
+   Int_t nAdd          = additionalDictHeaders->GetEntries();
+
+   Int_t nAll = nROME + nArgus + nGen + nGenFolder + nGenSupFolder + nGenTask + nGenTab +
+         nFolder + nTask + nTab + nDAQ + nDB + nAdd;
+
+   dictionaryHeaders = new ROMEStrArray(nAll);
+   dictionaryLinkDefSuffix = new ROMEStrArray(nAll);
+
+   for (i = 0; i < nROME; i++) {
+      dictionaryHeaders->Add(romeDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(romeLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nArgus; i++) {
+      dictionaryHeaders->Add(argusHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(argusLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nGen; i++) {
+      dictionaryHeaders->Add(generatedDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(generatedLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nGenFolder; i++) {
+      dictionaryHeaders->Add(generatedFolderDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(generatedFolderLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nGenSupFolder; i++) {
+      dictionaryHeaders->Add(generatedSupportFolderDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(generatedSupportFolderLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nGenTask; i++) {
+      dictionaryHeaders->Add(generatedTaskDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(generatedTaskLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nGenTab; i++) {
+      dictionaryHeaders->Add(generatedTabDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(generatedTabLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nFolder; i++) {
+      dictionaryHeaders->Add(folderHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(folderLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nTask; i++) {
+      dictionaryHeaders->Add(taskHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(taskLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nTab; i++) {
+      dictionaryHeaders->Add(tabHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(tabLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nDAQ; i++) {
+      dictionaryHeaders->Add(daqHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(daqLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nDB; i++) {
+      dictionaryHeaders->Add(databaseHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(databaseLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nAdd; i++) {
+      dictionaryHeaders->Add(additionalDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(additionalDictLinkDefSuffix->At(i).Data());
+   }
+}
+
+//______________________________________________________________________________
+void ROMEBuilder::AddDictionarySources()
+{
+   int i;
+   Int_t n = dictionaryHeaders->GetEntries();
+   dictionarySources = new ROMEStrArray(TMath::Max(n, 0));
    if (n > 0) {
       for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         additionalDictSources->AddFormatted("dict/%sAdditionalDict%d.cpp", shortCut.Data(),i);
+         dictionarySources->AddFormatted("dict/%sDict%d.cpp", shortCut.Data(),i);
       }
    }
 }
@@ -1284,79 +1285,12 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("NOOPT                     %s -O0\n",kEqualSign);
    Int_t n;
    // equal signs below should be '=' to allow change in Makefile.usr
-   n = romeDictHeaders->GetEntries();
+   n = dictionaryHeaders->GetEntries();
    if (n > 0) {
       for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         if (!librome) {
-            buffer.AppendFormatted("ROMEDict%dOpt                      = $(NOOPT)\n", i);
-         } else {
-            buffer.AppendFormatted("ROMESDict%dOpt                     = $(NOOPT)\n", i);
-         }
+         buffer.AppendFormatted("Dict%dOpt                          = $(NOOPT)\n", i);
       }
    }
-   n = argusHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("ARGUSDict%dOpt                   = $(NOOPT)\n", i);
-      }
-   }
-   n = generatedDictHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sGeneratedDict%dOpt              = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   if (hasFolderGenerated) {
-      n = generatedFolderDictHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sGeneratedFolderDict%dOpt        = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   if (hasSupportFolderGenerated) {
-      n = generatedSupportFolderDictHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sGeneratedSupportFolderDict%dOpt = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   if (hasFolderUserCode) {
-      n = folderHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sFolderDict%dOpt                 = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   if (numOfTask > 0) {
-      n = taskHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sGeneratedTaskDict%dOpt          = $(NOOPT)\n",shortCut.Data(), i);
-         buffer.AppendFormatted("%sTaskDict%dOpt                   = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   if (numOfTab>0) {
-      n = taskHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sGeneratedTabDict%dOpt           = $(NOOPT)\n",shortCut.Data(), i);
-         buffer.AppendFormatted("%sTabDict%dOpt                    = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   n = daqHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sDAQDic%dOpt                     = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   n = databaseHeaders->GetEntries();
-   if (n >0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sDBDict%dOpt                     = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-   n = additionalDictHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("%sAdditionalDict%dOpt             = $(NOOPT)\n",shortCut.Data(), i);
-      }
-   }
-
    buffer.AppendFormatted("%sUserDictOpt                    = $(NOOPT)\n",shortCut.Data());
 
    buffer.AppendFormatted("%sAnalyzer3Opt                   = $(NOOPT)\n",shortCut.Data());
@@ -2153,6 +2087,7 @@ void ROMEBuilder::WriteMakefile() {
    AddDAQHeaders();
    AddDatabaseHeaders();
    AddAdditionalDictHeaders();
+   AddDictionaryHeaders();
    AddRomeSources();
    AddArgusSources();
    AddGeneratedSources();
@@ -2161,7 +2096,7 @@ void ROMEBuilder::WriteMakefile() {
    AddTabSources();
    AddDAQSources();
    AddDatabaseSources();
-   AddAdditionalDictSources();
+   AddDictionarySources();
    AddRootLibraries();
    AddMysqlLibraries();
    AddDAQLibraries();
@@ -2192,23 +2127,7 @@ void ROMEBuilder::WriteMakefile() {
 
    // Dictionary list
    buffer.AppendFormatted("## Dictionary headers\n");
-   if (!librome) {
-      WriteMakefileDictionaryList(buffer,"ROMEDict",romeDictHeaders);
-   } else {
-      WriteMakefileDictionaryList(buffer,"ROMESDict",romeDictHeaders);
-   }
-   WriteMakefileDictionaryList(buffer,"ARGUSDict",argusHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"GeneratedSupportFolderDict",generatedSupportFolderDictHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"GeneratedTaskDict",generatedTaskDictHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"GeneratedTabDict",generatedTabDictHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"FolderDict",folderHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"TaskDict",taskHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"TabDict",tabHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"DAQDict",daqHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"DBDict",databaseHeaders);
-   WriteMakefileDictionaryList(buffer,shortCut+"AdditionalDict",additionalDictHeaders);
+   WriteMakefileDictionaryList(buffer,shortCut+"Dict",dictionaryHeaders);
    buffer.AppendFormatted("DictionaryIncludes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
 #if defined( R__VISUAL_CPLUSPLUS )
    GetIncludeDirString(tmp," ","");
@@ -2239,7 +2158,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileObjects(buffer,folderSources);
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
-   WriteMakefileObjects(buffer,additionalDictSources);
+   WriteMakefileObjects(buffer,dictionarySources);
    WriteMakefileAdditionalSourceFilesObjects(buffer);
    if (librome) {
       if (dynamicLink) {
@@ -2275,76 +2194,10 @@ void ROMEBuilder::WriteMakefile() {
    }
 */
    Int_t n;
-   n = romeDictHeaders->GetEntries();
+   n = dictionaryHeaders->GetEntries();
    if (n > 0) {
       for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         if (!librome) {
-            buffer.AppendFormatted("dependfiles += obj/ROMEDictionary%d.d\n", i);
-         } else {
-            buffer.AppendFormatted("dependfiles += obj/ROMESDictionary%d.d\n", i);
-         }
-      }
-   }
-   n = argusHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/ARGUSDictionary%d.d\n", i);
-      }
-   }
-   n = generatedDictHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sGeneratedDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   if (hasFolderGenerated) {
-      n = generatedFolderDictHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sGeneratedFolderDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   if (hasSupportFolderGenerated) {
-      n = generatedSupportFolderDictHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sGeneratedSupportFolderDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   if (hasFolderUserCode) {
-      n = folderHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sFolderDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   if (hasTaskGenerated) {
-      n = taskHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sGeneratedTaskDictionary%d.d\n",shortCut.Data(), i);
-         buffer.AppendFormatted("dependfiles += obj/%sTaskDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   if (numOfTab>0) {
-      n = tabHeaders->GetEntries();
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sGeneratedTabDictionary%d.d\n",shortCut.Data(), i);
-         buffer.AppendFormatted("dependfiles += obj/%sTabDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   n = daqHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sDAQDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   n = databaseHeaders->GetEntries();
-   if (n >0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sDBDictionary%d.d\n",shortCut.Data(), i);
-      }
-   }
-   n = additionalDictHeaders->GetEntries();
-   if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("dependfiles += obj/%sAdditionalDictionary%d.d\n",shortCut.Data(), i);
+         buffer.AppendFormatted("dependfiles += obj/%sDictionary%d.d\n", shortCut.Data(), i);
       }
    }
    // buffer.AppendFormatted("dependfiles += obj/%sUserDictionary.d\n",shortCut.Data());
@@ -2511,7 +2364,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileCompileStatements(buffer,folderSources,additionalFlag.Data());
    WriteMakefileCompileStatements(buffer,daqSources,additionalFlag.Data());
    WriteMakefileCompileStatements(buffer,databaseSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,additionalDictSources,additionalFlag.Data());
+   WriteMakefileCompileStatements(buffer,dictionarySources,additionalFlag.Data());
    WriteMakefileCompileStatements(buffer,precompiledHeaders,additionalFlag.Data());
    WriteMakefileAdditionalSourceFilesCompileStatments(buffer,additionalFlag.Data());
    ROMEStrArray *tempArray = new ROMEStrArray(1);
@@ -2521,46 +2374,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
 // Dictionary
-   buffer.AppendFormatted("## Dictionaries\n");
-   if (!librome) {
-      WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
-   } else {
-      WriteMakefileDictionary(buffer,"ROMESDict",romeDictHeaders);
-   }
-   WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"GeneratedSupportFolderDict",generatedSupportFolderDictHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"GeneratedTaskDict",generatedTaskDictHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"GeneratedTabDict",generatedTabDictHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"FolderDict",folderHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"TaskDict",taskHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"TabDict",tabHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"DAQDict",daqHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"DBDict",databaseHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"AdditionalDict",additionalDictHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"Dict",dictionaryHeaders);
    WriteMakefileUserDictionary(buffer);
    buffer.AppendFormatted("\n");
 
 // LinkDef.h
-   if (!librome) {
-      WriteLinkDefH(romeDictHeaders,romeLinkDefSuffix,"ROMEDict");
-   } else {
-      WriteLinkDefH(romeDictHeaders,romeLinkDefSuffix,"ROMESDict");
-   }
-   WriteLinkDefH(argusHeaders,argusLinkDefSuffix,"ARGUSDict");
-   WriteLinkDefH(generatedDictHeaders,generatedLinkDefSuffix,shortCut+"GeneratedDict");
-   WriteLinkDefH(generatedFolderDictHeaders,generatedFolderLinkDefSuffix,shortCut+"GeneratedFolderDict");
-   WriteLinkDefH(generatedSupportFolderDictHeaders,generatedSupportFolderLinkDefSuffix,
-                 shortCut+"GeneratedSupportFolderDict");
-   WriteLinkDefH(generatedTaskDictHeaders,generatedTaskLinkDefSuffix,shortCut+"GeneratedTaskDict");
-   WriteLinkDefH(generatedTabDictHeaders,generatedTabLinkDefSuffix,shortCut+"GeneratedTabDict");
-   WriteLinkDefH(folderHeaders,folderLinkDefSuffix,shortCut+"FolderDict");
-   WriteLinkDefH(taskHeaders,taskLinkDefSuffix,shortCut+"TaskDict");
-   WriteLinkDefH(tabHeaders,tabLinkDefSuffix,shortCut+"TabDict");
-   WriteLinkDefH(daqHeaders,daqLinkDefSuffix,shortCut+"DAQDict");
-   WriteLinkDefH(databaseHeaders,databaseLinkDefSuffix,shortCut+"DBDict");
-   WriteLinkDefH(additionalDictHeaders,additionalDictLinkDefSuffix,shortCut+"AdditionalDict");
+   WriteLinkDefH(dictionaryHeaders,dictionaryLinkDefSuffix,shortCut+"Dict");
    WriteUserLinkDefH();
 
 
