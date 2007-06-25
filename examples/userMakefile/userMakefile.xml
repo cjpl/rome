@@ -1,0 +1,37 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>UMF</ExperimentShortCut>
+		<ProgramName>Analyzer</ProgramName>
+	</Experiment>
+	<Tasks>
+		<Task>
+			<TaskName>FillRawData</TaskName>
+		</Task>
+	</Tasks>
+	<Folders>
+		<Folder>
+			<FolderName>Raw</FolderName>
+			<FolderTitle>Raw Data</FolderTitle>
+			<ArraySize>10</ArraySize>
+			<Include>
+				<IncludeName>RawData.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Field>
+				<FieldName>Data</FieldName>
+				<FieldType>RawData</FieldType>
+				<FieldComment>Raw Data</FieldComment>
+				<InheritTObject>true</InheritTObject>
+			</Field>
+		</Folder>
+	</Folders>
+	<Trees>
+		<Tree>
+			<TreeName>MyTree</TreeName>
+			<Branch>
+				<BranchName>Raw</BranchName>
+				<RelatedFolder>Raw</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
+</ROMEFrameworkDefinition>
