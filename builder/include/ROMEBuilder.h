@@ -47,7 +47,7 @@ const Int_t maxNumberOfMFUnixLibFlags = 10;
 const Int_t maxNumberOfMFSourceFlags = 10;
 const Int_t maxNumberOfAffiliations = 20;
 const Int_t maxNumberOfArguments = 40;
-const Int_t maxNumberOfClassesInDictionary = 20;
+const Int_t maxNumberOfClassesInDictionary = 10;
 
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
@@ -505,6 +505,9 @@ protected:
    ROMEStrArray* dictionaryOutputs;
    ROMEStrArray* dictionaryDependencies;
    ROMEStrArray* dictionaryCommands;
+   ROMEStrArray* dictionaryHeaders;
+   ROMEStrArray* dictionarySources;
+   ROMEStrArray* dictionaryLinkDefSuffix;
    ROMEStrArray* includeDirectories;
    ROMEStrArray* romeHeaders;
    ROMEStrArray* romeDictHeaders;
@@ -541,7 +544,6 @@ protected:
    ROMEStrArray* databaseSources;
    ROMEStrArray* databaseLinkDefSuffix;
    ROMEStrArray* additionalDictHeaders;
-   ROMEStrArray* additionalDictSources;
    ROMEStrArray* additionalDictLinkDefSuffix;
    ROMEStrArray* rootLibraries;
    ROMEStrArray* mysqlLibraries;
@@ -697,7 +699,8 @@ private:
    void    AddDatabaseHeaders();
    void    AddDatabaseSources();
    void    AddAdditionalDictHeaders();
-   void    AddAdditionalDictSources();
+   void    AddDictionaryHeaders();
+   void    AddDictionarySources();
    void    AddRootLibraries();
    void    AddMysqlLibraries();
    void    AddDAQLibraries();

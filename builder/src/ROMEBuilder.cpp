@@ -397,6 +397,9 @@ ROMEBuilder::ROMEBuilder()
 ,dictionaryOutputs(0)
 ,dictionaryDependencies(0)
 ,dictionaryCommands(0)
+,dictionaryHeaders(0)
+,dictionarySources(0)
+,dictionaryLinkDefSuffix(0)
 ,includeDirectories(0)
 ,romeHeaders(0)
 ,romeDictHeaders(0)
@@ -433,7 +436,6 @@ ROMEBuilder::ROMEBuilder()
 ,databaseSources(0)
 ,databaseLinkDefSuffix(0)
 ,additionalDictHeaders(0)
-,additionalDictSources(0)
 ,additionalDictLinkDefSuffix(0)
 ,rootLibraries(0)
 ,mysqlLibraries(0)
@@ -1165,6 +1167,7 @@ Bool_t ROMEBuilder::StartBuilder()
 
 // Linking
    WriteMakefile();
+   Int_t n;
 #if defined( R__UNIX )
    if (noLink) {
       ROMEString tempStr;
@@ -1178,31 +1181,12 @@ Bool_t ROMEBuilder::StartBuilder()
 #if defined( R__VISUAL_CPLUSPLUS )
       tempStr.SetFormatted("nmake -f Makefile.win");
 #endif
-      tempStr.AppendFormatted(" dict/%sGeneratedDict.cpp",shortCut.Data());
-      if (librome) {
-         tempStr.AppendFormatted(" dict/ROMESDict.cpp");
-      } else {
-         tempStr.AppendFormatted(" dict/ROMEDict.cpp");
-         tempStr.AppendFormatted(" dict/ARGUSDict.cpp"); // currently no header when librome mode.
+      n = dictionaryHeaders->GetEntries();
+      if (n > 0) {
+         for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
+            tempStr.AppendFormatted(" dict/%sDict%d.cpp",shortCut.Data(), i);
+         }
       }
-      if (generatedFolderDictHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
-      if (generatedSupportFolderDictHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sGeneratedSupportFolderDict.cpp",shortCut.Data());
-      if (folderHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sFolderDict.cpp",shortCut.Data());
-      if (generatedTaskDictHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sGeneratedTaskDict.cpp",shortCut.Data());
-      if (taskHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sTaskDict.cpp",shortCut.Data());
-      if (generatedTabDictHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
-      if (tabHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sTabDict.cpp",shortCut.Data());
-      if (daqHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sDAQDict.cpp",shortCut.Data());
-      if (databaseHeaders->GetEntriesFast() > 0)
-         tempStr.AppendFormatted(" dict/%sDBDict.cpp",shortCut.Data());
       tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
       gSystem->Exec(tempStr.Data());
    }
