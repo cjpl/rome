@@ -248,10 +248,6 @@ void ROMEBuilder::AddRomeDictHeaders()
          romeDictHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
          romeLinkDefSuffix->Add("");
       }
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEUtilities.h");
-      romeLinkDefSuffix->Add("");
    }
    if (this->sql) {
       romeDictHeaders->Add("$(ROMESYS)/include/ROMESQLDataBase.h");
@@ -382,9 +378,6 @@ void ROMEBuilder::AddArgusSources()
       argusSources->Add("$(ROMESYS)/argus/src/ArgusAnalyzerController.cpp");
       argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
       argusSources->Add("$(ROMESYS)/argus/src/ArgusHistoDisplay.cpp");
-   }
-   if (argusHeaders->GetEntriesFast()>0) {
-      argusSources->Add("dict/ARGUSDict.cpp");
    }
 }
 
