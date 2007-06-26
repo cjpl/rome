@@ -250,6 +250,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       fCurrentEvent = -1;
       fFirstUserInput = true;
       ROMEPrint::Debug("Entering event loop\n");
+
+      // Initialize event number
+      gROME->SetCurrentEventNumber(0);
+
       for (;!this->isTerminate()&&!this->isEndOfRun();) {
          int status = this->RunEvent();
          if (status==kReturn)
@@ -676,6 +680,9 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
       return false;
    if (this->isEndOfRun())
       return true;
+
+   // Set alwasy fill flag
+   if (fAlwaysFillTrees = gROME->GetActiveDAQ()->GetAlwaysFillTrees())
 
    // Check Configuration
    if (gROME->isOffline() && gROME->IsFileNameBasedIO()) {

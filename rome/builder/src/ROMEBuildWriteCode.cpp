@@ -13580,10 +13580,10 @@ Bool_t ROMEBuilder::WriteDAQH() {
          // Methods
          // Constructor
          buffer.AppendFormatted("private:\n");
-         buffer.AppendFormatted("   %sDAQ(const %sDAQ &c); // not implemented\n", daqName[iDAQ].Data(),
-                                daqName[iDAQ].Data());
-         buffer.AppendFormatted("   %sDAQ &operator=(const %sDAQ &c); // not implemented\n", daqName[iDAQ].Data(),
-                                daqName[iDAQ].Data());
+         buffer.AppendFormatted("   %s%sDAQ(const %s%sDAQ &c); // not implemented\n", shortCut.Data(),
+                                daqName[iDAQ].Data(), shortCut.Data(), daqName[iDAQ].Data());
+         buffer.AppendFormatted("   %s%sDAQ &operator=(const %s%sDAQ &c); // not implemented\n",
+                                shortCut.Data(), daqName[iDAQ].Data(), shortCut.Data(), daqName[iDAQ].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   %s%sDAQ();\n",shortCut.Data(),daqName[iDAQ].Data());
@@ -13599,7 +13599,11 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("   Long64_t Seek(Long64_t event);\n");
          buffer.AppendFormatted("   Bool_t   EndOfRun();\n");
          buffer.AppendFormatted("   Bool_t   Terminate();\n");
-
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   // Change 'kFALSE' to 'kTRUE' if trees must be filled in every events\n");
+         buffer.AppendFormatted("   // When this is 'kFALSE', the program does not fill a tree unless any folders in the tree is modified.\n");
+         buffer.AppendFormatted("   Bool_t   GetAlwaysFillTrees() { return kFALSE; };\n");
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   ClassDef(%s%sDAQ, 0)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("};\n\n");
 
@@ -13753,9 +13757,10 @@ Bool_t ROMEBuilder::WriteDBH()
          // Methods
          // Constructor
          buffer.AppendFormatted("private:\n");
-         buffer.AppendFormatted("   %sDB(const %sDB &c); // not implemented\n", dbName[iDB].Data(), dbName[iDB].Data());
-         buffer.AppendFormatted("   %sDB &operator=(const %sDB &c); // not implemented\n", dbName[iDB].Data(),
-                                dbName[iDB].Data());
+         buffer.AppendFormatted("   %s%sDB(const %s%sDB &c); // not implemented\n", shortCut.Data(),
+                                dbName[iDB].Data(), shortCut.Data(), dbName[iDB].Data());
+         buffer.AppendFormatted("   %s%sDB &operator=(const %s%sDB &c); // not implemented\n", shortCut.Data(),
+                                dbName[iDB].Data(), shortCut.Data(), dbName[iDB].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   %s%sDataBase();\n",shortCut.Data(),dbName[iDB].Data());
