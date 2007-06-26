@@ -48,6 +48,7 @@ public:
    Long64_t     Seek(Long64_t event);
    Bool_t       EndOfRun();
    Bool_t       Terminate();
+   Bool_t       GetAlwaysFillTrees() { return kTRUE; };
 
    virtual void ReadRunHeaders() = 0;
    virtual void ConnectTrees() = 0;
