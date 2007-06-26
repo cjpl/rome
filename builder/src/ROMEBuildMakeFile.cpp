@@ -834,7 +834,7 @@ void ROMEBuilder::AddDictionarySources()
    Int_t n = dictionaryHeaders->GetEntries();
    dictionarySources = new ROMEStrArray(TMath::Max(n, 0));
    if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
+      for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          dictionarySources->AddFormatted("dict/%sDict%d.cpp", shortCut.Data(),i);
       }
    }
@@ -1280,7 +1280,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    // equal signs below should be '=' to allow change in Makefile.usr
    n = dictionaryHeaders->GetEntries();
    if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
+      for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          buffer.AppendFormatted("Dict%dOpt                          = $(NOOPT)\n", i);
       }
    }
@@ -1421,7 +1421,7 @@ void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dic
    Int_t i;
    Int_t n = headers->GetEntries();
    if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
+      for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          buffer.AppendFormatted("%sionaryHeaders%d %s ", dictionaryName, i, kEqualSign);
          GetDictHeaderString(tmp,headers,separator.Data(), kFALSE, i);
          // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
@@ -1471,7 +1471,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    Int_t nClass = headers->GetEntriesFast();
    Int_t iFile;
 
-   for (iFile = 0; iFile < nClass / maxNumberOfClassesInDictionary + 1; iFile++) {
+   for (iFile = 0; iFile < (nClass - 1) / maxNumberOfClassesInDictionary + 1; iFile++) {
       dictionaryNameMod.SetFormatted("%s%d", dictionaryName, iFile);
       // depend file
 #if defined( R__UNIX )
@@ -2189,7 +2189,7 @@ void ROMEBuilder::WriteMakefile() {
    Int_t n;
    n = dictionaryHeaders->GetEntries();
    if (n > 0) {
-      for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
+      for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          buffer.AppendFormatted("dependfiles += obj/%sDictionary%d.d\n", shortCut.Data(), i);
       }
    }
@@ -2565,7 +2565,7 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
 
    nClass = headers->GetEntriesFast();
 
-   for (iFile = 0; iFile < nClass / maxNumberOfClassesInDictionary + 1; iFile++) {
+   for (iFile = 0; iFile < (nClass - 1) / maxNumberOfClassesInDictionary + 1; iFile++) {
       filename.SetFormatted("include/generated/%s%dLinkDef.h", dictionaryName, iFile);
 
       WriteHeader(buffer, mainAuthor, true);
@@ -2605,7 +2605,7 @@ Bool_t ROMEBuilder::WriteUserLinkDefH()
 
    Int_t iFile, nClass;
    nClass = numOfMFDictHeaders;
-   for (iFile = 0; iFile < nClass / maxNumberOfClassesInDictionary + 1; iFile++) {
+   for (iFile = 0; iFile < (nClass - 1) / maxNumberOfClassesInDictionary + 1; iFile++) {
       filename.SetFormatted("include/generated/%sUserDict%dLinkDef.h", shortCut.Data(), iFile);
 
       WriteHeader(buffer, mainAuthor, true);
