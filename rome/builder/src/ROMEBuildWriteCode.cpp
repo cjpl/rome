@@ -9391,14 +9391,12 @@ Bool_t ROMEBuilder::WriteConfigH() {
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
    buffer.AppendFormatted("\n\n");
 
-   buffer.AppendFormatted("#if !defined(__CINT__)\n");
-   buffer.AppendFormatted("#   include \"TArrayL64.h\"\n");
-   buffer.AppendFormatted("#   include \"ROMEString.h\"\n");
-   buffer.AppendFormatted("#   include \"ROMEStrArray.h\"\n");
-   buffer.AppendFormatted("#   include \"ROMEConfigHisto.h\"\n");
-   buffer.AppendFormatted("#   include \"ROMEConfigGraph.h\"\n");
-   buffer.AppendFormatted("#   include \"ROMEConfig.h\"\n");
-   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("#include <TArrayL64.h>\n");
+   buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEStrArray.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEConfigHisto.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEConfigGraph.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEConfig.h\"\n");
    buffer.AppendFormatted("class ROMEXML;\n");
 
    // Class
