@@ -78,10 +78,24 @@
 
 #define XML_INDENT "  "
 
+#if defined(__GNUC__) && !defined(__MAKECINT__)
+#   define MXML_GNUC_PRINTF( format_idx, arg_idx )          \
+   __attribute__((format (printf, format_idx, arg_idx)))
+#   define MXML_GNUC_SCANF( format_idx, arg_idx )           \
+   __attribute__((format (scanf, format_idx, arg_idx)))
+#   define MXML_GNUC_FORMAT( arg_idx )                      \
+   __attribute__((format_arg (arg_idx)))
+#else
+#   define MXML_GNUC_PRINTF( format_idx, arg_idx )
+#   define MXML_GNUC_SCANF( format_idx, arg_idx )
+#   define MXML_GNUC_FORMAT( arg_idx )
+#endif
+
 static int mxml_suppress_date_flag = 0; /* suppress writing date at the top of file. */
 
 /* local prototypes */
-static PMXML_NODE read_error(PMXML_NODE root, const char *file_name, int line_number, char *error, int error_size, char *format, ...);
+static PMXML_NODE read_error(PMXML_NODE root, const char *file_name, int line_number, char *error, int error_size,
+                             const char *format, ...) MXML_GNUC_PRINTF(6, 7);
 static void mxml_encode(char *src, int size, int translate);
 static void mxml_decode(char *str);
 static int mxml_write_subtree(MXML_WRITER *writer, PMXML_NODE tree, int indent);
@@ -1193,7 +1207,7 @@ int mxml_delete_attribute(PMXML_NODE pnode, const char *attrib_name)
 /**
  * used inside mxml_parse_file for reporting errors
  */
-PMXML_NODE read_error(PMXML_NODE root, const char *file_name, int line_number, char *error, int error_size, char *format, ...)
+PMXML_NODE read_error(PMXML_NODE root, const char *file_name, int line_number, char *error, int error_size, const char *format, ...)
 {
    char *msg, str[1000];
    va_list argptr;
