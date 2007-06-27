@@ -17033,7 +17033,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
 
    buffer.AppendFormatted("void %sReadTrees(Int_t run_num = 1\n", shortCut.Data());
    buffer.AppendFormatted("                 , Int_t ev_1 = 0\n");
-   buffer.AppendFormatted("                 , Int_t ev_2 = 10\n");
+   buffer.AppendFormatted("                 , Int_t ev_2 = 9\n");
    for (iTree = 0; iTree < numOfTree; iTree++)
       buffer.AppendFormatted("                 , Bool_t read%s = kTRUE\n", treeName[iTree].Data());
    buffer.AppendFormatted("                 ) {\n");
@@ -17109,7 +17109,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    // Print
    buffer.AppendFormatted("   Int_t i;\n");
    buffer.AppendFormatted("   // Event loop\n");
-   buffer.AppendFormatted("   for (i = ev_1; i < ev_2; i++) {\n");
+   buffer.AppendFormatted("   for (i = ev_1; i <= ev_2; i++) {\n");
    for (iTree = 0; iTree < numOfTree; iTree++) {
       buffer.AppendFormatted("      if (read%s && i >= %s->GetEntries()) break;\n", treeName[iTree].Data(),
                              treeName[iTree].Data());
