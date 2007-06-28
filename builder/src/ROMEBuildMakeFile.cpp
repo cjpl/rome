@@ -773,6 +773,14 @@ void ROMEBuilder::AddDictionaryHeaders()
    dictionaryHeaders = new ROMEStrArray(nAll);
    dictionaryLinkDefSuffix = new ROMEStrArray(nAll);
 
+   for (i = 0; i < nTab; i++) {
+      dictionaryHeaders->Add(tabHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(tabLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nGenTab; i++) {
+      dictionaryHeaders->Add(generatedTabDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(generatedTabLinkDefSuffix->At(i).Data());
+   }
    for (i = 0; i < nROME; i++) {
       dictionaryHeaders->Add(romeDictHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(romeLinkDefSuffix->At(i).Data());
@@ -797,10 +805,6 @@ void ROMEBuilder::AddDictionaryHeaders()
       dictionaryHeaders->Add(generatedTaskDictHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(generatedTaskLinkDefSuffix->At(i).Data());
    }
-   for (i = 0; i < nGenTab; i++) {
-      dictionaryHeaders->Add(generatedTabDictHeaders->At(i).Data());
-      dictionaryLinkDefSuffix->Add(generatedTabLinkDefSuffix->At(i).Data());
-   }
    for (i = 0; i < nFolder; i++) {
       dictionaryHeaders->Add(folderHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(folderLinkDefSuffix->At(i).Data());
@@ -808,10 +812,6 @@ void ROMEBuilder::AddDictionaryHeaders()
    for (i = 0; i < nTask; i++) {
       dictionaryHeaders->Add(taskHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(taskLinkDefSuffix->At(i).Data());
-   }
-   for (i = 0; i < nTab; i++) {
-      dictionaryHeaders->Add(tabHeaders->At(i).Data());
-      dictionaryLinkDefSuffix->Add(tabLinkDefSuffix->At(i).Data());
    }
    for (i = 0; i < nDAQ; i++) {
       dictionaryHeaders->Add(daqHeaders->At(i).Data());
