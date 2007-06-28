@@ -1524,16 +1524,18 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
       }
       buffer.AppendFormatted("\n\n\n");
 
-      GetDictHeaderString(bufferT,headers,";");
+      GetDictHeaderString(bufferT,headers,";",false,iFile);
       dictionaryDependencies->AddFormatted(bufferT.Data());
       GetIncludeDirString(includedirs," ","-");
-      GetDictHeaderString(includes,headers," ",true);
+      GetDictHeaderString(includes,headers," ",true,iFile);
 
       // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
       ROMEString command = "rootcint";
       command.Append(arguments);
       command.Append(" ");
       command.Append(includedirs);
+      for (i = 0; i < numOfMFDictIncDirs; i++)
+         command.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
       command.Append(" ");
       command.Append(includes);
       if (dictionaryType > 0) {
@@ -1644,7 +1646,9 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
 #endif
+#if 0 // not needed for windows, what about linux?
    dictionaryNames->AddFormatted(dictionaryName);
+#endif
 
    // Output files
    bufferT.SetFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(), shortCut.Data());

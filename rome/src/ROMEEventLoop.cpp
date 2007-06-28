@@ -1086,12 +1086,10 @@ Bool_t ROMEEventLoop::UserInput()
                }
                ROMEPrint::Print("\r                                                                      \r");
                inumber = strtol(number.Data(),&cstop,10);
-               if (inumber != 0) {
-                  GotoEvent(inumber);
-                  fStop = true;
-                  fContinuous = false;
-                  wait = false;
-               }
+               GotoEvent(inumber);
+               fStop = true;
+               fContinuous = false;
+               wait = false;
             }
             ch = 'j';
          }

@@ -590,6 +590,7 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    WriteVisualProjectProjFiles(xml,generatedSources,"Generated","cpp;c;cxx");
    WriteVisualProjectProjFiles(xml,romeSources,"ROME","cpp;c;cxx");
    WriteVisualProjectProjFiles(xml,argusSources,"ARGUS","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,dictionarySources,"Dictionaries","cpp;c;cxx");
 
    // End Source Files
    xml->EndElement();
