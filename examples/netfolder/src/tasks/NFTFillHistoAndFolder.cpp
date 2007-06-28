@@ -37,6 +37,7 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
+//     GaussData                                                              //
 //                                                                            //
 // This task contains the following histgrams :                               //
 //    Histo1                                                                  //

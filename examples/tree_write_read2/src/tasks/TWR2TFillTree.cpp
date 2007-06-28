@@ -37,6 +37,11 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
+//     Track                                                                  //
+//     RawPointerSplit                                                        //
+//     RawPointerNoSplit                                                      //
+//     RawSplit                                                               //
+//     RawNoSplit                                                             //
 //                                                                            //
 //                                                                            //
 // Generated header file containing necessary includes                        //

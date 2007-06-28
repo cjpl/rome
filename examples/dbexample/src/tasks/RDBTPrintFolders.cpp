@@ -39,6 +39,8 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
+//     SingleFolder                                                           //
+//     ArrayFolder                                                            //
 //                                                                            //
 //                                                                            //
 // Generated header file containing necessary includes                        //

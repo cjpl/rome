@@ -37,6 +37,8 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
+//     PMTData                                                                //
+//     Sum                                                                    //
 //                                                                            //
 //                                                                            //
 // Generated header file containing necessary includes                        //

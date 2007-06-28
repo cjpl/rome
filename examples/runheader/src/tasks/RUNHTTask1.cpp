@@ -37,6 +37,8 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
+//     RunInfo                                                                //
+//     Calibration                                                            //
 //                                                                            //
 //                                                                            //
 // Generated header file containing necessary includes                        //
