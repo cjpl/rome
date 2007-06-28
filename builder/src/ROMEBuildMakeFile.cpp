@@ -1643,9 +1643,9 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
                              shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" \\\n\t   || ($(RM) obj/%sUserDictionary.d; exit 1;)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
+#endif
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
-#endif
 
    // Output files
    bufferT.SetFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(), shortCut.Data());
