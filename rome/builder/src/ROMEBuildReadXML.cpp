@@ -519,6 +519,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
 
    experimentName = "";
    styleSheet = "";
+   baseURL = "htmldoc/";
    shortCut = "";
    mainProgName = "";
    mainDescription = "";
@@ -627,6 +628,10 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      if (type == 1 && !strcmp((const char*)name,"DocumentStyleSheet")) {
                         xml->GetValue(styleSheet,styleSheet);
                         FormatText(styleSheet, kTRUE);
+                     }
+                     if (type == 1 && !strcmp((const char*)name,"DocumentBaseURL")) {
+                        xml->GetValue(baseURL,baseURL);
+                        FormatText(baseURL, kTRUE);
                      }
                      if (type == 15 && !strcmp((const char*)name,"Experiment")) {
                         if (shortCut == "") {

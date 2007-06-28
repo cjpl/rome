@@ -135,6 +135,11 @@
 					<xs:documentation>Style sheet file to be used for documentation. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="DocumentBaseURL" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Base URL for documentation. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterFieldDesc">

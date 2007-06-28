@@ -1781,26 +1781,36 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       WriteHeader(header, taskAuthor[iTask].Data(), kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data(), taskName[iTask].Data());
       clsDescription = "Begin_Html\n\n";
-      clsDescription.AppendFormatted("Description:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",taskDescription[iTask].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("Usage:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",taskUsage[iTask].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("Status:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",taskStatus[iTask].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("To Do:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",taskToDo[iTask].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("Known Problems:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",taskKnownProblems[iTask].Data());
-      clsDescription.AppendFormatted("<p>\n");
+      if (taskDescription[iTask].Length()) {
+         clsDescription.AppendFormatted("Description:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",taskDescription[iTask].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (taskUsage[iTask].Length()) {
+         clsDescription.AppendFormatted("Usage:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",taskUsage[iTask].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (taskStatus[iTask].Length()) {
+         clsDescription.AppendFormatted("Status:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",taskStatus[iTask].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (taskToDo[iTask].Length()) {
+         clsDescription.AppendFormatted("To Do:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",taskToDo[iTask].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (taskKnownProblems[iTask].Length()) {
+         clsDescription.AppendFormatted("Known Problems:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",taskKnownProblems[iTask].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
       clsDescription.AppendFormatted("End_Html\n\n");
       clsDescription.AppendFormatted("The event methods have been written by %s.\n",taskAuthor[iTask].Data());
       fileStream = new fstream(cppFile.Data(),ios::in);
@@ -1808,7 +1818,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       delete fileStream;
       bool first = true;
       for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer,j)) {
+         if (accessFolder(fileBuffer, j, kTRUE)) {
             if (first) {
                clsDescription.AppendFormatted("\n");
                clsDescription.AppendFormatted("Please note: The following information is only correct after executing the ROMEBuilder.\n");
@@ -1862,11 +1872,10 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       }
       // Generated Includes
       clsDescription.AppendFormatted("\n");
-      clsDescription.AppendFormatted("Generated header file containing necessary includes\n");
-      clsDescription.AppendFormatted("#include \"generated/%sT%sGeneratedIncludes.h\"\n\n", shortCut.Data(),
-                                     taskName[iTask].Data());
-
-      WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
+      ROMEString genInclude;
+      genInclude.SetFormatted("#include \"generated/%sT%sGeneratedIncludes.h\"\n", shortCut.Data(),
+                              taskName[iTask].Data());
+      WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE, genInclude.Data());
 
       buffer.Resize(0);
       buffer.AppendFormatted("\n\n");
@@ -3398,26 +3407,36 @@ Bool_t ROMEBuilder::WriteTabCpp()
       WriteHeader(header, tabAuthor[iTab].Data(), kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = "Begin_Html\n\n";
-      clsDescription.AppendFormatted("Description:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",tabDescription[iTab].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("Usage:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",tabUsage[iTab].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("Status:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",tabStatus[iTab].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("To Do:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",tabToDo[iTab].Data());
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("Known Problems:\n");
-      clsDescription.AppendFormatted("<p>\n");
-      clsDescription.AppendFormatted("%s\n\n",tabKnownProblems[iTab].Data());
-      clsDescription.AppendFormatted("<p>\n");
+      if (tabDescription[iTab].Length()) {
+         clsDescription.AppendFormatted("Description:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",tabDescription[iTab].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (tabUsage[iTab].Length()) {
+         clsDescription.AppendFormatted("Usage:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",tabUsage[iTab].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (tabStatus[iTab].Length()) {
+         clsDescription.AppendFormatted("Status:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",tabStatus[iTab].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (tabToDo[iTab].Length()) {
+         clsDescription.AppendFormatted("To Do:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",tabToDo[iTab].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
+      if (tabKnownProblems[iTab].Length()) {
+         clsDescription.AppendFormatted("Known Problems:\n");
+         clsDescription.AppendFormatted("<p>\n");
+         clsDescription.AppendFormatted("%s\n",tabKnownProblems[iTab].Data());
+         clsDescription.AppendFormatted("</p>\n\n");
+      }
       clsDescription.AppendFormatted("End_Html\n\n");
       // Thread
       if (numOfThreadFunctions[iTab] > 0) {
@@ -3428,11 +3447,10 @@ Bool_t ROMEBuilder::WriteTabCpp()
          }
       }
       // Generated Includes
-      clsDescription.AppendFormatted("Generated header file containing necessary includes\n");
-      clsDescription.AppendFormatted("#include \"generated/%sT%sGeneratedIncludes.h\"\n\n", shortCut.Data(),
-                                     tabName[iTab].Data());
-
-      WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
+      ROMEString genInclude;
+      genInclude.SetFormatted("#include \"generated/%sT%sGeneratedIncludes.h\"\n", shortCut.Data(),
+                              tabName[iTab].Data());
+      WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE, genInclude.Data());
 
       buffer.Resize(0);
 
@@ -16231,6 +16249,11 @@ void ROMEBuilder::WriteHTMLDoku()
       WriteHTMLStyle(buffer);
       buffer.AppendFormatted("</STYLE>\n");
    }
+#if 0
+   if (baseURL.Length()) {
+      buffer.AppendFormatted("<BASE HREF=\"%s\">\n", baseURL.Data());
+   }
+#endif
    buffer.AppendFormatted("</HEAD>\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n");
@@ -16255,7 +16278,7 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<li><a href=\"#affiliations\">Affiliations</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",
                           shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("<li><A TARGET=_top HREF=\"htmldoc/ClassIndex.html\">Class Overview</A></li>\n");
+   buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/ClassIndex.html\">Class Overview</A></li>\n", baseURL.Data());
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
@@ -16325,21 +16348,36 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<h3><a name=%sTask class=\"object\">%s</a></h3>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("contact person : %s, %s\n",taskAuthor[i].Data(),taskAuthorEmail[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Description</h4>\n");
-      buffer.AppendFormatted("%s\n",taskDescription[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Usage</h4>\n");
-      buffer.AppendFormatted("%s\n",taskUsage[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Status</h4>\n");
-      buffer.AppendFormatted("%s\n",taskStatus[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>To Do</h4>\n");
-      buffer.AppendFormatted("%s\n",taskToDo[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Known Problems</h4>\n");
-      buffer.AppendFormatted("%s\n",taskKnownProblems[i].Data());
+      if (taskDescription[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Description</h4>\n");
+         buffer.AppendFormatted("%s\n",taskDescription[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (taskUsage[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Usage</h4>\n");
+         buffer.AppendFormatted("%s\n",taskUsage[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (taskStatus[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Status</h4>\n");
+         buffer.AppendFormatted("%s\n",taskStatus[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (taskToDo[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>To Do</h4>\n");
+         buffer.AppendFormatted("%s\n",taskToDo[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (taskKnownProblems[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Known Problems</h4>\n");
+         buffer.AppendFormatted("%s\n",taskKnownProblems[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Steering Parameters</h4>\n");
       buffer.AppendFormatted("<p>\n");
@@ -16385,24 +16423,26 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Folders</h4>\n");
       buffer.AppendFormatted("<p>\n");
-      cppFile.SetFormatted("%s/src/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[i].Data());
+      cppFile.SetFormatted("src/tasks/%sT%s.cpp",shortCut.Data(),taskName[i].Data()); // we are already in outputDir
       fileStream = new fstream(cppFile.Data(),ios::in);
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;
       buffer.AppendFormatted("This task accesses data from the following folders :\n");
       buffer.AppendFormatted("<ul>\n");
       for (j = 0; j < numOfFolder; j++) {
-         if (!folderUsed[j])
+         if (!folderUsed[j]) {
             continue;
-         if (accessFolder(fileBuffer,j))
+         }
+         if (accessFolder(fileBuffer, j, kTRUE)) {
             buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
+         }
       }
       buffer.AppendFormatted("</ul>\n");
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>More Info</h4>\n");
       buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"htmldoc/%sT%s.html\">class file</a>\n",
-                             shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"%s/%sT%s.html\">class file</a>\n",
+                             baseURL.Data(), shortCut.Data(), taskName[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#tasks\">Tasks</a>\n");
       buffer.AppendFormatted("<p>\n");
@@ -16438,21 +16478,36 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<h3><a name=%sTab class=\"object\">%s</a></h3>\n",tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("contact person : %s, %s\n",tabAuthor[i].Data(),tabAuthorEmail[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Description</h4>\n");
-      buffer.AppendFormatted("%s\n",tabDescription[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Usage</h4>\n");
-      buffer.AppendFormatted("%s\n",tabUsage[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Status</h4>\n");
-      buffer.AppendFormatted("%s\n",tabStatus[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>To Do</h4>\n");
-      buffer.AppendFormatted("%s\n",tabToDo[i].Data());
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<h4>Known Problems</h4>\n");
-      buffer.AppendFormatted("%s\n",tabKnownProblems[i].Data());
+      if (tabDescription[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Description</h4>\n");
+         buffer.AppendFormatted("%s\n",tabDescription[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (tabUsage[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Usage</h4>\n");
+         buffer.AppendFormatted("%s\n",tabUsage[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (tabStatus[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Status</h4>\n");
+         buffer.AppendFormatted("%s\n",tabStatus[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (tabToDo[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>To Do</h4>\n");
+         buffer.AppendFormatted("%s\n",tabToDo[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
+      if (tabKnownProblems[i].Length()) {
+         buffer.AppendFormatted("<p>\n");
+         buffer.AppendFormatted("<h4>Known Problems</h4>\n");
+         buffer.AppendFormatted("%s\n",tabKnownProblems[i].Data());
+         buffer.AppendFormatted("</p>\n");
+      }
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Steering Parameters</h4>\n");
       buffer.AppendFormatted("<p>\n");
@@ -16467,8 +16522,8 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>More Info</h4>\n");
       buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"htmldoc/%sT%s.html\">class file</a>\n",
-                             shortCut.Data(),tabName[i].Data());
+      buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"%s/%sT%s.html\">class file</a>\n",
+                             baseURL.Data(), shortCut.Data(), tabName[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#tabs\">Tabs</a>\n");
       buffer.AppendFormatted("<p>\n");
@@ -17490,12 +17545,14 @@ Bool_t ROMEBuilder::BackUpFile(const char* filename)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
+Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t includeUnused)
 {
-   if (folderSupport[numFolder])
+   if (folderSupport[numFolder]) {
       return false;
-   if (!FolderToBeGenerated(numFolder))
+   }
+   if (!includeUnused && !FolderToBeGenerated(numFolder)) {
       return false;
+   }
 
    ROMEString str;
 
@@ -17611,7 +17668,7 @@ void ROMEBuilder::WriteHeader(ROMEString& buffer, const char* author, Bool_t ove
 
 #define ALIGN_DESC // align description 80 chars.
 //______________________________________________________________________________
-void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark)
+void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark, const char* header)
 {
    const Int_t nc = 80;
    ROMEString format;
@@ -17666,6 +17723,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
       }
    }
    delete [] tmp;
+   Bool_t inHTML = kFALSE;
 
    if (className && strlen(className)) {
       // cast to avoid inconsistency between format and arguments.
@@ -17675,29 +17733,43 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
       buffer.AppendFormatted(format.Data(), className, "");
       buffer.AppendFormatted("//                                                                            //\n");
       for (i = 0; i < descs.GetEntries(); i++) {
+         if (inHTML && descs[i] == "End_Html") {
+            inHTML = kFALSE;
+            buffer.Append("<!--*/\n");
+            buffer.Append("// --> End_Html\n");
+         } else if (!inHTML && descs[i] == "Begin_Html") {
+            inHTML = kTRUE;
+            buffer.Append("// Begin_Html <!--\n");
+            buffer.Append("/*-->\n");
+         } else {
 #if defined ( ALIGN_DESC )
-         if (descs[i].BeginsWith("#include") || descs[i].BeginsWith("#pragma")) {
-            buffer.AppendFormatted("%s\n", descs[i].Data());
-         } else {
-            format.SetFormatted("// %%s%%%ds //\n", (int)(nc - strlen("//  //") - descs[i].Length()));
-            buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
-         }
+            if (descs[i].BeginsWith("#include") || descs[i].BeginsWith("#pragma") || inHTML) {
+               buffer.AppendFormatted("%s\n", descs[i].Data());
+            } else {
+               format.SetFormatted("// %%s%%%ds //\n", (int)(nc - strlen("//  //") - descs[i].Length()));
+               buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
+            }
 #else
-         if (descs[i].BeginsWith("#include") || descs[i].BeginsWith("#pragma")) {
-            buffer.AppendFormatted("%s\n", descs[i].Data());
-         } else {
-            buffer.AppendFormatted("// %s\n", descs[i].Data());
-         }
+            if (descs[i].BeginsWith("#include") || descs[i].BeginsWith("#pragma") || inHTML) {
+               buffer.AppendFormatted("%s\n", descs[i].Data());
+            } else {
+               buffer.AppendFormatted("// %s\n", descs[i].Data());
+            }
 #endif
+         }
       }
       buffer.AppendFormatted("//                                                                            //\n");
+      buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+         buffer.Append("\n");
+      if (header) {
+         buffer.AppendFormatted("/* Generated header file containing necessary includes                        */\n");
+         buffer.Append(header);
+         buffer.Append("\n");
+      }
       if (endmark) {
-         buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
          buffer.AppendFormatted("/*  This header was generated by ROMEBuilder. Manual changes above the        *\n");
          buffer.AppendFormatted(" * following line will be lost next time ROMEBuilder is executed.             */\n");
          buffer.AppendFormatted(kHeaderEndMark);
-      } else {
-         buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////");
       }
    }
 }
