@@ -5402,7 +5402,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                                       shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFolders->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),
                                       folderName[i].Data());
-               buffer.AppendFormatted("   Set%sSize(1);\n",folderName[i].Data());
                buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFoldersStorage = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),
                                       shortCut.Data(),folderName[i].Data());
