@@ -1167,8 +1167,8 @@ Bool_t ROMEBuilder::StartBuilder()
 
 // Linking
    WriteMakefile();
-   Int_t n;
 #if defined( R__UNIX )
+   Int_t n;
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
