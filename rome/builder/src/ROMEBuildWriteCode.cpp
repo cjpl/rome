@@ -1825,8 +1825,8 @@ Bool_t ROMEBuilder::WriteTaskCpp()
                cout<<"Terminating program."<<endl;
                return false;
 */
-               clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
             }
+            clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
          }
       }
       clsDescription.AppendFormatted("\n");
@@ -8979,6 +8979,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   xml->SetTranslate(0);\n");
+   buffer.AppendFormatted("   xml->WriteComment(\"$%s: $\");\n", "Id"); // to avoid Id: is replaced by SVN.
    buffer.AppendFormatted("   xml->WriteEmptyLine();\n");
    buffer.AppendFormatted("   xml->WriteComment(\"Please check ROME homepage for details of tags\\n\"\n");
    buffer.AppendFormatted("      \"http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm\");\n");

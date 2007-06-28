@@ -1646,9 +1646,6 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
 #endif
-#if 0 // not needed for windows, what about linux?
-   dictionaryNames->AddFormatted(dictionaryName);
-#endif
 
    // Output files
    bufferT.SetFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(), shortCut.Data());
