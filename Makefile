@@ -391,10 +391,6 @@ clean:
 
 SkipDepInclude = no
 
-ifeq ($(MAKECMDGOALS), dict)
-SkipDepInclude = yes
-endif
-
 ifeq ($(MAKECMDGOALS), clean)
 SkipDepInclude = yes
 endif
