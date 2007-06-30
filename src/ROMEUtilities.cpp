@@ -193,16 +193,19 @@ Int_t ROMEUtilities::GetFPEMask()
    if ((~mode) & _FPU_MASK_IM) mask |= kInvalid;
    if ((~mode) & _FPU_MASK_ZM) mask |= kDivByZero;
    if ((~mode) & _FPU_MASK_OM) mask |= kOverflow;
-   if ((~mode) & _FPU_MASK_UM) mask |= kUnderflow;
-   if ((~mode) & _FPU_MASK_DM) mask |= kUnderflow;
+   if (((~mode) & _FPU_MASK_UM) || ((~mode) & _FPU_MASK_DM)) {
+      mask |= kUnderflow;
+   }
    if ((~mode) & _FPU_MASK_PM) mask |= kInexact;
 
    _FPU_GETMXCSR(mode_sse);
    if ((~mode_sse) & (_FPU_MASK_IM << 7)) mask |= kInvalid;
    if ((~mode_sse) & (_FPU_MASK_ZM << 7)) mask |= kDivByZero;
    if ((~mode_sse) & (_FPU_MASK_OM << 7)) mask |= kOverflow;
-   if ((~mode_sse) & (_FPU_MASK_UM << 7)) mask |= kUnderflow;
-   if ((~mode_sse) & (_FPU_MASK_DM << 7)) mask |= kUnderflow;
+   if (((~mode_sse) & (_FPU_MASK_UM << 7)) ||
+       ((~mode_sse) & (_FPU_MASK_DM << 7))) {
+      mask |= kUnderflow;
+   }
    if ((~mode_sse) & (_FPU_MASK_PM << 7)) mask |= kInexact;
 
    return mask;
@@ -246,8 +249,10 @@ Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    if (mask & kInvalid  ) mode &= ~_FPU_MASK_IM;
    if (mask & kDivByZero) mode &= ~_FPU_MASK_ZM;
    if (mask & kOverflow ) mode &= ~_FPU_MASK_OM;
-   if (mask & kUnderflow) mode &= ~_FPU_MASK_UM;
-   if (mask & kUnderflow) mode &= ~_FPU_MASK_DM;
+   if (mask & kUnderflow) {
+      mode &= ~_FPU_MASK_UM;
+      mode &= ~_FPU_MASK_DM;
+   }
    if (mask & kInexact  ) mode &= ~_FPU_MASK_PM;
    _FPU_SETCW(mode);
 
@@ -258,8 +263,10 @@ Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
    if (mask & kInvalid  ) mode_sse &= ~(_FPU_MASK_IM << 7);
    if (mask & kDivByZero) mode_sse &= ~(_FPU_MASK_ZM << 7);
    if (mask & kOverflow ) mode_sse &= ~(_FPU_MASK_OM << 7);
-   if (mask & kUnderflow) mode_sse &= ~(_FPU_MASK_UM << 7);
-   if (mask & kUnderflow) mode_sse &= ~(_FPU_MASK_DM << 7);
+   if (mask & kUnderflow) {
+      mode_sse &= ~(_FPU_MASK_UM << 7);
+      mode_sse &= ~(_FPU_MASK_DM << 7);
+   }
    if (mask & kInexact  ) mode_sse &= ~(_FPU_MASK_PM << 7);
    _FPU_SETMXCSR(mode_sse);
 
