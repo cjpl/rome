@@ -1281,7 +1281,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    n = dictionaryHeaders->GetEntries();
    if (n > 0) {
       for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("Dict%dOpt                          = $(NOOPT)\n", i);
+         buffer.AppendFormatted("Dict%dOpt                        = $(NOOPT)\n", i);
       }
    }
    buffer.AppendFormatted("%sUserDictOpt                    = $(NOOPT)\n",shortCut.Data());
@@ -1293,6 +1293,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sConfig3Opt                     = $(NOOPT)\n",shortCut.Data());
    buffer.AppendFormatted("%sConfig4Opt                     = $(NOOPT)\n",shortCut.Data());
    buffer.AppendFormatted("%sConfigToFormOpt                = $(NOOPT)\n",shortCut.Data());
+   if (midas) {
+     buffer.AppendFormatted("%sMidasDAQOpt                    = -fno-strict-aliasing\n",shortCut.Data());
+   }
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
 }
