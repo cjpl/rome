@@ -16586,7 +16586,9 @@ void ROMEBuilder::WriteHTMLDoku()
       }
       depthold = depth;
    }
-   for (i = 0; i < depth; i++) buffer.AppendFormatted("</ul>\n");
+   for (i = 0; i < depth; i++) {
+      buffer.AppendFormatted("</ul>\n");
+   }
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("The bold folders are data folders. The others are only used to structure the frame work.\n");
    buffer.AppendFormatted("<p>\n");
@@ -16631,7 +16633,11 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<h3><a name=%sFolder class=\"object\">%s</a></h3>\n",folderName[i].Data(),
                              folderName[i].Data());
       buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("%s\n",folderDescription[i].Data());
+      buffer.AppendFormatted("%s<br>\n",folderDescription[i].Data());
+      if (folderInheritName[i].Length() > 0) {
+         buffer.AppendFormatted("This folder is inherited from <a href=\"#%sFolder\">%s</a>.<br>\n",
+                                folderInheritName[i].Data(), folderInheritName[i].Data());
+      }
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
       buffer.AppendFormatted("<table>\n");
