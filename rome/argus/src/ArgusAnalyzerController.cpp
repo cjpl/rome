@@ -305,7 +305,9 @@ void ArgusAnalyzerController::Update()
 #else
    sprintf(str, "%lld", gROME->GetCurrentEventNumber());
 #endif
-   fEventNumberEntry->SetText(str);
+   if(fEventNumberEntry) {
+      fEventNumberEntry->SetText(str);
+   }
 }
 
 //______________________________________________________________________________
