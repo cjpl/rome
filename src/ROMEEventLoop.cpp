@@ -906,8 +906,9 @@ Bool_t ROMEEventLoop::Update()
       if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID()!=1) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
          if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->GetWindow()->IsEventHandlingRequested() || (gROME->GetEventID()!=1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
-            if (gROME->GetWindow()->IsControllerActive())
+            if (gROME->GetWindow()->IsControllerActive()) {
                gROME->GetWindow()->GetAnalyzerController()->Update();
+            }
             if (!this->isStopped()) {
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
