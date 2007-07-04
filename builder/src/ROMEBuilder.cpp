@@ -1184,7 +1184,7 @@ Bool_t ROMEBuilder::StartBuilder()
 #endif
       n = dictionaryHeaders->GetEntries();
       if (n > 0) {
-         for (i = 0; i < n / maxNumberOfClassesInDictionary + 1; i++) {
+         for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
             tempStr.AppendFormatted(" dict/%sDict%d.cpp",shortCut.Data(), i);
          }
       }
