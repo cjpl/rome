@@ -1770,9 +1770,7 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
       delete fileStream;
    }
 
-   ROMEString command;
-   command.SetFormatted("rm -f %s", tmpFileName.Data());
-   gSystem->Exec(command.Data());
+   gSystem->Unlink(tmpFileName.Data());
 
    return kTRUE;
 }
