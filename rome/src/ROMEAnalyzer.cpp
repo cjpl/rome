@@ -914,7 +914,7 @@ Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 
       /* cursor keys return 2 chars, others 3 chars */
       if (c[1] < 65) {
-         read(fd, c, 1);
+         i = read(fd, c, 1); // return value of 'read' must be used in GCC4.
       }
 
       /* convert ESC sequence to CH_xxx */
