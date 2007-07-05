@@ -552,6 +552,7 @@ public:
 
    // Configuration
    ROMEConfig     *GetConfiguration() { return fConfiguration; }
+   Bool_t          WriteConfigurationFile(ROMEString &configFile);
    virtual Bool_t  ShowConfigurationFile() = 0;
 
    // Statistics

@@ -38,6 +38,7 @@
 #      include <sys/io.h>
 #   endif
 #endif // R__MACOSX
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -542,7 +543,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             fConfiguration->SetCommentLevel(strtol(answerLine,&cstop,10));
          }
          if (overwrite) {
-            if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
+            if (!this->WriteConfigurationFile(configFile)) {
                ROMEPrint::Print("\nTerminate program.\n");
                return false;
             }
@@ -566,11 +567,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          return false;
       }
    }
-   if (!isPreserveConfig()) {
-      if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-         ROMEPrint::Print("\nTerminate program.\n");
-         return false;
-      }
+
+   if (!this->WriteConfigurationFile(configFile)) {
+      ROMEPrint::Print("\nTerminate program.\n");
+      return false;
    }
 
    ROMEPrint::Debug("Reading command line options\n");
@@ -1729,4 +1729,50 @@ Bool_t ROMEAnalyzer::STDErrIsTerminal()
 #else
    return kTRUE;
 #endif
+}
+
+//______________________________________________________________________________
+Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
+{
+   if (isPreserveConfig()) {
+      return kTRUE;
+   }
+
+   ROMEString tmpFileName;
+   fclose(gSystem->TempFileName(tmpFileName));
+
+   if (!this->fConfiguration->WriteConfigurationFile(tmpFileName.Data())) {
+      ROMEPrint::Print("\nTerminate program.\n");
+      return false;
+   }
+
+   fstream *fileStream;
+   ROMEString oldFileBuffer = "";
+   ROMEString newFileBuffer = "";
+
+   if ((fileStream = new fstream(configFile.Data(), ios::in))) {
+      oldFileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+   }
+
+   if ((fileStream = new fstream(tmpFileName.Data(), ios::in))) {
+      newFileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+   }
+
+   if (oldFileBuffer != newFileBuffer) {
+      // we can even ask users if overwrite (not implemented)
+      if (!(fileStream = new fstream(configFile.Data(), ios::out | ios::trunc))) {
+         return kFALSE;
+      }
+      *fileStream<<newFileBuffer;
+      fileStream->close();
+      delete fileStream;
+   }
+
+   ROMEString command;
+   command.SetFormatted("rm -f %s", tmpFileName.Data());
+   gSystem->Exec(command.Data());
+
+   return kTRUE;
 }
