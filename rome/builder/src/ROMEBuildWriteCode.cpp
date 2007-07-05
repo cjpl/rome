@@ -16057,8 +16057,7 @@ Bool_t ROMEBuilder::WriteMain()
             buffer.AppendFormatted("      \" -I%s\"\n", cmdRes.Data());
          }
       }
-      cmd.SetFormatted("rm -f %s", tmpName.Data());
-      gSystem->Exec(cmd);
+      gSystem->Unlink(tmpName.Data());
    }
 #if defined( R__UNIX )
    if (this->mysql) {
@@ -16074,8 +16073,7 @@ Bool_t ROMEBuilder::WriteMain()
             buffer.AppendFormatted("      \" %s\"\n", cmdRes.Data());
          }
       }
-      cmd.SetFormatted("rm -f %s", tmpName.Data());
-      gSystem->Exec(cmd);
+      gSystem->Unlink(tmpName.Data());
    }
 #endif // R__UNIX
 #if defined( R__MACOSX )
@@ -16091,8 +16089,7 @@ Bool_t ROMEBuilder::WriteMain()
             cmdRes.Resize(cmdRes.Length() - 1);
          finkDir = cmdRes;
       }
-      cmd.SetFormatted("rm -f %s", tmpName.Data());
-      gSystem->Exec(cmd);
+      gSystem->Unlink(tmpName.Data());
    }
    if (finkDir.Length())
       buffer.AppendFormatted("      \" -I%s/include\"\n", finkDir.Data());
@@ -17806,9 +17803,7 @@ Bool_t ROMEBuilder::RemoveFile(const char* filename, const char* str)
             removeFile = true;
       }
       if (removeFile) {
-         ROMEString tmp;
-         tmp.SetFormatted("rm -f %s", filename);
-         gSystem->Exec(tmp.Data());
+         gSystem->Unlink(filename);
          if (makeOutput)
             cout<<"   removed '"<<filename<<"'."<<endl;
          return true;
