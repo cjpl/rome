@@ -1738,9 +1738,14 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
       return kTRUE;
    }
 
+
    ROMEString tmpFileName = gSystem->BaseName(configFile.Data());
+#if defined( R__UNIX )
    tmpFileName.ReplaceAll(".xml", "");
    fclose(gSystem->TempFileName(tmpFileName));
+#else
+   GetTempFileName("c:\\", "", 0, (char*)tmpFileName.Data());
+#endif
    tmpFileName += ".xml";
 
    if (!this->fConfiguration->WriteConfigurationFile(tmpFileName.Data())) {
