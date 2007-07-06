@@ -1738,8 +1738,10 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
       return kTRUE;
    }
 
-   ROMEString tmpFileName;
+   ROMEString tmpFileName = gSystem->BaseName(configFile.Data());
+   tmpFileName.ReplaceAll(".xml", "");
    fclose(gSystem->TempFileName(tmpFileName));
+   tmpFileName += ".xml";
 
    if (!this->fConfiguration->WriteConfigurationFile(tmpFileName.Data())) {
       ROMEPrint::Print("\nTerminate program.\n");
