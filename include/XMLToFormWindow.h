@@ -15,6 +15,7 @@
 class XMLToFormFrame;
 class TGListTreeItem;
 class ROMEXML;
+class ROMEString;
 
 class XMLToFormWindow : public TGTransientFrame {
 public:
