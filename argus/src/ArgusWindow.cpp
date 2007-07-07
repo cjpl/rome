@@ -286,6 +286,10 @@ void ArgusWindow::SetStatus(Int_t mode, const char *text, Double_t progress, Int
    // mode 1 : set progress
    // mode 2 : finish
 
+   if (!fStatusBar) {
+      return;
+   }
+
    fProgress->SetPosition((float)(fProgress->GetMax()*progress));
    fStatusBar->SetText(text);
 

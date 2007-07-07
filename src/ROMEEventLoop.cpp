@@ -238,9 +238,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
          if (IsTerminal()) {
             ROMEPrint::Print("Starting argus monitor ...                            \r");
-            gROME->StartWindow();
-            ROMEPrint::Print("Argus monitor running                                 \n");
          }
+         gROME->StartWindow();
+         ROMEPrint::Print("Argus monitor running                                 \n");
          fWindowFirstDraw = kTRUE;
       }
 
@@ -907,7 +907,9 @@ Bool_t ROMEEventLoop::Update()
          fUpdateWindowLastEvent = newUpdateWindowEvent;
          if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->GetWindow()->IsEventHandlingRequested() || (gROME->GetEventID()!=1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
             if (gROME->GetWindow()->IsControllerActive()) {
-               gROME->GetWindow()->GetAnalyzerController()->Update();
+               if(gROME->GetWindow()->GetAnalyzerController()) {
+                  gROME->GetWindow()->GetAnalyzerController()->Update();
+               }
             }
             if (!this->isStopped()) {
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
@@ -938,8 +940,9 @@ Bool_t ROMEEventLoop::UserInput()
    if (gROME->isDaemonMode() || gROME->isBatchMode())
       return kTRUE;
 
-   if (!IsTerminal())
+   if (!IsTerminal()) {
       return kTRUE;
+   }
 
    // Looks for user input. Called before the Event tasks.
    bool wait = false;
