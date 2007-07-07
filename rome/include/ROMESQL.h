@@ -16,8 +16,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-
-class TString;
+#include <TString.h>
 
 class ROMESQL : public TObject
 {
