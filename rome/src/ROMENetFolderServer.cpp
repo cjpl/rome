@@ -142,7 +142,7 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
 //______________________________________________________________________________
 THREADTYPE ROMENetFolderServer::Server(void *arg)
 {
-   TSocket *socket = (TSocket *) arg;
+   TSocket *socket = static_cast<TSocket*>(arg);
    ROMENetFolderServer* localThis = gROME->GetNetFolderServer();
 
    if (!socket->IsValid())
@@ -165,7 +165,8 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
 // Server loop listening for incoming network connections on port
 // specified by command line option -s. Starts a searver_thread for
 // each connection.
-   int port = *(int*)arg;
+   Int_t port;
+   memcpy(&port, arg, sizeof(Int_t));
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
    if (!lsock->IsValid()) {
       switch(lsock->GetErrorCode()) {

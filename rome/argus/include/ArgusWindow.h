@@ -107,8 +107,8 @@ public:
    // Window Scale
    Float_t         GetWindowScale() { return fWindowScale; }
    void            SetWindowScale(Float_t scale) { fWindowScale = scale; }
-   void            SetWindowScale(Char_t* scale) { Char_t* cstop; fWindowScale = (Float_t)strtod(scale,&cstop); }
-   void            SetWindowScale(ROMEString& scale) { SetWindowScale((Char_t*)scale.Data()); }
+   void            SetWindowScale(const char* scale) { Char_t* cstop; fWindowScale = static_cast<Float_t>(strtod(scale,&cstop)); }
+   void            SetWindowScale(ROMEString& scale) { SetWindowScale(scale.Data()); }
 
    // Status bar
    void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
@@ -131,7 +131,7 @@ public:
 
    // Tabs
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
-   ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); }
+   ArgusTab       *GetTabObjectAt(Int_t index) { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
    ArgusTab       *GetTabObject(const char* tabName);
    Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
    // Active. This might be dangerouse because it overload TGFrame::IsActive

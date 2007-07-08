@@ -38,12 +38,12 @@ public:
    Bool_t  MakeQuery(const char* query,Bool_t store);
    Bool_t  StoreResult();
    Bool_t  NextRow();
-   char*   GetField(Int_t fieldNumber);
+   const char* GetField(Int_t fieldNumber);
    Int_t   GetNumberOfRows(){ return numOfRows; }
    Int_t   GetNumberOfFields(){ return numOfFields; }
    void    FreeResult();
    Int_t   GetErrorCode(){ return errnum; }
-   char   *GetErrorMessage(){ return errmsg; }
+   const char *GetErrorMessage(){ return errmsg; }
    Bool_t  StartTransaction( const char* option );
    Bool_t  CommitTransaction( const char* option );
    Bool_t  RollbackTransaction( const char* option );

@@ -241,7 +241,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
       if(values->GetEntriesAt(iRow)>fieldLen.GetSize())
          fieldLen.Set(values->GetEntriesAt(iRow));
       for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
-         if(fieldLen.At(iCol%kColPerLine)<(Ssiz_t)strlen(values->At(iRow,iCol)))
+         if(fieldLen.At(iCol%kColPerLine) < static_cast<Ssiz_t>(strlen(values->At(iRow,iCol))))
             fieldLen.AddAt(strlen(values->At(iRow,iCol)),iCol%kColPerLine);
       }
    }

@@ -641,7 +641,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else if (!strcmp(argv[i],"-o")) {
-         ((ROMEEventLoop*)fMainTask)->SetContinuousMode(false);
+         static_cast<ROMEEventLoop*>(fMainTask)->SetContinuousMode(false);
       }
       else if (!strcmp(argv[i],"-i")) {
          if (i+1 >= argc) {
@@ -740,40 +740,42 @@ void ROMEAnalyzer::DecodeNumbers(ROMEString& str,TArrayL64& arr)
    char cminus='-';
    char ccomma=',';
    char csemi =';';
-   char *pstr = (char*)str.Data();
-   char *pend = (char*)str.Data()+str.Length();
+   char *tmpStr = new char[str.Length() + 1];
+   strcpy(tmpStr, str.Data());
+   char *pstr = tmpStr;
+   char *pend = pstr + str.Length();
    Long64_t num;
    Int_t na=0;
    Int_t nat=1;
    arr.Set(10);
    Int_t arraySize = arr.GetSize();
-   while (pstr<pend) {
-      if (na>=arraySize*nat) {
+   while (pstr < pend) {
+      if (na >= arraySize * nat) {
          nat++;
-         arr.Set(arraySize*nat);
+         arr.Set(arraySize * nat);
       }
-      num = strtol(pstr,&pstr,10);
-      if (pstr[0]==cminus) {
-         arr.AddAt(-num,na);
-         if (num==0) {
+      num = strtol(pstr, &pstr, 10);
+      if (pstr[0] == cminus) {
+         arr.AddAt(-num, na);
+         if (num == 0) {
             na++;
-            arr.AddAt(-1,na);
+            arr.AddAt(-1, na);
          }
          na++;
          pstr++;
-      }
-      else if (pstr[0]==ccomma||pstr[0]==csemi) {
+      } else if (pstr[0] == ccomma || pstr[0] == csemi) {
          arr.AddAt(num,na);
          na++;
          pstr++;
-      }
-      else {
-         arr.AddAt(num,na);
-         arr.Set(na+1);
+      } else {
+         arr.AddAt(num, na);
+         arr.Set(na + 1);
+         delete [] tmpStr;
          return;
       }
    }
    arr.Set(na);
+   delete [] tmpStr;
 }
 
 //______________________________________________________________________________
@@ -1451,13 +1453,13 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
 //______________________________________________________________________________
 void ROMEAnalyzer::NextEvent()
 {
-   ((ROMEEventLoop*)fMainTask)->NextEvent();
+   static_cast<ROMEEventLoop*>(fMainTask)->NextEvent();
 }
 
 //______________________________________________________________________________
 void ROMEAnalyzer::GotoEvent(Long64_t eventNumber)
 {
-   ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber);
+   static_cast<ROMEEventLoop*>(fMainTask)->GotoEvent(eventNumber);
 }
 
 //______________________________________________________________________________
@@ -1613,7 +1615,7 @@ void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObje
    buffer->Reset();
    buffer->SetWriteMode();
    buffer->MapObject(source);  //register obj in map to handle self reference
-   ((TObject*)source)->Streamer(*buffer);
+   static_cast<TObject*>(source)->Streamer(*buffer);
    // read new object from buffer
    buffer->SetReadMode();
    buffer->ResetMap();

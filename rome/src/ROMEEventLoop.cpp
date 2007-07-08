@@ -142,7 +142,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Deactivate all tasks if stand alone ARGUS
    if (gROME->IsStandAloneARGUS()) {
       for (i=0;i<gROME->GetTaskObjectEntries();i++) {
-         ((ROMETask*)gROME->GetTaskObjectAt(i))->SetActive(false);
+         static_cast<ROMETask*>(gROME->GetTaskObjectAt(i))->SetActive(false);
       }
    }
 
@@ -278,10 +278,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (gROME->IsShowRunStat()) {
 #if defined( R__VISUAL_CPLUSPLUS )
             ROMEPrint::Print("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
-            ROMEPrint::Print("%I64d events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
+            ROMEPrint::Print("%I64d events processed\n\n",static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
 #else
             ROMEPrint::Print("Run %lld stopped                                             \n",gROME->GetCurrentRunNumber());
-            ROMEPrint::Print("%lld events processed\n\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
+            ROMEPrint::Print("%lld events processed\n\n",static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
 #endif
          }
 
@@ -347,7 +347,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       ROMEString prompt = gROME->GetProgramName();
       prompt.ToLower();
       prompt += " [%d] ";
-      ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
+      static_cast<TRint*>(gROME->GetApplication())->SetPrompt(prompt.Data());
       if (!gROME->isQuitMode()) {
          gROME->GetApplication()->Run(true);
          ROMEPrint::PrintAlways("\n");
@@ -533,16 +533,19 @@ Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
       const ULong_t kInterval = 10; // this should be changed to parameter
-      if ((ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
-         if (gROME->GetObjectStorageMutex()->TryLock()==0) {
-            fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
+      if (static_cast<ULong_t>(gSystem->Now()) > fLastNetFolderServerUpdateTime + kInterval) {
+         if (gROME->GetObjectStorageMutex()->TryLock() == 0) {
+            fLastNetFolderServerUpdateTime = static_cast<ULong_t>(gSystem->Now());
             gROME->FillObjectStorage();
             if (fNetFolderServerUpdateThread) {
                TThread::Delete(fNetFolderServerUpdateThread);
                fNetFolderServerUpdateThread = 0;
             }
             if (useThread) {
-               fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillObjectsInNetFolderServer,(void*) gROME);
+               fNetFolderServerUpdateThread =
+                     new TThread("CopyThread",
+                                 reinterpret_cast<THREADTYPE(*)(void*)>(&ROMEAnalyzer::FillObjectsInNetFolderServer),
+                                 static_cast<void*>(gROME));
                gROME->GetObjectStorageMutex()->UnLock();
                fNetFolderServerUpdateThread->Run();
             } else {
@@ -707,7 +710,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 
    // Progress Display
    fProgressDelta = 10000;
-   fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
+   fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
    fProgressLastEvent = 0;
    fProgressWrite = false;
 
@@ -830,7 +833,7 @@ Bool_t ROMEEventLoop::DAQEvent()
 
    // Update Statistics
    stat->processedEvents++;
-   ULong_t time = (ULong_t)gSystem->Now();
+   ULong_t time = static_cast<ULong_t>(gSystem->Now());
    if (fStatisticsTimeOfLastEvent == 0)
       fStatisticsTimeOfLastEvent = time;
    if (time - fStatisticsTimeOfLastEvent != 0)
@@ -864,12 +867,13 @@ Bool_t ROMEEventLoop::Update()
    // Progress Display
    ROMEPrint::Debug("ROMEEventLoop::Update() Progress Display");
    if (fProgressDelta>1) {
-      if ((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5) >= fProgressLastEvent + fProgressDelta) {
-         fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
-         fProgressLastEvent = (Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5);
+      if (static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents+0.5) >=
+          fProgressLastEvent + fProgressDelta) {
+         fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+         fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents+0.5);
          fProgressWrite = true;
       } else {
-         if ((ULong_t)gSystem->Now() > ((ULong_t)fProgressTimeOfLastEvent+1000)) {
+         if (static_cast<ULong_t>(gSystem->Now()) > static_cast<ULong_t>(fProgressTimeOfLastEvent + 1000)) {
             fProgressDelta /= 10;
          }
       }
@@ -886,13 +890,18 @@ Bool_t ROMEEventLoop::Update()
 
    ROMEPrint::Debug("ROMEEventLoop::Update() Update");
    if (!gROME->isBatchMode() &&
-       ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
+       (!fContinuous ||
+        (fProgressDelta == 1 ||
+         !(static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5) % fProgressDelta) &&
+         fProgressWrite))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
          if (IsTerminal()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("processed event number %I64d                                              \r",
+                             gROME->GetCurrentEventNumber());
 #else
-            ROMEPrint::Print("processed event number %lld                                              \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("processed event number %lld                                              \r",
+                             gROME->GetCurrentEventNumber());
 #endif
             ROMEPrint::Debug("\n");
          }
@@ -905,7 +914,11 @@ Bool_t ROMEEventLoop::Update()
       newUpdateWindowEvent =  gROME->GetCurrentEventNumber();
       if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID()!=1) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
-         if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->GetWindow()->IsEventHandlingRequested() || (gROME->GetEventID()!=1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
+         if ((fUpdateWindow &&
+              static_cast<ULong_t>(gSystem->Now()) >
+              static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdateFrequency())) ||
+             gROME->GetWindow()->IsEventHandlingRequested() ||
+             (gROME->GetEventID() != 1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
             if (gROME->GetWindow()->IsControllerActive()) {
                if(gROME->GetWindow()->GetAnalyzerController()) {
                   gROME->GetWindow()->GetAnalyzerController()->Update();
@@ -915,7 +928,7 @@ Bool_t ROMEEventLoop::Update()
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
             }
-            fLastUpdateTime = (ULong_t)gSystem->Now();
+            fLastUpdateTime = static_cast<ULong_t>(gSystem->Now());
          }
          gROME->GetWindow()->ClearEventHandlingRequest();
       }
@@ -967,10 +980,11 @@ Bool_t ROMEEventLoop::UserInput()
       ROMEPrint::Print("Stopped after event %lld                   \r",gROME->GetCurrentEventNumber());
 #endif
       wait = true;
-   } else if (!gROME->HasUserEvent() && fContinuous && ((ULong_t)gSystem->Now() < ((ULong_t)fUserInputLastTime+300))) {
+   } else if (!gROME->HasUserEvent() && fContinuous &&
+              static_cast<ULong_t>(gSystem->Now()) < static_cast<ULong_t>(fUserInputLastTime + 300)) {
       return true;
    }
-   fUserInputLastTime = (ULong_t)gSystem->Now();
+   fUserInputLastTime = static_cast<ULong_t>(gSystem->Now());
 
    while (wait || first) {
       if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
@@ -1049,16 +1063,16 @@ Bool_t ROMEEventLoop::UserInput()
                wait = false;
                fUpdateWindow = true;
                fProgressDelta = 1000;
-               fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
-               fProgressLastEvent = (Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5);
+               fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+               fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5);
             }
          }
          if (ch == 'r' || ch == 'R' || gROME->IsUserEventR()) {
             if (fContinuous) {
                ROMEPrint::Print("                                  \r");
                fProgressDelta = 1000;
-               fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
-               fProgressLastEvent = (Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5);
+               fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+               fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5);
             } else {
                if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
                   gROME->GetWindow()->RequestEventHandling();
@@ -1185,8 +1199,9 @@ Bool_t ROMEEventLoop::UserInput()
          break;
       }
    }
-   if (hit)
-      fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
+   if (hit) {
+      fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+   }
 
    return true;
 }
@@ -1208,7 +1223,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    fHistoFile = new TFile(filename.Data(),"RECREATE");
    if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
-      TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
+      TFolder *folder = static_cast<TFolder*>(gROOT->FindObjectAny("histos"));
       folder->Write();
       fHistoFile->Write();
       fHistoFile->Close();

@@ -1199,7 +1199,7 @@ Bool_t ROMEBuilder::StartBuilder()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
+Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, const char *argv[])
 {
    makeOutput = false;
    noLink = false;
@@ -1478,7 +1478,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          pch = false;
       } else if (!strcmp(argv[i],"-makeflag")&&i<argc-1) {
          i++;
-         makeFlag = ((const char*)argv[i]);
+         makeFlag = argv[i];
          if (makeFlag[0] == '\"' && makeFlag[makeFlag.Length() - 1] == '\"') {
             makeFlag.Remove(makeFlag.Length() - 1, 1);
             makeFlag.Remove(0, 1);
@@ -1486,7 +1486,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       } else if (!strcmp(argv[i],"-f")&&i<argc-1) {
          i++;
          while (argv[i][0] != '-') {
-            flags.AddLast((const char*)argv[i]);
+            flags.AddLast(argv[i]);
             i++;
             if (i>argc-1)
                break;
@@ -1503,7 +1503,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       } else if (!strcmp(argv[i],"-a")&&i<argc-1) {
          i++;
          while (argv[i][0] != '-') {
-            affiliations.AddLast((const char*)argv[i]);
+            affiliations.AddLast(argv[i]);
             i++;
             if (i>argc-1)
                break;
@@ -1931,9 +1931,9 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
    if (type == 1 || type == 2) {
       if (isNumber(oldType) || isBoolType(oldType)) {
          if (type == 1) {
-            return stringBuffer.SetFormatted("(int)%s",value);
+            return stringBuffer.SetFormatted("static_cast<int>(%s)",value);
          } else if (type == 2) {
-            return stringBuffer.SetFormatted("(double)%s",value);
+            return stringBuffer.SetFormatted("static_cast<double>(%s)",value);
          }
       } else {
          if (type == 1) {
@@ -1954,9 +1954,9 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
       }
       ROMEString tmp = stringBuffer;
       if (oldTypeStr == "std::string") {
-         return stringBuffer.SetFormatted("%s=%s.c_str()",tmp.Data(),value);
+         return stringBuffer.SetFormatted("%s = %s.c_str()",tmp.Data(),value);
       } else if (oldTypeStr == "ROMEString" || oldTypeStr == "TString") {
-         return stringBuffer.SetFormatted("%s=%s",tmp.Data(),value);
+         return stringBuffer.SetFormatted("%s = %s",tmp.Data(),value);
       } else if (isFloatingType(oldType)) {
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%.16g\",%s)",tmp.Data(),value);
       } else {
@@ -2025,21 +2025,21 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
    ROMEString str;
    ROMEString typeStr = type;
    typeStr.StripSpaces();
-   const char arrayTypes[][2][9]
-      = { {"TArrayC","Char_t  "}
-         ,{"TArrayI","Int_t   "}
-         ,{"TArrayD","Double_t"}
-         ,{"TArrayL","Long_t  "}
-         ,{"TArrayF","Float_t "}
-         ,{"TArrayS","Short_t "}
-      };
+
+   const char arrayTypes[][2][9] =
+         {{"TArrayC","Char_t  "},
+          {"TArrayI","Int_t   "},
+          {"TArrayD","Double_t"},
+          {"TArrayL","Long_t  "},
+          {"TArrayF","Float_t "},
+          {"TArrayS","Short_t "}};
 
    for (j = 0; j < 6; j++) {
       if (typeStr == arrayTypes[j][0]) {
          standardType = arrayTypes[j][1];
          return standardType.Data();
       }
-      str.SetFormatted("%s*",(char*)arrayTypes[j]);
+      str.SetFormatted("%s*", arrayTypes[j][1]);
       if (typeStr == str.Data()) {
          standardType = arrayTypes[j][1];
          return standardType.Data();

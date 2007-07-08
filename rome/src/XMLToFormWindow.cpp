@@ -133,7 +133,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             additionalWidth = 0;
          }
          tempLabel = new ROMELabel(0,frame->GetElementAt(j)->GetTitle().Data());
-         if (frame->GetElementAt(j)->GetWidth()<(int)tempLabel->GetSize().fWidth+additionalWidth) {
+         if (frame->GetElementAt(j)->GetWidth() < static_cast<int>(tempLabel->GetSize().fWidth) + additionalWidth) {
             frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth+additionalWidth);
          }
          if (frame->GetFrameMaxWidth()<frame->GetElementAt(j)->GetWidth()) {
@@ -142,7 +142,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
          delete tempLabel;
          for (k=0;k<frame->GetElementAt(j)->GetNumberOfEntries();k++) {
             tempLabel = new ROMELabel(0,frame->GetElementAt(j)->GetEntryAt(k).Data());
-            if (frame->GetElementAt(j)->GetWidth()<(int)tempLabel->GetSize().fWidth) {
+            if (frame->GetElementAt(j)->GetWidth() < static_cast<int>(tempLabel->GetSize().fWidth)) {
                frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth);
             }
             if (frame->GetFrameMaxWidth()<frame->GetElementAt(j)->GetWidth()) {
@@ -751,10 +751,10 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
    if (main) {
       Window_t wdum;
       gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId(),
-                                      (Int_t) (((TGFrame *) main)->GetWidth() -
-                                               fWidth) >> 1,
-                                      (Int_t) (((TGFrame *) main)->GetHeight() -
-                                               fHeight) >> 1, ax, ay, wdum);
+                                      static_cast<Int_t>(static_cast<const TGFrame*>(main)->GetWidth() -
+                                                         fWidth) >> 1,
+                                      static_cast<Int_t>(static_cast<const TGFrame*>(main)->GetHeight() -
+                                                         fHeight) >> 1, ax, ay, wdum);
    } else {
       UInt_t root_w, root_h;
       gVirtualX->GetWindowSize(fClient->GetRoot()->GetId(), ax, ay, root_w, root_h);

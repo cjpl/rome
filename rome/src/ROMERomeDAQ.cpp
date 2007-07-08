@@ -203,7 +203,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                         return false;
                      }
                      romeTree->SetFile(fRootFiles[i]);
-                     ((TBranchElement*)tree->FindBranch("Info"))->SetAddress(&fTreeInfo);
+                     static_cast<TBranchElement*>(tree->FindBranch("Info"))->SetAddress(&fTreeInfo);
                      tree->GetBranch("Info")->GetEntry(0);
                      if (fTreeInfo->GetRunNumber()==gROME->GetCurrentRunNumber()) {
                         gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(i));
@@ -264,7 +264,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
          romeTree = fROMETrees[j];
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
-            fTreePositionArray[j] = new Long64_t[(int)fTreeNEntries[j]]; // Warning : potential loss of data (int)
+            fTreePositionArray[j] = new Long64_t[static_cast<int>(fTreeNEntries[j])]; // Warning : potential loss of data (int)
             for(iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
                tree->GetBranch("Info")->GetEntry(iEvent);
                fTreePositionArray[j][iEvent] = fTreeInfo->GetEventNumber();

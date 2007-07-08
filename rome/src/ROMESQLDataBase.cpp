@@ -305,7 +305,7 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
 #endif
          sqlQuery.ReplaceAll(kRunNumberReplace, tmpString);
 
-         if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
+         if (!fSQL->MakeQuery(sqlQuery.Data(),true)) {
             ROMEPrint::Error("Wrong path for data base constraint : %s\n", path->GetTableDBConstraintAt(iTable));
             fSQL->FreeResult();
             return false;
@@ -595,7 +595,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    }
    sqlQuery.ReplaceAll(kEventNumberReplace, fLastEventNumberString);
 
-   if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
+   if (!fSQL->MakeQuery(sqlQuery.Data(),true)) {
       ROMEPrint::Error("Invalid input for database read.\n");
       fSQL->FreeResult();
       return false;
@@ -733,7 +733,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
                                   ,iOrder);
       }
       sqlQuery += " LIMIT 1;";
-      if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
+      if (!fSQL->MakeQuery(sqlQuery.Data(),true)) {
          ROMEPrint::Error("Invalid input for database write.\n");
          fSQL->FreeResult();
          delete path;
@@ -811,7 +811,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       }
 
       ROMEPrint::Debug("ROMESQLDataBase::Write  : %s\n", sqlQuery.Data());
-      if (!fSQL->MakeQuery((char*)sqlQuery.Data(),false)) {
+      if (!fSQL->MakeQuery(sqlQuery.Data(),false)) {
          ROMEPrint::Error("Invalid input for database write.\n");
          delete path;
 #if defined ( USE_TRANSACTION )

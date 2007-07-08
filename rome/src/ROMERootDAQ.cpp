@@ -69,7 +69,7 @@ Bool_t ROMERootDAQ::Event(Long64_t event) {
    int j;
    // read event
    for (j=0;j<fTrees->GetEntriesFast();j++) {
-      if (((TTree*)fTrees->At(j))->GetEntry(event) <= 0) {
+      if (static_cast<TTree*>(fTrees->At(j))->GetEntry(event) <= 0) {
          this->SetEndOfRun();
          return true;
       }
@@ -88,7 +88,7 @@ Long64_t ROMERootDAQ::Seek(Long64_t event) {
    int j;
    // read event
    for (j=0;j<fTrees->GetEntriesFast();j++) {
-      if(event >= ((TTree*)fTrees->At(j))->GetEntries())
+      if(event >= static_cast<TTree*>(fTrees->At(j))->GetEntries())
          found = kFALSE;
    }
 

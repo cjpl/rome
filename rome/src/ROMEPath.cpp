@@ -89,8 +89,8 @@ Bool_t ROMEPath::DecodeConstraint(const char* contraint)
          ROMEPrint::Error("\nInvalid constraint expression : %s.\n", substr.Data());
          return false;
       }
-      SetConstraintFieldAt(iconst,((TString)substr(0,iequal)).Data());
-      SetConstraintValueAt(iconst,((TString)substr(iequal+1,substr.Length()-iequal-1)).Data());
+      SetConstraintFieldAt(iconst, static_cast<TString>(substr(0,iequal)).Data());
+      SetConstraintValueAt(iconst, static_cast<TString>(substr(iequal+1,substr.Length()-iequal-1)).Data());
       iconst++;
    }
    return true;
@@ -163,7 +163,7 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
       indx = MinPosition(i1,i2,i3);
       if (indx==-1) {
          SetTableNameAt(nTable,subPath);
-         SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
+         SetTableAbsolutePathAt(nTable, static_cast<TString>(originalPath(0,abspathposition-1)).Data());
          continue;
       }
       else {
@@ -171,8 +171,8 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
             ROMEPrint::Error("\nNo table name specified.\n");
             return false;
          }
-         SetTableNameAt(nTable,((TString)subPath(0,indx)).Data());
-         SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
+         SetTableNameAt(nTable, static_cast<TString>(subPath(0,indx)).Data());
+         SetTableAbsolutePathAt(nTable, static_cast<TString>(originalPath(0,abspathposition-1)).Data());
       }
       // handle '[' (Constraints)
       if (i1!=-1) {
@@ -181,14 +181,14 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
                ROMEPrint::Error("\nData base constraint statement not closed in table '%s'.\n", GetTableNameAt(nTable));
 return false;
             }
-            SetTableDBConstraintAt(nTable,((TString)subPath(iat1+1,iat2-iat1-1)).Data());
+            SetTableDBConstraintAt(nTable, static_cast<TString>(subPath(iat1+1,iat2-iat1-1)).Data());
          }
          else {
             if ((indx=subPath.Index("]",1,i1,TString::kExact))==-1) {
                ROMEPrint::Error("\nConstraint statement not closed in table '%s'.\n", GetTableNameAt(nTable));
                return false;
             }
-            SetTableConstraintAt(nTable,((TString)subPath(i1+1,indx-i1-1)).Data());
+            SetTableConstraintAt(nTable, static_cast<TString>(subPath(i1+1,indx-i1-1)).Data());
          }
       }
       // handle '('  (Arrays)
@@ -216,7 +216,7 @@ return false;
             if (*cstop==')') {
                break;
             }
-            temp = temp((int)(cstop+1-temp.Data()),temp.Length());
+            temp = temp(static_cast<int>(cstop+1-temp.Data()),temp.Length());
          }
       }
       // handle '{'
@@ -280,7 +280,7 @@ return false;
          ROMEPrint::Error("\nNo field name specified.\n");
          return false;
       }
-      SetFieldName(((TString)path(0,indx)).Data());
+      SetFieldName(static_cast<TString>(path(0,indx)).Data());
    }
    // handle '[' (Constraints)
    if (i1!=-1) {
@@ -288,7 +288,7 @@ return false;
          ROMEPrint::Error("\nConstraint statement not closed in field '%s'.\n", GetFieldName());
          return false;
       }
-      SetFieldConstraints(((TString)path(i1+1,indx-i1-1)).Data());
+      SetFieldConstraints(static_cast<TString>(path(i1+1,indx-i1-1)).Data());
    }
 
    // handle '('  (Arrays)
@@ -315,7 +315,7 @@ return false;
             }
             return true;
          }
-         path = path((int)(cstop+1-path.Data()),path.Length());
+         path = path(static_cast<int>(cstop+1-path.Data()),path.Length());
       }
    }
    return true;

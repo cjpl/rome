@@ -89,7 +89,7 @@ Int_t ROMEPgSQL::GetNumberOfRows() {
       ROMEPrint::Error("GetNumberOfRows error : no query result.\n");
       return -1;
    }
-   return (int)PQntuples(result);
+   return static_cast<Int_t>(PQntuples(result));
 }
 
 //______________________________________________________________________________
@@ -102,7 +102,7 @@ Int_t ROMEPgSQL::GetNumberOfFields() {
 }
 
 //______________________________________________________________________________
-char* ROMEPgSQL::GetField(Int_t fieldNumber) {
+const char* ROMEPgSQL::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
       ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
@@ -122,12 +122,12 @@ Bool_t ROMEPgSQL::NextRow() {
 
 //______________________________________________________________________________
 Int_t ROMEPgSQL::GetErrorCode() {
-   return (int) PQresultStatus(result);
+   return static_cast<Int_t>(PQresultStatus(result));
 }
 
 //______________________________________________________________________________
-char* ROMEPgSQL::GetErrorMessage() {
-   return (char*) PQerrorMessage(connection);
+const char* ROMEPgSQL::GetErrorMessage() {
+   return PQerrorMessage(connection);
 }
 
 Bool_t ROMEPgSQL::StartTransaction( const char* option ){

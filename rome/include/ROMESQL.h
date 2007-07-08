@@ -30,12 +30,12 @@ public:
    virtual Bool_t  MakeQuery(const char* query,Bool_t store) = 0;
    virtual Bool_t  StoreResult() = 0;
    virtual Bool_t  NextRow() = 0;
-   virtual char   *GetField(Int_t fieldNumber) = 0;
+   virtual const char *GetField(Int_t fieldNumber) = 0;
    virtual Int_t   GetNumberOfRows() = 0;
    virtual Int_t   GetNumberOfFields() = 0;
    virtual void    FreeResult() = 0;
    virtual Int_t   GetErrorCode() = 0;
-   virtual char   *GetErrorMessage() = 0;
+   virtual const char *GetErrorMessage() = 0;
    virtual Bool_t  StartTransaction( const char* /*option*/ ){ return true; }
    virtual Bool_t  CommitTransaction( const char* /*option*/ ){ return true; }
    virtual Bool_t  RollbackTransaction( const char* /*option*/ ){ return true; }

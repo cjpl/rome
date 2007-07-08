@@ -137,12 +137,12 @@ Bool_t ROMESQLite::NextRow() {
 }
 
 //______________________________________________________________________________
-char* ROMESQLite::GetField(Int_t fieldNumber) {
+const char* ROMESQLite::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
       ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
-   return (char*) result.At(fieldNumber,currentRow).Data();
+   return result.At(fieldNumber,currentRow).Data();
 }
 
 //______________________________________________________________________________

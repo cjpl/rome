@@ -159,7 +159,7 @@ TObjArray *TNetFolder::GetListOfFolders()
    if (!Recv(mr))
       return GetListOfFolders();
    if (mr) {
-      TObjArray *list = (TObjArray *) mr->ReadObject(mr->GetClass());
+      TObjArray *list = static_cast<TObjArray*>(mr->ReadObject(mr->GetClass()));
       delete mr;
       return list;
    }
@@ -202,7 +202,7 @@ TObject *TNetFolder::FindObject(const char *name) const
       delete mr;
       return NULL;
    }
-   TObject *obj = (TObject *) mr->ReadObject(mr->GetClass());
+   TObject *obj = static_cast<TObject*>(mr->ReadObject(mr->GetClass()));
 
    delete mr;
    return obj;
@@ -233,7 +233,7 @@ TObject *TNetFolder::FindObjectAny(const char *name) const
       delete mr;
       return NULL;
    }
-   TObject *obj = (TObject *) mr->ReadObject(mr->GetClass());
+   TObject *obj = static_cast<TObject*>(mr->ReadObject(mr->GetClass()));
 
    delete mr;
    return obj;
@@ -264,7 +264,7 @@ const char *TNetFolder::FindFullPathName(const char *name)
       return NULL;
    }
 
-   const char *path = ((TObjString *) mr->ReadObject(mr->GetClass()))->String().Data();
+   const char *path = static_cast<TObjString*>(mr->ReadObject(mr->GetClass()))->String().Data();
 
    delete mr;
    return path;

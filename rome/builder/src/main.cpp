@@ -32,7 +32,7 @@
 #include "ROMEVersion.h"
 
 //______________________________________________________________________________
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
    char* romesys = getenv("ROMESYS");
    if (romesys==NULL) {
@@ -55,14 +55,17 @@ int main(int argc, char *argv[])
 
    ROMEString xmlFile = "";
 
-   if (!romeb->ReadCommandLineParameters(argc,argv))
+   if (!romeb->ReadCommandLineParameters(argc, argv)) {
       return 1;
+   }
 
-   if (!romeb->CheckFileAndPath())
+   if (!romeb->CheckFileAndPath()) {
       return 1;
+   }
 
-   if (!romeb->StartBuilder())
+   if (!romeb->StartBuilder()) {
       return 1;
+   }
 
    bool noLink = romeb->GetNoLink();
    bool makeOutput = romeb->GetMakeOutput();
@@ -81,8 +84,9 @@ int main(int argc, char *argv[])
    delete romeb;
 
    if (!noLink) {
-      if(makeOutput)
+      if(makeOutput) {
          cout<<"Linking the executable binary."<<endl;
+      }
 #if defined( R__UNIX )
       return (gSystem->Exec(makeCommand.Data())) ? EXIT_FAILURE : EXIT_SUCCESS;
 #endif

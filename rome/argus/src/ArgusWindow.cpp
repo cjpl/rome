@@ -218,8 +218,8 @@ void ArgusWindow::CloseWindow()
 ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
 {
    for (int i = 0; i < fTabObjects->GetEntries(); i++) {
-      if (!strcmp(tabName, ((ArgusTab*)fTabObjects->At(i))->GetTitle())) {
-         return (ArgusTab*)fTabObjects->At(i);
+      if (!strcmp(tabName, static_cast<ArgusTab*>(fTabObjects->At(i))->GetTitle())) {
+         return static_cast<ArgusTab*>(fTabObjects->At(i));
       }
    }
    Error("GetTabObject", "%s was not found.", tabName);
@@ -230,7 +230,7 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
 Int_t ArgusWindow::GetActiveTabObjectIndex()
 {
    for (int i = 0; i < fTabObjects->GetEntries(); i++) {
-      if (((ArgusTab*)fTabObjects->At(i))->IsTabActive()) {
+      if (static_cast<ArgusTab*>(fTabObjects->At(i))->IsTabActive()) {
          return i;
       }
    }
@@ -258,12 +258,12 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
       string.SetFormatted("sub window %3d................ : %s\n", fWindowId, fWatchAll.GetRealTimeString(str));
    }
    for (i = 0; i < fTabObjects->GetEntriesFast(); i++) {
-      ((ArgusTab*)fTabObjects->At(i))->GetTimeStatisticsString(str);
+      static_cast<ArgusTab*>(fTabObjects->At(i))->GetTimeStatisticsString(str);
       string.AppendFormatted(str.Data());
    }
    for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {
       if (IsSubWindowRunningAt(i)) {
-         string.AppendFormatted(((ArgusWindow*)fSubWindows->At(i))->GetTimeStatisticsString(str));
+         string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(i))->GetTimeStatisticsString(str));
       } else {
          string.AppendFormatted(GetSubWindowTimeStringAt(i));
       }
@@ -291,6 +291,7 @@ void ArgusWindow::SetStatus(Int_t mode, const char *text, Double_t progress, Int
    }
 
    fProgress->SetPosition((float)(fProgress->GetMax()*progress));
+   fProgress->SetPosition(static_cast<float>(fProgress->GetMax()*progress));
    fStatusBar->SetText(text);
 
    if (mode == 0) {
@@ -323,7 +324,7 @@ void ArgusWindow::SetSubWindowRunningAt(Int_t i, Bool_t running)
          fSubWindowRunning->Set(i + 1);
       }
    }
-   fSubWindowRunning->AddAt((Int_t)running, i);
+   fSubWindowRunning->AddAt(running ? 1 : 0, i);
 }
 
 //______________________________________________________________________________
