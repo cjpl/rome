@@ -104,7 +104,7 @@ Bool_t ROMESQLite3::StoreResult()
          case SQLITE_ROW:
             column_count = sqlite3_column_count(stmt);
             for (i=0; i < column_count; i++) {
-               result.SetAt((char*)sqlite3_column_text(stmt,i),i,j);
+               result.SetAt(reinterpret_cast<const char*>(sqlite3_column_text(stmt,i)),i,j);
             }
             j++;
             break;
@@ -129,12 +129,12 @@ Bool_t ROMESQLite3::NextRow() {
 }
 
 //______________________________________________________________________________
-char* ROMESQLite3::GetField(Int_t fieldNumber) {
+const char* ROMESQLite3::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
       ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
-   return (char*) result.At(fieldNumber,currentRow).Data();
+   return result.At(fieldNumber,currentRow).Data();
 }
 
 //______________________________________________________________________________

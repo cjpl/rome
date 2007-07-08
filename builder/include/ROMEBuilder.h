@@ -567,7 +567,7 @@ public:
    ~ROMEBuilder();
 
    Bool_t  StartBuilder();
-   Bool_t  ReadCommandLineParameters(Int_t argc, char *argv[]);
+   Bool_t  ReadCommandLineParameters(Int_t argc, const char *argv[]);
    Bool_t  CheckFileAndPath();
    Bool_t  GetNoLink() { return noLink; }
    Bool_t  GetMakeOutput() { return makeOutput; }

@@ -125,13 +125,13 @@ public:
    void                       ReadComment(Int_t level, const char* tab = 0, const char* path = 0);
 
    Int_t                      GetNumberOfParameters() { return fParameters->GetEntriesFast(); }
-   ROMEConfigParameter*       GetParameterAt(Int_t i) { return ((ROMEConfigParameter*)fParameters->At(i)); }
-   ROMEConfigParameter*       GetLastParameter() { return ((ROMEConfigParameter*)fParameters->At(fParameters->GetEntriesFast()-1)); }
+   ROMEConfigParameter*       GetParameterAt(Int_t i) { return static_cast<ROMEConfigParameter*>(fParameters->At(i)); }
+   ROMEConfigParameter*       GetLastParameter() { return static_cast<ROMEConfigParameter*>(fParameters->At(fParameters->GetEntriesFast()-1)); }
    void                       AddParameter(ROMEConfigParameter* parameter) { fParameters->AddLast(parameter); }
 
    Int_t                      GetNumberOfSubGroups() { return fSubGroups->GetEntriesFast(); }
-   ROMEConfigParameterGroup*  GetSubGroupAt(Int_t i) { return ((ROMEConfigParameterGroup*)fSubGroups->At(i)); }
-   ROMEConfigParameterGroup*  GetLastSubGroup() { return ((ROMEConfigParameterGroup*)fSubGroups->At(fSubGroups->GetEntriesFast()-1)); }
+   ROMEConfigParameterGroup*  GetSubGroupAt(Int_t i) { return static_cast<ROMEConfigParameterGroup*>(fSubGroups->At(i)); }
+   ROMEConfigParameterGroup*  GetLastSubGroup() { return static_cast<ROMEConfigParameterGroup*>(fSubGroups->At(fSubGroups->GetEntriesFast()-1)); }
    void                       AddSubGroup(ROMEConfigParameterGroup* subGroup) { fSubGroups->AddLast(subGroup); subGroup->SetHierarchyLevel(fHierarchyLevel+1); }
 
    Int_t                      GetNumberOfReadGroupArrayInitLines() { return fReadGroupArrayInitLines->GetEntriesFast(); }

@@ -68,14 +68,14 @@ inline void ROMEUtilities::ByteSwap(UShort_t *x)
 #elif defined( R__MACOSX )
    *x = OSSwapInt16(*x);
 #else
-   *x = ((UShort_t)((((UShort_t)(*x) & 0xff00) >> 8) |
-                    (((UShort_t)(*x) & 0x00ff) << 8)));
+   *x = static_cast<UShort_t>(((static_cast<UShort_t>(*x) & 0xff00) >> 8) |
+                              ((static_cast<UShort_t>(*x) & 0x00ff) << 8));
 #endif
 }
 
 inline void ROMEUtilities::ByteSwap(Short_t *x)
 {
-    ByteSwap((UShort_t *)x);
+   ByteSwap(reinterpret_cast<UShort_t*>(x));
 }
 
 inline void ROMEUtilities::ByteSwap(UInt_t *x)
@@ -85,21 +85,21 @@ inline void ROMEUtilities::ByteSwap(UInt_t *x)
 #elif defined( R__MACOSX )
    *x = OSSwapInt32(*x);
 #else
-   *x =  ((UInt_t)((((UInt_t)(*x) & 0xff000000) >> 24) |
-                   (((UInt_t)(*x) & 0x00ff0000) >>  8) |
-                   (((UInt_t)(*x) & 0x0000ff00) <<  8) |
-                   (((UInt_t)(*x) & 0x000000ff) << 24)));
+   *x = static_cast<UInt_t>(((static_cast<UInt_t>(*x) & 0xff000000) >> 24) |
+                            ((static_cast<UInt_t>(*x) & 0x00ff0000) >>  8) |
+                            ((static_cast<UInt_t>(*x) & 0x0000ff00) <<  8) |
+                            ((static_cast<UInt_t>(*x) & 0x000000ff) << 24));
 #endif
 }
 
 inline void ROMEUtilities::ByteSwap(Int_t *x)
 {
-    ByteSwap((UInt_t *)x);
+   ByteSwap(reinterpret_cast<UInt_t *>(x));
 }
 
 inline void ROMEUtilities::ByteSwap(Float_t *x)
 {
-    ByteSwap((UInt_t *)x);
+   ByteSwap(reinterpret_cast<UInt_t*>(x));
 }
 
 inline void ROMEUtilities::ByteSwap(ULong64_t *x)
@@ -109,35 +109,34 @@ inline void ROMEUtilities::ByteSwap(ULong64_t *x)
 #elif defined( R__MACOSX )
    *x = OSSwapInt64(*x);
 #elif defined( R__VISUAL_CPLUSPLUS )
-   *x = ((ULong64_t)((((ULong64_t)(*x) & 0xff00000000000000UI64) >> 56) |
-                     (((ULong64_t)(*x) & 0x00ff000000000000UI64) >> 40) |
-                     (((ULong64_t)(*x) & 0x0000ff0000000000UI64) >> 24) |
-                     (((ULong64_t)(*x) & 0x000000ff00000000UI64) >>  8) |
-                     (((ULong64_t)(*x) & 0x00000000ff000000UI64) <<  8) |
-                     (((ULong64_t)(*x) & 0x0000000000ff0000UI64) << 24) |
-                     (((ULong64_t)(*x) & 0x000000000000ff00UI64) << 40) |
-                     (((ULong64_t)(*x) & 0x00000000000000ffUI64) << 56)));
+   *x = static_cast<ULong64_t>(((static_cast<ULong64_t>(*x) & 0xff00000000000000UI64) >> 56) |
+                               ((static_cast<ULong64_t>(*x) & 0x00ff000000000000UI64) >> 40) |
+                               ((static_cast<ULong64_t>(*x) & 0x0000ff0000000000UI64) >> 24) |
+                               ((static_cast<ULong64_t>(*x) & 0x000000ff00000000UI64) >>  8) |
+                               ((static_cast<ULong64_t>(*x) & 0x00000000ff000000UI64) <<  8) |
+                               ((static_cast<ULong64_t>(*x) & 0x0000000000ff0000UI64) << 24) |
+                               ((static_cast<ULong64_t>(*x) & 0x000000000000ff00UI64) << 40) |
+                               ((static_cast<ULong64_t>(*x) & 0x00000000000000ffUI64) << 56));
 #else
-   *x = ((ULong64_t)((((ULong64_t)(*x) & 0xff00000000000000ULL) >> 56) |
-                     (((ULong64_t)(*x) & 0x00ff000000000000ULL) >> 40) |
-                     (((ULong64_t)(*x) & 0x0000ff0000000000ULL) >> 24) |
-                     (((ULong64_t)(*x) & 0x000000ff00000000ULL) >>  8) |
-                     (((ULong64_t)(*x) & 0x00000000ff000000ULL) <<  8) |
-                     (((ULong64_t)(*x) & 0x0000000000ff0000ULL) << 24) |
-                     (((ULong64_t)(*x) & 0x000000000000ff00ULL) << 40) |
-                     (((ULong64_t)(*x) & 0x00000000000000ffULL) << 56)));
+   *x = static_cast<ULong64_t>(((static_cast<ULong64_t>(*x) & 0xff00000000000000ULL) >> 56) |
+                               ((static_cast<ULong64_t>(*x) & 0x00ff000000000000ULL) >> 40) |
+                               ((static_cast<ULong64_t>(*x) & 0x0000ff0000000000ULL) >> 24) |
+                               ((static_cast<ULong64_t>(*x) & 0x000000ff00000000ULL) >>  8) |
+                               ((static_cast<ULong64_t>(*x) & 0x00000000ff000000ULL) <<  8) |
+                               ((static_cast<ULong64_t>(*x) & 0x0000000000ff0000ULL) << 24) |
+                               ((static_cast<ULong64_t>(*x) & 0x000000000000ff00ULL) << 40) |
+                               ((static_cast<ULong64_t>(*x) & 0x00000000000000ffULL) << 56));
 #endif
 }
 
 inline void ROMEUtilities::ByteSwap(Long64_t *x)
 {
-    ByteSwap((ULong64_t *)x);
+   ByteSwap(reinterpret_cast<ULong64_t*>(x));
 }
 
 inline void ROMEUtilities::ByteSwap(Double_t *x)
 {
-    ByteSwap((ULong64_t *)x);
+   ByteSwap(reinterpret_cast<ULong64_t*>(x));
 }
 
 #endif // ROMEUtilities_H
-

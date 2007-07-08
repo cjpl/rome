@@ -370,17 +370,17 @@ public:
 
    // Tasks
    void            AddTask(TTask *task) { fTaskObjects->AddLast(task); }
-   ROMETask       *GetTaskObjectAt(Int_t index) { return (ROMETask*)fTaskObjects->At(index); }
+   ROMETask       *GetTaskObjectAt(Int_t index) { return static_cast<ROMETask*>(fTaskObjects->At(index)); }
    Int_t           GetTaskObjectEntries() { return fTaskObjects->GetEntries(); }
 
    // Trees
    void            AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree)); }
-   ROMETree       *GetTreeObjectAt(Int_t index) { return (ROMETree*)fTreeObjects->At(index); }
+   ROMETree       *GetTreeObjectAt(Int_t index) { return static_cast<ROMETree*>(fTreeObjects->At(index)); }
    Int_t           GetTreeObjectEntries() { return fTreeObjects->GetEntries(); }
 
    // Histogram Folders
    TFolder        *GetMainHistoFolder() { return fMainHistoFolder; }
-   TFolder        *GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); }
+   TFolder        *GetHistoFolderAt(int index) { return static_cast<TFolder*>(fHistoFolders->At(index)); }
    Bool_t          IsHistosRead() { return fHistoRead; }
    Int_t           GetHistosRun() { return fHistoRun; }
 
@@ -581,10 +581,10 @@ public:
    // NetFolder
    Bool_t          IsNetFolderActive(const char *name);
    ROMENetFolder  *GetNetFolder(const char *name);
-   char           *GetNetFolderName(Int_t i) { return (char*)fNetFolderName[i].Data(); }
-   char           *GetNetFolderHost(Int_t i) { return (char*)fNetFolderHost[i].Data(); }
+   const char     *GetNetFolderName(Int_t i) { return fNetFolderName[i].Data(); }
+   const char     *GetNetFolderHost(Int_t i) { return fNetFolderHost[i].Data(); }
    Int_t           GetNetFolderPort(Int_t i) { return fNetFolderPort[i]; }
-   char           *GetNetFolderRoot(Int_t i) { return (char*)fNetFolderRoot[i].Data(); }
+   const char     *GetNetFolderRoot(Int_t i) { return fNetFolderRoot[i].Data(); }
    Bool_t          GetNetFolderActive(Int_t i) { return fNetFolderActive[i]; }
    Bool_t          GetNetFolderReconnect(Int_t i) { return fNetFolderReconnect[i]; }
    void            SetNetFolderName(Int_t i,const char *name) { fNetFolderName[i] = name; }
@@ -593,7 +593,7 @@ public:
    void            SetNetFolderHost(Int_t i,ROMEString &host) { fNetFolderHost[i] = host; }
    void            SetNetFolderPort(Int_t i,Int_t port) { fNetFolderPort[i] = port; }
    void            SetNetFolderPort(Int_t i,const char *port) { char *cstop; fNetFolderPort[i] = strtol(port,&cstop,10); }
-   void            SetNetFolderPort(Int_t i,ROMEString &port) { SetNetFolderPort(i,(char*)port.Data()); }
+   void            SetNetFolderPort(Int_t i,ROMEString &port) { SetNetFolderPort(i, port.Data()); }
    void            SetNetFolderRoot(Int_t i,const char *root) { fNetFolderRoot[i] = root; }
    void            SetNetFolderRoot(Int_t i,ROMEString &root) { fNetFolderRoot[i] = root; }
    void            SetNetFolderActive(Int_t i,Bool_t active) { fNetFolderActive[i] = active; }

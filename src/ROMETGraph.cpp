@@ -65,8 +65,11 @@ ROMETGraph& ROMETGraph::operator=(const ROMETGraph &gr)
 
       fNpoints = gr.fNpoints;
       fMaxSize = gr.fMaxSize;
-      if (gr.fFunctions) fFunctions = (TList*)gr.fFunctions->Clone();
-      else fFunctions = new TList;
+      if (gr.fFunctions) {
+         fFunctions = static_cast<TList*>(gr.fFunctions->Clone());
+      } else {
+         fFunctions = new TList;
+      }
 
       if (gr.fHistogram) {
          if (!fHistogram) {

@@ -84,7 +84,7 @@ public:
    void        SetFileName(ROMEString &fileName) { fFileName = fileName; }
    void        SetConfigInputFileName(ROMEString &configFileName) { fConfigInputFileName = configFileName; }
    void        SetConfigOutputFileName(ROMEString &configFileName) { fConfigOutputFileName = configFileName; }
-   void        SetFile(TFile *file) { fFile = file; fTree->SetDirectory((TDirectory*)file); }
+   void        SetFile(TFile *file) { fFile = file; fTree->SetDirectory(static_cast<TDirectory*>(file)); }
    void        SetFileOverWrite() { fFileOption = kOverWrite; }
    void        SetFileUpdate() { fFileOption = kUpdate; }
    void        SetRead(Bool_t read) { fSwitches.fRead = read; }
@@ -94,7 +94,8 @@ public:
    void        SetCompressionLevel(Int_t compressionLevel) {
                   fSwitches.fCompressionLevel = compressionLevel;
                   TObjArray *branches = fTree->GetListOfBranches();
-                  for (Int_t i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
+                  for (Int_t i=0;i<branches->GetEntriesFast();i++)
+                     (static_cast<TBranch*>(branches->At(i)))->SetCompressionLevel(compressionLevel);
                }
    void        SetMaxEntries(Long64_t maxEntries) {
                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);

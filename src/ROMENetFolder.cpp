@@ -149,4 +149,3 @@ Bool_t ROMENetFolder::IsProgramTerminated()
    delete mr;
    return retValue;
 }
-

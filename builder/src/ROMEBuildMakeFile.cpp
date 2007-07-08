@@ -1153,32 +1153,44 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("rootglibs := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml -lThread\n");
    buffer.AppendFormatted("rootcflags:= $(shell $(ROOTSYS)/bin/root-config --cflags)\n");
    buffer.AppendFormatted("sqllibs   :=");
-   if (this->mysql)
+   if (this->mysql) {
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
-   if (this->pgsql)
+   }
+   if (this->pgsql) {
       buffer.AppendFormatted(" -L$(shell pg_config --libdir) -lpq");
-   if (this->sqlite)
+   }
+   if (this->sqlite) {
       buffer.AppendFormatted(" -lsqlite");
-   if (this->sqlite3)
+   }
+   if (this->sqlite3) {
       buffer.AppendFormatted(" -lsqlite3");
+   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("sqlcflags :=");
-   if (this->sql)
+   if (this->sql) {
       buffer.AppendFormatted(" -DHAVE_SQL");
-   if (this->mysql)
+   }
+   if (this->mysql) {
       buffer.AppendFormatted(" $(shell mysql_config --include) -DHAVE_MYSQL");
-   if (this->pgsql)
+   }
+   if (this->pgsql) {
       buffer.AppendFormatted(" -I$(shell pg_config --includedir) -DHAVE_PGSQL");
-   if (this->sqlite)
+   }
+   if (this->sqlite) {
       buffer.AppendFormatted(" -DHAVE_SQLITE");
-   if (this->sqlite3)
+   }
+   if (this->sqlite3) {
       buffer.AppendFormatted(" -DHAVE_SQLITE3");
-   for (i = 0; i < flags.GetEntriesFast(); i++)
+   }
+   for (i = 0; i < flags.GetEntriesFast(); i++) {
       buffer.AppendFormatted(" -D%s",flags.At(i).Data());
-   for (i = 0; i < affiliations.GetEntriesFast(); i++)
-      buffer.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
-   for (i = 0; i < numOfMFPreDefs; i++)
+   }
+   for (i = 0; i < affiliations.GetEntriesFast(); i++) {
+      buffer.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
+   }
+   for (i = 0; i < numOfMFPreDefs; i++) {
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
+   }
    buffer.AppendFormatted("\n");
    // OS Flaqs
 #if defined( R__ALPHA )
@@ -1296,6 +1308,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    if (midas) {
      buffer.AppendFormatted("%sMidasDAQOpt                    = -fno-strict-aliasing\n",shortCut.Data());
    }
+     buffer.AppendFormatted("ROMEMidasDAQOpt                  = -fno-strict-aliasing\n");
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
 }
@@ -1514,8 +1527,9 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
       // Command
       WriteRootCintCall(buffer);
       arguments.SetFormatted(" -f dict/%s%d.cpp -c -p",dictionaryName, iFile);
-      for (i = 0; i < affiliations.GetEntriesFast(); i++)
-         arguments.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+      for (i = 0; i < affiliations.GetEntriesFast(); i++) {
+         arguments.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
+      }
       buffer.AppendFormatted(arguments.Data());
 #if defined( R__UNIX )
       buffer.AppendFormatted(" $(Includes)");
@@ -1673,7 +1687,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    WriteRootCintCall(buffer);
    arguments.SetFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
    for (i = 0; i < affiliations.GetEntriesFast(); i++) {
-      arguments.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+      arguments.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
    }
    buffer.AppendFormatted(arguments.Data());
 #if defined( R__UNIX )

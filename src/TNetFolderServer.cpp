@@ -45,7 +45,7 @@ TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
    size_t p;
    *message>>p;
    delete message;
-   return (TFolder*)p;
+   return reinterpret_cast<TFolder*>(p);
 }
 
 //______________________________________________________________________________
@@ -99,7 +99,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       socket->Send(message);
 
       for (int i = 0; i < names->GetLast() + 1; i++) {
-         delete(TObjString *) names->At(i);
+         delete static_cast<TObjString*>(names->At(i));
       }
 
       delete names;
@@ -175,7 +175,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       message.Reset(kMESS_OBJECT);
       TMessage *answer;
       socket->Recv(answer);
-      TObject *obj = ((TObject*) answer->ReadObject(answer->GetClass()));
+      TObject *obj = static_cast<TObject*>(answer->ReadObject(answer->GetClass()));
       delete answer;
 
       //get occurence
@@ -204,7 +204,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
 
       //write pointer
       message.Reset(kMESS_ANY);
-      size_t p = (size_t)obj;
+      size_t p = reinterpret_cast<size_t>(obj);
       message<<p;
       socket->Send(message);
 
@@ -224,7 +224,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
 //______________________________________________________________________________
 THREADTYPE TNetFolderServer::Server(void *arg)
 {
-   TSocket *socket = (TSocket *) arg;
+   TSocket *socket = static_cast<TSocket*>(arg);
    if (!socket->IsValid())
       return THREADRETURN;
 
@@ -239,7 +239,8 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 // Server loop listening for incoming network connections on port
 // specified by command line option -s. Starts a searver_thread for
 // each connection.
-   int port = *(int*)arg;
+   Int_t port;
+   memcpy(&port, arg, sizeof(Int_t));
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
    if (!lsock->IsValid()) {
       switch(lsock->GetErrorCode()) {

@@ -60,7 +60,7 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
       odbPath += "/";
       odbPath += path->GetFieldName();
 
-      if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)(odbPath.Data()), &hKey)!= CM_SUCCESS) {
+      if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(odbPath.Data()), &hKey)!= CM_SUCCESS) {
          ROMEPrint::Error("\nCannot read online database\n");
          return false;
       }
@@ -116,7 +116,7 @@ Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBase
       odbPath += "/";
       odbPath += path->GetFieldName();
 
-      if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)(odbPath.Data()), &hKey)!= CM_SUCCESS) {
+      if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(odbPath.Data()), &hKey)!= CM_SUCCESS) {
          ROMEPrint::Error("\nCannot write to online database\n");
          return false;
       }
@@ -126,7 +126,7 @@ Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char * dataBase
       }
       iv = 0;
       for (i=path->GetFieldIndexAt(0);i<path->GetFieldIndexAt(1);i+=path->GetFieldIndexAt(2)) {
-         if (db_sscanf((char*)(values->At(iv,0).Data()),buffer,&buffersize,0,type)!= CM_SUCCESS) {
+         if (db_sscanf(const_cast<char*>(values->At(iv,0).Data()),buffer,&buffersize,0,type)!= CM_SUCCESS) {
             ROMEPrint::Error("\nCannot write to online database\n");
             return false;
          }

@@ -61,7 +61,7 @@ ROMEXML::~ROMEXML() {
 //______________________________________________________________________________
 Bool_t ROMEXML::OpenFileForRead(const char* file) {
    char error[240];
-   rootNode = mxml_parse_file((char*)file, error, sizeof(error));
+   rootNode = mxml_parse_file(const_cast<char*>(file), error, sizeof(error));
    if (rootNode == NULL) {
       ROMEPrint::Error("%s\n", error);
       return false;
@@ -131,7 +131,7 @@ Bool_t ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defa
 
 //______________________________________________________________________________
 Bool_t ROMEXML::GetAttribute(const char* name,ROMEString& value,const char* defaultValue) {
-   value = mxml_get_attribute(currentNode,(char*)name);
+   value = mxml_get_attribute(currentNode, const_cast<char*>(name));
    if (value==NULL) {
       value = defaultValue;
       return false;
@@ -235,7 +235,7 @@ Bool_t ROMEXML::WriteComment(const char* text) {
 //______________________________________________________________________________
 Bool_t ROMEXML::OpenFileForPath(const char* file) {
    char error[240];
-   rootNode = mxml_parse_file((char*)file, error, sizeof(error));
+   rootNode = mxml_parse_file(const_cast<char*>(file), error, sizeof(error));
    if (rootNode == NULL) {
       ROMEPrint::Error("%s\n", error);
       return false;
@@ -268,7 +268,7 @@ Bool_t ROMEXML::OpenBufferForPath(char* buffer) {
 
 //______________________________________________________________________________
 Bool_t ROMEXML::ExistPath(const char* path) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
    return true;
@@ -277,7 +277,7 @@ Bool_t ROMEXML::ExistPath(const char* path) {
 //______________________________________________________________________________
 Int_t ROMEXML::NumberOfOccurrenceOfPath(const char* path) {
    PMXML_NODE *node = NULL;
-   int numberOfNodes = mxml_find_nodes(rootNode,(char*)path,&node);
+   int numberOfNodes = mxml_find_nodes(rootNode, const_cast<char*>(path), &node);
    if (numberOfNodes<0)
       numberOfNodes = 0;
    free(node);
@@ -322,12 +322,12 @@ Bool_t ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& v
 //______________________________________________________________________________
 Bool_t ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue) {
    char *tmp;
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL) {
       value = defaultValue;
       return false;
    }
-   tmp = mxml_get_attribute(node,(char*)name);
+   tmp = mxml_get_attribute(node, const_cast<char*>(name));
    if (tmp==NULL) {
       value = defaultValue;
       return false;
@@ -353,7 +353,7 @@ Bool_t ROMEXML::GetPathValue(const char* path,ROMEString& value,ROMEString& defa
 
 //______________________________________________________________________________
 Bool_t ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaultValue) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL) {
       value = defaultValue;
       return false;
@@ -370,7 +370,7 @@ Bool_t ROMEXML::GetPathValues(ROMEString& path,ROMEStrArray* values) {
 //______________________________________________________________________________
 Bool_t ROMEXML::GetPathValues(const char* path,ROMEStrArray* values) {
    PMXML_NODE *node = NULL;
-   int numberOfNodes = mxml_find_nodes(rootNode,(char*)path,&node);
+   int numberOfNodes = mxml_find_nodes(rootNode, const_cast<char*>(path), &node);
    if (numberOfNodes<0)
       return false;
    for (int i=0;i<numberOfNodes;i++) {
@@ -382,47 +382,47 @@ Bool_t ROMEXML::GetPathValues(const char* path,ROMEStrArray* values) {
 
 //______________________________________________________________________________
 Bool_t ROMEXML::ReplacePathAttributeValue(const char* path,const char* name,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_replace_attribute_value(node,(char*)name,(char*)value)!=0;
+   return mxml_replace_attribute_value(node, const_cast<char*>(name), const_cast<char*>(value))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::ReplacePathAttributeName(const char* path,const char* name,const char* newName) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_replace_attribute_name(node,(char*)name,(char*)newName)!=0;
+   return mxml_replace_attribute_name(node, const_cast<char*>(name), const_cast<char*>(newName))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::ReplacePathName(const char* path,const char* name) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_replace_node_name(node,(char*)name)!=0;
+   return mxml_replace_node_name(node, const_cast<char*>(name))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::ReplacePathValue(const char* path,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_replace_node_value(node,(char*)value)!=0;
+   return mxml_replace_node_value(node, const_cast<char*>(value))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::DeletePathAttribute(const char* path,const char* name) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_delete_attribute(node,(char*)name)!=0;
+   return mxml_delete_attribute(node, const_cast<char*>(name))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::DeletePath(const char* path) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode,const_cast<char*>(path));
    if (node==NULL)
       return false;
    return mxml_delete_node(node)!=0;
@@ -430,49 +430,49 @@ Bool_t ROMEXML::DeletePath(const char* path) {
 
 //______________________________________________________________________________
 Bool_t ROMEXML::NewPathAttribute(const char* path,const char* name,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_add_attribute(node,(char*)name,(char*)value)!=0;
+   return mxml_add_attribute(node, const_cast<char*>(name), const_cast<char*>(value))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::NewPathNextElement(const char* path,const char* name,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
    int nextChild = IndexOfChildNode(node->parent,node)+1;
-   return mxml_add_node_at(node->parent,(char*)name,(char*)value,nextChild)!=0;
+   return mxml_add_node_at(node->parent, const_cast<char*>(name), const_cast<char*>(value), nextChild)!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::NewPathPrevElement(const char* path,const char* name,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
    int nextChild = IndexOfChildNode(node->parent,node);
-   return mxml_add_node_at(node->parent,(char*)name,(char*)value,nextChild)!=0;
+   return mxml_add_node_at(node->parent, const_cast<char*>(name), const_cast<char*>(value), nextChild)!=0;
 }
 
 //______________________________________________________________________________
 Int_t ROMEXML::NewPathLastElement(const char* path,const char* name,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_add_node(node->parent,(char*)name,(char*)value)!=0;
+   return mxml_add_node(node->parent, const_cast<char*>(name), const_cast<char*>(value))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::NewPathChildElement(const char* path,const char* name,const char* value) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
-   return mxml_add_node(node,(char*)name,(char*)value)!=0;
+   return mxml_add_node(node, const_cast<char*>(name), const_cast<char*>(value))!=0;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEXML::HasPathChildren(const char* path) {
-   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   PMXML_NODE node = mxml_find_node(rootNode, const_cast<char*>(path));
    if (node==NULL)
       return false;
    return node->n_children!=0;
@@ -480,7 +480,7 @@ Bool_t ROMEXML::HasPathChildren(const char* path) {
 
 //______________________________________________________________________________
 Bool_t ROMEXML::WritePathFile(const char* file) {
-   mxml_write_tree((char*)file,rootNode);
+   mxml_write_tree(const_cast<char*>(file), rootNode);
    fFullFileName = file;
    fFileName = file;
    fFileName.ReplaceAll('\\','/');
@@ -495,7 +495,7 @@ Bool_t ROMEXML::WritePathFile(const char* file) {
 // node
 //______________________________________________________________________________
 PMXML_NODE ROMEXML::GetPathNode(const char* path) {
-   return mxml_find_node(rootNode,(char*)path);
+   return mxml_find_node(rootNode, const_cast<char*>(path));
 }
 
 //______________________________________________________________________________
@@ -532,7 +532,7 @@ const char* ROMEXML::GetNodeName(PMXML_NODE node) {
 
 //______________________________________________________________________________
 const char* ROMEXML::GetNodeAttribute(PMXML_NODE node,const char* name) {
-   return mxml_get_attribute(node,(char*)name);
+   return mxml_get_attribute(node, const_cast<char*>(name));
 }
 
 // auxiliary

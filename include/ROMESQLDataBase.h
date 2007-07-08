@@ -46,7 +46,7 @@ public:
    ROMESQLDataBase();
    virtual ~ROMESQLDataBase();
 
-   char*  GetDBMSType() { return (char*) fDBMSType.Data(); }
+   const char *GetDBMSType() { return fDBMSType.Data(); }
    void   LinkError() {
       cout<<"Error: This program is not linked with "<<fDBMSType.Data()<<" library."<<endl;
    }
@@ -61,10 +61,10 @@ public:
    Int_t        GetNumberOfRows(){ return fSQL->GetNumberOfRows(); }
    Bool_t       NextRow(){ return fSQL->NextRow(); }
    Int_t        GetNumberOfFields(){ return fSQL->GetNumberOfFields(); }
-   char        *GetField(Int_t fieldNumber){ return fSQL->GetField(fieldNumber); }
+   const char  *GetField(Int_t fieldNumber){ return fSQL->GetField(fieldNumber); }
    void         FreeResult(){ fSQL->FreeResult(); }
    Int_t        GetErrorCode() { return fSQL->GetErrorCode(); }
-   char        *GetErrorMessage() { return fSQL->GetErrorMessage(); }
+   const char  *GetErrorMessage() { return fSQL->GetErrorMessage(); }
    Bool_t       StartTransaction( const char* option ){ return fSQL->StartTransaction(option); }
    Bool_t       CommitTransaction( const char* option ){ return fSQL->CommitTransaction(option); }
    Bool_t       RollbackTransaction( const char* option ){ return fSQL->RollbackTransaction(option); }

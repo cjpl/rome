@@ -121,10 +121,10 @@ public:
    Bool_t  IsFrameCreated() { return fFrameCreated; }
    TString GetFrameToolTip() { return fFrameToolTip; }
    // Element Data Getter
-   XMLToFormElement* GetElementAt(Int_t i) { return ((XMLToFormElement*)fElements.At(i)); }
+   XMLToFormElement* GetElementAt(Int_t i) { return static_cast<XMLToFormElement*>(fElements.At(i)); }
    Int_t   GetNumberOfElements() { return fNumberOfElements; }
    // Sub Frame Data Getter
-   XMLToFormFrame* GetSubFrameAt(Int_t i) { return ((XMLToFormFrame*)fSubFrames.At(i)); }
+   XMLToFormFrame* GetSubFrameAt(Int_t i) { return static_cast<XMLToFormFrame*>(fSubFrames.At(i)); }
    Int_t   GetNumberOfSubFrames() { return fNumberOfSubFrames; }
 
    ClassDef(XMLToFormFrame, 0)

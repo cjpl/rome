@@ -247,8 +247,8 @@ void ROMETask::StartRootInterpreter(const char* message) {
    ROMEString prompt = gROME->GetProgramName();
    prompt.ToLower();
    prompt += " [%d]";
-   ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
-   ((TRint*)gROME->GetApplication())->Run(true);
+   static_cast<TRint*>(gROME->GetApplication())->SetPrompt(prompt.Data());
+   static_cast<TRint*>(gROME->GetApplication())->Run(true);
    gSystem->Init();
    gROME->GetApplication()->ProcessLine(gROME->GetCintInitialisation());
 }

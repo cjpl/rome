@@ -190,31 +190,31 @@ void ROMEStrArray::RemoveAll()
 //______________________________________________________________________________
 TString ROMEStrArray::At(Int_t idx) const
 {
-   return ((TObjString*)array->At(idx))->GetString();
+   return static_cast<TObjString*>(array->At(idx))->GetString();
 }
 
 //______________________________________________________________________________
 TString ROMEStrArray::UncheckedAt(Int_t i) const
 {
-   return ((TObjString*)array->UncheckedAt(i))->GetString();
+   return static_cast<TObjString*>(array->UncheckedAt(i))->GetString();
 }
 
 //______________________________________________________________________________
 TString ROMEStrArray::First() const
 {
-   return ((TObjString*)array->First())->GetString();
+   return static_cast<TObjString*>(array->First())->GetString();
 }
 
 //______________________________________________________________________________
 TString ROMEStrArray::Last() const
 {
-   return ((TObjString*)array->Last())->GetString();
+   return static_cast<TObjString*>(array->Last())->GetString();
 }
 
 //______________________________________________________________________________
 TString ROMEStrArray::operator[](Int_t i) const
 {
-   TObjString* objstr = (TObjString*)(array->At(i));
+   TObjString* objstr = static_cast<TObjString*>(array->At(i));
    return objstr->GetString();
 }
 

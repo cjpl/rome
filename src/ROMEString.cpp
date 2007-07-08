@@ -145,7 +145,7 @@ Double_t ROMEString::ToDouble()
 Float_t ROMEString::ToFloat()
 {
    char *cstop;
-   return (Float_t)strtod(Data(),&cstop);
+   return static_cast<Float_t>(strtod(Data(),&cstop));
 }
 
 //______________________________________________________________________________
@@ -160,7 +160,7 @@ Bool_t ROMEString::ToBool()
 
 //______________________________________________________________________________
 void ROMEString::ToLower() {
-   ((TString*)this)->ToLower();
+   static_cast<TString*>(this)->ToLower();
 }
 
 //______________________________________________________________________________
@@ -173,7 +173,7 @@ const char* ROMEString::ToLower(ROMEString& destination)
 
 //______________________________________________________________________________
 void ROMEString::ToUpper() {
-   ((TString*)this)->ToUpper();
+   static_cast<TString*>(this)->ToUpper();
 }
 
 //______________________________________________________________________________

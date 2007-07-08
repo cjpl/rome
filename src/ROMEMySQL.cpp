@@ -83,7 +83,7 @@ Int_t ROMEMySQL::GetNumberOfRows() {
       ROMEPrint::Error("GetNumberOfRows error : no query result.\n");
       return -1;
    }
-   return (int)mysql_num_rows(result);
+   return static_cast<Int_t>(mysql_num_rows(result));
 }
 
 //______________________________________________________________________________
@@ -101,12 +101,12 @@ Bool_t ROMEMySQL::DataSeek(my_ulonglong offset) {
       ROMEPrint::Error("DataSeek error : no query result");
       return false;
    }
-   if( GetNumberOfRows() <= (int)offset ) {
+   if(GetNumberOfRows() <= static_cast<Int_t>(offset)) {
       ROMEPrint::Error("DataSeek error : offset is larger than number of results");
       return false;
    }
    mysql_data_seek(result,offset);
-   if( !(row = mysql_fetch_row(result)) ) {
+   if(!(row = mysql_fetch_row(result))) {
       ROMEPrint::Error("DataSeek error : %s\n", GetErrorMessage());
       return false;
    }
@@ -114,7 +114,7 @@ Bool_t ROMEMySQL::DataSeek(my_ulonglong offset) {
 }
 
 //______________________________________________________________________________
-char* ROMEMySQL::GetField(Int_t fieldNumber) {
+const char* ROMEMySQL::GetField(Int_t fieldNumber) {
    if( !row ) {
       ROMEPrint::Error("GetField error : no query result.\n");
       return NULL;
@@ -145,8 +145,8 @@ Int_t ROMEMySQL::GetErrorCode() {
 }
 
 //______________________________________________________________________________
-char* ROMEMySQL::GetErrorMessage() {
-   return (char*) mysql_error(&mysql);
+const char* ROMEMySQL::GetErrorMessage() {
+   return mysql_error(&mysql);
 }
 
 //______________________________________________________________________________

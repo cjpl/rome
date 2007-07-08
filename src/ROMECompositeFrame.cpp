@@ -23,7 +23,7 @@ void ROMECompositeFrame::HideFrame(TGFrame *f)
    TGFrameElement *el;
    TIter next(fList);
 
-   while ((el = (TGFrameElement *) next()))
+   while ((el = static_cast<TGFrameElement*>(next())))
       if (el->fFrame == f) {
          el->fState = 0;
          el->fFrame->UnmapWindow();

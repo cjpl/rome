@@ -111,7 +111,7 @@ void ROMEUtilities::GetMidasTID(ROMEString *buf, Char_t *type)
 void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath)
 {
    // search XML files which has 'xmlpath' from 'filepath' directory
-   char *direntry;
+   const char *direntry;
    TString afile;
    void *dirp = gSystem->OpenDirectory(filepath);
    if (!dirp)
@@ -119,7 +119,7 @@ void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, co
    ROMEXML *tmp;
 
    //loop on all entries of this directory
-   while ((direntry=(char*)gSystem->GetDirEntry(dirp))) {
+   while ((direntry = gSystem->GetDirEntry(dirp))) {
       afile = Form("%s/%s",filepath,direntry);
 
       if(!afile.EndsWith(".xml") && !afile.EndsWith(".XML"))
