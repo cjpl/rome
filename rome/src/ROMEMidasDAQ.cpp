@@ -822,7 +822,7 @@ INT ROMEMidasDAQ::bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWO
       strncpy(reinterpret_cast<char*>(&dname), name, 4);
       do {
          if (*reinterpret_cast<UInt_t*>(pbk32->name) == dname) {
-            *reinterepret_cast<void**>(pdata) = pbk32 + 1;
+            *reinterpret_cast<void**>(pdata) = pbk32 + 1;
             if (tid_size[pbk32->type & 0xFF] == 0) {
                *bklen = pbk32->data_size;
             } else {
