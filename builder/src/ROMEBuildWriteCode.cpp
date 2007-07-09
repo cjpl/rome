@@ -15052,17 +15052,24 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
       blank = "   ";
       iValue= "i";
       buffer.AppendFormatted("   int i;\n");
+      buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warnin
       buffer.AppendFormatted("   int nentry;\n");
+      buffer.AppendFormatted("   nentry = 0;\n"); // to suppress unused warnin
    }
    buffer.AppendFormatted("   int j;\n");
    buffer.AppendFormatted("   j = 0;\n"); // to suppress unused warnin
-   buffer.AppendFormatted("   ROMEString str = \"\";\n");
+   buffer.AppendFormatted("   ROMEString str;\n");
+   buffer.AppendFormatted("   str = \"\";\n"); // to suppress unused warnin
    buffer.AppendFormatted("   ROMEString path;\n");
+   buffer.AppendFormatted("   path = \"\";\n"); // to suppress unused warnin
    buffer.AppendFormatted("   ROMEString name;\n");
-   buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
+   if (maxNumberOfPathObjectInterpreterCodes > 0) {
+      buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
+      buffer.AppendFormatted("   buffer[0] = \"\";\n"); // to suppress unused warnin
+   }
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1, 1);\n");
    buffer.AppendFormatted("   char *cstop;\n");
-   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
    for (j = 0; j < numOfValue[numFolder]; j++) {
       if (valueDimension[numFolder][j] > 1 || valueArray[numFolder][j][0] == "variable" ||
           isFolder(valueType[numFolder][j].Data())) {
