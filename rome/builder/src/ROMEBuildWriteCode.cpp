@@ -13218,7 +13218,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
    buffer.AppendFormatted("   TBranchElement *bb;\n");
    for (i = 0; i < numOfRootTree; i++) {
       for (j = 0; j < numOfRootBranch[i]; j++) {
-         buffer.AppendFormatted("   bb = static_cast<TBranchElement*>((TTree*)fTrees->At(%d))->FindBranch(\"%s\"));\n",i,
+         buffer.AppendFormatted("   bb = static_cast<TBranchElement*>(static_cast<TTree*>(fTrees->At(%d))->FindBranch(\"%s\"));\n",i,
                                 rootBranchName[i][j].Data());
          buffer.AppendFormatted("   if (!bb) {\n");
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Branch '%s' not found in tree '%s'.\\n\");\n",
