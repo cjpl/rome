@@ -17385,8 +17385,8 @@ Bool_t ROMEBuilder::WriteVersionH()
    } else {
       prog.SetFormatted("%s%s (rev.%s)",shortCut.Data(),mainProgName.Data(),revNumber.Data());
    }
-   int len1 = static_cast<int>(39 - static_cast<double>(prog.Length()) / 2 + 0.5);
-   int len2 = static_cast<int>(39 - static_cast<double>(prog.Length()) / 2);
+   int len1 = static_cast<int>((39 - static_cast<double>(prog.Length())) / 2 + 0.5);
+   int len2 = static_cast<int>((39 - static_cast<double>(prog.Length())) / 2);
    buffer.AppendFormatted("const char* const %sLogo =\n", shortCut.Data());
    buffer.AppendFormatted("      \"*****************************************\\n\"\n");
    buffer.AppendFormatted("      \"*                                       *\\n\"\n");
