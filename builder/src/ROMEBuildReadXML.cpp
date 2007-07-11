@@ -4603,8 +4603,8 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                         mfSourceFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
                      }
                      if (mfSourceFilePath[numOfMFSources].Length() > 0) {
-                        if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1] != '/' ||
-                           mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1] != '\\')
+                        if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1] != '/' &&
+                            mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1] != '\\')
                            mfSourceFilePath[numOfMFSources].Append("/");
                      }
                   }
