@@ -147,7 +147,7 @@ void romesqldb_set_string_value(void *romedb, int column, int row, const char *v
    work->values->SetAt(str, column, row);
 }
 
-char *romesqldb_get_dbms_type(void *romedb)
+const char *romesqldb_get_dbms_type(void *romedb)
 {
    ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
    if (!work) {
@@ -219,7 +219,7 @@ int romesqldb_get_number_of_fields(void *romedb)
    return work->db->GetNumberOfFields();
 }
 
-char *romesqldb_get_field(void *romedb, int fieldNumber)
+const char *romesqldb_get_field(void *romedb, int fieldNumber)
 {
    ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
    if (!work) {
@@ -246,7 +246,7 @@ int romesqldb_get_error_code(void *romedb)
    return work->db->GetErrorCode();
 }
 
-char *romesqldb_get_error_message(void *romedb)
+const char *romesqldb_get_error_message(void *romedb)
 {
    ROMESQLDataBaseWorkSpace *work = static_cast<ROMESQLDataBaseWorkSpace*>(romedb);
    if (!work) {
