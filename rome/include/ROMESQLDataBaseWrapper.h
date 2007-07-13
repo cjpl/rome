@@ -26,7 +26,7 @@ extern "C" {
    void        romesqldb_set_double_value(void *romedb, int column, int row, double val);
    void        romesqldb_set_float_value(void *romedb, int column, int row, float val);
    void        romesqldb_set_string_value(void *romedb, int column, int row, const char *val);
-   char       *romesqldb_get_dbms_type(void *romedb);
+   const char *romesqldb_get_dbms_type(void *romedb);
    void        romesqldb_link_error(void *romedb);
    const char *romesqldb_get_type(void *romedb);
    const char *romesqldb_get_description(void *romedb);
@@ -34,10 +34,10 @@ extern "C" {
    int         romesqldb_get_number_of_rows(void *romedb);
    int         romesqldb_next_row(void *romedb);
    int         romesqldb_get_number_of_fields(void *romedb);
-   char       *romesqldb_get_field(void *romedb, int fieldNumber);
+   const char *romesqldb_get_field(void *romedb, int fieldNumber);
    void        romesqldb_free_reqult(void *romedb);
    int         romesqldb_get_error_code(void *romedb);
-   char       *romesqldb_get_error_message(void *romedb);
+   const char *romesqldb_get_error_message(void *romedb);
    int         romesqldb_start_transaction(void *romedb, const char *option);
    int         romesqldb_commit_transaction(void *romedb, const char *option);
    int         romesqldb_rollback_transaction(void *romedb, const char *option);
