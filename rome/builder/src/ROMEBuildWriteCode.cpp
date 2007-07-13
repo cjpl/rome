@@ -17605,11 +17605,17 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t
    // Get
    str = "Get";
    str += folderName[numFolder];
-   if (folderArray[numFolder] != "1")
+   if (folderArray[numFolder] != "1") {
       str += "At";
+   }
    str += "(";
-   if (fileBuffer.Contains(str))
+   if (fileBuffer.Contains(str)) {
       return true;
+   }
+   str.ReplaceAll("(", " (");
+   if (fileBuffer.Contains(str)) {
+      return true;
+   }
 
    // Get s
    if (folderArray[numFolder] != "1") {
@@ -17617,8 +17623,13 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t
       str += folderName[numFolder];
       str += "s";
       str += "(";
-      if (fileBuffer.Contains(str))
+      if (fileBuffer.Contains(str)) {
          return true;
+      }
+      str.ReplaceAll("(", " (");
+      if (fileBuffer.Contains(str)) {
+         return true;
+      }
    }
 
    // Get Address
@@ -17626,16 +17637,26 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t
    str += folderName[numFolder];
    str += "Address";
    str += "(";
-   if (fileBuffer.Contains(str))
+   if (fileBuffer.Contains(str)) {
       return true;
+   }
+   str.ReplaceAll("(", " (");
+   if (fileBuffer.Contains(str)) {
+      return true;
+   }
 
    // Set size
    if (folderArray[numFolder] == "variable") {
       str = "Set";
       str += folderName[numFolder];
       str += "Size(";
-      if (fileBuffer.Contains(str))
+      if (fileBuffer.Contains(str)) {
          return true;
+      }
+      str.ReplaceAll("(", " (");
+      if (fileBuffer.Contains(str)) {
+         return true;
+      }
    }
 
    // Set Array
@@ -17643,8 +17664,13 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t
       str = "Set";
       str += folderName[numFolder];
       str += "s(";
-      if (fileBuffer.Contains(str))
+      if (fileBuffer.Contains(str)) {
          return true;
+      }
+      str.ReplaceAll("(", " (");
+      if (fileBuffer.Contains(str)) {
+         return true;
+      }
    }
 
    return false;
