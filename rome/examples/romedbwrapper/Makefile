@@ -7,6 +7,21 @@ FC    ?= g77
 
 -include ../../Makefile.arch
 
+ROOT_VERSION := $(shell $(ROOTSYS)/bin/root-config --version)
+ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
+ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
+ROOT_PATCH := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f2)
+
+NEED_TARRAYL64 = no
+ifeq ($(ROOT_MAJOR), 5)
+ifeq ($(shell expr $(ROOT_MINOR) \< 14), 1)
+NEED_TARRAYL64 = yes
+endif
+endif
+ifeq ($(ROOT_MAJOR), 4)
+NEED_TARRAYL64 = yes
+endif
+
 ## Compile and link flags
 rootlibs  := $(shell $(ROOTSYS)/bin/root-config --libs)
 rootcflags:= $(shell $(ROOTSYS)/bin/root-config --cflags)
@@ -20,6 +35,9 @@ LDFLAGS   := $(osldflags)
 
 ## Include directories
 Includes := -I$(ROMESYS)/include/
+ifeq ($(NEED_TARRAYL64), yes)
+Includes += -DNEED_TARRAYL64 -I$(ROMESYS)/include/array64
+endif
 
 ## Objects
 objects += ROMESQLite3.o \

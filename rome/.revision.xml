@@ -180,3 +180,9 @@
   <Directory>/scratch1/users/sawada/rome</Directory>
   <LastCompile>Thu, 05 Jul 2007 13:03:57 +0000 (GMT) +638982000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>pc4466</Host>
+  <Directory>/scratch2/sawada/analysis/rome/rome_test</Directory>
+  <LastCompile>Fri, 13 Jul 2007 14:33:27 +0000 (GMT) + 29078000 nsec</LastCompile>
+</Entry>
