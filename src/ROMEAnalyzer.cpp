@@ -1745,6 +1745,7 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
 #if defined( R__UNIX )
    tmpFileName.ReplaceAll(".xml", "");
    fclose(gSystem->TempFileName(tmpFileName));
+   gSystem->Unlink(tmpFileName.Data());
 #else
    GetTempFileName("c:\\", "", 0, (char*)tmpFileName.Data());
 #endif
@@ -1752,6 +1753,7 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
 
    if (!this->fConfiguration->WriteConfigurationFile(tmpFileName.Data())) {
       ROMEPrint::Print("\nTerminate program.\n");
+      gSystem->Unlink(tmpFileName.Data());
       return false;
    }
 
@@ -1772,6 +1774,7 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
    if (oldFileBuffer != newFileBuffer) {
       // we can even ask users if overwrite (not implemented)
       if (!(fileStream = new fstream(configFile.Data(), ios::out | ios::trunc))) {
+         gSystem->Unlink(tmpFileName.Data());
          return kFALSE;
       }
       *fileStream<<newFileBuffer;
