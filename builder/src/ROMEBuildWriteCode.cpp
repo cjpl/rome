@@ -4747,6 +4747,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TClonesArray.h>\n");
    buffer.AppendFormatted("#include <TMutex.h>\n");
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
