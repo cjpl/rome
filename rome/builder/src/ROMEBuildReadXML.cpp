@@ -1417,9 +1417,12 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             if (i == numOfValue[numOfFolder]) {
                cout<<"\nError: Variable length array member '"
                    << valueName[numOfFolder][numOfValue[numOfFolder]].Data()
-                   <<"' should have '!' or '[length]' at the top of comment."<<endl;
-               cout<<"       If '!', field will not be stored in tree."<<endl;
-               cout<<"       If '[length]', field will be stored in tree with the length. 'length' needs to be an integer field name of the folder. It must be defined ahead of its use."
+                   <<"' should have '!' or '[length]' at the top of comment."<<endl
+                   <<"       If '!', field will not be stored in tree."<<endl
+                   <<"       If '[length]', field will be stored in tree with the length."
+                     " 'length' needs to be an integer field name of the folder."
+                     " It must be defined ahead of its use."<<endl
+                   <<" Please read ROOT User's Guide (Input/Output:Streamers:Variable Length Array) for detail."
                    <<endl;
                cout<<"Terminating program."<<endl;
                return false;
