@@ -21,36 +21,39 @@
 ClassImp(ROMEString)
 
 //______________________________________________________________________________
-ROMEString& ROMEString::AppendFormatted(const char* va_(fmt),...)
+ROMEString& ROMEString::AppendFormatted(const char* va_(fmt), ...)
 {
-   if (va_(fmt)==NULL)
+   if (!va_(fmt)) {
       return *this;
+   }
    va_list ap;
-   va_start(ap,va_(fmt));
+   va_start(ap, va_(fmt));
    Append(Format(va_(fmt), ap));
    va_end(ap);
    return *this;
 }
 
 //______________________________________________________________________________
-ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* va_(fmt),...)
+ROMEString& ROMEString::InsertFormatted(Ssiz_t position, const char* va_(fmt), ...)
 {
-   if (va_(fmt)==NULL)
+   if (!va_(fmt)) {
       return *this;
+   }
    va_list ap;
-   va_start(ap,va_(fmt));
-   Insert(position,Format(va_(fmt), ap));
+   va_start(ap, va_(fmt));
+   Insert(position, Format(va_(fmt), ap));
    va_end(ap);
    return *this;
 }
 
 //______________________________________________________________________________
-ROMEString& ROMEString::SetFormatted(const char* va_(fmt),...)
+ROMEString& ROMEString::SetFormatted(const char* va_(fmt), ...)
 {
-   if (va_(fmt)==NULL)
+   if (!va_(fmt)) {
       return *this;
+   }
    va_list ap;
-   va_start(ap,va_(fmt));
+   va_start(ap, va_(fmt));
    *this = Format(va_(fmt), ap);
    va_end(ap);
    return *this;
@@ -77,11 +80,11 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString)
 {
    Int_t numberOfOccurrence = 0;
    const char* str = Data();
-   str = strstr(str,subString);
-   while (str!=NULL) {
+   str = strstr(str, subString);
+   while (str) {
       str++;
       numberOfOccurrence++;
-      str = strstr(str,subString);
+      str = strstr(str, subString);
    }
    return numberOfOccurrence;
 }
@@ -91,11 +94,11 @@ istream& ROMEString::ReadFile(istream& str) {
    Resize(0);
    char *buffer;
    int bufferSize = 2000;
-   int bufferLength = bufferSize-1;
-   while (bufferLength==bufferSize-1) {
-      bufferSize*=2;
+   int bufferLength = bufferSize - 1;
+   while (bufferLength == bufferSize - 1) {
+      bufferSize *= 2;
       buffer = new char[bufferSize];
-      str.get(buffer,bufferSize,0);
+      str.get(buffer, bufferSize, 0);
       bufferLength = strlen(buffer);
       Append(buffer);
       delete [] buffer;
@@ -108,11 +111,11 @@ istream& ROMEString::ReadLine(istream& str) {
    Resize(0);
    char *buffer;
    int bufferSize = 2000;
-   int bufferLength = bufferSize-1;
-   while (bufferLength==bufferSize-1) {
+   int bufferLength = bufferSize - 1;
+   while (bufferLength == bufferSize - 1) {
       bufferSize*=2;
       buffer = new char[bufferSize];
-      str.getline(buffer,bufferSize);
+      str.getline(buffer, bufferSize);
       bufferLength = strlen(buffer);
       Append(buffer);
       delete [] buffer;
@@ -124,38 +127,40 @@ istream& ROMEString::ReadLine(istream& str) {
 Int_t ROMEString::ToInteger()
 {
    char *cstop;
-   return strtol(Data(),&cstop,10);
+   return strtol(Data(), &cstop, 10);
 }
 
 //______________________________________________________________________________
 Long_t ROMEString::ToLong()
 {
    char *cstop;
-   return strtol(Data(),&cstop,10);
+   return strtol(Data(), &cstop, 10);
 }
 
 //______________________________________________________________________________
 Double_t ROMEString::ToDouble()
 {
    char *cstop;
-   return strtod(Data(),&cstop);
+   return strtod(Data(), &cstop);
 }
 
 //______________________________________________________________________________
 Float_t ROMEString::ToFloat()
 {
    char *cstop;
-   return static_cast<Float_t>(strtod(Data(),&cstop));
+   return static_cast<Float_t>(strtod(Data(), &cstop));
 }
 
 //______________________________________________________________________________
 Bool_t ROMEString::ToBool()
 {
-   if (CompareTo("true",TString::kIgnoreCase))
+   if (CompareTo("true", TString::kIgnoreCase)) {
       return true;
-   if (CompareTo("false",TString::kIgnoreCase))
+   }
+   if (CompareTo("false", TString::kIgnoreCase)) {
       return false;
-   return ToInteger()!=0;
+   }
+   return ToInteger() != 0;
 }
 
 //______________________________________________________________________________
@@ -186,19 +191,21 @@ const char* ROMEString::ToUpper(ROMEString& destination)
 
 //______________________________________________________________________________
 ROMEString& ROMEString::StripSpaces(){
-// Strip space,tab and new line at both sides
+// Strip space, tab and new line at both sides
    Ssiz_t start = 0;             // Index of first character
    Ssiz_t end = Length();        // One beyond last character
    const char *direct = Data();  // Avoid a dereference w dumb compiler
 
-   while (start < end && direct[start] <= ' ')
+   while (start < end && direct[start] <= ' ') {
       ++start;
+   }
 
-   while (start < end && direct[end] <= ' ')
+   while (start < end && direct[end] <= ' ') {
       --end;
+   }
 
-   Remove(end+1,Length()-end-1);
-   Remove(0,start);
+   Remove(end + 1, Length() - end - 1);
+   Remove(0, start);
    return *this;
 }
 
@@ -212,7 +219,7 @@ const int fld_size = 2048;
 namespace {
    char gFormbuf[cb_size];       // some slob for form overflow
    char *gBfree  = gFormbuf;
-   char *gEndbuf = &gFormbuf[cb_size-1];
+   char *gEndbuf = &gFormbuf[cb_size - 1];
 }
 
 //______________________________________________________________________________
@@ -226,9 +233,13 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
 
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
    R__LOCKGUARD2(gStringMutex);
+#else
+   R__LOCKGUARD(gStringMutex);
 #endif
 
-   if (hint == -1) hint = fld_size;
+   if (hint == -1) {
+      hint = fld_size;
+   }
    if (hint > slowBufferSize) {
       delete [] slowBuffer;
       slowBufferSize = 2 * hint;
@@ -244,9 +255,15 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
    // old vsnprintf's return -1 if string is truncated new ones return
    // total number of characters that would have been written
    if (n == -1 || n >= slowBufferSize) {
-      if (n == -1) n = 2 * slowBufferSize;
-      if (n == slowBufferSize) n++;
-      if (n <= 0) return 0; // int overflow!
+      if (n == -1) {
+         n = 2 * slowBufferSize;
+      }
+      if (n == slowBufferSize) {
+         n++;
+      }
+      if (n <= 0) {
+         return 0; // int overflow!
+      }
       return SlowFormat(format, ap, n);
    }
 
@@ -259,14 +276,17 @@ char* ROMEString::Format(const char *format, va_list ap)
    // Format a string in a circular formatting buffer (using a printf style
    // format descriptor).
 
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,2,0))
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
    R__LOCKGUARD2(gStringMutex);
+#else
+   R__LOCKGUARD(gStringMutex);
 #endif
 
    char *buf = gBfree;
 
-   if (buf+fld_size > gEndbuf)
+   if (buf + fld_size > gEndbuf) {
       buf = gFormbuf;
+   }
 
    int n = vsnprintf(buf, fld_size, format, ap);
    // old vsnprintf's return -1 if string is truncated new ones return
@@ -275,7 +295,7 @@ char* ROMEString::Format(const char *format, va_list ap)
       return SlowFormat(format, ap, n);
    }
 
-   gBfree = buf+n+1;
+   gBfree = buf + n + 1;
    return buf;
 }
 // end of formatting functions copied from TString.cxx
