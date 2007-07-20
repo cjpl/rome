@@ -23,18 +23,18 @@ class ROMEXML
 {
 protected:
    // read & path
-   PMXML_NODE rootNode;
-   PMXML_NODE currentNode;
-   PMXML_NODE lastNode;
-   Int_t      nodeType;
-   Int_t      nodeDepth;
-   Bool_t     endTag;
-   ROMEString fFileName;
-   ROMEString fFullFileName;
-   ROMEString fPath;
-   MXML_WRITER *writer;   // write
+   PMXML_NODE   fRootNode;
+   PMXML_NODE   fCurrentNode;
+   PMXML_NODE   fLastNode;
+   Int_t        fNodeType;
+   Int_t        fNodeDepth;
+   Bool_t       fEndTag;
+   ROMEString   fFileName;
+   ROMEString   fFullFileName;
+   ROMEString   fPath;
+   MXML_WRITER *fWriter;   // write
 
-   Int_t   IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode);
+   Int_t   IndexOfChildNode(PMXML_NODE node, PMXML_NODE childNode);
 
 private:
    ROMEXML(const ROMEXML &xml); // not implemented
@@ -48,23 +48,23 @@ public:
    const char *GetFullFileName() { return fFullFileName.Data(); }
    const char *GetPath() { return fPath.Data(); }
 
-   Bool_t      isReaderOpen() { return rootNode!=NULL; }
-   Bool_t      isWriterOpen() { return writer!=NULL; }
-   Bool_t      isPathOpen() { return rootNode!=NULL; }
+   Bool_t      isReaderOpen() { return fRootNode != 0; }
+   Bool_t      isWriterOpen() { return fWriter != 0; }
+   Bool_t      isPathOpen() { return fRootNode != 0; }
 
    // read
    Bool_t      OpenFileForRead(const char* file);
    Bool_t      NextLine();
-   char       *GetName() { return currentNode->name; }
-   Int_t       GetType() { return nodeType; }
-   Int_t       GetDepth() { return nodeDepth; }
-   Bool_t      isEmpty() { return currentNode->value[0]==0; }
-   Bool_t      GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetAttribute(const char* name,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetValue(ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetValue(ROMEString& value,const char* defaultValue="");
+   char       *GetName() { return fCurrentNode->name; }
+   Int_t       GetType() { return fNodeType; }
+   Int_t       GetDepth() { return fNodeDepth; }
+   Bool_t      isEmpty() { return fCurrentNode->value[0]==0; }
+   Bool_t      GetAttribute(ROMEString& name, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetAttribute(const char* name, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetAttribute(ROMEString& name, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetAttribute(const char* name, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetValue(ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetValue(ROMEString& value, const char* defaultValue="");
 
    // write
    Bool_t      OpenFileForWrite(const char* file);
@@ -72,8 +72,8 @@ public:
    Bool_t      StartElement(const char* name);
    Bool_t      EndElement();
    Bool_t      EndDocument();
-   Bool_t      WriteAttribute(const char* name,const char* value);
-   Bool_t      WriteElement(const char* name,const char* value);
+   Bool_t      WriteAttribute(const char* name, const char* value);
+   Bool_t      WriteElement(const char* name, const char* value);
    Bool_t      WriteValue(const char* value);
    Bool_t      WriteComment(const char* text);
    static void SuppressWritingDate(Bool_t suppress = kTRUE) { mxml_suppress_date(suppress ? 1 : 0); }
@@ -84,42 +84,42 @@ public:
    Bool_t      OpenBufferForPath(char* buffer);
    Bool_t      ExistPath(const char* path);
    Int_t       NumberOfOccurrenceOfPath(const char* path);
-   Bool_t      GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetPathAttribute(const char* path,const char* name,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetPathValue(ROMEString& path,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetPathValue(ROMEString& path,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetPathValue(const char* path,ROMEString& value,ROMEString& defaultValue);
-   Bool_t      GetPathValue(const char* path,ROMEString& value,const char* defaultValue="");
-   Bool_t      GetPathValues(ROMEString& path,ROMEStrArray* values);
-   Bool_t      GetPathValues(const char* path,ROMEStrArray* values);
-   Bool_t      ReplacePathAttributeValue(const char* path,const char* name,const char* value);
-   Bool_t      ReplacePathAttributeName(const char* path,const char* name,const char* newName);
-   Bool_t      ReplacePathName(const char* path,const char* name);
-   Bool_t      ReplacePathValue(const char* path,const char* value);
-   Bool_t      DeletePathAttribute(const char* path,const char* name);
+   Bool_t      GetPathAttribute(ROMEString& path, ROMEString& name, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetPathAttribute(ROMEString& path, ROMEString& name, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetPathAttribute(ROMEString& path, const char* name, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetPathAttribute(const char* path, ROMEString& name, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetPathAttribute(ROMEString& path, const char* name, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetPathAttribute(const char* path, ROMEString& name, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetPathAttribute(const char* path, const char* name, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetPathAttribute(const char* path, const char* name, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetPathValue(ROMEString& path, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetPathValue(ROMEString& path, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetPathValue(const char* path, ROMEString& value, ROMEString& defaultValue);
+   Bool_t      GetPathValue(const char* path, ROMEString& value, const char* defaultValue="");
+   Bool_t      GetPathValues(ROMEString& path ,ROMEStrArray* values);
+   Bool_t      GetPathValues(const char* path, ROMEStrArray* values);
+   Bool_t      ReplacePathAttributeValue(const char* path, const char* name, const char* value);
+   Bool_t      ReplacePathAttributeName(const char* path, const char* name, const char* newName);
+   Bool_t      ReplacePathName(const char* path, const char* name);
+   Bool_t      ReplacePathValue(const char* path, const char* value);
+   Bool_t      DeletePathAttribute(const char* path, const char* name);
    Bool_t      DeletePath(const char* path);
-   Bool_t      NewPathAttribute(const char* path,const char* name,const char* value);
-   Bool_t      NewPathNextElement(const char* path,const char* name,const char* value);
-   Bool_t      NewPathPrevElement(const char* path,const char* name,const char* value);
-   Int_t       NewPathLastElement(const char* path,const char* name,const char* value);
-   Bool_t      NewPathChildElement(const char* path,const char* name,const char* value);
+   Bool_t      NewPathAttribute(const char* path, const char* name, const char* value);
+   Bool_t      NewPathNextElement(const char* path, const char* name, const char* value);
+   Bool_t      NewPathPrevElement(const char* path, const char* name, const char* value);
+   Int_t       NewPathLastElement(const char* path, const char* name, const char* value);
+   Bool_t      NewPathChildElement(const char* path ,const char* name ,const char* value);
    Bool_t      HasPathChildren(const char* path);
    Bool_t      WritePathFile(const char* file);
    // node
    PMXML_NODE  GetPathNode(const char* path);
    PMXML_NODE  GetRootNode();
-   PMXML_NODE  GetSubNode(PMXML_NODE node,Int_t i);
+   PMXML_NODE  GetSubNode(PMXML_NODE node, Int_t i);
    const char *GetNodeValue(PMXML_NODE node);
    Int_t       GetNodeIntValue(PMXML_NODE node);
    Double_t    GetNodeDoubleValue(PMXML_NODE node);
    const char *GetNodeName(PMXML_NODE node);
-   const char *GetNodeAttribute(PMXML_NODE node,const char* name);
+   const char *GetNodeAttribute(PMXML_NODE node, const char* name);
 
    ClassDef(ROMEXML, 0) // Interface to XML files
 };

@@ -413,7 +413,8 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
          if (gROME->isDataBaseActive("odb")) {
-            static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->SetBuffer(reinterpret_cast<char*>(pevent + 1));
+            static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->
+                  SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }
          this->SetBeginOfRun();
          return true;
@@ -664,7 +665,8 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
          if (gROME->isDataBaseActive("odb")) {
-            static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->SetBuffer(reinterpret_cast<char*>(pevent+1));
+            static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->
+                  SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }
          fCurrentPosition = 0;
          if(!fGZippedMidasFile) {
