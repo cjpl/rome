@@ -37,7 +37,6 @@
 typedef Int_t HNDLE;
 #endif
 
-class TMutex;
 class TObjArray;
 class TSocket;
 class TTree;
@@ -201,10 +200,6 @@ protected:
    // Socket Server
    Bool_t         fSocketServerActive;           //! Socket active
    Int_t          fSocketServerPortNumber;       //! Port Number for TSocket
-   TMutex        *fSocketServerMutex;            //! Mutex to secure socket server
-   TMutex        *fObjectStorageMutex;           //! Mutex to secure object storage
-   TMutex        *fRunEventNumberMutex;          //! Mutex to secure run and event number access
-   TMutex        *fUpdateObjectStorageMutex;     //! Mutex to secure object storage update flag
    Bool_t         fObjectStorageUpdated;         //! Object storage update flag
 
    // Socket Client
@@ -261,14 +256,14 @@ public:
    virtual ~ROMEAnalyzer();
 
    // Program Mode
-   Bool_t          IsStandAloneROME() { return fProgramMode==kStandAloneROME; }
-   Bool_t          IsStandAloneARGUS() { return fProgramMode==kStandAloneARGUS; }
-   Bool_t          IsROMEAndARGUS() { return fProgramMode==kROMEAndARGUS; }
-   Bool_t          IsROMEMonitor() { return fProgramMode==kROMEMonitor; }
-   void            SetStandAloneROME() { fProgramMode=kStandAloneROME; }
-   void            SetStandAloneARGUS() { fProgramMode=kStandAloneARGUS; }
-   void            SetROMEAndARGUS() { fProgramMode=kROMEAndARGUS; }
-   void            SetROMEMonitor() { fProgramMode=kROMEMonitor; }
+   Bool_t          IsStandAloneROME() { return fProgramMode == kStandAloneROME; }
+   Bool_t          IsStandAloneARGUS() { return fProgramMode == kStandAloneARGUS; }
+   Bool_t          IsROMEAndARGUS() { return fProgramMode == kROMEAndARGUS; }
+   Bool_t          IsROMEMonitor() { return fProgramMode == kROMEMonitor; }
+   void            SetStandAloneROME() { fProgramMode = kStandAloneROME; }
+   void            SetStandAloneARGUS() { fProgramMode = kStandAloneARGUS; }
+   void            SetROMEAndARGUS() { fProgramMode = kROMEAndARGUS; }
+   void            SetROMEMonitor() { fProgramMode = kROMEMonitor; }
 
    // Window Closed
    Bool_t          IsWindowClosed() { return fWindowClosed; }
@@ -282,10 +277,10 @@ public:
    void            SetCintInitialisation(const char *str) { fCintInitialisation = str; }
 
    // Active DAQ System
-   const char     *GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); }
+   const char     *GetNameOfActiveDAQ() { if (fActiveDAQ == 0) { return "none"; } return fActiveDAQ->GetName(); }
    ROMEDAQSystem  *GetActiveDAQ();
    Bool_t          IsActiveDAQ(const char* daqName) { return strcmp(fActiveDAQ->GetName(),daqName) == 0; };
-   Bool_t          isActiveDAQSet() { return fActiveDAQ!=NULL; }
+   Bool_t          isActiveDAQSet() { return fActiveDAQ != 0; }
    void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; }
 
    // Data Base Handle
@@ -312,17 +307,17 @@ public:
    Bool_t          isPreserveConfig() { return fPreserveConfig; }
    Bool_t          isNoGraphics() { return fNoGraphics; }
 
-   void            SetSplashScreen(Bool_t flag=true)  { fSplashScreen = flag; }
-   void            SetBatchMode(Bool_t flag=true) { fBatchMode = flag; }
-   void            SetDaemonMode(Bool_t flag=true) { fDaemonMode = flag; }
-   void            SetQuitMode(Bool_t flag=true) { fQuitMode = flag; }
-   void            SetGraphicalConfigEdit(Bool_t flag=true) { fGraphicalConfigEdit = flag; }
-   void            SetPreserveConfig(Bool_t flag=true) { fPreserveConfig = flag; }
-   void            SetNoGraphics(Bool_t flag=true) { fNoGraphics = flag; }
+   void            SetSplashScreen(Bool_t flag = true)  { fSplashScreen = flag; }
+   void            SetBatchMode(Bool_t flag = true) { fBatchMode = flag; }
+   void            SetDaemonMode(Bool_t flag = true) { fDaemonMode = flag; }
+   void            SetQuitMode(Bool_t flag = true) { fQuitMode = flag; }
+   void            SetGraphicalConfigEdit(Bool_t flag = true) { fGraphicalConfigEdit = flag; }
+   void            SetPreserveConfig(Bool_t flag = true) { fPreserveConfig = flag; }
+   void            SetNoGraphics(Bool_t flag = true) { fNoGraphics = flag; }
 
    // Analysis Mode
-   Bool_t          isOnline() { return fAnalysisMode==kAnalyzeOnline; }
-   Bool_t          isOffline() { return fAnalysisMode==kAnalyzeOffline; }
+   Bool_t          isOnline() { return fAnalysisMode == kAnalyzeOnline; }
+   Bool_t          isOffline() { return fAnalysisMode == kAnalyzeOffline; }
 
    void            SetOnline()  { fAnalysisMode = kAnalyzeOnline; }
    void            SetOffline() { fAnalysisMode = kAnalyzeOffline; }
@@ -392,7 +387,7 @@ public:
 
    // Run Number
    void            GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format = 0);
-   Long64_t        GetRunNumberAt(Int_t i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
+   Long64_t        GetRunNumberAt(Int_t i) { if (i >= fRunNumber.GetSize()) { return 0; } return fRunNumber.At(i); }
    void            GetCurrentRunNumberString(ROMEString &buffer, const char* format = 0);
    Long64_t        GetCurrentRunNumber();
    Int_t           GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
@@ -438,9 +433,9 @@ public:
                    }
 
    // IO type
-   Bool_t          IsRunNumberBasedIO() { return (fIOType==kRunNumberBased); }
-   Bool_t          IsRunNumberAndFileNameBasedIO() { return (fIOType==kRunNumberAndFileNameBased); }
-   Bool_t          IsFileNameBasedIO() { return (fIOType==kFileNameBased); }
+   Bool_t          IsRunNumberBasedIO() { return (fIOType == kRunNumberBased); }
+   Bool_t          IsRunNumberAndFileNameBasedIO() { return (fIOType == kRunNumberAndFileNameBased); }
+   Bool_t          IsFileNameBasedIO() { return (fIOType == kFileNameBased); }
 
    void            SetIOType(Int_t type) { fIOType = type; }
 
@@ -520,14 +515,10 @@ public:
    // Socket Server
    Int_t           GetSocketServerPortNumber() { return fSocketServerPortNumber; }
    Bool_t          isSocketServerActive() { return fSocketServerActive; }
-   TMutex         *GetSocketServerMutex() { return fSocketServerMutex; }
-   TMutex         *GetObjectStorageMutex() { return fObjectStorageMutex; }
-   TMutex         *GetRunEventNumberMutex() { return fRunEventNumberMutex; }
-   TMutex         *GetUpdateObjectStorageMutex() { return fUpdateObjectStorageMutex; }
 
    void            SetSocketServerPortNumber(Int_t portNumber) { fSocketServerPortNumber = portNumber; }
    void            SetSocketServerPortNumber(const char *portNumber) { char *cstop; fSocketServerPortNumber = strtol(portNumber,&cstop,10); }
-   void            SetSocketServerActive(Bool_t flag=true) { fSocketServerActive = flag; }
+   void            SetSocketServerActive(Bool_t flag = true) { fSocketServerActive = flag; }
    static THREADTYPE FillObjectsInNetFolderServer(ROMEAnalyzer *localThis);
    virtual void    FillObjectStorage() = 0;
    void            UpdateObjectStorage();
@@ -560,7 +551,7 @@ public:
    Statistics     *GetScalerStatistics() { return &fScalerStatistics; }
 
    // Start Method
-   Bool_t  Start(int argc=0, char **argv=NULL);
+   Bool_t  Start(int argc = 0, char **argv = 0);
 
    // Run/Event Number Handling
    void            DecodeNumbers(ROMEString &str,TArrayL64 &arr);
@@ -571,11 +562,11 @@ public:
 
 
    // Run Stat
-   void            ShowRunStat(Bool_t flag=true) { fShowRunStat = flag; }
+   void            ShowRunStat(Bool_t flag = true) { fShowRunStat = flag; }
    Bool_t          IsShowRunStat() { return fShowRunStat; }
 
    // Event Based Data Base
-   void            SetEventBasedDataBase(Bool_t flag=true) { fEventBasedDataBase = flag; }
+   void            SetEventBasedDataBase(Bool_t flag = true) { fEventBasedDataBase = flag; }
    Bool_t          IsEventBasedDataBase() { return fEventBasedDataBase; }
 
    // NetFolder
