@@ -1415,12 +1415,14 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
 //______________________________________________________________________________
 ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
 {
-   for (Int_t i=0;i<fNumberOfDataBases;i++) {
-      if (!stricmp(fDataBaseHandle[i]->GetName(),name)) {
+   for (Int_t i = 0; i < fNumberOfDataBases; i++) {
+      if (!stricmp(fDataBaseHandle[i]->GetName(), name)) {
          return fDataBaseHandle[i];
       }
    }
-   ROMEPrint::Error("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
+   ROMEPrint::Error("\nYou have tried to access the %s database without initialisation.\n"
+                    "To use the %s database you have to add it to the list of databases in the\n"
+                    "ROME configuration file under <DataBases>.\n\nShutting down the program.\n", name, name);
    fApplication->Terminate(1);
    return 0;
 }
@@ -1428,8 +1430,8 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
 //______________________________________________________________________________
 Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)
 {
-   for (Int_t i=0;i<fNumberOfDataBases;i++) {
-      if (!stricmp(fDataBaseHandle[i]->GetName(),name)) {
+   for (Int_t i = 0; i < fNumberOfDataBases; i++) {
+      if (!stricmp(fDataBaseHandle[i]->GetName(), name)) {
          return true;
       }
    }
