@@ -1620,11 +1620,7 @@ void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer, TObject* source, TOb
 //______________________________________________________________________________
 Long64_t ROMEAnalyzer::GetCurrentEventNumber()
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgRunEventNumberMutex);
-#else
-   R__LOCKGUARD(fgRunEventNumberMutex);
-#endif
+   ROME_LOCKGUARD(fgRunEventNumberMutex);
 
    Long64_t tempNumber;
    if (gROME->IsROMEMonitor()) {
@@ -1637,11 +1633,7 @@ Long64_t ROMEAnalyzer::GetCurrentEventNumber()
 //______________________________________________________________________________
 Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgRunEventNumberMutex);
-#else
-   R__LOCKGUARD(fgRunEventNumberMutex);
-#endif
+   ROME_LOCKGUARD(fgRunEventNumberMutex);
 
    Long64_t tempNumber;
    if (gROME->IsROMEMonitor()) {
@@ -1654,11 +1646,7 @@ Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 //______________________________________________________________________________
 void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgRunEventNumberMutex);
-#else
-   R__LOCKGUARD(fgRunEventNumberMutex);
-#endif
+   ROME_LOCKGUARD(fgRunEventNumberMutex);
 
    fCurrentEventNumber = eventNumber;
 }
@@ -1666,11 +1654,7 @@ void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
 //______________________________________________________________________________
 void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgRunEventNumberMutex);
-#else
-   R__LOCKGUARD(fgRunEventNumberMutex);
-#endif
+   ROME_LOCKGUARD(fgRunEventNumberMutex);
 
    fCurrentRunNumber = runNumber;
 }
@@ -1678,11 +1662,7 @@ void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
 //______________________________________________________________________________
 void ROMEAnalyzer::UpdateObjectStorage()
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgUpdateObjectStorageMutex);
-#else
-   R__LOCKGUARD(fgUpdateObjectStorageMutex);
-#endif
+   ROME_LOCKGUARD(fgUpdateObjectStorageMutex);
 
    fObjectStorageUpdated = kFALSE;
 }
@@ -1690,11 +1670,7 @@ void ROMEAnalyzer::UpdateObjectStorage()
 //______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgUpdateObjectStorageMutex);
-#else
-   R__LOCKGUARD(fgUpdateObjectStorageMutex);
-#endif
+   ROME_LOCKGUARD(fgUpdateObjectStorageMutex);
 
    Bool_t ret;
    ret = fObjectStorageUpdated;
@@ -1704,11 +1680,7 @@ Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
 //______________________________________________________________________________
 void ROMEAnalyzer::SetObjectStorageUpdated()
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgUpdateObjectStorageMutex);
-#else
-   R__LOCKGUARD(fgUpdateObjectStorageMutex);
-#endif
+   ROME_LOCKGUARD(fgUpdateObjectStorageMutex);
 
    fObjectStorageUpdated = kTRUE;
 }

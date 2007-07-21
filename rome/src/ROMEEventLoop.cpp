@@ -541,11 +541,7 @@ Int_t ROMEEventLoop::RunEvent()
 //______________________________________________________________________________
 Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(fgObjectStorageMutex);
-#else
-   R__LOCKGUARD(fgObjectStorageMutex);
-#endif
+   ROME_LOCKGUARD(fgObjectStorageMutex);
 
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
       const ULong_t kInterval = 10; // this should be changed to parameter

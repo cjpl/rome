@@ -13994,11 +13994,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int %sNetFolderServer::CheckCommand(TSocket *socket,char *str) {\n",shortCut.Data());
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   buffer.AppendFormatted("   R__LOCKGUARD2(fgSocketServerMutex);\n");
-#else
-   buffer.AppendFormatted("   R__LOCKGUARD(fgSocketServerMutex);\n");
-#endif
+   buffer.AppendFormatted("   ROME_LOCKGUARD(fgSocketServerMutex);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
    buffer.AppendFormatted("      return 1;\n");
@@ -14238,13 +14234,8 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("Bool_t %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   buffer.AppendFormatted("   R__LOCKGUARD2(fgSocketServerMutex);\n");
-//   buffer.AppendFormatted("   R__LOCKGUARD2(gObjectStorageMutex);\n"); // one of them may not be necessary
-#else
-   buffer.AppendFormatted("   R__LOCKGUARD(fgSocketServerMutex);\n");
-//   buffer.AppendFormatted("   R__LOCKGUARD(gObjectStorageMutex);\n"); // one of them may not be necessary
-#endif
+   buffer.AppendFormatted("   ROME_LOCKGUARD(fgSocketServerMutex);\n");
+//   buffer.AppendFormatted("   ROME_LOCKGUARD(fgObjectStorageMutex);\n"); // one of them may not be necessary
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
    buffer.AppendFormatted("   TFile *filsav = gFile;\n");

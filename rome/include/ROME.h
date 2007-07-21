@@ -67,5 +67,20 @@
 #   define dbgcout cout<<"==== "<<gSystem->BaseName(__FILE__)<<":"<<__LINE__<<" in "<<__func__<<": "
 #endif
 
+
+// Zero overhead macros in case not compiled with thread support
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
+#   define ROME_LOCKGUARD(mutex) R__LOCKGUARD2(mutex)
+#else
+#   define ROME_LOCKGUARD(mutex)                        \
+   if (gAllocMutex && !mutex) {                         \
+      gAllocMutex->Lock();                              \
+      if (!mutex)                                       \
+         mutex = new TVirtualMutex(kTRUE);              \
+      gAllocMutex->UnLock();                            \
+   }                                                    \
+   R__LOCKGUARD(mutex)
+#endif
+
 #endif   // ROME_H
 
