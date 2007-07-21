@@ -597,10 +597,14 @@ private:
    Bool_t  WriteFolderH();
    Bool_t  WriteAllFoldersH();
    Bool_t  WriteSteeringClass(ROMEString& buffer,Int_t numOfTaskSteer,Int_t numTask,Int_t tab);
-   Bool_t  WriteSteeringReadParameters(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer) ;
-   Bool_t  WriteSteeringParameterUsage(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer) ;
-   Int_t   WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& path1,ROMEString& path2,Int_t tab);
-   Int_t   WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& steerPointer,Int_t tab);
+   Bool_t  WriteSteeringReadParameters(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,
+                                       ROMEString& steerPointer) ;
+   Bool_t  WriteSteeringParameterUsage(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,
+                                       ROMEString& steerPointer) ;
+   Int_t   WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNumber,Int_t numSteer,Int_t numTask,
+                                        ROMEString& path1,ROMEString& path2,Int_t tab);
+   Int_t   WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,Int_t codeNumber,Int_t numSteer,
+                                         Int_t numTask,ROMEString& steerPointer,Int_t tab);
    void    WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
    void    WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int_t type);
    void    WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder);
@@ -621,7 +625,8 @@ private:
    Bool_t  WriteAnalyzer3Cpp();
    Bool_t  WriteAnalyzer4Cpp();
    Bool_t  WriteAnalyzerH();
-   Bool_t  WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,const char *objectActivePointer,bool bypass);
+   Bool_t  WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,
+                                        const char *objectActivePointer,bool bypass);
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindow2Cpp();
    Bool_t  WriteWindowH();
@@ -632,8 +637,10 @@ private:
    Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset);
    Bool_t  WriteConfigToFormCpp();
    Bool_t  WriteConfigToFormH();
-   Bool_t  WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString tabPointer,ROMEString configPointer,int level,int tab);
-   Bool_t  WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer,int level,int tab,ROMEString indexes);
+   Bool_t  WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString tabPointer,
+                                       ROMEString configPointer,int level,int tab);
+   Bool_t  WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,
+                                 ROMEString tabPointer,ROMEString configPointer,int level,int tab,ROMEString indexes);
    Bool_t  WriteConfigCpp();
    Bool_t  WriteConfig2Cpp();
    Bool_t  WriteConfig3Cpp();
@@ -643,13 +650,18 @@ private:
    Bool_t  AddConfigParametersFolder();
    Bool_t  AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
    Bool_t  AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
-   Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer);
+   Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,
+                                       ROMEString steerPointer,ROMEString taskPointer);
    Bool_t  CheckConfigParameters(ROMEConfigParameterGroup *parGroup);
    Bool_t  WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab);
-   Bool_t  WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub);
-   Bool_t  WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub);
-   Bool_t  WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer,Int_t* iSub);
-   Bool_t  WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer,Int_t* iSub);
+   Bool_t  WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,
+                           ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub);
+   Bool_t  WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,
+                                    ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub);
+   Bool_t  WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,
+                          ROMEString pointer,Int_t* iSub);
+   Bool_t  WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,
+                            ROMEString pointer,Int_t* iSub);
    Bool_t  WriteMidasDAQCpp();
    Bool_t  WriteMidasDAQH();
    Bool_t  WriteRomeDAQCpp();
@@ -660,7 +672,8 @@ private:
    Bool_t  WriteRootDAQClassH(Int_t iTree,Int_t iBranch);
    Bool_t  WriteNetFolderServerCpp();
    Bool_t  WriteNetFolderServerH();
-   Bool_t  WriteUpdateObjectsObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass);
+   Bool_t  WriteUpdateObjectsObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,
+                                    bool bypass);
    Bool_t  WriteDAQCpp();
    Bool_t  WriteDAQH();
    Bool_t  WriteDBCpp();
@@ -716,14 +729,17 @@ private:
    void    WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileUserDictObject(ROMEString& buffer);
    void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
-   void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
+   void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,
+                                   const char* linkDefName = 0);
    void    WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
-   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath=false, Int_t iFile = 0);
+   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath=false,
+                               Int_t iFile = 0);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);
    void    GetUserDictIncludeDirString(ROMEString& buffer,const char* separator);
-   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0,ROMEString *objdir = 0);
+   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0,
+                                          ROMEString *objdir = 0);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,const char* flag = 0);
@@ -734,10 +750,14 @@ private:
    void    WriteHTMLDoku();
    void    WriteHTMLStyle(ROMEString &buffer);
    void    WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group);
-   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace = 0, const char* str1 = 0, const char* str2 = 0,const char* condition = 0, bool replaceWhenFound = true);
-   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace, ROMEStrArray& arr1, ROMEStrArray& arr2,ROMEStrArray& condition,TArrayI &replaceWhenFound);
+   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace = 0,
+                         const char* str1 = 0, const char* str2 = 0,const char* condition = 0,
+                         bool replaceWhenFound = true);
+   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace, ROMEStrArray& arr1,
+                         ROMEStrArray& arr2,ROMEStrArray& condition,TArrayI &replaceWhenFound);
    void    WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite);
-   void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark, const char* header = 0);
+   void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark,
+                            const char* header = 0);
    Bool_t  BackUpFile(const char* filename);
    Bool_t  accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t includeUnused = kFALSE);
    Bool_t  accessHisto(ROMEString &fileBuffer, Int_t numTask, Int_t numHisto);
@@ -756,7 +776,8 @@ private:
    void    WriteVisualProjectProjFileDictCreators(ROMEXML *xml);
    void    WriteVisualProjectProjFileROMEBuilder(ROMEXML *xml);
    void    WriteVisualProjectProjUserSources(ROMEXML *xml);
-   void    WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const char *warningLevel,const char* preCompiledHeaderFile);
+   void    WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const char *warningLevel,
+                                                   const char* preCompiledHeaderFile);
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);
 
    // Type Utility Methods
@@ -767,11 +788,12 @@ private:
    Bool_t  isIntType(const char *type);
    Bool_t  isFolder(const char *type);
    Bool_t  isTArrayType(const char *type);
-   Bool_t  isTArrayType(TString &type) { return isTArrayType(type.Data()); };
+   Bool_t  isTArrayType(TString &type) { return isTArrayType(type.Data()); }
    const char* TArray2StandardType(const char *type,ROMEString &standardType);
-   const char* TArray2StandardType(TString &type,ROMEString &standardType) { return TArray2StandardType(type.Data(),standardType); };
-   Bool_t  isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
-   Bool_t  isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; };
+   const char* TArray2StandardType(TString &type,ROMEString &standardType) {
+      return TArray2StandardType(type.Data(),standardType); }
+   Bool_t  isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); }
+   Bool_t  isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; }
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
    bool    toMidasODBType(ROMEString& type,ROMEString& midasODBType);
 
@@ -781,7 +803,8 @@ private:
    Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
    Bool_t  CopyFile(const char* oldFileName,const char* newFileName);
 
-   template <class T> void* AllocateArray(T* p0, Int_t x1 = 0, Int_t x2 = 0, Int_t x3 = 0, Int_t x4 = 0, Int_t x5 = 0, Int_t x6 = 0);
+   template <class T> void* AllocateArray(T* p0, Int_t x1 = 0, Int_t x2 = 0, Int_t x3 = 0, Int_t x4 = 0,
+                                          Int_t x5 = 0, Int_t x6 = 0);
    void* AllocateInt(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateBool(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateROMEString(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);

@@ -60,7 +60,7 @@ bool ROMEEventLoop::fHotLinksChanged = kFALSE;
 
 ClassImp(ROMEEventLoop)
 
-TVirtualMutex *gObjectStorageMutex = 0;
+static TVirtualMutex *fgObjectStorageMutex = 0;
 
 //______________________________________________________________________________
 ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
@@ -542,9 +542,9 @@ Int_t ROMEEventLoop::RunEvent()
 Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gObjectStorageMutex);
+   R__LOCKGUARD2(fgObjectStorageMutex);
 #else
-   R__LOCKGUARD(gObjectStorageMutex);
+   R__LOCKGUARD(fgObjectStorageMutex);
 #endif
 
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {

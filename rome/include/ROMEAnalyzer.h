@@ -63,14 +63,14 @@ const Int_t kEventNumberTerminate  = -4;
 class ROMEAnalyzer : public TObject
 {
 friend class ArgusWindow;
-private:
+public:
    // Analysis Mode
    enum {
+      kAnalyzeNotSpecified,
       kAnalyzeOffline,
       kAnalyzeOnline
    };
 
-public:
    // IO type
    enum {
       kNotBased,
@@ -113,6 +113,7 @@ protected:
 
    // Modes
    Int_t          fAnalysisMode;                 //! Analysis mode flag
+   Int_t          fAnalysisModeConfig;           //! Analysis mode flag in config XML file
    Bool_t         fBatchMode;                    //! Batch mode flag
    Bool_t         fDaemonMode;                   //! Daemon mode flag
    Bool_t         fQuitMode;                     //! Quit mode flag
@@ -229,7 +230,7 @@ protected:
 
    // NetFolder
    Int_t          fNumberOfNetFolders;           //! Number of net folders
-   ROMENetFolder **fNetFolder;                    //! netfolder handle
+   ROMENetFolder **fNetFolder;                   //! netfolder handle
    Bool_t        *fNetFolderActive;              //! active flag
    Bool_t        *fNetFolderReconnect;           //! reconnect flag
    TSocket      **fNetFolderSocket;              //! socket connection handle
@@ -251,7 +252,7 @@ private:
 
 public:
    ROMEAnalyzer();
-   ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics,
+   ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t nographics, Int_t analysisMode,
                 const char* programName, const char* onlineName, ROMEConfig* config, int numNetFolder);
    virtual ~ROMEAnalyzer();
 
@@ -318,9 +319,13 @@ public:
    // Analysis Mode
    Bool_t          isOnline() { return fAnalysisMode == kAnalyzeOnline; }
    Bool_t          isOffline() { return fAnalysisMode == kAnalyzeOffline; }
+   Bool_t          ConfigIsOnline() { return fAnalysisModeConfig == kAnalyzeOnline; }
+   Bool_t          ConfigIsOffline() { return fAnalysisModeConfig == kAnalyzeOffline; }
 
    void            SetOnline()  { fAnalysisMode = kAnalyzeOnline; }
    void            SetOffline() { fAnalysisMode = kAnalyzeOffline; }
+   void            SetConfigOnline()  { fAnalysisModeConfig = kAnalyzeOnline; }
+   void            SetConfigOffline() { fAnalysisModeConfig = kAnalyzeOffline; }
 
    // Directories
    const char     *GetInputDir()            { return fInputDir.Data(); }
