@@ -2364,9 +2364,16 @@ void ROMEBuilder::WriteMakefile() {
 // ------------------
    buffer.AppendFormatted("## Compile statements\n");
    ROMEString additionalFlag;
-   if (pch)
-      additionalFlag.SetFormatted("-include generated/%sPrecompile.h", shortCut.Data());
 
+   if (librome) {
+      buffer.AppendFormatted("$(ROMESYS)/librome.a: $(ROMESYS)/include/*h $(ROMESYS)/src/*cpp\n");
+      buffer.AppendFormatted("\t@$(MAKE) -C $(ROMESYS) librome.a\n");
+      buffer.AppendFormatted("\n");
+   }
+
+   if (pch) {
+      additionalFlag.SetFormatted("-include generated/%sPrecompile.h", shortCut.Data());
+   }
    WriteMakefileCompileStatements(buffer,romeSources,additionalFlag.Data());
    WriteMakefileCompileStatements(buffer,argusSources,additionalFlag.Data());
    WriteMakefileCompileStatements(buffer,generatedSources,additionalFlag.Data());
