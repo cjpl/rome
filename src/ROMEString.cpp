@@ -20,6 +20,8 @@
 
 ClassImp(ROMEString)
 
+static TVirtualMutex *fgROMEStringMutex = 0;
+
 //______________________________________________________________________________
 ROMEString& ROMEString::AppendFormatted(const char* va_(fmt), ...)
 {
@@ -231,11 +233,7 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
    static char *slowBuffer  = 0;
    static int   slowBufferSize = 0;
 
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gStringMutex);
-#else
-   R__LOCKGUARD(gStringMutex);
-#endif
+   ROME_LOCKGUARD(fgROMEStringMutex);
 
    if (hint == -1) {
       hint = fld_size;
@@ -276,11 +274,7 @@ char* ROMEString::Format(const char *format, va_list ap)
    // Format a string in a circular formatting buffer (using a printf style
    // format descriptor).
 
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gStringMutex);
-#else
-   R__LOCKGUARD(gStringMutex);
-#endif
+   ROME_LOCKGUARD(fgROMEStringMutex);
 
    char *buf = gBfree;
 
