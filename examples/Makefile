@@ -263,7 +263,7 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q
 
-#	cd midas; ./midanalyzer.exe -i romeConfig.xml -q
+	cd midas; ./midanalyzer.exe -i romeConfig.xml -q -m offline
 
 	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1
 

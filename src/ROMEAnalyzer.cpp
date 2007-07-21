@@ -89,11 +89,11 @@
 ClassImp(ROMEAnalyzer)
 
 ROMEAnalyzer *gROME = 0;  // global ROMEAnalyzer Handle
-TVirtualMutex *gRunEventNumberMutex = 0;
-TVirtualMutex *gUpdateObjectStorageMutex = 0;
+static TVirtualMutex *fgRunEventNumberMutex = 0;
+static TVirtualMutex *fgUpdateObjectStorageMutex = 0;
 
 //______________________________________________________________________________
-ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t nographics,
+ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t nographics, Int_t analysisMode,
                            const char* programName, const char* onlineName, ROMEConfig* config, int numNetFolder)
 :TObject()
 ,fProgramMode(kStandAloneROME)
@@ -101,7 +101,8 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fApplication(app)
 ,fCintInitialisation("")
 ,fActiveDAQ(0)
-,fAnalysisMode(kAnalyzeOffline)
+,fAnalysisMode(analysisMode)
+,fAnalysisModeConfig(kAnalyzeOffline)
 ,fBatchMode(batch)
 ,fDaemonMode(daemon)
 ,fQuitMode(batch || daemon)
@@ -425,11 +426,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
       if (foundFiles.GetEntries() == 0) {
          ;
-      }
-      else if (foundFiles.GetEntries() == 1) {
+      } else if (foundFiles.GetEntries() == 1) {
          configFile = foundFiles.At(0);
-      }
-      else {
+      } else {
          if (this->isBatchMode() || this->isDaemonMode()) {
             ROMEPrint::Error("Several configuration files were found.\n");
             for (i = 0; i < nFile; i++) {
@@ -437,8 +436,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             }
             ROMEPrint::Error("Please specify with -i option.\n");
             return false;
-         }
-         else {
+         } else {
             i = -1;
             while (i < 0 || i >= nFile) {
                ROMEPrint::PrintAlways("Please select a configuration file.\n");
@@ -473,8 +471,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (isBatchMode() || isDaemonMode()) {
          if (configFile.Length()) {
             ROMEPrint::Error("Configuration file '%s' not found.\n", configFile.Data());
-         }
-         else {
+         } else {
             ROMEPrint::Error("Please specify configuration file with -i option.\n");
          }
          return false;
@@ -482,8 +479,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
       if (configFile.Length()) {
          ROMEPrint::Warning("Configuration file '%s' not found.", configFile.Data());
-      }
-      else {
+      } else {
          configFile = "romeConfig.xml";
       }
 
@@ -566,6 +562,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
    }
 
+   if (fAnalysisMode == kAnalyzeNotSpecified) {
+      fAnalysisMode = kAnalyzeOffline;
+   }
+
    if (!this->WriteConfigurationFile(configFile)) {
       ROMEPrint::Print("\nTerminate program.\n");
       return false;
@@ -575,8 +575,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    for (i = 1; i < argc; i++) {
       if (!strcmp(argv[i], "-q")) {
          fQuitMode = true;
-      }
-      else if (!strcmp(argv[i], "-v")) {
+      } else if (!strcmp(argv[i], "-v")) {
          if (i + 1 >= argc) {
             break;
          }
@@ -595,11 +594,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          }
          i++;
-      }
-      else if (!strcmp(argv[i], "-ns")) {
+      } else if (!strcmp(argv[i], "-ns")) {
          fSplashScreen = false;
-      }
-      else if (!strcmp(argv[i], "-m")) {
+      } else if (!strcmp(argv[i], "-m")) {
          if (i + 1 >= argc) {
             break;
          }
@@ -609,8 +606,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             this->SetOffline();
          }
          i++;
-      }
-      else if (!strcmp(argv[i], "-p")) {
+      } else if (!strcmp(argv[i], "-p")) {
          if (i + 1 >= argc) {
             break;
          }
@@ -624,42 +620,33 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             this->SetStandAloneROME();
          }
          i++;
-      }
-      else if (!strcmp(argv[i], "-r") && i < argc - 1) {
+      } else if (!strcmp(argv[i], "-r") && i < argc - 1) {
          if (i + 1 >= argc) {
             break;
          }
          this->SetRunNumbers(argv[i + 1]);
          i++;
-      }
-      else if (!strcmp(argv[i], "-e") && i < argc - 1) {
+      } else if (!strcmp(argv[i], "-e") && i < argc - 1) {
          if (i + 1 >= argc) {
             break;
          }
          this->SetEventNumbers(argv[i + 1]);
          i++;
-      }
-      else if (!strcmp(argv[i], "-o")) {
+      } else if (!strcmp(argv[i], "-o")) {
          static_cast<ROMEEventLoop*>(fMainTask)->SetContinuousMode(false);
-      }
-      else if (!strcmp(argv[i], "-i")) {
+      } else if (!strcmp(argv[i], "-i")) {
          if (i + 1 >= argc) {
             break;
          }
          i++;
-      }
-      else if (!strcmp(argv[i], "-b")) {
+      } else if (!strcmp(argv[i], "-b")) {
          fBatchMode = kTRUE;
-      }
-      else if (!strcmp(argv[i], "-D")) {
+      } else if (!strcmp(argv[i], "-D")) {
          fDaemonMode = kTRUE;
-      }
-      else if (!strcmp(argv[i], "-ng")) {
+      } else if (!strcmp(argv[i], "-ng")) {
          fNoGraphics = kTRUE;
-      }
-      else if (!strcmp(argv[i], "-I")) {
-      }
-      else if (!ReadUserParameter(argv[i], i < argc - 1 ? argv[i + 1] : "", i)) {
+      } else if (!strcmp(argv[i], "-I")) {
+      } else if (!ReadUserParameter(argv[i], i < argc - 1 ? argv[i + 1] : "", i)) {
          ROMEPrint::Error("Input line parameter '%s' not available.\n", argv[i]);
          ROMEPrint::Print("Available input line parameters are :\n");
          ParameterUsage();
@@ -701,8 +688,7 @@ Int_t ROMEAnalyzer::CheckNumber(Long64_t number, TArrayL64 &numbers)
          if (TMath::Abs(numbers.At(i)) <= number && TMath::Abs(numbers.At(i + 1)) >= number) {
             return 1;
          }
-      }
-      else {
+      } else {
          if (numbers.At(i) == number) {
             return 1;
          }
@@ -720,8 +706,7 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber)
          if (TMath::Abs(fRunNumber.At(i)) <= runNumber && TMath::Abs(fRunNumber.At(i + 1)) > runNumber) {
             return runNumber + 1;
          }
-      }
-      else {
+      } else {
          if (fRunNumber.At(i) == runNumber && i < nRunNumber - 1) {
             return TMath::Abs(fRunNumber.At(i + 1));
          }
@@ -1498,8 +1483,7 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
    ROMEString form;
    if (format) {
       form = format;
-   }
-   else {
+   } else {
 #if defined( R__VISUAL_CPLUSPLUS )
       form = "%05I64d";
 #else
@@ -1564,8 +1548,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
          format = buffer(startForm, endForm - startForm);
          buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
          endStr = startStr + strlen("##");
-      }
-      else {
+      } else {
 #if defined( R__VISUAL_CPLUSPLUS )
          format = "%05I64d";
 #else
@@ -1590,8 +1573,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
          format = buffer(startForm, endForm - startForm);
          buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
          endStr = startStr + strlen("#");
-      }
-      else {
+      } else {
          if (gROME->isTreeAccumulation()) {
             format = gROME->GetRunNumberStringOriginal();
          } else {
@@ -1639,9 +1621,9 @@ void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer, TObject* source, TOb
 Long64_t ROMEAnalyzer::GetCurrentEventNumber()
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gRunEventNumberMutex);
+   R__LOCKGUARD2(fgRunEventNumberMutex);
 #else
-   R__LOCKGUARD(gRunEventNumberMutex);
+   R__LOCKGUARD(fgRunEventNumberMutex);
 #endif
 
    Long64_t tempNumber;
@@ -1656,9 +1638,9 @@ Long64_t ROMEAnalyzer::GetCurrentEventNumber()
 Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gRunEventNumberMutex);
+   R__LOCKGUARD2(fgRunEventNumberMutex);
 #else
-   R__LOCKGUARD(gRunEventNumberMutex);
+   R__LOCKGUARD(fgRunEventNumberMutex);
 #endif
 
    Long64_t tempNumber;
@@ -1673,9 +1655,9 @@ Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gRunEventNumberMutex);
+   R__LOCKGUARD2(fgRunEventNumberMutex);
 #else
-   R__LOCKGUARD(gRunEventNumberMutex);
+   R__LOCKGUARD(fgRunEventNumberMutex);
 #endif
 
    fCurrentEventNumber = eventNumber;
@@ -1685,9 +1667,9 @@ void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber)
 void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gRunEventNumberMutex);
+   R__LOCKGUARD2(fgRunEventNumberMutex);
 #else
-   R__LOCKGUARD(gRunEventNumberMutex);
+   R__LOCKGUARD(fgRunEventNumberMutex);
 #endif
 
    fCurrentRunNumber = runNumber;
@@ -1697,9 +1679,9 @@ void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber)
 void ROMEAnalyzer::UpdateObjectStorage()
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gUpdateObjectStorageMutex);
+   R__LOCKGUARD2(fgUpdateObjectStorageMutex);
 #else
-   R__LOCKGUARD(gUpdateObjectStorageMutex);
+   R__LOCKGUARD(fgUpdateObjectStorageMutex);
 #endif
 
    fObjectStorageUpdated = kFALSE;
@@ -1709,9 +1691,9 @@ void ROMEAnalyzer::UpdateObjectStorage()
 Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gUpdateObjectStorageMutex);
+   R__LOCKGUARD2(fgUpdateObjectStorageMutex);
 #else
-   R__LOCKGUARD(gUpdateObjectStorageMutex);
+   R__LOCKGUARD(fgUpdateObjectStorageMutex);
 #endif
 
    Bool_t ret;
@@ -1723,9 +1705,9 @@ Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
 void ROMEAnalyzer::SetObjectStorageUpdated()
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   R__LOCKGUARD2(gUpdateObjectStorageMutex);
+   R__LOCKGUARD2(fgUpdateObjectStorageMutex);
 #else
-   R__LOCKGUARD(gUpdateObjectStorageMutex);
+   R__LOCKGUARD(fgUpdateObjectStorageMutex);
 #endif
 
    fObjectStorageUpdated = kTRUE;

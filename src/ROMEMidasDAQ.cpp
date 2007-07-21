@@ -412,7 +412,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       }
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
-         if (gROME->isDataBaseActive("odb")) {
+         if (gROME->isDataBaseActive("ODB")) {
             static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->
                   SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }
@@ -664,7 +664,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
 
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
-         if (gROME->isDataBaseActive("odb")) {
+         if (gROME->isDataBaseActive("ODB")) {
             static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->
                   SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }

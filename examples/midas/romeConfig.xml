@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id$ -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -36,6 +37,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Experiment></Experiment>
       <!-- The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional) -->
       <AnalyzerName>OtherMIDAnalyzer</AnalyzerName>
+      <!-- The name of the memory buffer to be accessed. (optional) -->
+      <MemoryBuffer>SYSTEM</MemoryBuffer>
     </Online>
 
     <Paths>
@@ -50,8 +53,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <!-- Describes the framework specifications, which are common for analyzer and monitors. -->
       <Settings>
         <!-- Description of the common settings of the framework. -->
-        <!-- Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal. -->
+        <!-- Specify amount of messages from framework. mute, error, warning, normal, verbose or debug. default is normal. -->
         <VerboseLevel>normal</VerboseLevel>
+        <!-- Specify max number of prints of an identical error or warning by ROMEPrint::Report. No limit when this is 0. -->
+        <ReportMaxCount>20</ReportMaxCount>
         <!-- Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1. -->
         <ConfigCommentLevel>5</ConfigCommentLevel>
         <!-- If true, the program doesn't start a root session at the end. Default is false. -->
@@ -63,6 +68,20 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <!-- Flag if configuration XML file is overwritten by program. When this is true, program does not overwrite configuration file. -->
         <PreserveConfig>false</PreserveConfig>
       </Settings>
+
+      <FloatingPointExceptionTrap>
+        <!-- Description of the settings of floating point exception trap. -->
+        <!-- If true, trap invalid operation. (NaNS, INF-INF, INF/INF, 0/0, INF*0, sqrt(Negative) and so on) -->
+        <Invalid>false</Invalid>
+        <!-- If true, trap division by zero. -->
+        <DivByZero>false</DivByZero>
+        <!-- If true, trap overflow. -->
+        <Overflow>false</Overflow>
+        <!-- If true, trap underflow. -->
+        <Underflow>false</Underflow>
+        <!-- If true, trap inexact operations. -->
+        <Inexact>false</Inexact>
+      </FloatingPointExceptionTrap>
 
       <SocketServer>
         <!-- Description of the socket server. External programs can access the objects inside the framework over a root socket interface. -->

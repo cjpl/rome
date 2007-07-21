@@ -2934,7 +2934,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("Int_t %sT%s_Base::GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue) {\n",
                              shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   char *cstop;\n");
-      buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+      buffer.AppendFormatted("   cstop=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2950,7 +2950,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("Double_t %sT%s_Base::GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue) {\n",
                              shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   char *cstop;\n");
-      buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+      buffer.AppendFormatted("   cstop=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -5317,9 +5317,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
 
    // Constructor
-   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics)\n",
+   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics,Int_t mode)\n",
                           shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted(":ROMEAnalyzer(app,batch,daemon,nographics");
+   buffer.AppendFormatted(":ROMEAnalyzer(app,batch,daemon,nographics,mode");
    buffer.AppendFormatted(",\"%s%s\"",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted(",\"%s%s\"",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted(",new %sConfig()",shortCut.Data());
@@ -5570,7 +5570,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   ROMEString option = opt;\n");
    buffer.AppendFormatted("   ROMEString tmp;\n");
    buffer.AppendFormatted("   char *cstop;\n");
-   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   cstop=0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTask] > 0) {
       ROMEString pointerT;
@@ -5778,12 +5778,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       buffer.AppendFormatted("// %s DAQ Access Methods\n",daqNameArray->At(i).Data());
       buffer.AppendFormatted("%s%sDAQ* %sAnalyzer::Get%sDAQ() {\n",daqTypeArray->At(i).Data(),
                              daqNameArray->At(i).Data(),shortCut.Data(),daqNameArray->At(i).Data());
-      buffer.AppendFormatted("   if (f%sDAQ == NULL) {\n",daqNameArray->At(i).Data());
+      buffer.AppendFormatted("   if (f%sDAQ == 0) {\n",daqNameArray->At(i).Data());
       buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",
                              daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
       buffer.AppendFormatted("      gSystem->StackTrace();\n");
       buffer.AppendFormatted("      fApplication->Terminate(1);\n");
-      buffer.AppendFormatted("      return NULL;\n");
+      buffer.AppendFormatted("      return 0;\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   return f%sDAQ;\n",daqNameArray->At(i).Data());
       buffer.AppendFormatted("}\n\n");
@@ -5879,7 +5879,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LPDWORD lpThreadId;\n");
    buffer.AppendFormatted("void %sAnalyzer::startSplashScreen() {\n",shortCut.Data());
-   buffer.AppendFormatted("   CloseHandle(CreateThread(NULL, 1024,&SplashThread, 0, 0, lpThreadId));\n");
+   buffer.AppendFormatted("   CloseHandle(CreateThread(0, 1024,&SplashThread, 0, 0, lpThreadId));\n");
    buffer.AppendFormatted("}\n");
 #endif
    buffer.AppendFormatted("\n");
@@ -6326,10 +6326,10 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("   int ind;\n");
    buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   char *cstop;\n");
-   buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   cstop = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   int exitID;\n");
    buffer.AppendFormatted("   %sConfigToForm *dialog = new %sConfigToForm();\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),NULL)) == 1) {\n");
+   buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),0)) == 1) {\n");
    buffer.AppendFormatted("      if (isNoGraphics())\n");
    buffer.AppendFormatted("         SetStandAloneROME();\n");
    buffer.AppendFormatted("      else {\n");
@@ -6731,7 +6731,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
                           shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("public:\n");
-   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);\n",
+   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics,Int_t mode);\n",
                           shortCut.Data());
    buffer.AppendFormatted("   virtual ~%sAnalyzer();\n",shortCut.Data());
 
@@ -6874,7 +6874,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       buffer.AppendFormatted("   %sRomeDAQ* GetRome() { return GetRomeDAQ(); }\n",shortCut.Data());
    for (i = 0; i < daqNameArray->GetEntriesFast(); i++) {
       buffer.AppendFormatted("   // %s DAQ Access Methods\n",daqNameArray->At(i).Data());
-      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ != NULL; }\n",daqNameArray->At(i).Data(),
+      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ != 0; }\n",daqNameArray->At(i).Data(),
                              daqNameArray->At(i).Data());
       buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ();\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),
                              daqNameArray->At(i).Data());
@@ -7090,12 +7090,12 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          if (numOfMenu[tabHeredityIndex[i]] > 0) {
             buffer.AppendFormatted("   for (i = %d; i < %d + %d; i++)\n", numOfMenu[i],numOfMenu[i],
                                    numOfMenu[tabHeredityIndex[i]]);
-            buffer.AppendFormatted("      f%sMenu[i] = NULL;\n", tabName[i].Data());
+            buffer.AppendFormatted("      f%sMenu[i] = 0;\n", tabName[i].Data());
          }
       }
       if (numOfMenu[i] > 0) {
          buffer.AppendFormatted("   for (i = 0; i < %d; i++)\n", numOfMenu[i]);
-         buffer.AppendFormatted("      f%sMenu[i] = NULL;\n", tabName[i].Data());
+         buffer.AppendFormatted("      f%sMenu[i] = 0;\n", tabName[i].Data());
       }
    }
    buffer.AppendFormatted("   ConstructTabs();\n");
@@ -7161,7 +7161,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          }
       }
       if (tabObjectDisplay[i]) {
-         buffer.AppendFormatted("            f%s%sTab->BaseMenuClicked(NULL,param1);\n", tabName[i].Data(),
+         buffer.AppendFormatted("            f%s%sTab->BaseMenuClicked(0,param1);\n", tabName[i].Data(),
                                 tabSuffix[i].Data());
       } else if (numOfMenu[i] > 0) {
          buffer.AppendFormatted("            for (i = 0; i < %d; i++) {\n", numOfMenu[i]);
@@ -7377,7 +7377,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    }
 
    buffer.AppendFormatted("   ROMEPrint::Error(\"Error: A menu (%%s) was not found.\\n\", menuName);\n");
-   buffer.AppendFormatted("   return NULL;\n");
+   buffer.AppendFormatted("   return 0;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -8601,7 +8601,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          buffer.AppendFormatted("   int ind;\n");
          buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   char *cstop;\n");
-         buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   cstop = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   int inttmp;\n");
          buffer.AppendFormatted("   inttmp = 0;\n"); // to suppress unused warning
          tab = 0;
@@ -9256,7 +9256,7 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
    buffer.AppendFormatted("   int ii[100];\n");
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   char* cstop;\n");
-   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   cstop=0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   Int_t inttmp;\n");
    buffer.AppendFormatted("   inttmp = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString path = \"\";\n");
@@ -9615,11 +9615,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
       // Modes/AnalyzingMode
       subGroup->AddParameter(new ROMEConfigParameter("AnalyzingMode","1","ComboBox"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+      subGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->isOnline() && !gAnalyzer->isOffline()) {");
+      subGroup->GetLastParameter()->AddSetLine("   if (## == \"online\")");
+      subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetOnline();");
+      subGroup->GetLastParameter()->AddSetLine("   else");
+      subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetOffline();");
+      subGroup->GetLastParameter()->AddSetLine("}");
       subGroup->GetLastParameter()->AddSetLine("if (## == \"online\")");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOnline();");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetConfigOnline();");
       subGroup->GetLastParameter()->AddSetLine("else");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOffline();");
-      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isOnline())");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetConfigOffline();");
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->ConfigIsOnline())");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"online\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"offline\";");
@@ -10259,7 +10265,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
                                                             subsubSubGroup->GetGroupName());
             subsubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
             subsubSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder() != NULL)");
+            subsubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder() != 0)");
             subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetWindow()->GetControllerNetFolder()->GetName();");
          }
       }
@@ -12108,7 +12114,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, &f%s%sHotLinks, sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n",
+         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, &f%s%sHotLinks, sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, 0) != DB_SUCCESS) {\n",
                                 taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data());
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
@@ -12140,7 +12146,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetMidasDAQ()->GetGSPHotLinks(), sizeof(GSPHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n");
+         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetMidasDAQ()->GetGSPHotLinks(), sizeof(GSPHotLinks), MODE_READ, HotLinksChanged, 0) != DB_SUCCESS) {\n");
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
@@ -12172,7 +12178,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, &f%s%sHotLinks, sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n",
+         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, &f%s%sHotLinks, sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, 0) != DB_SUCCESS) {\n",
                                 tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
          buffer.AppendFormatted("      return false;\n");
@@ -12222,28 +12228,28 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                                       bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer[bankIndex] + indx;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer(Int_t bankIndex) {\n",
                                       bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t bankIndex,Int_t indx) {\n",
                                       bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex] + indx;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer(Int_t bankIndex) {\n",
                                       bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else {
@@ -12258,7 +12264,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%s %sMidasDAQ::GetLast%sBankAt(Int_t bankIndex,Int_t indx) {\n",
@@ -12272,7 +12278,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             }
@@ -12299,7 +12305,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   f%sBankExists[bankIndex] = false;\n",bankName[i][j].Data());
-            buffer.AppendFormatted("   f%sBankPointer[bankIndex] = NULL;\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   f%sBankPointer[bankIndex] = 0;\n",bankName[i][j].Data());
             buffer.AppendFormatted("   f%sBankLength[bankIndex] = 0;\n",bankName[i][j].Data());
             buffer.AppendFormatted("   return;\n");
             buffer.AppendFormatted("}\n");
@@ -12320,28 +12326,28 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer + indx;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer() {\n",bankName[i][j].Data(),
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t indx) {\n",bankName[i][j].Data(),
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer + indx;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer() {\n",bankName[i][j].Data(),
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else {
@@ -12356,7 +12362,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                                       bankName[i][j].Data());
                buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.AppendFormatted("%s %sMidasDAQ::GetLast%sBankAt(Int_t indx) {\n",bankType[i][j].Data(),
@@ -12370,7 +12376,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
                                       shortCut.Data(),bankName[i][j].Data());
                buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   return NULL;\n");
+               buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             }
@@ -12393,7 +12399,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   f%sBankExists = false;\n",bankName[i][j].Data());
-            buffer.AppendFormatted("   f%sBankPointer = NULL;\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   f%sBankPointer = 0;\n",bankName[i][j].Data());
             buffer.AppendFormatted("   f%sBankLength = 0;\n",bankName[i][j].Data());
             buffer.AppendFormatted("   return;\n");
             buffer.AppendFormatted("}\n");
@@ -13199,11 +13205,11 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
    buffer.AppendFormatted("   TTree *tree;\n");
    buffer.AppendFormatted("   fTrees->RemoveAll();\n");
    for (i = 0; i < numOfRootTree; i++) {
-      buffer.AppendFormatted("   tree = NULL;\n");
-      buffer.AppendFormatted("   for (i = 0; i < gROME->GetNumberOfInputFileNames() && tree == NULL; i++) {\n");
+      buffer.AppendFormatted("   tree = 0;\n");
+      buffer.AppendFormatted("   for (i = 0; i < gROME->GetNumberOfInputFileNames() && tree == 0; i++) {\n");
       buffer.AppendFormatted("      tree = (TTree*)fRootFiles[i]->FindObjectAny(\"%s\");\n",rootTreeName[i].Data());
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   if (tree == NULL) {\n");
+      buffer.AppendFormatted("   if (tree == 0) {\n");
       buffer.AppendFormatted("      ROMEPrint::Warning(\"Tree '%s' not found.\\n\");\n",rootTreeName[i].Data());
       buffer.AppendFormatted("      return false;\n");
       buffer.AppendFormatted("   }\n");
@@ -13862,7 +13868,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("\nClassImp(%sNetFolderServer)\n",shortCut.Data());
 
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("TVirtualMutex *gSocketServerMutex = 0;\n");
+   buffer.AppendFormatted("static TVirtualMutex *fgSocketServerMutex = 0;\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("void %sNetFolderServer::ConstructObjects(TSocket* socket)\n",shortCut.Data());
@@ -13989,9 +13995,9 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int %sNetFolderServer::CheckCommand(TSocket *socket,char *str) {\n",shortCut.Data());
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   buffer.AppendFormatted("   R__LOCKGUARD2(gSocketServerMutex);\n");
+   buffer.AppendFormatted("   R__LOCKGUARD2(fgSocketServerMutex);\n");
 #else
-   buffer.AppendFormatted("   R__LOCKGUARD(gSocketServerMutex);\n");
+   buffer.AppendFormatted("   R__LOCKGUARD(fgSocketServerMutex);\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
@@ -14233,10 +14239,10 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("Bool_t %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
-   buffer.AppendFormatted("   R__LOCKGUARD2(gSocketServerMutex);\n");
+   buffer.AppendFormatted("   R__LOCKGUARD2(fgSocketServerMutex);\n");
 //   buffer.AppendFormatted("   R__LOCKGUARD2(gObjectStorageMutex);\n"); // one of them may not be necessary
 #else
-   buffer.AppendFormatted("   R__LOCKGUARD(gSocketServerMutex);\n");
+   buffer.AppendFormatted("   R__LOCKGUARD(fgSocketServerMutex);\n");
 //   buffer.AppendFormatted("   R__LOCKGUARD(gObjectStorageMutex);\n"); // one of them may not be necessary
 #endif
    buffer.AppendFormatted("\n");
@@ -14862,7 +14868,7 @@ Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numStee
    ROMEString format;
    ROMEString arrayIndex;
    int nspace;
-   char *cstop=NULL;
+   char *cstop=0;
    int k;
    // Fields
    for (k = 0; k < numOfSteerFields[numTask][numSteer]; k++) {
@@ -15002,7 +15008,7 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
       buffer.AppendFormatted("   ROMEString buffer;\n");
    }
    buffer.AppendFormatted("   char *cstop;\n");
-   buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   cstop = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   switch (code) {\n");
    buffer.AppendFormatted("      case -1:\n");
    buffer.AppendFormatted("         return defaultValue;\n");
@@ -15066,7 +15072,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
    }
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1, 1);\n");
    buffer.AppendFormatted("   char *cstop;\n");
-   buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   cstop = 0;\n"); // to suppress unused warning
    for (j = 0; j < numOfValue[numFolder]; j++) {
       if (valueDimension[numFolder][j] > 1 || valueArray[numFolder][j][0] == "variable" ||
           isFolder(valueType[numFolder][j].Data())) {
@@ -15301,7 +15307,7 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
                                 folderName[numFolder].Data(),folderArray[numFolder].Data());
          buffer.AppendFormatted("     gSystem->StackTrace();\n");
          buffer.AppendFormatted("     fApplication->Terminate(1);\n");
-         buffer.AppendFormatted("     return NULL;\n");
+         buffer.AppendFormatted("     return 0;\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("  return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),folderName[numFolder].Data(),
                                 folderName[numFolder].Data());
@@ -15870,7 +15876,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                                    histoName[taskHierarchyClassIndex[i]][j].Data(),i,
                                    histoType[taskHierarchyClassIndex[i]][j].Data(),
                                    histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      if (%sTemp_%d == NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
+            buffer.AppendFormatted("      if (%sTemp_%d == 0)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("         ROMEPrint::Warning(\"Histogram '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",
                                    histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
@@ -15887,7 +15893,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                                    histoName[taskHierarchyClassIndex[i]][j].Data(),i,
                                    histoType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("         if (%sTemp_%d == NULL)\n",
+            buffer.AppendFormatted("         if (%sTemp_%d == 0)\n",
                                    histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("            ROMEPrint::Warning(\"Histogram '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",
                                    histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -15909,7 +15915,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                                    graphName[taskHierarchyClassIndex[i]][j].Data(),i,
                                    graphType[taskHierarchyClassIndex[i]][j].Data(),
                                    graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      if (%sTemp_%d == NULL)\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i);
+            buffer.AppendFormatted("      if (%sTemp_%d == 0)\n",graphName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("         ROMEPrint::Warning(\"Graph '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",
                                    graphName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
@@ -15926,7 +15932,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                                    graphName[taskHierarchyClassIndex[i]][j].Data(),i,
                                    graphType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("         if (%sTemp_%d == NULL)\n",
+            buffer.AppendFormatted("         if (%sTemp_%d == 0)\n",
                                    graphName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("            ROMEPrint::Warning(\"Graph '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",
                                    graphName[taskHierarchyClassIndex[i]][j].Data());
@@ -16182,6 +16188,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   bool batch = false;\n");
    buffer.AppendFormatted("   bool daemon = false;\n");
    buffer.AppendFormatted("   bool interactive = false;\n");
+   buffer.AppendFormatted("   int mode = ROMEAnalyzer::kAnalyzeNotSpecified;\n");
    buffer.AppendFormatted("   int argn = 1;\n");
    buffer.AppendFormatted("   char progname[512];\n");
    buffer.AppendFormatted("   char batchopt[] = \"-b\";\n");
@@ -16201,6 +16208,17 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("         interactive = true;\n");
    buffer.AppendFormatted("         argv[i][0] = '\\0';\n");
    buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-m\")) {\n");
+   buffer.AppendFormatted("         if (i + 1 >= argc) {\n");
+   buffer.AppendFormatted("            break;\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         if (!strcmp(argv[i + 1], \"online\")) {\n");
+   buffer.AppendFormatted("            mode = ROMEAnalyzer::kAnalyzeOnline;\n");
+   buffer.AppendFormatted("         } else if (!strcmp(argv[i + 1], \"offline\")) {\n");
+   buffer.AppendFormatted("            mode = ROMEAnalyzer::kAnalyzeOffline;\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         i++;\n");
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gSystem->AddIncludePath(kAdditionalInclude);\n");
@@ -16217,12 +16235,12 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("         argn++;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      ROMERint *app = new ROMERint(\"App\", &argn, argp,NULL, 0, true);\n");
+   buffer.AppendFormatted("      ROMERint *app = new ROMERint(\"App\", &argn, argp, 0, 0, true);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      if (!gClient || gClient->IsZombie())\n");
    buffer.AppendFormatted("         nographics = true;\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      new %sAnalyzer(app,batch,daemon,nographics);\n",shortCut.Data());
+   buffer.AppendFormatted("      new %sAnalyzer(app,batch,daemon,nographics,mode);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("      char str[200];\n");
