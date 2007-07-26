@@ -108,6 +108,8 @@ protected:
    Long64_t      fCurrentPosition;                         //! Current position in file [event]
    Long64_t      fMaxDataEvent;                            //! Maximum number of sequential number of data events in the run.
 
+   Bool_t        fByteSwapFlagMightBeWrong;                //! Flag if <MidasByteSwap> might be wrongly specified.
+
 private:
    ROMEMidasDAQ(const ROMEMidasDAQ &daq); // not implemented
    ROMEMidasDAQ &operator=(const ROMEMidasDAQ &rhs); // not implemented

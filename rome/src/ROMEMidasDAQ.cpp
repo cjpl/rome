@@ -68,6 +68,7 @@ ROMEMidasDAQ::ROMEMidasDAQ()
  ,fValidEventFilePositions(0)
  ,fCurrentPosition(0)
  ,fMaxDataEvent(0)
+ ,fByteSwapFlagMightBeWrong(kFALSE)
 {
    int i;
    for (i = 0;i < kMaxMidasEventTypes; i++) {
@@ -219,8 +220,7 @@ Bool_t ROMEMidasDAQ::Init() {
       ROMEPrint::Error("--> Run the ROMEBuilder with the '-midas' option.\n");
       return false;
 #endif
-   }
-   else if (gROME->isOffline()) {
+   } else if (gROME->isOffline()) {
       if (!gROME->IsRunNumberBasedIO()) {
          ROMEPrint::Print("The midas DAQ does not yet support InputFileNames.\n");
          return false;
@@ -261,8 +261,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
       ROMEPrint::Print("Reading Midas-File ");
       if(!fGZippedMidasFile){
          ROMEPrint::Print("%s\n", filename.Data());
-      }
-      else {
+      } else {
          ROMEPrint::Print("%s\n", gzfilename.Data());
       }
 
@@ -333,8 +332,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 
       if (reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id!=1) {
          gROME->SetFillEvent(false);
-      }
-      else {
+      } else {
          gROME->SetCurrentEventNumber(reinterpret_cast<EVENT_HEADER*>(mEvent)->serial_number);
       }
       gROME->SetEventID(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id);
@@ -350,8 +348,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       }
       this->InitMidasBanks();
 #endif
-   }
-   else if (gROME->isOffline()) {
+   } else if (gROME->isOffline()) {
       if (event > fMaxDataEvent) {
          this->SetEndOfRun();
          return true;
@@ -374,8 +371,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 
       if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
          readError = true;
-      }
-      else {
+      } else {
          // read data
 #if !defined( R__BYTESWAP )
          ROMEUtilities::ByteSwap(&pevent->event_id);
@@ -387,8 +383,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          n = 0;
          if (pevent->data_size <= 0) {
             readError = true;
-         }
-         else {
+         } else {
             if(!fGZippedMidasFile) {
                n = read(fMidasFileHandle,pevent+1,pevent->data_size);
             } else {
@@ -439,6 +434,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       }
       if (pevent->data_size < reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) {
          this->SetContinue();
+         fByteSwapFlagMightBeWrong = kTRUE;
          return true;
       }
 
@@ -446,8 +442,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       gROME->SetEventID(pevent->event_id);
       if (pevent->event_id != 1) {
          gROME->SetFillEvent(false);
-      }
-      else {
+      } else {
          gROME->SetCurrentEventNumber(pevent->serial_number);
       }
       fTimeStamp = pevent->time_stamp;
@@ -474,8 +469,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
 
    if (gROME->isOnline()) {
       return -1;
-   }
-   else if (gROME->isOffline()) {
+   } else if (gROME->isOffline()) {
       if (fCurrentPosition == event) {
          // we are already correct position.
          if (fCurrentPosition >= fValidEventFilePositions) {
@@ -490,8 +484,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
             fValidEventFilePositions = fCurrentPosition + 1;
          }
          return fCurrentPosition;
-      }
-      else if (event < fValidEventFilePositions) {
+      } else if (event < fValidEventFilePositions) {
          // use stored position
          if(fEventFilePositions->At(static_cast<Int_t>(event)) != -1) {
             if(!fGZippedMidasFile) {
@@ -501,8 +494,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
             }
             fCurrentPosition = event;
             return fCurrentPosition;
-         }
-         else {
+         } else {
             return -1;
          }
       }
@@ -528,8 +520,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
 
          if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
             readError = true;
-         }
-         else {
+         } else {
 #if !defined( R__BYTESWAP )
             ROMEUtilities::ByteSwap(&pevent->event_id);
             ROMEUtilities::ByteSwap(&pevent->trigger_mask);
@@ -540,8 +531,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
             n = 0;
             if (pevent->data_size <= 0) {
                readError = true;
-            }
-            else {
+            } else {
                if(!fGZippedMidasFile) {
                   n = read(fMidasFileHandle,pevent+1,pevent->data_size);
                } else {
@@ -591,6 +581,10 @@ Bool_t ROMEMidasDAQ::EndOfRun() {
       } else {
          gzclose(fMidasGzFileHandle);
       }
+
+      if (fByteSwapFlagMightBeWrong && gROME->GetProcessedEvents() < 0.5) {
+         ROMEPrint::Warning("\nWarning : A flag <MidasByteSwap> in your config XML file might be wrong.\n\n");
+      }
    }
    return true;
 }
@@ -627,9 +621,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
       }
       if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
          readError = true;
-      }
-
-      else {
+      } else {
 #if !defined( R__BYTESWAP )
          ROMEUtilities::ByteSwap(&pevent->event_id);
          ROMEUtilities::ByteSwap(&pevent->trigger_mask);
@@ -640,8 +632,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
          n = 0;
          if (pevent->data_size <= 0) {
             readError = true;
-         }
-         else {
+         } else {
             if(!fGZippedMidasFile) {
                n = read(fMidasFileHandle,pevent+1,pevent->data_size);
             } else {
@@ -675,8 +666,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
             fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
          }
          fValidEventFilePositions = 1;
-      }
-      else {
+      } else {
          if(posOld != -1) {
             if(!fGZippedMidasFile) {
                lseek(fMidasFileHandle, posOld, SEEK_SET);
