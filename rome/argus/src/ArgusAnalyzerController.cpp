@@ -221,7 +221,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    fVerticalFrame[1] = new TGVerticalFrame(fHorizontalFrame[1], 60, 20);
    fRunNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_RunNumber, static_cast<Double_t>(fRunNumber),
                                             TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_EventNumber, static_cast<Double_t>(fEventNumber),
+   fEventNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_EventNumber, 0.,
                                               TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
    fEventStepEntry = new TGNumberEntry(fVerticalFrame[1], fEventStep, 5, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
    fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1], fEventInterval, 5, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
@@ -303,12 +303,21 @@ void ArgusAnalyzerController::Update()
 {
    char str[100];
 #if defined( R__VISUAL_CPLUSPLUS )
-   sprintf(str, "%I64d", gROME->GetCurrentEventNumber());
+   sprintf(str, "%I64d", TMath::Max(gROME->GetCurrentEventNumber(), static_cast<Long64_t>(0)));
 #else
-   sprintf(str, "%lld", gROME->GetCurrentEventNumber());
+   sprintf(str, "%lld", TMath::Max(gROME->GetCurrentEventNumber(), static_cast<Long64_t>(0)));
 #endif
    if(fEventNumberEntry) {
       fEventNumberEntry->SetText(str);
+   }
+
+#if defined( R__VISUAL_CPLUSPLUS )
+   sprintf(str, "%I64d", TMath::Max(gROME->GetCurrentRunNumber(), static_cast<Long64_t>(0)));
+#else
+   sprintf(str, "%lld", TMath::Max(gROME->GetCurrentRunNumber(), static_cast<Long64_t>(0)));
+#endif
+   if(fRunNumberEntry) {
+      fRunNumberEntry->SetText(str);
    }
 }
 
