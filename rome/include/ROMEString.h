@@ -26,9 +26,9 @@ public:
    ROMEString&  AppendFormatted(const char* format=NULL,...) G_GNUC_PRINTF(2, 3);
    ROMEString&  InsertFormatted(Ssiz_t position,const char* format=NULL,...) G_GNUC_PRINTF(3, 4);
    ROMEString&  SetFormatted(const char* format=NULL,...) G_GNUC_PRINTF(2, 3);
+   static char* Format(const char *format, va_list ap) G_GNUC_PRINTF(2, 0);;
+   static char* SlowFormat(const char *format, va_list ap, int hint) G_GNUC_PRINTF(2, 0);;
 #endif
-   static char* Format(const char *format, va_list ap);
-   static char* SlowFormat(const char *format, va_list ap, int hint);
    Int_t        NumberOfOccurrence(ROMEString& subString);
    Int_t        NumberOfOccurrence(const char* subString);
    void         Write();

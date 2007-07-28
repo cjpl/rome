@@ -132,7 +132,7 @@ int mxml_write_line(MXML_WRITER *writer, const char *line)
 /**
  * open a memory buffer and write XML header
  */
-MXML_WRITER *mxml_open_buffer()
+MXML_WRITER *mxml_open_buffer(void)
 {
    char str[256], line[1000];
    time_t now;
@@ -601,7 +601,7 @@ int mxml_close_file(MXML_WRITER *writer)
 /**
  * create root node of an XML tree
  */
-PMXML_NODE mxml_create_root_node()
+PMXML_NODE mxml_create_root_node(void)
 {
    PMXML_NODE root;
 
