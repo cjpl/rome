@@ -2365,11 +2365,17 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("## Compile statements\n");
    ROMEString additionalFlag;
 
+#if 0
+   // recompile librome.a.
+   // commented out because of two reasons.
+   //  1. This is, in priciple, responsibility of users. One should recompile librome.a when ROME is updated.
+   //  2. It is not known if the user has write permission of the directory. ROMESYS can be in system, or shared directory read by several users.
    if (librome) {
       buffer.AppendFormatted("$(ROMESYS)/librome.a: $(ROMESYS)/include/*h $(ROMESYS)/src/*cpp\n");
       buffer.AppendFormatted("\t@$(MAKE) -C $(ROMESYS) librome.a\n");
       buffer.AppendFormatted("\n");
    }
+#endif
 
    if (pch) {
       additionalFlag.SetFormatted("-include generated/%sPrecompile.h", shortCut.Data());
