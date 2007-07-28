@@ -117,7 +117,7 @@ int mxml_write_line(MXML_WRITER *writer, const char *line)
          writer->buffer_size += 10000;
          writer->buffer = (char *)realloc(writer->buffer, writer->buffer_size);
       }
-      strcat(writer->buffer, line);
+      strcpy(writer->buffer + writer->buffer_len, line);
       writer->buffer_len += len;
       return len;
    } else {
