@@ -541,11 +541,10 @@ Int_t ROMEEventLoop::RunEvent()
 //______________________________________________________________________________
 Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
-   ROME_LOCKGUARD(fgObjectStorageMutex);
-
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
       const ULong_t kInterval = 10; // this should be changed to parameter
       if (static_cast<ULong_t>(gSystem->Now()) > fLastNetFolderServerUpdateTime + kInterval) {
+         ROME_LOCKGUARD(fgObjectStorageMutex);
          fLastNetFolderServerUpdateTime = static_cast<ULong_t>(gSystem->Now());
          gROME->FillObjectStorage();
          if (fNetFolderServerUpdateThread) {
