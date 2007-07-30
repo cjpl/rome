@@ -35,13 +35,17 @@ ClassImp(TNetFolderServer)
 //______________________________________________________________________________
 TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 {
-   if (!socket->IsValid()) {
+   if (!socket || !socket->IsValid()) {
       return NULL;
    }
 
    //read pointer to current folder
    TMessage *message = 0;
-   socket->Recv(message);
+   if (socket->Recv(message) <= 0) {
+      socket->Close();
+      delete message;
+      return NULL;
+   }
    size_t p;
    *message>>p;
    delete message;
@@ -174,7 +178,11 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       //read object
       message.Reset(kMESS_OBJECT);
       TMessage *answer;
-      socket->Recv(answer);
+      if (socket->Recv(answer) <= 0) {
+         socket->Close();
+         delete answer;
+         return 1;
+      }
       TObject *obj = static_cast<TObject*>(answer->ReadObject(answer->GetClass()));
       delete answer;
 

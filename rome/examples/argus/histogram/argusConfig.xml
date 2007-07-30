@@ -92,7 +92,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
       <NetFolder>
         <NetFolderName>mynetfolder</NetFolderName>
-        <Active>false</Active>
+        <Active>true</Active>
         <Reconnect>true</Reconnect>
         <Root>HG</Root>
         <Host>localhost</Host>

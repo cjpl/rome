@@ -14012,44 +14012,45 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n");
-   buffer.AppendFormatted("   if(id >= 0) {\n");
+   buffer.AppendFormatted("   if (id >= 0) {\n");
    buffer.AppendFormatted("      while (!localThis->IsSocketClientRead(id))\n");
    buffer.AppendFormatted("         localThis->UpdateObjects();\n");
-   buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny\", 13) == 0) {\n");
-   buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
-   buffer.AppendFormatted("      }\n");
+// following line is not needed probably, because it is called in TNetFolderServer.cpp
+//   buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny\", 13) == 0) {\n");
+//   buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
+//   buffer.AppendFormatted("      }\n");
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
       if (!folderSupport[i]) {
          if (FolderToBeGenerated(i)) {
             if (folderArray[i] == "1") {
-               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %s%s\", %d) == 0) {\n",shortCut.Data(),
+               buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %s%s\", %d) == 0) {\n",shortCut.Data(),
                                       folderName[i].Data(),
                                       static_cast<int>(strlen("FindObjectAny ") + shortCut.Length() +
                                                        folderName[i].Length()));
             } else {
-               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %s%ss\", %d) == 0) {\n",shortCut.Data(),
+               buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %s%ss\", %d) == 0) {\n",shortCut.Data(),
                                       folderName[i].Data(),
                                       static_cast<int>(strlen("FindObjectAny s") + shortCut.Length() +
                                                        folderName[i].Length()));
             }
-            buffer.AppendFormatted("      message<<localThis->fFolder[id]->At(%d);\n",i);
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   if (strncmp(str, \"RegisterObject %s%s\", %d) == 0) {\n",shortCut.Data(),
+            buffer.AppendFormatted("         message<<localThis->fFolder[id]->At(%d);\n",i);
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("      if (strncmp(str, \"RegisterObject %s%s\", %d) == 0) {\n",shortCut.Data(),
                                    folderName[i].Data(),
                                    static_cast<int>(strlen("RegisterObject ") + shortCut.Length() +
                                                     folderName[i].Length()));
-            buffer.AppendFormatted("      localThis->fFolderActive[id][%d] = kTRUE;\n",i);
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   if (strncmp(str, \"UnRegisterObject %s%s\", %d) == 0) {\n",shortCut.Data(),
+            buffer.AppendFormatted("         localThis->fFolderActive[id][%d] = kTRUE;\n",i);
+            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("      if (strncmp(str, \"UnRegisterObject %s%s\", %d) == 0) {\n",shortCut.Data(),
                                    folderName[i].Data(),
                                    static_cast<int>(strlen("UnRegisterObject ") + shortCut.Length() +
                                                     folderName[i].Length()));
-            buffer.AppendFormatted("      localThis->fFolderActive[id][%d] = kFALSE;\n",i);
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("         localThis->fFolderActive[id][%d] = kFALSE;\n",i);
+            buffer.AppendFormatted("      }\n");
          }
       }
    }
@@ -14058,104 +14059,104 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          continue;
       for (j = 0; j < numOfHistos[taskHierarchyClassIndex[i]]; j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j] == "1") {
-            buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
+            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
                                    taskHierarchyName[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),
                                    static_cast<int>(strlen("FindObjectAny T:") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      message<< gAnalyzer->Get%s%sTask()->Get%s();\n",
+            buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%s();\n",
                                    taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
          } else {
-            buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",
+            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",
                                    shortCut.Data(),taskHierarchyName[i].Data(),
                                    histoName[taskHierarchyClassIndex[i]][j].Data(),
                                    static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length()
                                                     +taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      char* cstop;\n");
-            buffer.AppendFormatted("      int indx = strtol(&str[%d],&cstop, 10);\n",
+            buffer.AppendFormatted("         char* cstop;\n");
+            buffer.AppendFormatted("         int indx = strtol(&str[%d],&cstop, 10);\n",
                                    static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      message<< gAnalyzer->Get%s%sTask()->Get%sAt(indx);\n",
+            buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%sAt(indx);\n",
                                    taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),
                                    histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",shortCut.Data(),
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",shortCut.Data(),
                                    taskHierarchyName[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),
                                    static_cast<int>(strlen("FindObjectAny T:s") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      message<< gAnalyzer->Get%s%sTask()->Get%s();\n",taskHierarchyName[i].Data(),
+            buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%s();\n",taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
          }
       }
       for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]]; j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j] == "1") {
-            buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
+            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
                                    taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
                                    static_cast<int>(strlen("FindObjectAny T:") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      message<<localThis->f%s%s_%sGraph[id];\n",taskHierarchyName[i].Data(),
+            buffer.AppendFormatted("         message<<localThis->f%s%s_%sGraph[id];\n",taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
          } else {
-            buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",shortCut.Data(),
+            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",shortCut.Data(),
                                    taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
                                    static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      char* cstop;\n");
-            buffer.AppendFormatted("      int indx = strtol(&str[%d],&cstop, 10);\n",
+            buffer.AppendFormatted("         char* cstop;\n");
+            buffer.AppendFormatted("         int indx = strtol(&str[%d],&cstop, 10);\n",
                                    static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      message<<localThis->f%s%s_%sGraphs[id]->At(indx);\n",
+            buffer.AppendFormatted("         message<<localThis->f%s%s_%sGraphs[id]->At(indx);\n",
                                    taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),
                                    graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",
                                    shortCut.Data(),taskHierarchyName[i].Data(),
                                    graphName[taskHierarchyClassIndex[i]][j].Data(),
                                    static_cast<int>(strlen("FindObjectAny T:s") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("      message<<localThis->f%s%s_%sGraphs[id];\n",taskHierarchyName[i].Data(),
+            buffer.AppendFormatted("         message<<localThis->f%s%s_%sGraphs[id];\n",taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      socket->Send(message);\n");
-            buffer.AppendFormatted("      return 1;\n");
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("         socket->Send(message);\n");
+            buffer.AppendFormatted("         return 1;\n");
+            buffer.AppendFormatted("      }\n");
          }
-         buffer.AppendFormatted("   if (strncmp(str, \"RegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
+         buffer.AppendFormatted("      if (strncmp(str, \"RegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
                                 taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
                                 static_cast<int>(strlen("RegisterObject ") + shortCut.Length() +
                                                  taskHierarchyName[i].Length() +
                                                  graphName[taskHierarchyClassIndex[i]][j].Length()));
-         buffer.AppendFormatted("      localThis->f%s%s_%sGraphActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),
+         buffer.AppendFormatted("         localThis->f%s%s_%sGraphActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (strncmp(str, \"UnRegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      if (strncmp(str, \"UnRegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
                                 taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
                                 static_cast<int>(strlen("UnRegisterObject ") + shortCut.Length() +
                                                  taskHierarchyName[i].Length() +
                                                  graphName[taskHierarchyClassIndex[i]][j].Length()));
-         buffer.AppendFormatted("      localThis->f%s%s_%sGraphActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),
+         buffer.AppendFormatted("         localThis->f%s%s_%sGraphActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("      }\n");
       }
    }
    buffer.AppendFormatted("   }\n");

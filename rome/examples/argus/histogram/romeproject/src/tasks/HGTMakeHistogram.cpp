@@ -66,6 +66,7 @@ void HGTMakeHistogram::BeginOfRun()
 void HGTMakeHistogram::Event()
 {
    GethAdc()->Fill(rndm->Gaus(2000, 200));
+   gSystem->Sleep(100);
 }
 
 void HGTMakeHistogram::EndOfRun()
