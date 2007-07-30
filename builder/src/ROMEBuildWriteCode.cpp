@@ -13869,6 +13869,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
 
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("static TVirtualMutex *fgSocketServerMutex = 0;\n");
+   buffer.AppendFormatted("static TVirtualMutex *fgUpdateObjectsMutex = 0;\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("void %sNetFolderServer::ConstructObjects(TSocket* socket)\n",shortCut.Data());
@@ -14235,7 +14236,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("Bool_t %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   ROME_LOCKGUARD(fgSocketServerMutex);\n");
+   buffer.AppendFormatted("   ROME_LOCKGUARD(fgUpdateObjectsMutex);\n");
 //   buffer.AppendFormatted("   ROME_LOCKGUARD(fgObjectStorageMutex);\n"); // one of them may not be necessary
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
