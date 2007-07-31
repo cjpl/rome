@@ -14016,10 +14016,6 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   if (id >= 0) {\n");
    buffer.AppendFormatted("      while (!localThis->IsSocketClientRead(id))\n");
    buffer.AppendFormatted("         localThis->UpdateObjects();\n");
-// following line is not needed probably, because it is called in TNetFolderServer.cpp
-//   buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny\", 13) == 0) {\n");
-//   buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
-//   buffer.AppendFormatted("      }\n");
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
@@ -14036,6 +14032,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                       static_cast<int>(strlen("FindObjectAny s") + shortCut.Length() +
                                                        folderName[i].Length()));
             }
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
             buffer.AppendFormatted("            message<<localThis->fFolder[id]->At(%d);\n",i);
@@ -14074,6 +14071,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                    static_cast<int>(strlen("FindObjectAny T:") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%s();\n",
                                    taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -14092,6 +14090,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                    static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%sAt(indx);\n",
                                    taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),
                                    histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -14103,6 +14102,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                    static_cast<int>(strlen("FindObjectAny T:s") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     histoName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%s();\n",taskHierarchyName[i].Data(),
                                    taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("         socket->Send(message);\n");
@@ -14117,6 +14117,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                    static_cast<int>(strlen("FindObjectAny T:") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
             buffer.AppendFormatted("            message<<localThis->f%s%s_%sGraph[id];\n",taskHierarchyName[i].Data(),
@@ -14136,6 +14137,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                    static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
             buffer.AppendFormatted("            message<<localThis->f%s%s_%sGraphs[id]->At(indx);\n",
@@ -14151,6 +14153,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                                    static_cast<int>(strlen("FindObjectAny T:s") + shortCut.Length() +
                                                     taskHierarchyName[i].Length() +
                                                     graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
             buffer.AppendFormatted("            message<<localThis->f%s%s_%sGraphs[id];\n",taskHierarchyName[i].Data(),
