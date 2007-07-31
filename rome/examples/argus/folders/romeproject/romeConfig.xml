@@ -53,7 +53,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       </FloatingPointExceptionTrap>
 
       <SocketServer>
-        <Active>false</Active>
+        <Active>true</Active>
         <PortNumber>9090</PortNumber>
       </SocketServer>
 
