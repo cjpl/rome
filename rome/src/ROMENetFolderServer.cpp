@@ -186,13 +186,15 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
       return THREADRETURN;
    }
 
-   do {
-      TSocket *sock = lsock->Accept();
-
-      TThread *thread = new TThread("Server", ROMENetFolderServer::Server, sock);
-      thread->Run();
-
-   } while (1);
+   fMonitor->Add(lsock);
+   TSocket *sock;
+   while (fMonitor->GetActive() != 0) {
+      if ((sock = static_cast<TServerSocket*>(fMonitor->Select())->Accept()) > 0) {
+         TThread *thread = new TThread("Server", ROMENetFolderServer::Server, sock);
+         thread->Run();
+      }
+   }
+   fMonitor->Remove(lsock);
    return THREADRETURN;
 }
 
