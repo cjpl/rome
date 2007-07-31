@@ -27,9 +27,10 @@
 #include "Riostream.h"
 #include "TNetFolderServer.h"
 
-TApplication* TNetFolderServer::fApplication = 0;
-TString       TNetFolderServer::fServerName  = "localhost";
-TMonitor*     TNetFolderServer::fMonitor     = 0;
+TApplication* TNetFolderServer::fApplication   = 0;
+TString       TNetFolderServer::fServerName    = "localhost";
+TMonitor*     TNetFolderServer::fMonitor       = 0;
+Bool_t        TNetFolderServer::fServerRunning = kFALSE;
 
 ClassImp(TNetFolderServer)
 
@@ -285,9 +286,14 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 void TNetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 // start Socket server loop
+   if (fServerRunning) {
+      Warning("StartServer", "server is already running.");
+      return;
+   }
    fApplication = app;
    fPort = port;
    fServerName = serverName;
+   fServerRunning = kTRUE;
    TThread *thread = new TThread("server_loop", TNetFolderServer::ServerLoop, &fPort);
    thread->Run();
 }

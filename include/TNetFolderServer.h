@@ -31,6 +31,7 @@ protected:
    Int_t                fPort;
    static TString       fServerName;
    static TMonitor     *fMonitor;
+   static Bool_t        fServerRunning;
 
 private:
    TNetFolderServer(const TNetFolderServer &server); // not implemented
