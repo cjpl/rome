@@ -96,7 +96,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Reconnect>true</Reconnect>
         <Root>HG</Root>
         <Host>localhost</Host>
-        <Port></Port>
+        <Port>9090</Port>
       </NetFolder>
 
       <Tabs>

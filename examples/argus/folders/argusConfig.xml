@@ -107,11 +107,11 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
       <NetFolder>
         <NetFolderName>mynetfolder</NetFolderName>
-        <Active>false</Active>
+        <Active>true</Active>
         <Reconnect>true</Reconnect>
         <Root>FO</Root>
         <Host>localhost</Host>
-        <Port></Port>
+        <Port>9090</Port>
       </NetFolder>
 
       <Tabs>
