@@ -198,6 +198,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 //______________________________________________________________________________
 ROMEAnalyzer::~ROMEAnalyzer()
 {
+   SafeDelete(fNetFolderServer);
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
    SafeDelete(fSocketClient);

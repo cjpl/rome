@@ -5500,6 +5500,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   SafeDelete(fWindow);\n");
    buffer.AppendFormatted("   SafeDelete(fConfiguration);\n");
    buffer.AppendFormatted("   SafeDelete(fDBAccess);\n");
+   buffer.AppendFormatted("   gAnalyzer = 0;\n");
+   buffer.AppendFormatted("   gROME = 0;\n");
    // End of Destructor
    buffer.AppendFormatted("}\n\n");
 
@@ -14211,14 +14213,16 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("      return THREADRETURN;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   do {\n");
-   buffer.AppendFormatted("      TSocket *sock = lsock->Accept();\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      TThread *thread = new TThread(\"Server\", %sNetFolderServer::Server, sock);\n",
+   buffer.AppendFormatted("   fMonitor->Add(lsock);\n");
+   buffer.AppendFormatted("   TSocket *sock;\n");
+   buffer.AppendFormatted("   while (fMonitor->GetActive() != 0) {\n");
+   buffer.AppendFormatted("      if ((sock = static_cast<TServerSocket*>(fMonitor->Select())->Accept()) > 0) {\n");
+   buffer.AppendFormatted("         TThread *thread = new TThread(\"Server\", %sNetFolderServer::Server, sock);\n",
                           shortCut.Data());
-   buffer.AppendFormatted("      thread->Run();\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   } while (1);\n");
+   buffer.AppendFormatted("         thread->Run();\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   fMonitor->Remove(lsock);\n");
    buffer.AppendFormatted("   return THREADRETURN;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
