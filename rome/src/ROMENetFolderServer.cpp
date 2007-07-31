@@ -202,9 +202,14 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
 void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 // start Socket server loop
+   if (fServerRunning) {
+      Warning("StartServer", "server is already running.");
+      return;
+   }
    fApplication = app;
    fPort = port;
    fServerName = serverName;
+   fServerRunning = kTRUE;
    TThread *thread = new TThread("server_loop", ROMENetFolderServer::ServerLoop, &fPort);
    thread->Run();
 }

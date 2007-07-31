@@ -14255,9 +14255,14 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                           shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("// start Socket server loop\n");
+   buffer.AppendFormatted("   if (fServerRunning) {\n");
+   buffer.AppendFormatted("      Warning(\"StartServer\", \"server is already running.\");\n");
+   buffer.AppendFormatted("      return;\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   fApplication = app;\n");
    buffer.AppendFormatted("   fPort = port;\n");
    buffer.AppendFormatted("   fServerName = serverName;\n");
+   buffer.AppendFormatted("   fServerRunning = kTRUE;\n");
    buffer.AppendFormatted("   TThread *thread = new TThread(\"server_loop\", %sNetFolderServer::ServerLoop, &fPort);\n",
                           shortCut.Data());
    buffer.AppendFormatted("   thread->Run();\n");
