@@ -339,9 +339,11 @@ void ROMEAnalyzer::ParameterUsage()
    ROMEPrint::Print("  -r       Runnumbers\n");
    ROMEPrint::Print("  -e       Eventnumbers\n");
    ROMEPrint::Print("  -m       Analysing Mode : (online/[offline])\n");
-   ROMEPrint::Print("  -p       Program Mode : (0 : analyzer / 1 : monitor / 2 : analyzer and monitor / 3 : monitor connected to an analyzer)\n");
+   ROMEPrint::Print("  -p       Program Mode : (0 : analyzer\n");
+   ROMEPrint::Print("                           1 : monitor\n");
+   ROMEPrint::Print("                           2 : analyzer and monitor\n");
+   ROMEPrint::Print("                           3 : monitor connected to an analyzer)\n");
    ROMEPrint::Print("  -o       Start Analyzer in Step by Step Mode\n");
-   ROMEPrint::Print("  -I       Go into interactive session directory. Other options are ignored.\n");
    ROMEPrint::Print("  -b       Batch Mode (no Argument)\n");
    ROMEPrint::Print("  -D       Daemon Mode (no Argument)\n");
    ROMEPrint::Print("  -q       Quit Mode (no Argument)\n");
@@ -351,6 +353,9 @@ void ROMEAnalyzer::ParameterUsage()
    ROMEPrint::Print("  -ngc     Turn off graphical configuration panel\n");
    ROMEPrint::Print("  -ns      Splash Screen is not displayed (no Argument)\n");
    ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
+   ROMEPrint::Print("  -I       Go into interactive session. Other options are ignored.\n");
+   ROMEPrint::Print("  -R       Go into remote session. Other options are ignored.\n");
+   ROMEPrint::Print("           -R hostname:port (e.g -R localhost:9090)\n");
    UserParameterUsage();
    return;
 }
@@ -660,6 +665,11 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       } else if (!strcmp(argv[i], "-ng")) {
          fNoGraphics = kTRUE;
       } else if (!strcmp(argv[i], "-I")) {
+      } else if (!strcmp(argv[i], "-R")) {
+         if (i + 1 >= argc) {
+            break;
+         }
+         i++;
       } else if (!ReadUserParameter(argv[i], i < argc - 1 ? argv[i + 1] : "", i)) {
          ROMEPrint::Error("Input line parameter '%s' not available.\n", argv[i]);
          ROMEPrint::Print("Available input line parameters are :\n");
@@ -1281,8 +1291,15 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::ConnectSocketClient()
+Bool_t ROMEAnalyzer::ConnectSocketClient(const char* hostname, Int_t port)
 {
+   if (hostname) {
+      fSocketClientHost = hostname;
+   }
+   if (port > 0) {
+      fSocketClientPort = port;
+   }
+
    if (fSocketClient != 0) {
       if (fSocketClient->IsValid()) {
          return true;

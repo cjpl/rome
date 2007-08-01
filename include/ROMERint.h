@@ -19,6 +19,9 @@
 #endif
 #include "ROMEUtilities.h"
 
+class TNetFolder;
+class TSocket;
+
 class ROMERint : public TRint {
 private:
    Bool_t          fRunning;
@@ -26,6 +29,11 @@ private:
    TSignalHandler *fRintInterruptHandler;    // original signal handler of TRint
    TSignalHandler *fROMEInterruptHandler;    // special handler of ROMERint
    Int_t           fFPEMask;                 // Customized FPE mode
+   Bool_t          fRemoteProcess;           // Flag if lines are processed remotely
+   TSocket        *fSocketClient;            // Socket client for remote execution
+   TNetFolder     *fSocketClientNetFolder;   // Socket client for remote execution
+   TString         fSocketClientHost;        // Hostname for remote execution
+   Int_t           fSocketClientPort;        // Port number for remote execution
 
 private:
    ROMERint(const ROMERint &app); // not implemented
@@ -37,6 +45,7 @@ public:
    virtual ~ROMERint();
 
    Bool_t          HandleTermInput();
+   Long_t          ProcessLine(const char *line, Bool_t sync = kFALSE, Int_t *error = 0);
    void            Run(Bool_t retrn);
    Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; }
    TSignalHandler* GetRintInterruptHandler(){ return fRintInterruptHandler; }
@@ -57,6 +66,10 @@ public:
 
    void            EnableFPETrap();
    void            DisableFPETrap();
+
+   void            SetRemoteProcess(Bool_t flg) { fRemoteProcess = flg; }
+   void            SetSocketClientConnection(const char* connection = "localhost:9090");
+   Bool_t          ConnectSocketClient();
 
    ClassDef(ROMERint, 0) // Customized TRint for ROME
 };

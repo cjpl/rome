@@ -6733,8 +6733,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
                           shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("public:\n");
-   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics,Int_t mode);\n",
+   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app = dynamic_cast<ROMERint*>(gApplication), Bool_t batch = kFALSE,\n",
                           shortCut.Data());
+   buffer.AppendFormatted("               Bool_t daemon = kFALSE, Bool_t nographics = kFALSE, Int_t mode = 0);\n");
    buffer.AppendFormatted("   virtual ~%sAnalyzer();\n",shortCut.Data());
 
    // Folder Getters and Setters
@@ -16223,6 +16224,8 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   argp[0] = progname;\n");
    buffer.AppendFormatted("   argp[1] = batchopt;\n");
    buffer.AppendFormatted("   strcpy(argp[0],argv[0]);\n");
+   buffer.AppendFormatted("   bool remote = false;\n");
+   buffer.AppendFormatted("   char *remoteConnection = 0;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   for (i = 1; i < argc; i++) {\n");
    buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\"))\n");
@@ -16234,6 +16237,14 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("      if (!strcmp(argv[i],\"-I\")) {\n");
    buffer.AppendFormatted("         interactive = true;\n");
    buffer.AppendFormatted("         argv[i][0] = '\\0';\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-R\")) {\n");
+   buffer.AppendFormatted("         remote = true;\n");
+   buffer.AppendFormatted("         argv[i][0] = '\\0';\n");
+   buffer.AppendFormatted("         if (i + 1 < argc) {\n");
+   buffer.AppendFormatted("            remoteConnection = argv[i + 1];\n");
+   buffer.AppendFormatted("            argv[i + 1][0] = '\\0';\n");
+   buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      if (!strcmp(argv[i],\"-m\")) {\n");
    buffer.AppendFormatted("         if (i + 1 >= argc) {\n");
@@ -16250,14 +16261,21 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gSystem->AddIncludePath(kAdditionalInclude);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   if (interactive) {\n");
+   buffer.AppendFormatted("   if (remote) {\n");
+   buffer.AppendFormatted("      ROMERint *intapp = new ROMERint(\"App\", &argc, argv, 0, 0, kTRUE);\n");
+   buffer.AppendFormatted("      intapp->SetPrompt(\"%s%s [%%d] \");\n", shortCut.ToLower(tmp),
+                          mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("      cout<<%sLogo<<endl;\n", shortCut.Data());
+   buffer.AppendFormatted("      intapp->SetSocketClientConnection(remoteConnection);\n");
+   buffer.AppendFormatted("      intapp->SetRemoteProcess(true);\n");
+   buffer.AppendFormatted("      intapp->Run(false);\n");
+   buffer.AppendFormatted("   } else if (interactive) {\n");
    buffer.AppendFormatted("      TRint *intapp = new TRint(\"App\", &argc, argv, 0, 0, kTRUE);\n");
    buffer.AppendFormatted("      intapp->SetPrompt(\"%s%s [%%d] \");\n", shortCut.ToLower(tmp),
                           mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("      cout<<%sLogo<<endl;\n", shortCut.Data());
    buffer.AppendFormatted("      intapp->Run();\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   else {\n");
+   buffer.AppendFormatted("   } else {\n");
    buffer.AppendFormatted("      if (nographics || batch || daemon) {\n");
    buffer.AppendFormatted("         argn++;\n");
    buffer.AppendFormatted("      }\n");
