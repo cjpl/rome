@@ -16082,6 +16082,7 @@ Bool_t ROMEBuilder::WriteMain()
    WriteHeader(buffer, mainAuthor.Data(), kTRUE);
 
    buffer.AppendFormatted("#include <RConfig.h>\n");
+   buffer.AppendFormatted("#include <string.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -16225,7 +16226,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   argp[1] = batchopt;\n");
    buffer.AppendFormatted("   strcpy(argp[0],argv[0]);\n");
    buffer.AppendFormatted("   bool remote = false;\n");
-   buffer.AppendFormatted("   char *remoteConnection = 0;\n");
+   buffer.AppendFormatted("   char remoteConnection[256];\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   for (i = 1; i < argc; i++) {\n");
    buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\"))\n");
@@ -16242,8 +16243,10 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("         remote = true;\n");
    buffer.AppendFormatted("         argv[i][0] = '\\0';\n");
    buffer.AppendFormatted("         if (i + 1 < argc) {\n");
-   buffer.AppendFormatted("            remoteConnection = argv[i + 1];\n");
+   buffer.AppendFormatted("            strcpy(remoteConnection, argv[i + 1]);\n");
    buffer.AppendFormatted("            argv[i + 1][0] = '\\0';\n");
+   buffer.AppendFormatted("         } else {\n");
+   buffer.AppendFormatted("            strcpy(remoteConnection, \"localhost:9090\");\n");
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      if (!strcmp(argv[i],\"-m\")) {\n");
@@ -16268,6 +16271,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("      cout<<%sLogo<<endl;\n", shortCut.Data());
    buffer.AppendFormatted("      intapp->SetSocketClientConnection(remoteConnection);\n");
    buffer.AppendFormatted("      intapp->SetRemoteProcess(true);\n");
+   buffer.AppendFormatted("      cout<<\"Remote session to \"<<remoteConnection<<endl;\n");
    buffer.AppendFormatted("      intapp->Run(false);\n");
    buffer.AppendFormatted("   } else if (interactive) {\n");
    buffer.AppendFormatted("      TRint *intapp = new TRint(\"App\", &argc, argv, 0, 0, kTRUE);\n");
