@@ -24,6 +24,7 @@
 
 #include "ROMERint.h"
 #include "ROMEAnalyzer.h"
+#include "ROMEString.h"
 #include "TNetFolder.h"
 
 //----- Interrupt signal handler -----------------------------------------------
@@ -133,6 +134,23 @@ Long_t ROMERint::ProcessLine(const char *line, Bool_t sync, Int_t *err)
    // process line on remote application over a socket
    if (ConnectSocketClient()) {
       fSocketClientNetFolder->ExecuteCommand(line);
+   }
+
+   return 0;
+}
+
+//______________________________________________________________________________
+Long_t ROMERint::ProcessFile(const char *name, int *error)
+{
+   // process macro file in local session or remote application over a socket.
+
+   if (!name || !*name) return 0;
+
+   if (!fRemoteProcess) {
+      return TRint::ProcessFile(name, error);
+   }
+   if (ConnectSocketClient()) {
+      fSocketClientNetFolder->ExecuteMacro(name);
    }
 
    return 0;
