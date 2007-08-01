@@ -46,6 +46,7 @@ public:
 
    Bool_t          HandleTermInput();
    Long_t          ProcessLine(const char *line, Bool_t sync = kFALSE, Int_t *error = 0);
+   Long_t          ProcessFile(const char *name, int *error = 0);
    void            Run(Bool_t retrn);
    Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; }
    TSignalHandler* GetRintInterruptHandler(){ return fRintInterruptHandler; }

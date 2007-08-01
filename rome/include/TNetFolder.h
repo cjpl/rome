@@ -56,6 +56,7 @@ public:
    virtual void        RecursiveRemove( TObject * ) { Error("RecursiveRemove","Not available for TNetFolders"); }
    virtual void        Remove( TObject * ) { Error("Remove","Not available for TNetFolders"); }
    void                ExecuteCommand(const char *line);
+   void                ExecuteMacro(const char *macro);
    size_t              GetPointer();
    void                GetServerName(char* serverName,Int_t serverNameSize);
 

@@ -12,13 +12,16 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
+#include <TROOT.h>
 #include <TObjString.h>
 #include <TSystem.h>
+#include <TString.h>
 #include <TSocket.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include "Riostream.h"
+#include "TNetFolderServer.h"
 #include "TNetFolder.h"
 
 ClassImp(TNetFolder)
@@ -318,4 +321,71 @@ void TNetFolder::ExecuteCommand(const char *line)
       ExecuteCommand(line);
       return;
    }
+}
+
+//______________________________________________________________________________
+void TNetFolder::ExecuteMacro(const char *name)
+{
+   // The macro file is executed by the CINT of the server
+   TString aclicMode;
+   TString arguments;
+   TString io;
+   TString fname = gSystem->SplitAclicMode(name, aclicMode, arguments, io);
+
+   char *exnam = gSystem->Which(TROOT::GetMacroPath(), fname, kReadPermission);
+   if (!exnam) {
+      Error("ExecuteMacro", "macro %s not found in path %s", fname.Data(),
+            TROOT::GetMacroPath());
+      delete [] exnam;
+      return;
+   }
+
+   ifstream ifile(exnam, ios::binary);
+   if (!ifile.good()) {
+      Error("ExecuteMacro", "%s no such file", exnam);
+      delete [] exnam;
+      return;
+   }
+
+   // get length of file:
+   ifile.seekg (0, ios::end);
+   int length = ifile.tellg();
+   ifile.seekg (0, ios::beg);
+   if (length > kMaxMacroLength) {
+      Error("ExecuteMacro", "Macro %s is too long to execute. Maximum is %d", exnam, kMaxMacroLength);
+      delete [] exnam;
+      return;
+   }
+   delete [] exnam;
+   char lenStr[16];
+   sprintf(lenStr, "%d", length + 1);
+
+   // read data as a block:
+   char *macro = new char[length + 1];
+   ifile.read(macro, length);
+   ifile.close();
+   macro[length] = '\0';
+
+   // send macro
+   if (!Send("Macro")) {
+      delete [] macro;
+      ExecuteMacro(name);
+      return;
+   }
+   if (!Send(name)) {
+      delete [] macro;
+      ExecuteMacro(name);
+      return;
+   }
+   if (!Send(lenStr)) {
+      delete [] macro;
+      ExecuteMacro(name);
+      return;
+   }
+   if (!Send(macro)) {
+      delete [] macro;
+      ExecuteMacro(name);
+      return;
+   }
+   delete [] macro;
 }

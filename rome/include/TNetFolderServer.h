@@ -21,6 +21,8 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROME.h"
 
+const Int_t kMaxMacroLength = 1<<18;
+
 class TApplication;
 class TSocket;
 

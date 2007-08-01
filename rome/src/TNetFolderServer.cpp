@@ -7,6 +7,7 @@
 //  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
+#include <stdlib.h>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
@@ -110,8 +111,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
 
       delete names;
       return 1;
-   }
-   else if (strncmp(str, "FindObject", 10) == 0) {
+   } else if (strncmp(str, "FindObject", 10) == 0) {
       TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
@@ -125,8 +125,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       TObject *obj;
       if (strncmp(str+10, "Any", 3) == 0) {
          obj = folder->FindObjectAny(str+14);
-      }
-      else {
+      } else {
          obj = folder->FindObject(str+11);
       }
 
@@ -139,9 +138,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
          socket->Send(message);
       }
       return 1;
-   }
-
-   else if (strncmp(str, "FindFullPathName", 16) == 0) {
+   } else if (strncmp(str, "FindFullPathName", 16) == 0) {
       TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
@@ -165,9 +162,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
          delete obj;
       }
       return 1;
-   }
-
-   else if (strncmp(str, "Occurence", 9) == 0) {
+   } else if (strncmp(str, "Occurence", 9) == 0) {
       TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
@@ -197,17 +192,14 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       socket->Send(message);
 
       return 1;
-   }
-
-   else if (strncmp(str, "GetServerName", 13) == 0) {
+   } else if (strncmp(str, "GetServerName", 13) == 0) {
       //write name
       TMessage message(kMESS_STRING);
       message.WriteString(fServerName.Data());
       socket->Send(message);
 
       return 1;
-   }
-   else if (strncmp(str, "GetPointer", 10) == 0) {
+   } else if (strncmp(str, "GetPointer", 10) == 0) {
       //find object
       TMessage message(kMESS_OBJECT);
       TObject *obj = gROOT->FindObjectAny(str+11);
@@ -219,13 +211,59 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       socket->Send(message);
 
       return 1;
-   }
-   else if (strncmp(str, "Execute", 7) == 0) {
-      char string[200];
-      socket->Recv(string, sizeof(string));
+   } else if (strncmp(str, "Execute", 7) == 0) {
+      char tmpStr[200];
+      socket->Recv(tmpStr, sizeof(tmpStr));
 
-      TString command = string;
+      TString command = tmpStr;
       fApplication->ProcessLine(command.Data());
+      return 1;
+   } else if (strncmp(str, "Macro", 5) == 0) {
+      TString    aclicMode;
+      TString    arguments;
+      TString    io;
+      char       tmpStr[256];
+      TString    orgNameStr;
+      TString    newNameStr;
+      TString    orgFileStr;
+      TString    newFileStr;
+
+      // recieve file name
+      socket->Recv(tmpStr, sizeof(tmpStr));
+      orgNameStr = tmpStr;
+      newFileStr = orgFileStr = gSystem->SplitAclicMode(orgNameStr.Data(), aclicMode, arguments, io);
+#if defined( R__UNIX )
+      fclose(gSystem->TempFileName(newFileStr));
+      gSystem->Unlink(newFileStr.Data());
+#else
+      GetTempFileName("c:\\", newFileStr.Data(), 0, tmpStr);
+      newFileStr = tmpStr;
+#endif
+      newNameStr = orgNameStr;
+      newNameStr.ReplaceAll(orgFileStr.Data(), newFileStr.Data());
+
+      // recieve number of charactors
+      socket->Recv(tmpStr, sizeof(tmpStr));
+      char *cstop = 0;
+      Int_t length = strtol(tmpStr, &cstop, 10);
+      if (length - 1 > kMaxMacroLength) {
+         cerr<<"Error in <TNetFolderServer::CheckCommand>: macro is too long to execute. Maximum is "<<kMaxMacroLength<<endl;
+      }
+      
+      // recieve macro content
+      char *macro = new char[length];
+      socket->Recv(macro, length);
+
+      // create temporary macrofile and execute
+      ofstream ofile(newFileStr.Data(), ios::out | ios::trunc);
+      if (!ofile.good()) {
+         cerr<<"Error in <TNetFolderServer::CheckCommand>: failed to open "<<newFileStr<<endl;
+      }
+      ofile<<macro<<endl;
+      delete [] macro;
+      Int_t err;
+      fApplication->ProcessFile(newNameStr.Data(), &err);
+      gSystem->Unlink(newFileStr.Data());
       return 1;
    }
    return 1;
