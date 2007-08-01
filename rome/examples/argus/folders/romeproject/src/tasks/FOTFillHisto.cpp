@@ -61,6 +61,7 @@ void FOTFillHisto::BeginOfRun()
 void FOTFillHisto::Event()
 {
    GetMyHisto()->Fill(gAnalyzer->GetMidasDAQ()->GetADC0BankAt(0));
+   gSystem->Sleep(1000);
 }
 
 void FOTFillHisto::EndOfRun()

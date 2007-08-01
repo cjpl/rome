@@ -347,6 +347,8 @@ void ROMEAnalyzer::ParameterUsage()
    ROMEPrint::Print("  -q       Quit Mode (no Argument)\n");
    ROMEPrint::Print("  -v       Verbose level :(mute/error/warning/normal/debug)\n");
    ROMEPrint::Print("  -ng      No graphics is used\n");
+   ROMEPrint::Print("  -gc      Turn on graphical configuration panel\n");
+   ROMEPrint::Print("  -ngc     Turn off graphical configuration panel\n");
    ROMEPrint::Print("  -ns      Splash Screen is not displayed (no Argument)\n");
    ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
    UserParameterUsage();
@@ -358,7 +360,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
    int i;
-   bool noGraphicalConfigEdit = false;
+   Int_t graphicalConfigEditCommandOption = -1; // not specified
    char *cstop = 0;
 
    ROMEString configFile("");
@@ -403,6 +405,12 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          }
          i++;
+      }
+      if (!strcmp(argv[i], "-gc")) {
+         graphicalConfigEditCommandOption = 1;
+      }
+      if (!strcmp(argv[i], "-ngc")) {
+         graphicalConfigEditCommandOption = 0;
       }
    }
 
@@ -452,7 +460,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
                   return false;
                }
                if (answerString.Index(".") != -1) {
-                  noGraphicalConfigEdit = true;
+                  graphicalConfigEditCommandOption = 0;
                   answerString = answerString(0, answerString.Index("."));
                }
                i = answerString.ToInteger();
@@ -556,7 +564,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       ROMEPrint::Print("\nTerminate program.\n");
       return false;
    }
-   if (isGraphicalConfigEdit() && !isNoGraphics() && !noGraphicalConfigEdit) {
+   if (!isNoGraphics() /* GUI available */ &&
+       graphicalConfigEditCommandOption != 0 /* user didn't disabled explicitly */ &&
+       ((graphicalConfigEditCommandOption < 0 /* user didn't specify by command option */ && isGraphicalConfigEdit()) ||
+        graphicalConfigEditCommandOption == 1 /* user enabled by command option */)) {
       if (!this->ShowConfigurationFile()) {
          ROMEPrint::Print("\nTerminate program.\n");
          return false;
@@ -597,6 +608,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       } else if (!strcmp(argv[i], "-ns")) {
          fSplashScreen = false;
+      } else if (!strcmp(argv[i], "-gc")) {
+      } else if (!strcmp(argv[i], "-ngc")) {
       } else if (!strcmp(argv[i], "-m")) {
          if (i + 1 >= argc) {
             break;
