@@ -543,8 +543,8 @@ public:
    void            SetSocketClientPort(const char *portNumber) { char *cstop; fSocketClientPort = strtol(portNumber,&cstop,10); }
 
    // Midas ODB
-   HNDLE        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
-   HNDLE*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }
+   HNDLE           GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
+   HNDLE*          GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }
 
    // Configuration
    ROMEConfig     *GetConfiguration() { return fConfiguration; }
@@ -640,6 +640,7 @@ public:
    void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
    virtual Bool_t  CheckDependences() { return kTRUE; }
    virtual void    UpdateConfigParameters() {}
+   Bool_t          ConnectSocketClient(const char* hostname = 0, Int_t port = 0);
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);
@@ -651,7 +652,6 @@ protected:
 
    virtual void    startSplashScreen() = 0;
    virtual void    consoleStartScreen() = 0;
-   Bool_t          ConnectSocketClient();
    virtual Bool_t  ConnectSocketClientNetFolder() = 0;
    virtual void    StartNetFolderServer() = 0;
    virtual Bool_t  CheckTreeFileNames() = 0;

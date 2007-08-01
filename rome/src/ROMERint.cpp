@@ -9,6 +9,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
@@ -16,12 +17,14 @@
 #endif
 #include <TSystem.h>
 #include <TSysEvtHandler.h>
+#include <TSocket.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
 
 #include "ROMERint.h"
 #include "ROMEAnalyzer.h"
+#include "TNetFolder.h"
 
 //----- Interrupt signal handler -----------------------------------------------
 class ROMEInterruptHandler : public TSignalHandler {
@@ -68,6 +71,11 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
 ,fRintInterruptHandler(0)
 ,fROMEInterruptHandler(0)
 ,fFPEMask(0)
+,fRemoteProcess(kFALSE)
+,fSocketClient(0)
+,fSocketClientNetFolder(0)
+,fSocketClientHost("localhost")
+,fSocketClientPort(9090)
 {
    fRintInterruptHandler = gSystem->RemoveSignalHandler(GetSignalHandler());
    fROMEInterruptHandler = new ROMEInterruptHandler();
@@ -82,6 +90,8 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
 ROMERint::~ROMERint()
 {
    SafeDelete(fROMEInterruptHandler);
+   SafeDelete(fSocketClientNetFolder);
+   SafeDelete(fSocketClient);
 }
 
 //______________________________________________________________________________
@@ -100,4 +110,74 @@ void ROMERint::Run(Bool_t retrn)
    TRint::Run(retrn);
    fUseRintInterruptHandler = kFALSE;
    fRunning = false;
+}
+
+//______________________________________________________________________________
+Long_t ROMERint::ProcessLine(const char *line, Bool_t sync, Int_t *err)
+{
+   // process line in local session or remote application over a socket.
+
+   if (!line || !*line) return 0;
+
+   if (!fRemoteProcess) {
+      return TRint::ProcessLine(line, sync, err);
+   }
+
+   // process CINT command in local session.
+   TString cmd = line;
+   cmd.Strip(TString::kLeading);
+   if (cmd.BeginsWith(".")) {
+      return TRint::ProcessLine(line, sync, err);
+   }
+
+   // process line on remote application over a socket
+   if (ConnectSocketClient()) {
+      fSocketClientNetFolder->ExecuteCommand(line);
+   }
+
+   return 0;
+}
+
+//______________________________________________________________________________
+void ROMERint::SetSocketClientConnection(const char* connection)
+{
+   ROMEString con = connection;
+   con.StripSpaces();
+   Int_t pos = con.Index(":", 1, 0, TString::kIgnoreCase);
+   char *cstop = 0;
+
+   if (!connection || !con.Length()) {
+      fSocketClientHost = "localhost";
+      fSocketClientPort = 9090;
+   } else if (pos != -1) {
+      fSocketClientHost = con(0, pos);
+      fSocketClientPort = strtol(con(pos + 1, con.Length()).Data(), &cstop, 10);
+   } else {
+      fSocketClientHost = con;
+      fSocketClientPort = 9090;
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMERint::ConnectSocketClient()
+{
+   if (fSocketClient != 0) {
+      if (fSocketClient->IsValid()) {
+         return true;
+      }
+   }
+   if (fSocketClient == 0) {
+      fSocketClient = new TSocket(fSocketClientHost.Data(), fSocketClientPort);
+   }
+   while (!fSocketClient->IsValid()) {
+      delete fSocketClient;
+      ROMEPrint::Warning("can not make socket connection to the ROME analyzer on host '%s' through port %d.\n",
+                         fSocketClientHost.Data(), fSocketClientPort);
+      ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
+      gSystem->Sleep(5000);
+      fSocketClient = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
+   }
+   SafeDelete(fSocketClientNetFolder);
+   fSocketClientNetFolder = new TNetFolder("", "", fSocketClient, kTRUE);
+   return true;
 }
