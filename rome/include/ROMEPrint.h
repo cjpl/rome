@@ -30,6 +30,7 @@ namespace ROMEPrint
    extern Int_t gReportMaxCount; // max number of printing for a report
 
    // Output
+#ifndef __MAKECINT__
    void  PrintAlways(const char *msgfmt, ...) G_GNUC_PRINTF(1, 2);
    void  Debug(const char *msgfmt, ...)       G_GNUC_PRINTF(1, 2);
    void  Print(const char *msgfmt, ...)       G_GNUC_PRINTF(1, 2);
@@ -39,6 +40,7 @@ namespace ROMEPrint
 
    void  Report(const Int_t verboseLevel, const char* fileName, const char *funcName, Int_t lineNumber,
                 const Long64_t run, const Long64_t event, const Bool_t printHeader, const char* va_(fmt),...) G_GNUC_PRINTF(8, 9);
+#endif
    void  ReportSummary();
 
    inline Int_t GetVerboseLevel() { return gVerboseLevel; }

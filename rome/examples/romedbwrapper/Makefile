@@ -54,7 +54,6 @@ objects += ROMESQLite3.o \
 DICTHEADERS = $(ROMESYS)/include/ROMEString.h \
               $(ROMESYS)/include/ROMEStrArray.h \
               $(ROMESYS)/include/ROMEStr2DArray.h \
-              $(ROMESYS)/include/ROMEPrint.h \
               $(ROMESYS)/include/ROMEPath.h \
               $(ROMESYS)/include/ROMESQL.h \
               $(ROMESYS)/include/ROMESQLite3.h \
