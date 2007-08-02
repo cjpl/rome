@@ -1089,7 +1089,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          xml->GetValue(folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]]
                        ,folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]]);
          FormatText(folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]], kTRUE, " ");
-         for (i = 0; i < affiliationList.GetEntries(); i++) {
+         for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
             if (affiliationList.At(i,0) == folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]])
                break;
          }
@@ -1634,7 +1634,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
          xml->GetValue(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]],
                        taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]]);
          FormatText(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]], kTRUE, " ");
-         for (i = 0; i < affiliationList.GetEntries(); i++) {
+         for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
             if (affiliationList.At(i,0) == taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]])
                break;
          }
@@ -2362,7 +2362,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
          xml->GetValue(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]],
                        tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]]);
          FormatText(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]], kTRUE, " ");
-         for (i = 0; i < affiliationList.GetEntries(); i++) {
+         for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
             if (affiliationList.At(i,0) == tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]])
                break;
          }
@@ -3228,7 +3228,7 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
                xml->GetValue(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]],
                              daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]]);
                FormatText(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]], kTRUE, " ");
-               for (i = 0; i < affiliationList.GetEntries(); i++) {
+               for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
                   if (affiliationList.At(i,0) == daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]])
                      break;
                }
@@ -4134,7 +4134,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                        ,steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]]);
          FormatText(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]], kTRUE,
                     " ");
-         for (i = 0; i < affiliationList.GetEntries(); i++) {
+         for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
             if (affiliationList.At(i,0)
                 == steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]])
                break;
@@ -4189,7 +4189,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
                              steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]);
                FormatText(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]],
                           kTRUE, " ");
-               for (i = 0; i < affiliationList.GetEntries(); i++) {
+               for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
                   if (affiliationList.At(i,0)
                       == steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]])
                      break;
@@ -4413,7 +4413,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      FormatText(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]],
                                 kTRUE, " ");
 
-                     for (i = 0; i < affiliationList.GetEntries(); i++) {
+                     for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
                         if (affiliationList.At(i,0)
                             == mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]])
                            break;
@@ -4650,7 +4650,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                                    mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]]);
                      FormatText(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]],
                                 kTRUE, " ");
-                     for (i = 0 ;i < affiliationList.GetEntries(); i++) {
+                     for (i = 0 ;i < affiliationList.GetEntriesFast(); i++) {
                         if (affiliationList.At(i,0)
                             == mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]])
                            break;
@@ -4689,7 +4689,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (!mfSourceFileUsed[i])
                      continue;
                   found = false;
-                  for (j = 0; j < objDirList.GetEntries(); j++) {
+                  for (j = 0; j < objDirList.GetEntriesFast(); j++) {
                      if (objDirList.At(j) == mfSourceFileObjPath[i].Data()) {
                         found = true;
                      }
