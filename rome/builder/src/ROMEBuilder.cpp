@@ -1182,7 +1182,7 @@ Bool_t ROMEBuilder::StartBuilder()
 #if defined( R__VISUAL_CPLUSPLUS )
       tempStr.SetFormatted("nmake -f Makefile.win");
 #endif
-      n = dictionaryHeaders->GetEntries();
+      n = dictionaryHeaders->GetEntriesFast();
       if (n > 0) {
          for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
             tempStr.AppendFormatted(" dict/%sDict%d.cpp",shortCut.Data(), i);
