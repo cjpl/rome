@@ -225,88 +225,88 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd romedbwrapper; ./test_c; ./test_f
 
-	cd multirun; ./mranalyzer.exe -i romeConfig.xml -q -ngc
+	cd multirun; ./mranalyzer.exe -i romeConfig.xml -q -nc
 
 	cd dbexample; \
 	cp sqlDataBase/RDBDataBase.sqlite3 .; \
-	./rdbframework.exe -i sqlite3Config.xml -q -r 1 -ngc; \
+	./rdbframework.exe -i sqlite3Config.xml -q -r 1 -nc; \
 	mv -f RDBDataBase.sqlite3 sqlDataBase/; \
 
-	cd taskhierarchy; ./thexample.exe -i romeConfig.xml -q -e 0-9999 -r 1 -ngc
+	cd taskhierarchy; ./thexample.exe -i romeConfig.xml -q -e 0-9999 -r 1 -nc
 
-	cd netfolder; ./nfexample.exe -i singleProcessConfig.xml -q -e 0-19 -ngc
+	cd netfolder; ./nfexample.exe -i singleProcessConfig.xml -q -e 0-19 -nc
 
-	cd stepbystep;	./sbsanalyzer.exe -i romeConfig.xml -q -ngc
+	cd stepbystep;	./sbsanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd tree_write_read; ./twrsample.exe -i writeTreeConfig.xml -q -ngc
-	cd tree_write_read; ./twrsample.exe -i writeTreeWithFileName.xml -q -ngc
-	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q -ngc
-	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q -ngc
+	cd tree_write_read; ./twrsample.exe -i writeTreeConfig.xml -q -nc
+	cd tree_write_read; ./twrsample.exe -i writeTreeWithFileName.xml -q -nc
+	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q -nc
+	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q -nc
 
-	cd tree_write_read2; ./twr2sample.exe -i writeTreeConfig.xml -q -e 0-9 -ngc
-	cd tree_write_read2; ./twr2sample.exe -i readTreeConfig.xml -q -ngc
+	cd tree_write_read2; ./twr2sample.exe -i writeTreeConfig.xml -q -e 0-9 -nc
+	cd tree_write_read2; ./twr2sample.exe -i readTreeConfig.xml -q -nc
 
-	cd tree_write_read3; ./twr3sample.exe -i writeTreeConfig.xml -q -e 0-9 -ngc
-	cd tree_write_read3; ./twr3sample.exe -i readTreeConfig.xml -q -ngc
+	cd tree_write_read3; ./twr3sample.exe -i writeTreeConfig.xml -q -e 0-9 -nc
+	cd tree_write_read3; ./twr3sample.exe -i readTreeConfig.xml -q -nc
 
-	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99 -ngc
+	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99 -nc
 
-#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q -e 0-9 -ngc -b & \
-#	./hguiexample.exe -i histoReadConfig.xml -q -e 0-9 -ngc
+#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q -e 0-9 -nc -b & \
+#	./hguiexample.exe -i histoReadConfig.xml -q -e 0-9 -nc
 
-	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q -ngc
+	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q -nc
 
-	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q -ngc
+	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b -ngc && \
-	./runhanalyzer.exe -i readConfig.xml -q -ngc
+	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b -nc && \
+	./runhanalyzer.exe -i readConfig.xml -q -nc
 
-	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q -ngc
+	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd midas; ./midanalyzer.exe -i romeConfig.xml -q -m offline -ngc
+	cd midas; ./midanalyzer.exe -i romeConfig.xml -q -m offline -nc
 
-	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -ngc
+	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 
-	cd taskhierarchydependence; ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -ngc
+	cd taskhierarchydependence; ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 
-#	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -ngc
+#	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 
-	cd macros; ./mcranalyzer.exe -i romeConfig.xml -q -ngc
+	cd macros; ./mcranalyzer.exe -i romeConfig.xml -q -nc
 
-	cd cutg; ./tcutgexample.exe -i romeConfig.xml -q -e 0-9 -ngc
+	cd cutg; ./tcutgexample.exe -i romeConfig.xml -q -e 0-9 -nc
 
-	cd basefolder; ./bfsample.exe -i romeConfig.xml -q -ngc
+	cd basefolder; ./bfsample.exe -i romeConfig.xml -q -nc
 
-	cd message; ./msganalyzer.exe -i romeConfig.xml -q -ngc
+	cd message; ./msganalyzer.exe -i romeConfig.xml -q -nc
 
-	cd userMakefile; ./umfanalyzer.exe -i romeConfig.xml -q -ngc
+	cd userMakefile; ./umfanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd argus/file; ./flmonitor.exe -i romeConfig.xml -q -e 0-99 -ngc
+	cd argus/file; ./flmonitor.exe -i romeConfig.xml -q -e 0-99 -nc
 
-	cd argus/timer; ./ttmonitor.exe -i romeConfig.xml -q -ngc & \
+	cd argus/timer; ./ttmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 ttmonitor.exe
 
-	cd argus/processMessage; ./pmmonitor.exe -i romeConfig.xml -q -ngc & \
+	cd argus/processMessage; ./pmmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 pmmonitor.exe
 
-	cd argus/menu; ./tmmonitor.exe -i romeConfig.xml -q -ngc & \
+	cd argus/menu; ./tmmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 tmmonitor.exe
 
-	cd argus/thread; ./ttmonitor.exe -i romeConfig.xml -q -ngc & \
+	cd argus/thread; ./ttmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 ttmonitor.exe
 
-	cd argus/tabs;	./tbmonitor.exe -i romeConfig.xml -q -ngc & \
+	cd argus/tabs;	./tbmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 tbmonitor.exe
 
-	cd argus/helloWorld; ./hwmonitor.exe -i romeConfig.xml -q -ngc & \
+	cd argus/helloWorld; ./hwmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 hwmonitor.exe
 
 	cd argus/histogram/romeproject; ./hgframework.exe -i romeConfig.xml -b & \
-	cd ..; ./hgmonitor.exe -i argusConfig.xml -q -p 3 -ngc & sleep 10; killall -9 hgmonitor.exe; \
+	cd ..; ./hgmonitor.exe -i argusConfig.xml -q -p 3 -nc & sleep 10; killall -9 hgmonitor.exe; \
 	killall -9 hgframework.exe
 
 	cd argus/folders/romeproject; ./foframework.exe -i romeConfig.xml -b -r 1 & \
-	cd ..; ./fomonitor.exe -i argusConfig.xml -q -p 1 -ngc & sleep 10; killall -9 fomonitor.exe; \
+	cd ..; ./fomonitor.exe -i argusConfig.xml -q -p 1 -nc & sleep 10; killall -9 fomonitor.exe; \
 	killall -9 foframework.exe
 
 clean :
