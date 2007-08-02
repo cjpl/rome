@@ -6776,7 +6776,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          buffer.AppendFormatted("   void   Set%sSize(Int_t number);\n",folderName[i].Data());
          if (folderArray[i] != "variable")
             buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   Int_t  Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),
+         buffer.AppendFormatted("   Int_t  Get%sSize() { return f%sFolders->GetEntriesFast(); }\n",folderName[i].Data(),
                                 folderName[i].Data());
       }
    }
@@ -15164,7 +15164,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
          buffer.AppendFormatted("            return false;\n");
          buffer.AppendFormatted("         }\n");
          if (type == 2) {
-            buffer.AppendFormatted("         nentry = gAnalyzer->Get%ss()->GetEntries();\n",
+            buffer.AppendFormatted("         nentry = gAnalyzer->Get%ss()->GetEntriesFast();\n",
                                    folderName[numFolder].Data());
             buffer.AppendFormatted("         for (i = 0; i < nentry; i++) {\n");
          }
@@ -15303,7 +15303,7 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("   if (IsROMEMonitor())\n");
          buffer.AppendFormatted("      f%sFolders = static_cast<TClonesArray*>(GetSocketClientNetFolder()->FindObjectAny(\"%s%ss\"));\n",
                                 folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("   if (f%sFolders->GetEntries() <= indx)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx)\n",folderName[numFolder].Data());
          buffer.AppendFormatted("      f%sFolders->ExpandCreate(indx);\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),folderName[numFolder].Data(),
                                 folderName[numFolder].Data());
@@ -15727,7 +15727,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
             buffer.AppendFormatted("         write = true;\n");
             buffer.AppendFormatted("      }\n");
          } else {
-            buffer.AppendFormatted("      nentry = gAnalyzer->Get%ss()->GetEntries();\n",branchFolder[i][j].Data());
+            buffer.AppendFormatted("      nentry = gAnalyzer->Get%ss()->GetEntriesFast();\n",branchFolder[i][j].Data());
             buffer.AppendFormatted("      for (i = 0; !write && i < nentry; i++) {\n");
             buffer.AppendFormatted("         if (static_cast<%s%s*>(gAnalyzer->Get%sAt(i))->isModified()) {\n",shortCut.Data(),
                                    branchFolder[i][j].Data(),branchFolder[i][j].Data());
@@ -17318,7 +17318,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                }
             }
          } else {
-            buffer.AppendFormatted("         if (%s->GetEntries()) {\n", folderName[iFold].Data());
+            buffer.AppendFormatted("         if (%s->GetEntriesFast()) {\n", folderName[iFold].Data());
             for (iValue = 0; iValue < numOfValue[iFold]; iValue++) {
                if (isFolder(valueType[iFold][iValue].Data())) {
                   // not yet implemented
