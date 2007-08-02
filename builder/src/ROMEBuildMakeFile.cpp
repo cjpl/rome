@@ -753,19 +753,19 @@ void ROMEBuilder::AddDictionaryHeaders()
 {
    int i;
 
-   Int_t nROME         = romeDictHeaders->GetEntries();
-   Int_t nArgus        = argusHeaders->GetEntries();
-   Int_t nGen          = generatedDictHeaders->GetEntries();
-   Int_t nGenFolder    = generatedFolderDictHeaders->GetEntries();
-   Int_t nGenSupFolder = generatedSupportFolderDictHeaders->GetEntries();
-   Int_t nGenTask      = generatedTaskDictHeaders->GetEntries();
-   Int_t nGenTab       = generatedTabDictHeaders->GetEntries();
-   Int_t nFolder       = folderHeaders->GetEntries();
-   Int_t nTask         = taskHeaders->GetEntries();
-   Int_t nTab          = tabHeaders->GetEntries();
-   Int_t nDAQ          = daqHeaders->GetEntries();
-   Int_t nDB           = databaseHeaders->GetEntries();
-   Int_t nAdd          = additionalDictHeaders->GetEntries();
+   Int_t nROME         = romeDictHeaders->GetEntriesFast();
+   Int_t nArgus        = argusHeaders->GetEntriesFast();
+   Int_t nGen          = generatedDictHeaders->GetEntriesFast();
+   Int_t nGenFolder    = generatedFolderDictHeaders->GetEntriesFast();
+   Int_t nGenSupFolder = generatedSupportFolderDictHeaders->GetEntriesFast();
+   Int_t nGenTask      = generatedTaskDictHeaders->GetEntriesFast();
+   Int_t nGenTab       = generatedTabDictHeaders->GetEntriesFast();
+   Int_t nFolder       = folderHeaders->GetEntriesFast();
+   Int_t nTask         = taskHeaders->GetEntriesFast();
+   Int_t nTab          = tabHeaders->GetEntriesFast();
+   Int_t nDAQ          = daqHeaders->GetEntriesFast();
+   Int_t nDB           = databaseHeaders->GetEntriesFast();
+   Int_t nAdd          = additionalDictHeaders->GetEntriesFast();
 
    Int_t nAll = nROME + nArgus + nGen + nGenFolder + nGenSupFolder + nGenTask + nGenTab +
          nFolder + nTask + nTab + nDAQ + nDB + nAdd;
@@ -831,7 +831,7 @@ void ROMEBuilder::AddDictionaryHeaders()
 void ROMEBuilder::AddDictionarySources()
 {
    int i;
-   Int_t n = dictionaryHeaders->GetEntries();
+   Int_t n = dictionaryHeaders->GetEntriesFast();
    dictionarySources = new ROMEStrArray(TMath::Max(n, 0));
    if (n > 0) {
       for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
@@ -1290,7 +1290,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("NOOPT                     %s -O0\n",kEqualSign);
    Int_t n;
    // equal signs below should be '=' to allow change in Makefile.usr
-   n = dictionaryHeaders->GetEntries();
+   n = dictionaryHeaders->GetEntriesFast();
    if (n > 0) {
       for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          buffer.AppendFormatted("Dict%dOpt                        = $(NOOPT)\n", i);
@@ -1435,7 +1435,7 @@ void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dic
    separator = " \\\n     ";
 #endif // R__UNIX
    Int_t i;
-   Int_t n = headers->GetEntries();
+   Int_t n = headers->GetEntriesFast();
    if (n > 0) {
       for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          buffer.AppendFormatted("%sionaryHeaders%d %s ", dictionaryName, i, kEqualSign);
@@ -2205,7 +2205,7 @@ void ROMEBuilder::WriteMakefile() {
    }
 */
    Int_t n;
-   n = dictionaryHeaders->GetEntries();
+   n = dictionaryHeaders->GetEntriesFast();
    if (n > 0) {
       for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
          buffer.AppendFormatted("dependfiles += obj/%sDictionary%d.d\n", shortCut.Data(), i);
@@ -2224,7 +2224,7 @@ void ROMEBuilder::WriteMakefile() {
 #else
    buffer.AppendFormatted("all:obj");
 #endif
-   for (i = 0; i < objDirList.GetEntries(); i++) {
+   for (i = 0; i < objDirList.GetEntriesFast(); i++) {
       buffer.AppendFormatted(" %s",objDirList.At(i).Data());
    }
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -2267,7 +2267,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
 // make user obj directories
-   for (i = 0; i < objDirList.GetEntries(); i++) {
+   for (i = 0; i < objDirList.GetEntriesFast(); i++) {
       buffer.AppendFormatted("%s:\n",objDirList.At(i).Data());
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("\t@mkdir %s\n\n",objDirList.At(i).Data());
@@ -2422,7 +2422,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("## Cleaning rules\n");
    buffer.AppendFormatted("depclean:\n");
    buffer.AppendFormatted("\t-$(RM) obj/*.d");
-   for (i = 0; i < objDirList.GetEntries(); i++) {
+   for (i = 0; i < objDirList.GetEntriesFast(); i++) {
       buffer.AppendFormatted(" %s/*.d",objDirList.At(i).Data());
    }
    buffer.AppendFormatted(" $(PCHHEADERS)\n");
@@ -2430,7 +2430,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
    buffer.AppendFormatted("\t-$(RM) obj/*%s",kObjectSuffix);
-   for (i = 0; i < objDirList.GetEntries(); i++) {
+   for (i = 0; i < objDirList.GetEntriesFast(); i++) {
       buffer.AppendFormatted(" %s/*%s",objDirList.At(i).Data(),kObjectSuffix);
    }
    buffer.AppendFormatted(" G__auto*LinkDef.h dict/*.h dict/*.cpp");
@@ -2444,7 +2444,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("\t-$(RM) obj/%s*%s obj/%s*.d",shortCut.Data(),kObjectSuffix,shortCut.Data());
-   for (i = 0; i < objDirList.GetEntries(); i++) {
+   for (i = 0; i < objDirList.GetEntriesFast(); i++) {
       buffer.AppendFormatted(" $(RM) %s/%s*%s %s/%s*.d",objDirList.At(i).Data(),shortCut.Data(),kObjectSuffix
                              ,objDirList.At(i).Data(),shortCut.Data());
    }
@@ -2484,7 +2484,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("ifeq ($(SkipDepInclude), no)\n");
    buffer.AppendFormatted("-include obj/*.d");
-   for (i = 0; i < objDirList.GetEntries(); i++) {
+   for (i = 0; i < objDirList.GetEntriesFast(); i++) {
       buffer.AppendFormatted(" %s/*.d",objDirList.At(i).Data());
    }
    buffer.AppendFormatted("\n");

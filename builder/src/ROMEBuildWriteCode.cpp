@@ -16374,7 +16374,7 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<li><a href=\"#steers\">Global Steering Parameters</a></li>\n");
    if (numOfEvent > 0)
       buffer.AppendFormatted("<li><a href=\"#midasbanks\">Midas Banks</a></li>\n");
-   if (affiliationList.GetEntries() > 0)
+   if (affiliationList.GetEntriesFast() > 0)
       buffer.AppendFormatted("<li><a href=\"#affiliations\">Affiliations</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",
                           shortCut.Data(),mainProgName.Data());
@@ -16788,14 +16788,14 @@ void ROMEBuilder::WriteHTMLDoku()
             dbList.Add(valueDBName[i][j]);
       }
    }
-   if (dbList.GetEntries() > 0) {
+   if (dbList.GetEntriesFast() > 0) {
       buffer.AppendFormatted("<h2><a name=database>Database Connections</a></h2>\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("List of defualt database connections. These values can be overwritten by configuration file.\n");
       buffer.AppendFormatted("<p>\n");
    }
    Int_t iDB;
-   for (iDB = 0; iDB < dbList.GetEntries(); iDB++) {
+   for (iDB = 0; iDB < dbList.GetEntriesFast(); iDB++) {
       buffer.AppendFormatted("<h3>%s</h3>\n", dbList.At(iDB).Data());
       buffer.AppendFormatted("<table>\n");
       buffer.AppendFormatted("<tr class=\"cont\"><td>Folder</td><td>Field</td><td>Database name</td><td>Database path</td></tr>\n");
@@ -16901,21 +16901,21 @@ void ROMEBuilder::WriteHTMLDoku()
 
    // Affiliations
    // ------------
-   if (affiliationList.GetEntries() > 0 ) {
+   if (affiliationList.GetEntriesFast() > 0 ) {
       buffer.AppendFormatted("<h2><a name=affiliations>Affiliations</a></h2>\n");
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<ul>\n");
-      if (affiliations.GetEntries() == 0) {
+      if (affiliations.GetEntriesFast() == 0) {
          buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
-         for (i = 0; i < affiliationList.GetEntries(); i++)
+         for (i = 0; i < affiliationList.GetEntriesFast(); i++)
             buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(),
                                    affiliationList.At(i, 0).Data());
          buffer.AppendFormatted("</ul><li>Disabled affiliations</li><ul>\n");
          buffer.AppendFormatted("</ul>\n");
       } else {
          buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
-         for (i = 0; i < affiliationList.GetEntries(); i++) {
-            for (j = 0; j < affiliations.GetEntries(); j++) {
+         for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
+            for (j = 0; j < affiliations.GetEntriesFast(); j++) {
                if (affiliationList.At(i, 0) == affiliations.At(j)) {
                   buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(),
                                          affiliationList.At(i, 0).Data());
@@ -16924,13 +16924,13 @@ void ROMEBuilder::WriteHTMLDoku()
             }
          }
          buffer.AppendFormatted("</ul><li>Disabled affiliations</li><ul>\n");
-         if (affiliations.GetEntries()) {
-            for (i = 0; i < affiliationList.GetEntries(); i++) {
-               for (j = 0; j < affiliations.GetEntries(); j++) {
+         if (affiliations.GetEntriesFast()) {
+            for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
+               for (j = 0; j < affiliations.GetEntriesFast(); j++) {
                   if (affiliationList.At(i, 0) == affiliations.At(j))
                      break;
                }
-               if (j == affiliations.GetEntries())
+               if (j == affiliations.GetEntriesFast())
                   buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(),
                                          affiliationList.At(i, 0).Data());
             }
@@ -16938,7 +16938,7 @@ void ROMEBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("</ul>\n");
       }
       buffer.AppendFormatted("</ul>\n");
-      for (i = 0; i < affiliationList.GetEntries(); i++) {
+      for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
          buffer.AppendFormatted("<h3><a name=\"%saff\" class=\"object\">%s</a></h3>\n", affiliationList.At(i, 0).Data(),
                                 affiliationList.At(i, 0).Data());
          buffer.AppendFormatted("<p>\n");
@@ -17868,7 +17868,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
       format.SetFormatted("// %%s%%%ds //\n", static_cast<int>(nc - strlen("//  //") - strlen(className)));
       buffer.AppendFormatted(format.Data(), className, "");
       buffer.AppendFormatted("//                                                                            //\n");
-      for (i = 0; i < descs.GetEntries(); i++) {
+      for (i = 0; i < descs.GetEntriesFast(); i++) {
          if (inHTML && descs[i] == "End_Html") {
             inHTML = kFALSE;
             buffer.Append("<!--*/\n");
