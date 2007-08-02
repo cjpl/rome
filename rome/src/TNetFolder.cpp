@@ -21,7 +21,6 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include "Riostream.h"
-#include "TNetFolderServer.h"
 #include "TNetFolder.h"
 
 ClassImp(TNetFolder)
@@ -346,17 +345,12 @@ void TNetFolder::ExecuteMacro(const char *name)
       delete [] exnam;
       return;
    }
+   delete [] exnam;
 
    // get length of file:
    ifile.seekg (0, ios::end);
    int length = ifile.tellg();
    ifile.seekg (0, ios::beg);
-   if (length > kMaxMacroLength) {
-      Error("ExecuteMacro", "Macro %s is too long to execute. Maximum is %d", exnam, kMaxMacroLength);
-      delete [] exnam;
-      return;
-   }
-   delete [] exnam;
    char lenStr[16];
    sprintf(lenStr, "%d", length + 1);
 
