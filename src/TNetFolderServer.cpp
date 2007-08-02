@@ -246,10 +246,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       socket->Recv(tmpStr, sizeof(tmpStr));
       char *cstop = 0;
       Int_t length = strtol(tmpStr, &cstop, 10);
-      if (length - 1 > kMaxMacroLength) {
-         cerr<<"Error in <TNetFolderServer::CheckCommand>: macro is too long to execute. Maximum is "<<kMaxMacroLength<<endl;
-      }
-      
+
       // recieve macro content
       char *macro = new char[length];
       socket->Recv(macro, length);
