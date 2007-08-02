@@ -251,8 +251,8 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99 -nc
 
-#	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q -e 0-9 -nc -b & \
-#	./hguiexample.exe -i histoReadConfig.xml -q -e 0-9 -nc
+	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q -e 0-9 -nc
+	cd histoGUI; ./hguiexample.exe -i histoReadConfig.xml -q -e 0-9 -nc
 
 	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q -nc
 

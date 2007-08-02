@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id$ -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -35,12 +36,21 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     <Common>
       <Settings>
         <VerboseLevel>normal</VerboseLevel>
+        <ReportMaxCount>20</ReportMaxCount>
         <ConfigCommentLevel>1</ConfigCommentLevel>
         <QuitMode>false</QuitMode>
         <ShowSplashScreen>false</ShowSplashScreen>
         <GraphicalConfigEdit>true</GraphicalConfigEdit>
         <PreserveConfig>false</PreserveConfig>
       </Settings>
+
+      <FloatingPointExceptionTrap>
+        <Invalid>false</Invalid>
+        <DivByZero>false</DivByZero>
+        <Overflow>false</Overflow>
+        <Underflow>false</Underflow>
+        <Inexact>false</Inexact>
+      </FloatingPointExceptionTrap>
 
       <SocketServer>
         <Active>false</Active>
@@ -91,6 +101,29 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Tab>
           <TabName>GeneratedHisto</TabName>
           <Active>true</Active>
+          <SingleObject>
+            <SingleObjectName>MyHisto</SingleObjectName>
+            <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
+
+          <SingleObject>
+            <SingleObjectName>MyOtherHisto</SingleObjectName>
+            <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
+
+          <SingleObject>
+            <SingleObjectName>MyGraph</SingleObjectName>
+            <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
         </Tab>
       </Tabs>
     </Monitor>
