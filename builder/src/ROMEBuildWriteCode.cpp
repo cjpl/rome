@@ -441,7 +441,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   }\n");
             } else {
                // check only the first element for speed up.
-               buffer.AppendFormatted("   if (%s->GetEntries()) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   if (%s->GetEntriesFast()) {\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      if (static_cast<%s*>(%s->At(0))->isModified()) {\n",valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("         SetModified(true);\n");
@@ -455,7 +455,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] > 0) {
-               buffer.AppendFormatted("   nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   nentry = %s->GetEntriesFast();\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   for (i = 1; i < nentry; i++) {\n");
                buffer.AppendFormatted("      if (static_cast<%s*>(%s->At(i))->isModified()) {\n",valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
@@ -743,7 +743,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                       valueName[iFold][i].Data());
             }
          } else {
-            buffer.AppendFormatted("      nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
+            buffer.AppendFormatted("      nentry = %s->GetEntriesFast();\n",valueName[iFold][i].Data());
             buffer.AppendFormatted("      for (Int_t i%d = 0; i%d < nentry; i%d++) { static_cast<%s*>(%s->At(i%d))->ResetModified(); }\n",
                                    i,i,i,valueType[iFold][i].Data(),valueName[iFold][i].Data(),i);
          }
@@ -820,7 +820,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                          valueName[iFold][i].Data());
                }
             } else {
-               buffer.AppendFormatted("   nentry = %s->GetEntries();\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   nentry = %s->GetEntriesFast();\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   for (int i%d = 0; i%d < nentry; i%d++) { static_cast<%s*>(%s->At(i%d))->Reset(); }\n",
                                       i,i,i,valueType[iFold][i].Data(),valueName[iFold][i].Data(),i);
             }
@@ -1280,7 +1280,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds }\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TClonesArray*",valueName[iFold][i].Data(),"",
                                       valueName[iFold][i].Data(),"");
-               format.SetFormatted("   %%-%ds  Get%%sSize()%%%ds { return %%s->GetEntries();%%%ds }\n",typeLen,lb,lb);
+               format.SetFormatted("   %%-%ds  Get%%sSize()%%%ds { return %%s->GetEntriesFast();%%%ds }\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),
                                       "");
             } else if (isTArrayType(valueType[iFold][i])) {
