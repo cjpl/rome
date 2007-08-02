@@ -349,8 +349,8 @@ void ROMEAnalyzer::ParameterUsage()
    ROMEPrint::Print("  -q       Quit Mode (no Argument)\n");
    ROMEPrint::Print("  -v       Verbose level :(mute/error/warning/normal/debug)\n");
    ROMEPrint::Print("  -ng      No graphics is used\n");
-   ROMEPrint::Print("  -gc      Turn on graphical configuration panel\n");
-   ROMEPrint::Print("  -ngc     Turn off graphical configuration panel\n");
+   ROMEPrint::Print("  -c       Turn on graphical configuration panel\n");
+   ROMEPrint::Print("  -nc      Turn off graphical configuration panel\n");
    ROMEPrint::Print("  -ns      Splash Screen is not displayed (no Argument)\n");
    ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
    ROMEPrint::Print("  -I       Go into interactive session. Other options are ignored.\n");
@@ -411,10 +411,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          }
          i++;
       }
-      if (!strcmp(argv[i], "-gc")) {
+      if (!strcmp(argv[i], "-c")) {
          graphicalConfigEditCommandOption = 1;
       }
-      if (!strcmp(argv[i], "-ngc")) {
+      if (!strcmp(argv[i], "-nc")) {
          graphicalConfigEditCommandOption = 0;
       }
    }
@@ -613,8 +613,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       } else if (!strcmp(argv[i], "-ns")) {
          fSplashScreen = false;
-      } else if (!strcmp(argv[i], "-gc")) {
-      } else if (!strcmp(argv[i], "-ngc")) {
+      } else if (!strcmp(argv[i], "-c")) {
+      } else if (!strcmp(argv[i], "-nc")) {
       } else if (!strcmp(argv[i], "-m")) {
          if (i + 1 >= argc) {
             break;
