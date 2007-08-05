@@ -30,8 +30,7 @@ public:
    Int_t            GetLast() const;
    Bool_t           IsEmpty() const;
 
-   void             AddFormatted(const char* format,...)  G_GNUC_PRINTF(2, 3);
-
+   void             AddFormatted(const char* format,...) G_GNUC_PRINTF(2, 3);
    void             Add(TString &str);
    void             Add(const char* str);
    virtual void     AddFirst(TString &str);
@@ -57,7 +56,7 @@ public:
    Int_t            IndexOf(const char *text) const;
    Int_t            IndexOf(const TString &text) const { return IndexOf(text.Data()); }
 
-   void             Sort(Int_t *index, Bool_t down = kTRUE);
+   void             Sort(Int_t *index, Bool_t down = kTRUE) const;
 
    ClassDef(ROMEStrArray,1) // 1 dimensional ROMEString array
 };

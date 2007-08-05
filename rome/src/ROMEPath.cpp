@@ -17,6 +17,27 @@
 
 ClassImp(ROMEPath)
 
+namespace {
+Int_t MinPosition(Int_t i1 = -1, Int_t i2 = -1, Int_t i3 = -1, Int_t i4 = -1)
+{
+   if (i1==-1 && i2==-1 && i3==-1 && i4==-1)
+      return -1;
+   if (i1==-1) {
+      i1 = 1000000;
+   }
+   if (i2==-1) {
+      i2 = 1000000;
+   }
+   if (i3==-1) {
+      i3 = 1000000;
+   }
+   if (i4==-1) {
+      i4 = 1000000;
+   }
+   return TMath::Min(i1,TMath::Min(i2,TMath::Min(i3,i4)));
+}
+}
+
 //______________________________________________________________________________
 ROMEPath::ROMEPath()
 :fTableNames(new ROMEStrArray())
@@ -322,7 +343,8 @@ return false;
 }
 
 //______________________________________________________________________________
-void ROMEPath::Print() {
+void ROMEPath::Print() const
+{
    const int nTable = GetNumberOfTables();
    ROMEPrint::Print("Tables : \n");
    for (int i=0;i<nTable;i++) {
@@ -354,7 +376,8 @@ void ROMEPath::Print() {
    }
 }
 
-void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ) {
+void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ) const
+{
    int i;
    const int nTableName = fTableNames->GetEntriesFast();
    for (i=1;i<nTableName;i++) {
@@ -367,23 +390,4 @@ void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ) {
    }
    path = tablename;
    return;
-}
-
-//______________________________________________________________________________
-Int_t ROMEPath::MinPosition(Int_t i1,Int_t i2,Int_t i3,Int_t i4) {
-   if (i1==-1 && i2==-1 && i3==-1 && i4==-1)
-      return -1;
-   if (i1==-1) {
-      i1 = 1000000;
-   }
-   if (i2==-1) {
-      i2 = 1000000;
-   }
-   if (i3==-1) {
-      i3 = 1000000;
-   }
-   if (i4==-1) {
-      i4 = 1000000;
-   }
-   return TMath::Min(i1,TMath::Min(i2,TMath::Min(i3,i4)));
 }

@@ -38,7 +38,8 @@ ROMEXMLDataBase::~ROMEXMLDataBase() {
 }
 
 //______________________________________________________________________________
-Bool_t ROMEXMLDataBase::Init(const char* name,const char* path,const char* connection) {
+Bool_t ROMEXMLDataBase::Init(const char* name,const char* path,const char* connection)
+{
    fDirectoryPath = path;
    fDataBaseName = connection;
    fName = name;
@@ -46,7 +47,9 @@ Bool_t ROMEXMLDataBase::Init(const char* name,const char* path,const char* conne
 }
 
 //______________________________________________________________________________
-Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber,Bool_t write) {
+Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,
+                                   Long64_t runNumber,Long64_t eventNumber,Bool_t write)
+{
    int i,j;
    ROMEString value;
    ROMEString val;
@@ -389,7 +392,7 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
 }
 
 //______________________________________________________________________________
-Bool_t ROMEXMLDataBase::WriteValue(ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex)
+Bool_t ROMEXMLDataBase::WriteValue(ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex) const
 {
    int i;
    ROMEString xmlPath;

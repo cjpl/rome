@@ -984,7 +984,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
 {
    // read the folder definitions out of the xml file
    ROMEString tmp;
-   char* name;
+   const char* name;
    int type,i,j;
    int iDm;
    int istart,iend;
@@ -1259,8 +1259,9 @@ Bool_t ROMEBuilder::ReadXMLFolder()
 #endif
                // set initial value
                if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" ||
-                   valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString") {
-                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
+                   valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString" ||
+                   valueType[numOfFolder][numOfValue[numOfFolder]] == "std::string") {
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "\"\"";
                } else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef") {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
                } else if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
@@ -1429,17 +1430,18 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             }
          }
          if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
-            if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>2) {
-               cout<<"Array of TArray is not supported. ( '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
-                   <<"' )"<<endl;
-               cout<<"Terminating program."<<endl;
-               return false;
-            }
             if (valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
                || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length()) {
                cout<<"TArray type field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
                    <<"' can not have database connection"<<endl;
                cout<<"Terminating program."<<endl;
+               return false;
+            }
+         }
+         if (valueDimension[numOfFolder][numOfValue[numOfFolder]] > 2) {
+            if (!isNumber(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+               cerr<<"Multiple dimension array of "<<valueType[numOfFolder][numOfValue[numOfFolder]]<<" is not supported."<<endl;
+               cerr<<"Terminating program."<<endl;
                return false;
             }
          }
@@ -1542,7 +1544,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
 {
    // read the task definitions out of the xml file
    ROMEString tmp;
-   char* name;
+   const char* name;
    int type,i,j;
    ROMEString currentTaskName = "";
    int currentNumberOfTasks;
@@ -4002,7 +4004,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
 {
    // read the steering parameter definitions out of the xml file
    ROMEString tmp;
-   char* name;
+   const char* name;
    int type,i,j;
    ROMEString currentSteeringName = "";
    int currentNumberOfSteerings;

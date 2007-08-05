@@ -33,11 +33,11 @@ public:
       fReceiverType.Add(receiverType);
       fNumberOfReceivers++;
    }
-   Int_t GetNumberOfReceivers() { return fNumberOfReceivers; }
-   TString GetSignal() { return fSignal; }
-   TString GetSenderType() { return fSenderType; }
-   TString GetReceiverPathAt(Int_t i) { return fReceiverPath[i]; }
-   TString GetReceiverTypeAt(Int_t i) { return fReceiverType[i]; }
+   Int_t GetNumberOfReceivers() const { return fNumberOfReceivers; }
+   TString GetSignal() const { return fSignal; }
+   TString GetSenderType() const { return fSenderType; }
+   TString GetReceiverPathAt(Int_t i) const { return fReceiverPath[i]; }
+   TString GetReceiverTypeAt(Int_t i) const { return fReceiverType[i]; }
 
    ClassDef(XMLToFormElementSignal, 0)
 };

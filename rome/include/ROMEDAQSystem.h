@@ -50,22 +50,22 @@ public:
    virtual Long64_t Seek(Long64_t /* event */) { AbstractMethod("Seek"); return -1; }
    virtual Bool_t   EndOfRun() = 0;
    virtual Bool_t   Terminate() = 0;
-   virtual Bool_t   GetAlwaysFillTrees() { return kFALSE; };
+   virtual Bool_t   GetAlwaysFillTrees() const { return kFALSE; };
 
 public:
    // Run Status
-   Bool_t           isRunning()  { return (fRunStatus == kRunning); }
-   Bool_t           isStopped()  { return (fRunStatus == kStopped); }
+   Bool_t           isRunning() const  { return (fRunStatus == kRunning); }
+   Bool_t           isStopped() const  { return (fRunStatus == kStopped); }
 
    void             SetRunning()  { fRunStatus = kRunning; }
    void             SetStopped()  { fRunStatus = kStopped; }
 
    // Event Status
-   Bool_t           isAnalyze()    { return (fEventStatus == kAnalyze);    }
-   Bool_t           isContinue()   { return (fEventStatus == kContinue);   }
-   Bool_t           isBeginOfRun() { return (fEventStatus == kBeginOfRun); }
-   Bool_t           isEndOfRun()   { return (fEventStatus == kEndOfRun);   }
-   Bool_t           isTerminate()  { return (fEventStatus == kTerminate);  }
+   Bool_t           isAnalyze() const    { return (fEventStatus == kAnalyze);    }
+   Bool_t           isContinue() const   { return (fEventStatus == kContinue);   }
+   Bool_t           isBeginOfRun() const { return (fEventStatus == kBeginOfRun); }
+   Bool_t           isEndOfRun() const   { return (fEventStatus == kEndOfRun);   }
+   Bool_t           isTerminate() const  { return (fEventStatus == kTerminate);  }
 
    void             SetAnalyze()    { fEventStatus = kAnalyze;    }
    void             SetContinue()   { fEventStatus = kContinue;   }

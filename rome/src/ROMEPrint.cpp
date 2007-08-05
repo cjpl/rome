@@ -16,6 +16,7 @@
 #   include "midas.h"
 #endif
 #include "Riostream.h"
+#include "ROMEAnalyzer.h"
 #include "ROMEPrint.h"
 #include "ROMEString.h"
 #include "ROMEStrArray.h"

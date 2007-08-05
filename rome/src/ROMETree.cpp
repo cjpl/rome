@@ -67,7 +67,8 @@ ROMETree::~ROMETree() {
 }
 
 //______________________________________________________________________________
-void ROMETree::AllocateBranchActive(Int_t n) {
+void ROMETree::AllocateBranchActive(Int_t n)
+{
    fNBranchActive = n;
    SafeDeleteArray(fBranchActive);
    fBranchActive = new Bool_t[n];
@@ -77,7 +78,8 @@ void ROMETree::AllocateBranchActive(Int_t n) {
 }
 
 //______________________________________________________________________________
-Bool_t ROMETree::CheckConfiguration(const char* inDir, const char* outDir) {
+Bool_t ROMETree::CheckConfiguration(const char* inDir, const char* outDir) const
+{
    if (fSwitches.fRead &&
        fSwitches.fWrite &&
        fConfigInputFileName == fConfigOutputFileName &&

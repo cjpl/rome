@@ -28,7 +28,7 @@ public:
    virtual Int_t     Register(TSocket* socket) = 0;
    virtual void      UnRegister(TSocket* socket) = 0;
 
-   TSocket          *GetAcceptedSockets(Int_t i) { return fAcceptedSockets[i]; };
+   TSocket          *GetAcceptedSockets(Int_t i) const { return fAcceptedSockets[i]; };
 
 private:
    ROMENetFolderServer(const ROMENetFolderServer &server);
@@ -38,14 +38,14 @@ public:
    ROMENetFolderServer();
    virtual ~ROMENetFolderServer(){}
 
-   Bool_t   IsSocketClientRead(Int_t clientID) { return fSocketClientRead[clientID]; };
-   Bool_t   IsCopyAll() { return fCopyAll; };
+   Bool_t   IsSocketClientRead(Int_t clientID) const { return fSocketClientRead[clientID]; };
+   Bool_t   IsCopyAll() const { return fCopyAll; };
    void     SetCopyAll(bool copyAll);
 
-   Bool_t   IsEventStorageAvailable() { return fEventStorageAvailable; };
+   Bool_t   IsEventStorageAvailable() const { return fEventStorageAvailable; };
    void     SetEventStorageAvailable(bool eventStorageAvailable) { fEventStorageAvailable = eventStorageAvailable; };
 
-   Bool_t   IsAllDataAvailable() { return fAllDataAvailable; };
+   Bool_t   IsAllDataAvailable() const { return fAllDataAvailable; };
    void     SetAllDataAvailable(bool allDataAvailable) { fAllDataAvailable = allDataAvailable; };
 
 

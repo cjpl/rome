@@ -106,26 +106,26 @@ public:
       fNumberOfElements++;
    }
    // Frame Data Getters
-   TString GetFrameTitle() { return fFrameTitle; }
-   TString GetFramePath() { return fFramePath; }
-   Bool_t  IsFrameVertical() { return fFrameVertical; }
-   Bool_t  IsFrameTab() { return fFrameType==kTab; }
-   Bool_t  IsFrameListTree() { return fFrameType==kListTree; }
-   Bool_t  IsFrameListTreeItem() { return fFrameType==kListTreeItem; }
-   Bool_t  IsFrameVisible() { return fFrameVisible; }
+   TString GetFrameTitle() const { return fFrameTitle; }
+   TString GetFramePath() const { return fFramePath; }
+   Bool_t  IsFrameVertical() const { return fFrameVertical; }
+   Bool_t  IsFrameTab() const { return fFrameType==kTab; }
+   Bool_t  IsFrameListTree() const { return fFrameType==kListTree; }
+   Bool_t  IsFrameListTreeItem() const { return fFrameType==kListTreeItem; }
+   Bool_t  IsFrameVisible() const { return fFrameVisible; }
    void    SetFrameVisible(Bool_t visible) { fFrameVisible = visible; }
-   Int_t   GetFrameTabIndex() { return fFrameTabIndex; }
+   Int_t   GetFrameTabIndex() const { return fFrameTabIndex; }
    void    SetFrameMaxWidth(Int_t maxWidth) { fFrameMaxWidth = maxWidth; }
-   Int_t   GetFrameMaxWidth() { return fFrameMaxWidth; }
+   Int_t   GetFrameMaxWidth() const { return fFrameMaxWidth; }
    void    SetFrameCreated(Bool_t created) { fFrameCreated = created; }
-   Bool_t  IsFrameCreated() { return fFrameCreated; }
-   TString GetFrameToolTip() { return fFrameToolTip; }
+   Bool_t  IsFrameCreated() const { return fFrameCreated; }
+   TString GetFrameToolTip() const { return fFrameToolTip; }
    // Element Data Getter
    XMLToFormElement* GetElementAt(Int_t i) { return static_cast<XMLToFormElement*>(fElements.At(i)); }
-   Int_t   GetNumberOfElements() { return fNumberOfElements; }
+   Int_t   GetNumberOfElements() const { return fNumberOfElements; }
    // Sub Frame Data Getter
    XMLToFormFrame* GetSubFrameAt(Int_t i) { return static_cast<XMLToFormFrame*>(fSubFrames.At(i)); }
-   Int_t   GetNumberOfSubFrames() { return fNumberOfSubFrames; }
+   Int_t   GetNumberOfSubFrames() const { return fNumberOfSubFrames; }
 
    ClassDef(XMLToFormFrame, 0)
 };

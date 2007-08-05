@@ -13,10 +13,11 @@
 
 ClassImp(ROMEGraph)
 
+static char* fgCstop = 0;
+
 //______________________________________________________________________________
 ROMEGraph::ROMEGraph()
 :TNamed("", "")
-,fCstop(0)
 ,fActive(kTRUE)
 ,fTitleOrig("")
 ,fFolderTitle("")
@@ -75,7 +76,8 @@ const char* ROMEGraph::GetTitle() const{
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetFolderTitle() {
+const char* ROMEGraph::GetFolderTitle() const
+{
    if (fFolderTitle.Length()==0)
       return fFolderTitleOrig;
    else
@@ -83,7 +85,8 @@ const char* ROMEGraph::GetFolderTitle() {
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetXLabel() {
+const char* ROMEGraph::GetXLabel() const
+{
    if (fXLabel.Length()==0)
       return fXLabelOrig;
    else
@@ -91,7 +94,8 @@ const char* ROMEGraph::GetXLabel() {
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetYLabel() {
+const char* ROMEGraph::GetYLabel() const
+{
    if (fYLabel.Length()==0)
       return fYLabelOrig;
    else
@@ -99,7 +103,8 @@ const char* ROMEGraph::GetYLabel() {
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetZLabel() {
+const char* ROMEGraph::GetZLabel() const
+{
    if (fZLabel.Length()==0)
       return fZLabelOrig;
    else
@@ -107,15 +112,17 @@ const char* ROMEGraph::GetZLabel() {
 }
 
 //______________________________________________________________________________
-int ROMEGraph::GetArraySize() {
+int ROMEGraph::GetArraySize() const
+{
    if (fArraySize.Length()==0)
       return fArraySizeOrig;
    else
-      return strtol(fArraySize.Data(),&fCstop,10);
+      return strtol(fArraySize.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetArraySizeString(ROMEString &string) {
+const char* ROMEGraph::GetArraySizeString(ROMEString &string) const
+{
    if (fArraySize.Length()==0)
       string.SetFormatted("%d",fArraySizeOrig);
    else
@@ -124,15 +131,17 @@ const char* ROMEGraph::GetArraySizeString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-int ROMEGraph::GetArrayStartIndex() {
+int ROMEGraph::GetArrayStartIndex() const
+{
    if (fArrayStartIndex.Length()==0)
       return fArrayStartIndexOrig;
    else
-      return strtol(fArrayStartIndex.Data(),&fCstop,10);
+      return strtol(fArrayStartIndex.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetArrayStartIndexString(ROMEString &string) {
+const char* ROMEGraph::GetArrayStartIndexString(ROMEString &string) const
+{
    if (fArrayStartIndex.Length()==0)
       string.SetFormatted("%d",fArrayStartIndexOrig);
    else
@@ -141,15 +150,17 @@ const char* ROMEGraph::GetArrayStartIndexString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEGraph::GetXmin() {
+double ROMEGraph::GetXmin() const
+{
    if (fXmin.Length()==0)
       return fXminOrig;
    else
-      return strtol(fXmin.Data(),&fCstop,10);
+      return strtol(fXmin.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetXminString(ROMEString &string) {
+const char* ROMEGraph::GetXminString(ROMEString &string) const
+{
    if (fXmin.Length()==0)
       string.SetFormatted("%g",fXminOrig);
    else
@@ -158,15 +169,17 @@ const char* ROMEGraph::GetXminString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEGraph::GetXmax() {
+double ROMEGraph::GetXmax() const
+{
    if (fXmax.Length()==0)
       return fXmaxOrig;
    else
-      return strtol(fXmax.Data(),&fCstop,10);
+      return strtol(fXmax.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetXmaxString(ROMEString &string) {
+const char* ROMEGraph::GetXmaxString(ROMEString &string) const
+{
    if (fXmax.Length()==0)
       string.SetFormatted("%g",fXmaxOrig);
    else
@@ -175,15 +188,17 @@ const char* ROMEGraph::GetXmaxString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEGraph::GetYmin() {
+double ROMEGraph::GetYmin() const
+{
    if (fYmin.Length()==0)
       return fYminOrig;
    else
-      return strtol(fYmin.Data(),&fCstop,10);
+      return strtol(fYmin.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetYminString(ROMEString &string) {
+const char* ROMEGraph::GetYminString(ROMEString &string) const
+{
    if (fYmin.Length()==0)
       string.SetFormatted("%g",fYminOrig);
    else
@@ -192,15 +207,17 @@ const char* ROMEGraph::GetYminString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEGraph::GetYmax() {
+double ROMEGraph::GetYmax() const
+{
    if (fYmax.Length()==0)
       return fYmaxOrig;
    else
-      return strtol(fYmax.Data(),&fCstop,10);
+      return strtol(fYmax.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetYmaxString(ROMEString &string) {
+const char* ROMEGraph::GetYmaxString(ROMEString &string) const
+{
    if (fYmax.Length()==0)
       string.SetFormatted("%g",fYmaxOrig);
    else
@@ -209,15 +226,17 @@ const char* ROMEGraph::GetYmaxString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEGraph::GetZmin() {
+double ROMEGraph::GetZmin() const
+{
    if (fZmin.Length()==0)
       return fZminOrig;
    else
-      return strtol(fZmin.Data(),&fCstop,10);
+      return strtol(fZmin.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetZminString(ROMEString &string) {
+const char* ROMEGraph::GetZminString(ROMEString &string) const
+{
    if (fZmin.Length()==0)
       string.SetFormatted("%g",fZminOrig);
    else
@@ -226,15 +245,17 @@ const char* ROMEGraph::GetZminString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEGraph::GetZmax() {
+double ROMEGraph::GetZmax() const
+{
    if (fZmax.Length()==0)
       return fZmaxOrig;
    else
-      return strtol(fZmax.Data(),&fCstop,10);
+      return strtol(fZmax.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEGraph::GetZmaxString(ROMEString &string) {
+const char* ROMEGraph::GetZmaxString(ROMEString &string) const
+{
    if (fZmax.Length()==0)
       string.SetFormatted("%g",fZmaxOrig);
    else

@@ -11,8 +11,6 @@
 #include "ROMEString.h"
 
 class ROMEGraph : public TNamed {
-private:
-   char*      fCstop; //!
 protected:
    Bool_t     fActive;                  // Active flag
    ROMEString fTitleOrig;               // Title Original
@@ -79,28 +77,28 @@ public:
    void        SetYmaxOriginal(Double_t value) { fYmaxOrig = value; };
    void        SetZminOriginal(Double_t value) { fZminOrig = value; };
    void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
-   bool        IsActive() { return fActive; }
+   bool        IsActive() const { return fActive; }
    const char *GetTitle() const;
-   const char *GetFolderTitle();
-   const char *GetXLabel();
-   const char *GetYLabel();
-   const char *GetZLabel();
-   int         GetArraySize();
-   const char *GetArraySizeString(ROMEString &string);
-   int         GetArrayStartIndex();
-   const char *GetArrayStartIndexString(ROMEString &string);
-   double      GetXmin();
-   const char *GetXminString(ROMEString &string);
-   double      GetXmax();
-   const char *GetXmaxString(ROMEString &string);
-   double      GetYmin();
-   const char *GetYminString(ROMEString &string);
-   double      GetYmax();
-   const char *GetYmaxString(ROMEString &string);
-   double      GetZmin();
-   const char *GetZminString(ROMEString &string);
-   double      GetZmax();
-   const char *GetZmaxString(ROMEString &string);
+   const char *GetFolderTitle() const;
+   const char *GetXLabel() const;
+   const char *GetYLabel() const;
+   const char *GetZLabel() const;
+   int         GetArraySize() const;
+   const char *GetArraySizeString(ROMEString &string) const;
+   int         GetArrayStartIndex() const;
+   const char *GetArrayStartIndexString(ROMEString &string) const;
+   double      GetXmin() const;
+   const char *GetXminString(ROMEString &string) const;
+   double      GetXmax() const;
+   const char *GetXmaxString(ROMEString &string) const;
+   double      GetYmin() const;
+   const char *GetYminString(ROMEString &string) const;
+   double      GetYmax() const;
+   const char *GetYmaxString(ROMEString &string) const;
+   double      GetZmin() const;
+   const char *GetZminString(ROMEString &string) const;
+   double      GetZmax() const;
+   const char *GetZmaxString(ROMEString &string) const;
 
    ClassDef(ROMEGraph,0) // ROMEGraph
 };

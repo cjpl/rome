@@ -85,26 +85,25 @@ public:
    void Init(const char* value, ROMEStrArray *entries);
 
    // Widget Data Getters
-   TString GetType() { return fType; }
-   const char* GetTitle() const { return fTitle.Data(); }
-   TString GetTitle() { return fTitle; }
-   TString GetValue() { return fValue; }
+   TString GetTitleString() const { return fTitle; }
+   TString GetType() const { return fType; }
+   TString GetValue() const { return fValue; }
    void    SetValue(const char* value) { fValue = value; }
-   TString GetPath() { return fPath; }
-   Int_t   GetWidth() { return fWidth; }
+   TString GetPath() const { return fPath; }
+   Int_t   GetWidth() const { return fWidth; }
    void    SetWidth(Int_t width) { fWidth = width; }
    void    AddEntryAt(const char* entry,Int_t i) { return fEntry.AddAt(entry,i); }
-   TString GetEntryAt(Int_t i) { return fEntry.At(i).Data(); }
-   Int_t   GetNumberOfEntries() { return fEntry.GetEntriesFast(); }
-   Int_t   GetSelectedEntry() { return fSelectedEntry; }
+   TString GetEntryAt(Int_t i) const { return fEntry.At(i).Data(); }
+   Int_t   GetNumberOfEntries() const { return fEntry.GetEntriesFast(); }
+   Int_t   GetSelectedEntry() const { return fSelectedEntry; }
    void    SetSelectedEntry(Int_t index) { fSelectedEntry = index; }
-   Int_t   GetButtonID() { return fButtonID; }
-   Bool_t  GetButtonChecked() { return fButtonChecked; }
+   Int_t   GetButtonID() const { return fButtonID; }
+   Bool_t  GetButtonChecked() const { return fButtonChecked; }
    void    SetButtonChecked(Bool_t state) { fButtonChecked = state; }
-   Int_t   GetParentFrameIndex() { return fParentFrameIndex; }
+   Int_t   GetParentFrameIndex() const { return fParentFrameIndex; }
    void    SetParentFrameIndex(Int_t index) { fParentFrameIndex = index; }
-   XMLToFormElementSignal *GetSignal() { return fSignal; }
-   TString GetToolTip() { return fToolTip; }
+   XMLToFormElementSignal *GetSignal() const { return fSignal; }
+   TString GetToolTip() const { return fToolTip; }
 
    ClassDef(XMLToFormElement, 0)
 };

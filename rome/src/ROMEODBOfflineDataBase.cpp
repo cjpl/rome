@@ -35,7 +35,8 @@ Bool_t ROMEODBOfflineDataBase::Init(const char* name, const char* /*path*/, cons
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
+Bool_t ROMEODBOfflineDataBase::SetBuffer(const char *buffer) const
+{
    return fXML->OpenBufferForPath(buffer);
 }
 

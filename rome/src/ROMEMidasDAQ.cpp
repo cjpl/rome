@@ -699,7 +699,7 @@ is only swapped if it is in the wrong format.
 @return 1==event has been swap, 0==event has not been swapped.
 */
 //______________________________________________________________________________
-INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
+INT ROMEMidasDAQ::bk_swap(void *event, BOOL force) const
 {
    BANK_HEADER  *pbh;
    BANK         *pbk;

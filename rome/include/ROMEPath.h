@@ -42,33 +42,33 @@ public:
    ROMEPath();
    virtual ~ROMEPath();
 
-   void Print();
+   void        Print() const;
    Bool_t      Decode(const char* path,Long64_t runNumber,Long64_t eventNumber);
    Bool_t      DecodeConstraint(const char* constraint);
 
    // getters for decode
-   Int_t       GetNumberOfTables() { return fTableNames->GetEntriesFast(); }
-   const char *GetTableNameAt(Int_t i) { return fTableNames->At(i).Data(); }
-//   const char *GetTableAbsolutePathAt(Int_t i) { return fTableAbsolutePaths->At(i).Data(); }
-   const char *GetTableConstraintAt(Int_t i)   { return fTableConstraints->At(i).Data(); }
-   const char *GetTableDBConstraintAt(Int_t i) { return fTableDBConstraints->At(i).Data(); }
-   const char *GetTableIDNameAt(Int_t i) { return fTableIDName->At(i).Data(); }
-   const char *GetTableIDXNameAt(Int_t i) { return fTableIDXName->At(i).Data(); }
-   const char *GetOrderTableName() { return fOrderTableName.Data(); }
-   const char *GetOrderFieldName() { return fOrderFieldName.Data(); }
-   Int_t       GetOrderIndexAt(Int_t i)  { return fOrderIndex[i]; }
-   Bool_t      IsOrderArray() { return fOrderArray; }
-   const char *GetFieldName() { return fFieldName.Data(); }
-   const char *GetFieldConstraints() { return fFieldConstraints.Data(); }
-   Int_t       GetFieldIndexAt(Int_t i)  { return fFieldIndex[i]; }
-   Bool_t      IsFieldArray() { return fFieldArray; }
+   Int_t       GetNumberOfTables() const { return fTableNames->GetEntriesFast(); }
+   const char *GetTableNameAt(Int_t i) const { return fTableNames->At(i).Data(); }
+//   const char *GetTableAbsolutePathAt(Int_t i) const { return fTableAbsolutePaths->At(i).Data(); }
+   const char *GetTableConstraintAt(Int_t i) const   { return fTableConstraints->At(i).Data(); }
+   const char *GetTableDBConstraintAt(Int_t i) const { return fTableDBConstraints->At(i).Data(); }
+   const char *GetTableIDNameAt(Int_t i) const { return fTableIDName->At(i).Data(); }
+   const char *GetTableIDXNameAt(Int_t i) const { return fTableIDXName->At(i).Data(); }
+   const char *GetOrderTableName() const { return fOrderTableName.Data(); }
+   const char *GetOrderFieldName() const { return fOrderFieldName.Data(); }
+   Int_t       GetOrderIndexAt(Int_t i) const  { return fOrderIndex[i]; }
+   Bool_t      IsOrderArray() const { return fOrderArray; }
+   const char *GetFieldName() const { return fFieldName.Data(); }
+   const char *GetFieldConstraints() const { return fFieldConstraints.Data(); }
+   Int_t       GetFieldIndexAt(Int_t i) const  { return fFieldIndex[i]; }
+   Bool_t      IsFieldArray() const { return fFieldArray; }
 
-   void        GetAbsolutePath( ROMEString& path,const char* tablename );
+   void        GetAbsolutePath( ROMEString& path,const char* tablename ) const;
 
    // getters for decode constraint
-   Int_t       GetNumberOfConstraints() { return fConstraintField->GetEntriesFast(); }
-   const char *GetConstraintFieldAt(Int_t i)   { return fConstraintField->At(i).Data(); }
-   const char *GetConstraintValueAt(Int_t i)   { return fConstraintValue->At(i).Data(); }
+   Int_t       GetNumberOfConstraints() const { return fConstraintField->GetEntriesFast(); }
+   const char *GetConstraintFieldAt(Int_t i) const   { return fConstraintField->At(i).Data(); }
+   const char *GetConstraintValueAt(Int_t i) const   { return fConstraintValue->At(i).Data(); }
 
 protected:
    // setters for decode
@@ -104,9 +104,6 @@ protected:
    void        SetConstraintFieldAt(Int_t i,TString& field) { fConstraintField->AddAtAndExpand(field,i); }
    void        SetConstraintValueAt(Int_t i,const char* value) { fConstraintValue->AddAtAndExpand(value,i); }
    void        SetConstraintValueAt(Int_t i,TString& value) { fConstraintValue->AddAtAndExpand(value,i); }
-
-   // internal methods
-   Int_t   MinPosition(Int_t i1=-1,Int_t i2=-1,Int_t i3=-1,Int_t i4=-1);
 
    ClassDef(ROMEPath, 0) // Class for analysing database path
 };

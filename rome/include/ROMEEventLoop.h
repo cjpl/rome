@@ -18,6 +18,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROME.h"
 #include "ROMETask.h"
+#include "ROMEAnalyzer.h"
 
 class ROMETreeInfo;
 class TFile;
@@ -113,7 +114,7 @@ public:
    void         Terminate() {}
 
    void         SetContinuousMode(Bool_t mode) { fContinuous = mode; }
-   Bool_t       isContinuousMode() { return fContinuous; }
+   Bool_t       isContinuousMode() const { return fContinuous; }
 
    Int_t        RunEvent();
    Bool_t       StoreEvent(Bool_t useThread);
@@ -125,33 +126,33 @@ public:
    void         SetBeginOfEventMacro(const char* name) { fBeginOfEventMacro = name; }
    void         SetEndOfEventMacro(const char* name) { fEndOfEventMacro = name; }
    void         SetEndOfRunMacro(const char* name) { fEndOfRunMacro = name; }
-   const char*  GetBeginOfRunMacro() { return fBeginOfRunMacro.Data(); }
-   const char*  GetBeginOfEventMacro() { return fBeginOfEventMacro.Data(); }
-   const char*  GetEndOfEventMacro() { return fEndOfEventMacro.Data(); }
-   const char*  GetEndOfRunMacro() { return fEndOfRunMacro.Data(); }
+   const char*  GetBeginOfRunMacro() const { return fBeginOfRunMacro.Data(); }
+   const char*  GetBeginOfEventMacro() const { return fBeginOfEventMacro.Data(); }
+   const char*  GetEndOfEventMacro() const { return fEndOfEventMacro.Data(); }
+   const char*  GetEndOfRunMacro() const { return fEndOfRunMacro.Data(); }
 
    virtual void AddTreeBranches() = 0;
 
 protected:
    // Run Status
-   inline Bool_t isRunning();
-   inline Bool_t isStopped();
+   Bool_t        isRunning() const { return gROME->GetActiveDAQ()->isRunning(); }
+   Bool_t        isStopped() const { return gROME->GetActiveDAQ()->isStopped(); }
 
-   inline void   SetRunning();
-   inline void   SetStopped();
+   void          SetRunning() { gROME->GetActiveDAQ()->SetRunning(); }
+   void          SetStopped() { gROME->GetActiveDAQ()->SetStopped(); }
 
    // Event Status
-   inline Bool_t isAnalyze();
-   inline Bool_t isContinue();
-   inline Bool_t isBeginOfRun();
-   inline Bool_t isEndOfRun();
-   inline Bool_t isTerminate();
+   Bool_t        isAnalyze() const { return gROME->GetActiveDAQ()->isAnalyze(); }
+   Bool_t        isContinue() const { return gROME->GetActiveDAQ()->isContinue(); }
+   Bool_t        isBeginOfRun() const { return gROME->GetActiveDAQ()->isBeginOfRun(); }
+   Bool_t        isEndOfRun() const { return gROME->GetActiveDAQ()->isEndOfRun(); }
+   Bool_t        isTerminate() const { return gROME->GetActiveDAQ()->isTerminate(); }
 
-   inline void   SetAnalyze();
-   inline void   SetContinue();
-   inline void   SetBeginOfRun();
-   inline void   SetEndOfRun();
-   inline void   SetTerminate();
+   inline void   SetAnalyze() { gROME->GetActiveDAQ()->SetAnalyze(); }
+   inline void   SetContinue() { gROME->GetActiveDAQ()->SetContinue(); }
+   inline void   SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); }
+   inline void   SetEndOfRun() { gROME->GetActiveDAQ()->SetEndOfRun(); }
+   inline void   SetTerminate() { gROME->GetActiveDAQ()->SetTerminate(); }
 
    // event methods
    Bool_t       DAQInit();
@@ -162,7 +163,7 @@ protected:
    Bool_t       Update();
    Bool_t       DAQEndOfRun();
    Bool_t       DAQTerminate();
-   Bool_t       IsTerminal();
+   static Bool_t IsTerminal() { return ROMEAnalyzer::STDOutIsTerminal() && ROMEAnalyzer::STDErrIsTerminal();}
 
    // virtual methods
    virtual void InitArrayFolders() = 0;
@@ -176,7 +177,7 @@ protected:
 
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;
-   virtual void GetTreeFileName(ROMEString& buffer,Int_t treeIndex, Bool_t inputFile) = 0;
+   virtual void GetTreeFileName(ROMEString& buffer,Int_t treeIndex, Bool_t inputFile) const = 0;
 
    virtual void ReadHistograms() = 0;
 
@@ -185,14 +186,5 @@ protected:
 
    ClassDef(ROMEEventLoop, 0) // Base event loop class
 };
-
-inline Bool_t ROMEEventLoop::IsTerminal()
-{
-#if defined ( R__UNIX )
-   return isatty(fileno(stdout)) && isatty(fileno(stderr));
-#else
-   return kTRUE;
-#endif
-}
 
 #endif   // ROMEEventLoop_H

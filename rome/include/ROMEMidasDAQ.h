@@ -119,20 +119,20 @@ public:
    virtual ~ROMEMidasDAQ();
 
    // Online Database
-//   HNDLE          GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
+//   HNDLE          GetMidasOnlineDataBase() const { return fMidasOnlineDataBase; }
 //   HNDLE         *GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }
 
    // Raw Data
    void          *GetRawDataEvent() { return fRawDataEvent[fCurrentRawDataEvent]; }
    void          *GetLastRawDataEvent() { return fRawDataEvent[1-fCurrentRawDataEvent]; }
-   size_t         GetRawDataEventSize() { return sizeof(fRawDataEvent[fCurrentRawDataEvent]); }
+   size_t         GetRawDataEventSize() const { return sizeof(fRawDataEvent[fCurrentRawDataEvent]); }
    void           SwitchRawDataBuffer() { fCurrentRawDataEvent = 1-fCurrentRawDataEvent; }
 
    // Event Requests
-   Int_t          GetNumberOfEventRequests() { return fNumberOfEventRequests; }
-   Short_t        GetEventRequestID(Int_t i) { return fEventRequestID[i]; }
-   Short_t        GetEventRequestMask(Int_t i) { return fEventRequestMask[i]; }
-   Int_t          GetEventRequestRate(Int_t i) { return fEventRequestRate[i]; }
+   Int_t          GetNumberOfEventRequests() const { return fNumberOfEventRequests; }
+   Short_t        GetEventRequestID(Int_t i) const { return fEventRequestID[i]; }
+   Short_t        GetEventRequestMask(Int_t i) const { return fEventRequestMask[i]; }
+   Int_t          GetEventRequestRate(Int_t i) const { return fEventRequestRate[i]; }
 
    void           SetNumberOfEventRequests(Int_t value) { fNumberOfEventRequests = value; }
    void           SetEventRequestID(Int_t i,Short_t value)    { fEventRequestID[i] = value; }
@@ -141,7 +141,7 @@ public:
 
    // Byte swap flag
    void           SetByteSwap(Bool_t flag = kTRUE) { fByteSwap = flag; }
-   Bool_t         GetByteSwap() { return fByteSwap; }
+   Bool_t         GetByteSwap() const { return fByteSwap; }
 
    // Additional Getters
    Int_t          GetTimeStamp() { return fTimeStamp; }
@@ -156,7 +156,7 @@ public:
 
    Bool_t         ReadODBOffline();
 
-   virtual Bool_t IsActiveEventID(Int_t /*id*/){ return true; }
+   virtual Bool_t IsActiveEventID(Int_t /*id*/) const { return true; }
 #if defined( HAVE_MIDAS )
    virtual Bool_t InitODB() = 0;
 #endif // HAVE_MIDAS
@@ -165,11 +165,11 @@ public:
 
    //byte swapping
 #if !defined HAVE_MIDAS && !defined ( __MAKECINT__ )
-   INT            bk_swap(void *event, BOOL force);
-   BOOL           bk_is32(void *event);
-   INT            bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
+   INT            bk_swap(void *event, BOOL force) const;
+   static BOOL    bk_is32(void *event);
+   static INT     bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
-   virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) { return aData; }       // Must be overwritten by analyzermidas code.
+   virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) const { return aData; }       // Must be overwritten by analyzermidas code.
 
    ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
 };

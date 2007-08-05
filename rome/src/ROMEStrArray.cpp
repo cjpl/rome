@@ -1,7 +1,7 @@
 // Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// ROMEStrArray                                                           //
+// ROMEStrArray                                                         //
 //                                                                      //
 //  Handles character string array.
 //                                                                      //
@@ -251,7 +251,7 @@ Int_t ROMEStrArray::IndexOf(const char *text) const
 }
 
 //______________________________________________________________________________
-void ROMEStrArray::Sort(Int_t *indx, Bool_t down)
+void ROMEStrArray::Sort(Int_t *indx, Bool_t down) const
 {
    // Sort strings in an instance.
    // In output the array indx contains the indices of the sorted array.

@@ -41,7 +41,6 @@
 #include "ArgusWindow.h"
 #include "ArgusAnalyzerController.h"
 #include "ROMENetFolderServer.h"
-#include "ROMEAnalyzer.h"
 
 #if defined( HAVE_MIDAS )
 #   include "midas.h"
@@ -1367,50 +1366,6 @@ Bool_t ROMEEventLoop::DAQTerminate()
 
    return true;
 }
-
-// Run Status
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isRunning()  { return gROME->GetActiveDAQ()->isRunning(); }
-
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isStopped()  { return gROME->GetActiveDAQ()->isStopped(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); }
-
-// Event Status
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze(); }
-
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isContinue()   { return gROME->GetActiveDAQ()->isContinue(); }
-
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); }
-
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun(); }
-
-//______________________________________________________________________________
-Bool_t ROMEEventLoop::isTerminate()  { return gROME->GetActiveDAQ()->isTerminate(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetContinue()   { gROME->GetActiveDAQ()->SetContinue(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun(); }
-
-//______________________________________________________________________________
-void ROMEEventLoop::SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate(); }
 
 //______________________________________________________________________________
 void ROMEEventLoop::NextEvent()
