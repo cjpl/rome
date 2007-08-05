@@ -17,8 +17,8 @@ public:
    Bool_t      Init(const char* name, const char*, const char*) { fName = name; return true; }
    Bool_t      Read(ROMEStr2DArray*, const char*, Long64_t, Long64_t) { return true; }
    Bool_t      Write(ROMEStr2DArray*, const char*, Long64_t, Long64_t) { return true; }
-   const char *GetType() { return "none"; }
-   const char *GetDescription() { return "No data base connected"; }
+   const char *GetType() const { return "none"; }
+   const char *GetDescription() const { return "No data base connected"; }
 
    ClassDef(ROMENoDataBase, 0) // Empty database class
 };

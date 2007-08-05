@@ -53,37 +53,37 @@ public:
    virtual ~ROMETree();
 
    void        AllocateBranchActive(Int_t n);
-   TTree      *GetTree() { return fTree; }
+   TTree      *GetTree() const { return fTree; }
    ROMEString &GetFileName() { return fFileName; }
    ROMEString &GetConfigInputFileName() { return fConfigInputFileName; }
    ROMEString &GetConfigOutputFileName() { return fConfigOutputFileName; }
    void        UpdateFilePointer() { fFile = fTree->GetCurrentFile(); }
-   TFile      *GetFile() { return fFile; }
-   Bool_t      IsFileOverWrite() { return fFileOption==kOverWrite; }
-   Bool_t      IsFileUpdate() { return fFileOption==kUpdate; }
-   Bool_t      isRead() { return fSwitches.fRead!=0; }
-   Bool_t      isWrite() { return fSwitches.fWrite!=0; }
-   Bool_t      isFill() { return fSwitches.fFill!=0; }
-   Bool_t      isSaveConfig() { return fSwitches.fSaveConfig!=0; }
-   Int_t       GetCompressionLevel() { return fSwitches.fCompressionLevel; }
-   Bool_t      isCircular() {
+   TFile      *GetFile() const { return fFile; }
+   Bool_t      IsFileOverWrite() const { return fFileOption==kOverWrite; }
+   Bool_t      IsFileUpdate() const { return fFileOption==kUpdate; }
+   Bool_t      isRead() const { return fSwitches.fRead!=0; }
+   Bool_t      isWrite() const { return fSwitches.fWrite!=0; }
+   Bool_t      isFill() const { return fSwitches.fFill!=0; }
+   Bool_t      isSaveConfig() const { return fSwitches.fSaveConfig!=0; }
+   Int_t       GetCompressionLevel() const { return fSwitches.fCompressionLevel; }
+   Bool_t      isCircular() const {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
                   return fSwitches.fMaxEntries!=0;
 #else
                   return false;
 #endif
                }
-   Long64_t    GetMaxEntries() { return fSwitches.fMaxEntries; }
+   Long64_t    GetMaxEntries() const { return fSwitches.fMaxEntries; }
    Switches   *GetSwitches() { return &fSwitches; }
-   Int_t       GetSwitchesSize() { return sizeof(Switches); }
-   const char *GetSwitchesString() { return fSwitchesString.Data(); }
-   Int_t       GetNBranchActive() { return fNBranchActive; }
-   Bool_t     *GetBranchActive() { return fBranchActive; }
-   Bool_t      GetBranchActiveAt(Int_t i) { return fBranchActive[i]; }
+   Int_t       GetSwitchesSize() const { return sizeof(Switches); }
+   const char *GetSwitchesString() const { return fSwitchesString.Data(); }
+   Int_t       GetNBranchActive() const { return fNBranchActive; }
+   Bool_t     *GetBranchActive() const { return fBranchActive; }
+   Bool_t      GetBranchActiveAt(Int_t i) const { return fBranchActive[i]; }
    void        SetTree(TTree *tree) { fTree = tree; }
-   void        SetFileName(ROMEString &fileName) { fFileName = fileName; }
-   void        SetConfigInputFileName(ROMEString &configFileName) { fConfigInputFileName = configFileName; }
-   void        SetConfigOutputFileName(ROMEString &configFileName) { fConfigOutputFileName = configFileName; }
+   void        SetFileName(const ROMEString &fileName) { fFileName = fileName; }
+   void        SetConfigInputFileName(const ROMEString &configFileName) { fConfigInputFileName = configFileName; }
+   void        SetConfigOutputFileName(const ROMEString &configFileName) { fConfigOutputFileName = configFileName; }
    void        SetFile(TFile *file) { fFile = file; fTree->SetDirectory(static_cast<TDirectory*>(file)); }
    void        SetFileOverWrite() { fFileOption = kOverWrite; }
    void        SetFileUpdate() { fFileOption = kUpdate; }
@@ -103,7 +103,7 @@ public:
                   if (maxEntries>0) fTree->SetCircular(maxEntries);
                }
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }
-   Bool_t      CheckConfiguration(const char* inDir, const char* outDir);
+   Bool_t      CheckConfiguration(const char* inDir, const char* outDir) const;
 
    ClassDef(ROMETree,0) // TTree container for ROME
 };

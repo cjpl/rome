@@ -71,6 +71,7 @@ const char* const kSharedObjectSuffix = ".so";
 #endif
 #endif
 const char* const kHeaderEndMark = "/////////////////////////////////////----///////////////////////////////////////";
+const char* const kMethodLine = "//______________________________________________________________________________\n";
 
 extern ROMEXML* configXSD;
 

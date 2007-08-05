@@ -35,6 +35,12 @@ const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
 
 ClassImp(ROMESQLDataBase)
 
+namespace {
+   inline Bool_t InRange(Int_t value,Int_t b1, Int_t b2) {
+      return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);
+   }
+}
+
 //______________________________________________________________________________
 ROMESQLDataBase::ROMESQLDataBase()
 :ROMEDataBase()
@@ -60,7 +66,8 @@ ROMESQLDataBase::ROMESQLDataBase()
 }
 
 //______________________________________________________________________________
-ROMESQLDataBase::~ROMESQLDataBase() {
+ROMESQLDataBase::~ROMESQLDataBase()
+{
    Int_t i;
    for (i = 0; i < kNumberOfReadCache; i++) {
       SafeDelete(fPathCache[i]);
@@ -68,7 +75,8 @@ ROMESQLDataBase::~ROMESQLDataBase() {
 }
 
 //______________________________________________________________________________
-void ROMESQLDataBase::ResetPhrase() {
+void ROMESQLDataBase::ResetPhrase()
+{
    fSelectFieldList.Resize(0);
    fInsertFieldList.Resize(0);
    fSetFieldList.Resize(0);
@@ -79,7 +87,10 @@ void ROMESQLDataBase::ResetPhrase() {
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLDataBase::DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,Long64_t runNumber,Long64_t eventNumber,const char* currentIdName,const char* currentIdxName) {
+Bool_t ROMESQLDataBase::DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,
+                                           Long64_t runNumber,Long64_t eventNumber,const char* currentIdName,
+                                           const char* currentIdxName)
+{
    ROMEString value = dbConstraint;
    ROMEPath *dbpath = new ROMEPath();
    int is1,ie1,is2,ie2,is3,ie3;
@@ -206,7 +217,8 @@ Bool_t ROMESQLDataBase::DecodeDBConstraint(const char* currentTableName,const ch
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t eventNumber) {
+Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t eventNumber)
+{
    ROMEString sqlQuery;
    ROMEString sqlResult;
    ROMEString temp;
@@ -357,7 +369,8 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const char* connection) {
+Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const char* connection)
+{
    ROMEString path = connection;
    ROMEString server;
    ROMEString user;
@@ -485,7 +498,8 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const cha
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
+Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
+{
    int iField,iOrder;
    int iLastOrder=0;
    int iArray,jArray;
@@ -671,7 +685,8 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
+Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
+{
    int iField;
    int iOrder;
    ROMEPath *path = new ROMEPath();
@@ -832,7 +847,8 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
 }
 
 //______________________________________________________________________________
-void ROMESQLDataBase::Print(Option_t *) {
+void ROMESQLDataBase::Print(Option_t *) const
+{
    ROMEString temp = fSelectFieldList;
    temp.ReplaceAll(RSQLDB_STR,"");
    cout << "******************************************************************************"<<endl

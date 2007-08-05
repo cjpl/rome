@@ -93,7 +93,8 @@ XMLToForm::~XMLToForm()
 }
 
 //______________________________________________________________________________
-void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
+void XMLToForm::InitSubFrames(XMLToFormFrame *frame)
+{
    Int_t i;
    ROMEString value;
    ROMEString currentPath;
@@ -467,7 +468,7 @@ void XMLToForm::SaveForm()
 }
 
 //______________________________________________________________________________
-Bool_t XMLToForm::GetBoolValue(const char* label)
+Bool_t XMLToForm::GetBoolValue(const char* label) const
 {
    if (!strcmp(GetValue(label),"true")) {
       return true;
@@ -476,27 +477,27 @@ Bool_t XMLToForm::GetBoolValue(const char* label)
 }
 
 //______________________________________________________________________________
-Int_t XMLToForm::GetIntValue(const char* label)
+Int_t XMLToForm::GetIntValue(const char* label) const
 {
    char *cstop;
    return strtol(GetValue(label),&cstop,10);
 }
 
 //______________________________________________________________________________
-double XMLToForm::GetDoubleValue(const char* label)
+double XMLToForm::GetDoubleValue(const char* label) const
 {
    char *cstop;
    return strtod(GetValue(label),&cstop);
 }
 
 //______________________________________________________________________________
-Int_t XMLToForm::GetSelectedIndex(const char* label)
+Int_t XMLToForm::GetSelectedIndex(const char* label) const
 {
    return GetIndex(label);
 }
 
 //______________________________________________________________________________
-Bool_t XMLToForm::IsChecked(const char* label)
+Bool_t XMLToForm::IsChecked(const char* label) const
 {
    if (!strcmp(GetValue(label),"true")) {
       return true;
@@ -505,7 +506,7 @@ Bool_t XMLToForm::IsChecked(const char* label)
 }
 
 //______________________________________________________________________________
-const char* XMLToForm::GetValue(const char* label)
+const char* XMLToForm::GetValue(const char* label) const
 {
    Int_t indx = 0;
    XMLToFormFrame *frame;
@@ -516,7 +517,7 @@ const char* XMLToForm::GetValue(const char* label)
 }
 
 //______________________________________________________________________________
-Int_t XMLToForm::GetIndex(const char* label)
+Int_t XMLToForm::GetIndex(const char* label) const
 {
    Int_t indx = 0;
    XMLToFormFrame *frame;
@@ -555,7 +556,8 @@ void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
 }
 
 //______________________________________________________________________________
-Bool_t XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute) {
+Bool_t XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute)
+{
    Int_t i;
    ROMEString tempValue;
    if (placeHolder.Length()>0) {
@@ -610,7 +612,7 @@ Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
 }
 
 //______________________________________________________________________________
-void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab)
+void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab) const
 {
    Int_t i;
    ROMEString tabChar;
@@ -619,7 +621,7 @@ void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab)
    }
    ROMEPrint::Print("%sFrame : %s\n", tabChar.Data(), frame->GetFrameTitle().Data());
    for (i=0;i<frame->GetNumberOfElements();i++) {
-      ROMEPrint::Print("%s   %s : %s\n", tabChar.Data(), frame->GetElementAt(i)->GetType().Data(), frame->GetElementAt(i)->GetTitle().Data());
+      ROMEPrint::Print("%s   %s : %s\n", tabChar.Data(), frame->GetElementAt(i)->GetType().Data(), frame->GetElementAt(i)->GetTitle());
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
       PrintFrame(frame->GetSubFrameAt(i),tab+1);

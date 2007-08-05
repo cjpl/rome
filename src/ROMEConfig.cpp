@@ -20,7 +20,7 @@
 ClassImp(ROMEConfig)
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto)
+Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto) const
 {
    ROMEString fullPath;
    // fHistActive
@@ -171,7 +171,7 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
+Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto) const
 {
     if (configHisto->fHistActiveModified ||
         configHisto->fHistTitleModified ||
@@ -197,7 +197,7 @@ Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* configHisto)
+Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* configHisto) const
 {
    // fHistActive
    if (configHisto->fHistActiveModified) {
@@ -281,7 +281,8 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,Int_t commentLevel,ROMEStrArray& comment)
+Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,
+                                           Int_t commentLevel,ROMEStrArray& comment) const
 {
    // fHistActive
    if (commentLevel >= 3 && configHisto->fHistActiveModified)
@@ -395,7 +396,7 @@ Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configH
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConfigGraph* configGraph)
+Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConfigGraph* configGraph) const
 {
    ROMEString fullPath;
    // fGraphActive
@@ -466,7 +467,7 @@ Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConf
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
+Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph) const
 {
     if (configGraph->fGraphActiveModified ||
         configGraph->fGraphTitleModified ||
@@ -482,7 +483,7 @@ Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* configGraph)
+Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* configGraph) const
 {
    // fGraphActive
    if (configGraph->fGraphActiveModified) {
@@ -523,7 +524,8 @@ Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* confi
 }
 
 //______________________________________________________________________________
-Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,Int_t commentLevel,ROMEStrArray& comment)
+Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,
+                                           Int_t commentLevel,ROMEStrArray& comment) const
 {
    // fGraphActive
    if (commentLevel >= 3 && configGraph->fGraphActiveModified)

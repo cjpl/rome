@@ -40,7 +40,8 @@ ROMENetFolderServer::ROMENetFolderServer()
 }
 
 //______________________________________________________________________________
-int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
+int ROMENetFolderServer::ResponseFunction(TSocket *socket)
+{
    if (!socket->IsValid())
       return 0;
 
@@ -55,7 +56,8 @@ int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
 }
 
 //______________________________________________________________________________
-int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
+int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
+{
    if (!socket->IsValid())
       return 1;
 
@@ -215,7 +217,7 @@ void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* s
 }
 
 //______________________________________________________________________________
-void ROMENetFolderServer::SetCopyAll(bool copyAll) 
+void ROMENetFolderServer::SetCopyAll(bool copyAll)
 { 
    Int_t i;
    fCopyAll = copyAll;

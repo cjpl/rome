@@ -39,14 +39,14 @@ public:
    Bool_t  StoreResult();
    Bool_t  NextRow();
    const char* GetField(Int_t fieldNumber);
-   Int_t   GetNumberOfRows(){ return numOfRows; }
-   Int_t   GetNumberOfFields(){ return numOfFields; }
+   Int_t   GetNumberOfRows() { return numOfRows; }
+   Int_t   GetNumberOfFields() { return numOfFields; }
    void    FreeResult();
-   Int_t   GetErrorCode(){ return errnum; }
-   const char *GetErrorMessage(){ return errmsg; }
-   Bool_t  StartTransaction( const char* option );
-   Bool_t  CommitTransaction( const char* option );
-   Bool_t  RollbackTransaction( const char* option );
+   Int_t   GetErrorCode() { return errnum; }
+   const char *GetErrorMessage() { return errmsg; }
+   Bool_t  StartTransaction(const char* option);
+   Bool_t  CommitTransaction(const char* option);
+   Bool_t  RollbackTransaction(const char* option);
 
    ClassDef(ROMESQLite, 0) // Interface to SQLite version 2.
 };

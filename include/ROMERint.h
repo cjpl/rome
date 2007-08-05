@@ -48,8 +48,8 @@ public:
    Long_t          ProcessLine(const char *line, Bool_t sync = kFALSE, Int_t *error = 0);
    Long_t          ProcessFile(const char *name, int *error = 0);
    void            Run(Bool_t retrn);
-   Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; }
-   TSignalHandler* GetRintInterruptHandler(){ return fRintInterruptHandler; }
+   Bool_t          isUseRintInterruptHandler() const { return fUseRintInterruptHandler; }
+   TSignalHandler* GetRintInterruptHandler() const { return fRintInterruptHandler; }
 
    void            SetFPEMask(Int_t mode) { fFPEMask = mode; }
    void            SetFPEInvalid(Bool_t flag);
@@ -58,15 +58,15 @@ public:
    void            SetFPEUnderflow(Bool_t flag);
    void            SetFPEInexact(Bool_t flag);
 
-   Int_t           GetFPEMask()           { return  fFPEMask; }
-   Bool_t          GetFPEInvalid()        { return  (fFPEMask & kInvalid)!=0; }
-   Bool_t          GetFPEDivByZero()      { return  (fFPEMask & kDivByZero)!=0; }
-   Bool_t          GetFPEOverflow()       { return  (fFPEMask & kOverflow)!=0; }
-   Bool_t          GetFPEUnderflow()      { return  (fFPEMask & kUnderflow)!=0; }
-   Bool_t          GetFPEInexact()        { return  (fFPEMask & kInexact)!=0; }
+   Int_t           GetFPEMask() const      { return  fFPEMask; }
+   Bool_t          GetFPEInvalid() const   { return  (fFPEMask & kInvalid)!=0; }
+   Bool_t          GetFPEDivByZero() const { return  (fFPEMask & kDivByZero)!=0; }
+   Bool_t          GetFPEOverflow() const  { return  (fFPEMask & kOverflow)!=0; }
+   Bool_t          GetFPEUnderflow() const { return  (fFPEMask & kUnderflow)!=0; }
+   Bool_t          GetFPEInexact() const   { return  (fFPEMask & kInexact)!=0; }
 
-   void            EnableFPETrap();
-   void            DisableFPETrap();
+   void            EnableFPETrap() const   { ROMEUtilities::SetFPEMask(fFPEMask); }
+   void            DisableFPETrap() const  { ROMEUtilities::SetFPEMask(kNoneMask); }
 
    void            SetRemoteProcess(Bool_t flg) { fRemoteProcess = flg; }
    void            SetSocketClientConnection(const char* connection = "localhost:9090");
@@ -118,17 +118,6 @@ inline void ROMERint::SetFPEInexact(Bool_t flag)
    } else {
       fFPEMask &= ~kInexact;
    }
-}
-
-inline void ROMERint::EnableFPETrap(){
-   // Enable FPE trap with the mask set by GETFPE??? functions in this class
-   ROMEUtilities::SetFPEMask(fFPEMask);
-}
-
-inline void ROMERint::DisableFPETrap()
-{
-   // Diable all FPE trap
-   ROMEUtilities::SetFPEMask(kNoneMask);
 }
 
 #endif   // ROMERint_H

@@ -52,19 +52,19 @@ ROMEStr2DArray::~ROMEStr2DArray()
 }
 
 //______________________________________________________________________________
-Int_t ROMEStr2DArray::GetEntries()
+Int_t ROMEStr2DArray::GetEntries() const
 {
    return array->GetEntries();
 }
 
 //______________________________________________________________________________
-Int_t ROMEStr2DArray::GetEntriesFast()
+Int_t ROMEStr2DArray::GetEntriesFast() const
 {
    return array->GetEntriesFast();
 }
 
 //______________________________________________________________________________
-Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx)
+Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx) const
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
       return 0;
@@ -76,7 +76,7 @@ Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx)
 }
 
 //______________________________________________________________________________
-Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx)
+Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx) const
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
       return 0;
@@ -193,7 +193,7 @@ void ROMEStr2DArray::RemoveAll()
 }
 
 //______________________________________________________________________________
-TString ROMEStr2DArray::At(Int_t idx, Int_t idy)
+TString ROMEStr2DArray::At(Int_t idx, Int_t idy) const
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
       return "";

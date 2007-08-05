@@ -333,7 +333,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 }
 
 //______________________________________________________________________________
-void ROMEAnalyzer::ParameterUsage()
+void ROMEAnalyzer::ParameterUsage() const
 {
    ROMEPrint::Print("  -i       Configuration file\n");
    ROMEPrint::Print("  -r       Runnumbers\n");
@@ -686,19 +686,19 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 }
 
 //______________________________________________________________________________
-Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
+Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber) const
 {
    return CheckNumber(eventNumber, fEventNumber);
 }
 
 //______________________________________________________________________________
-Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber)
+Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber) const
 {
    return CheckNumber(runNumber, fRunNumber);
 }
 
 //______________________________________________________________________________
-Int_t ROMEAnalyzer::CheckNumber(Long64_t number, TArrayL64 &numbers)
+Int_t ROMEAnalyzer::CheckNumber(Long64_t number, const TArrayL64 &numbers)
 {
    const int nNumbers = numbers.GetSize();
    if (nNumbers == 0) {
@@ -722,7 +722,7 @@ Int_t ROMEAnalyzer::CheckNumber(Long64_t number, TArrayL64 &numbers)
 }
 
 //______________________________________________________________________________
-Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber)
+Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
 {
    const Int_t nRunNumber = fRunNumber.GetSize();
    for (Int_t i = 0; i < nRunNumber; i++) {
@@ -1220,7 +1220,7 @@ void ROMEAnalyzer::Cleaning()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
+Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name) const
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
@@ -1233,7 +1233,7 @@ Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
 }
 
 //______________________________________________________________________________
-ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
+ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name) const
 {
    ROMEString str;
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
@@ -1250,7 +1250,7 @@ ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name)
+Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name) const
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {
@@ -1262,7 +1262,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
+Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i) const
 {
    if (!(0 <= i && i < fNumberOfNetFolders)) {
       return kFALSE;
@@ -1321,7 +1321,7 @@ Bool_t ROMEAnalyzer::ConnectSocketClient(const char* hostname, Int_t port)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::DisconnectNetFolder(const char *name)
+Bool_t ROMEAnalyzer::DisconnectNetFolder(const char *name) const
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {
@@ -1333,7 +1333,7 @@ Bool_t ROMEAnalyzer::DisconnectNetFolder(const char *name)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::DisconnectNetFolder(Int_t i)
+Bool_t ROMEAnalyzer::DisconnectNetFolder(Int_t i) const
 {
    if (!(0 <= i && i < fNumberOfNetFolders)) {
       return kFALSE;
@@ -1348,7 +1348,7 @@ Bool_t ROMEAnalyzer::DisconnectNetFolder(Int_t i)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::ConnectNetFolders()
+Bool_t ROMEAnalyzer::ConnectNetFolders() const
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {
@@ -1360,7 +1360,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolders()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::DisconnectNetFolders()
+Bool_t ROMEAnalyzer::DisconnectNetFolders() const
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {
@@ -1395,7 +1395,7 @@ Bool_t ROMEAnalyzer::StartWindow()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::IsWindowBusy()
+Bool_t ROMEAnalyzer::IsWindowBusy() const
 {
    Bool_t busy = false;
    for (int i = 0; i < fWindow->GetTabObjectEntries(); i++) {
@@ -1407,7 +1407,7 @@ Bool_t ROMEAnalyzer::IsWindowBusy()
 }
 
 //______________________________________________________________________________
-ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
+ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ() const
 {
    if (fActiveDAQ != 0) {
       return fActiveDAQ;
@@ -1422,7 +1422,7 @@ ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
 }
 
 //______________________________________________________________________________
-ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
+ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i) const
 {
    if(i<fNumberOfDataBases && fDataBaseHandle[i] != 0) {
       return fDataBaseHandle[i];
@@ -1436,7 +1436,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
 }
 
 //______________________________________________________________________________
-ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
+ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name) const
 {
    for (Int_t i = 0; i < fNumberOfDataBases; i++) {
       if (!stricmp(fDataBaseHandle[i]->GetName(), name)) {
@@ -1451,7 +1451,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)
+Bool_t ROMEAnalyzer::isDataBaseActive(const char *name) const
 {
    for (Int_t i = 0; i < fNumberOfDataBases; i++) {
       if (!stricmp(fDataBaseHandle[i]->GetName(), name)) {
@@ -1488,7 +1488,7 @@ void ROMEAnalyzer::GotoEvent(Long64_t eventNumber)
 }
 
 //______________________________________________________________________________
-void ROMEAnalyzer::GetRunNumberStringAt(ROMEString &buffer, Int_t i, const char* format)
+void ROMEAnalyzer::GetRunNumberStringAt(ROMEString &buffer, Int_t i, const char* format) const
 {
    ROMEString form;
    if (format) {
@@ -1521,7 +1521,7 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
       form = "%05lld";
 #endif
    }
-   buffer.SetFormatted(form.Data(), fCurrentRunNumber);
+   buffer.SetFormatted(form.Data(), GetCurrentRunNumber());
 }
 
 //______________________________________________________________________________
@@ -1587,7 +1587,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 #endif
       }
       buffer.Remove(startStr, endStr - startStr);
-      insertStr.SetFormatted(format.Data(), fCurrentEventNumber);
+      insertStr.SetFormatted(format.Data(), GetCurrentEventNumber());
       buffer.Insert(startStr, insertStr);
       endStr = startStr + insertStr.Length();
    }
@@ -1616,7 +1616,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
          }
       }
       buffer.Remove(startStr, endStr - startStr);
-      insertStr.SetFormatted(format.Data(), fCurrentRunNumber);
+      insertStr.SetFormatted(format.Data(), GetCurrentRunNumber());
       buffer.Insert(startStr, insertStr);
       endStr = startStr + insertStr.Length();
    }
@@ -1699,7 +1699,7 @@ void ROMEAnalyzer::UpdateObjectStorage()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
+Bool_t ROMEAnalyzer::IsObjectStorageUpdated() const
 {
    ROME_LOCKGUARD(fgUpdateObjectStorageMutex);
 
@@ -1726,7 +1726,7 @@ void ROMEAnalyzer::SetDataBase(Int_t i, ROMEDataBase *dataBase)
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::IsProgramTerminated()
+Bool_t ROMEAnalyzer::IsProgramTerminated() const
 {
    if (gROME->IsROMEMonitor()) {
       return gROME->GetSocketClientNetFolder()->IsProgramTerminated();
@@ -1756,7 +1756,7 @@ Bool_t ROMEAnalyzer::STDErrIsTerminal()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile)
+Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile) const
 {
    if (isPreserveConfig()) {
       return kTRUE;

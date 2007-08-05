@@ -132,7 +132,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
          } else {
             additionalWidth = 0;
          }
-         tempLabel = new ROMELabel(0,frame->GetElementAt(j)->GetTitle().Data());
+         tempLabel = new ROMELabel(0,frame->GetElementAt(j)->GetTitle());
          if (frame->GetElementAt(j)->GetWidth() < static_cast<int>(tempLabel->GetSize().fWidth) + additionalWidth) {
             frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth+additionalWidth);
          }
@@ -200,7 +200,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fEditVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fEditLabel = new ROMELabel(frame->GetElementAt(j)->fEditVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fEditLabel = new ROMELabel(frame->GetElementAt(j)->fEditVFrames, frame->GetElementAt(j)->GetTitle());
             // edit
             frame->GetElementAt(j)->fEditBoxBuffer = new TGTextBuffer(50);
             frame->GetElementAt(j)->fEditBoxBuffer->AddText(0, frame->GetElementAt(j)->GetValue().Data());
@@ -238,9 +238,9 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             frame->GetElementAt(j)->fLButton = new TGLayoutHints(kFixedWidth | kFixedHeight | kLHintsCenterX, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
             // button
             if (frame->GetElementAt(j)->GetButtonID()!=-1) {
-               frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle().Data(),frame->GetElementAt(j)->GetButtonID());
+               frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle(),frame->GetElementAt(j)->GetButtonID());
             } else {
-               frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle().Data());
+               frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle());
             }
             frame->GetElementAt(j)->fButton->Associate(this);
             frame->GetElementAt(j)->fButton->Resize(frame->GetElementAt(j)->GetWidth(), 22);
@@ -269,7 +269,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fComboVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fComboLabel = new ROMELabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fComboLabel = new ROMELabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle());
             // edit
             frame->GetElementAt(j)->fComboBox = new TGComboBox(frame->GetElementAt(j)->fComboVFrames);
             frame->GetElementAt(j)->fComboBox->Associate(this);
@@ -303,7 +303,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fCheckButtonVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fCheckButtonLabel = new ROMELabel(frame->GetElementAt(j)->fCheckButtonVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fCheckButtonLabel = new ROMELabel(frame->GetElementAt(j)->fCheckButtonVFrames, frame->GetElementAt(j)->GetTitle());
             // button
             if (frame->GetElementAt(j)->GetButtonID()!=-1)
                frame->GetElementAt(j)->fCheckButton = new TGCheckButton(frame->GetElementAt(j)->fCheckButtonVFrames,"",frame->GetElementAt(j)->GetButtonID());
@@ -338,7 +338,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fRadioButtonVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fRadioButtonLabel = new ROMELabel(frame->GetElementAt(j)->fRadioButtonVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fRadioButtonLabel = new ROMELabel(frame->GetElementAt(j)->fRadioButtonVFrames, frame->GetElementAt(j)->GetTitle());
             // button
             if (frame->GetElementAt(j)->GetButtonID()!=-1) {
                frame->GetElementAt(j)->fRadioButton = new TGRadioButton(frame->GetElementAt(j)->fRadioButtonVFrames,"",frame->GetElementAt(j)->GetButtonID());
@@ -376,7 +376,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fComboVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fComboLabel = new ROMELabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fComboLabel = new ROMELabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle());
             // edit
             frame->GetElementAt(j)->fComboBox = new TGComboBox(frame->GetElementAt(j)->fComboVFrames,-2);
             frame->GetElementAt(j)->fComboBox->Associate(this);
@@ -772,7 +772,8 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
 }
 
 //______________________________________________________________________________
-Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
+Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/)
+{
    ROMEString path;
    TGListTreeItem *currentItem = item;
    while (currentItem!=NULL) {
@@ -1069,7 +1070,7 @@ XMLToFormFrame* XMLToFormWindow::SearchFrame(XMLToFormFrame *frame,const char* t
 }
 
 //______________________________________________________________________________
-void XMLToFormWindow::GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest)
+void XMLToFormWindow::GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest) const
 {
    ROMEString pathString = path;
    ROMEString restPath;
@@ -1169,7 +1170,7 @@ bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *
    *frame = SearchFrame(*frame,NULL,editName.Data());
    if (*frame!=NULL) {
       for (i=0;i<(*frame)->GetNumberOfElements();i++) {
-         if (!strcmp((*frame)->GetElementAt(i)->GetTitle().Data(),editName.Data())) {
+         if (!strcmp((*frame)->GetElementAt(i)->GetTitle(),editName.Data())) {
             *indx = i;
             return true;
          }

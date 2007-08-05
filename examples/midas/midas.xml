@@ -72,6 +72,17 @@
 					<BankName>TDC0</BankName>
 					<BankType>WORD</BankType>
 				</Bank>
+				<StructuredBank>
+					<BankName>STRT</BankName>
+					<BankField>
+						<BankFieldName>STRH</BankFieldName>
+						<BankFieldType>WORD</BankFieldType>
+					</BankField>
+					<BankField>
+						<BankFieldName>STRD</BankFieldName>
+						<BankFieldType>WORD</BankFieldType>
+					</BankField>
+				</StructuredBank>
 			</Banks>
 		</EventDefinition>
 		<EventDefinition>

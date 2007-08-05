@@ -43,10 +43,10 @@ public:
 
    virtual ~ROMETask() { SafeDelete(fHistoFolder); }
    void         Exec(Option_t *option="");
-   Bool_t       hasHistograms()  { return fHasHistograms; }
-   Bool_t       hasGraphs()  { return fHasGraphs; }
-   Int_t        GetVersion()     { return fVersion; }
-   TFolder     *GetHistoFolder() { return fHistoFolder; }
+   Bool_t       hasHistograms() const { return fHasHistograms; }
+   Bool_t       hasGraphs() const { return fHasGraphs; }
+   Int_t        GetVersion() const { return fVersion; }
+   TFolder     *GetHistoFolder() const { return fHistoFolder; }
 
 protected:
    void         StartRootInterpreter(const char* message = NULL);

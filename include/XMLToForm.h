@@ -39,16 +39,17 @@ private:
 public:
    XMLToForm();
    XMLToForm(const char* xmlFileName,ROMEStrArray* substitutes=NULL);
-   XMLToForm(const TGWindow* p,const TGWindow* main,const char* xmlFileName,Int_t *exitButtonID,ROMEStrArray* substitutes=NULL);
+   XMLToForm(const TGWindow* p,const TGWindow* main,const char* xmlFileName,
+             Int_t *exitButtonID,ROMEStrArray* substitutes=NULL);
    virtual ~XMLToForm();
 
    void        SaveForm();
-   const char* GetValue(const char* label);
-   Bool_t      GetBoolValue(const char* label);
-   Int_t       GetIntValue(const char* label);
-   double      GetDoubleValue(const char* label);
-   Int_t       GetSelectedIndex(const char* label);
-   Bool_t      IsChecked(const char* label);
+   const char* GetValue(const char* label) const;
+   Bool_t      GetBoolValue(const char* label) const;
+   Int_t       GetIntValue(const char* label) const;
+   double      GetDoubleValue(const char* label) const;
+   Int_t       GetSelectedIndex(const char* label) const;
+   Bool_t      IsChecked(const char* label) const;
 
 protected:
    Bool_t      Init(const char* xmlFileName,ROMEStrArray* substitutes=NULL);
@@ -59,12 +60,11 @@ protected:
    void        FillClass(XMLToFormFrame *frame);
    void        InitSubFrames(XMLToFormFrame *frame);
    Bool_t      ReadTitle(ROMEString &path,ROMEString &value);
-   Int_t       GetIndex(const char* label);
+   Int_t       GetIndex(const char* label) const;
    void        DeleteFrame(XMLToFormFrame *frame);
-   void        PrintFrame(XMLToFormFrame *frame,Int_t tab=0);
+   void        PrintFrame(XMLToFormFrame *frame,Int_t tab=0) const;
 
    ClassDef(XMLToForm, 0) // Create GUI form from XML file
 };
 
 #endif   // XMLToForm_H
-

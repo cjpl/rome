@@ -13,10 +13,11 @@
 
 ClassImp(ROMEHisto)
 
+static char* fgCstop = 0;
+
 //______________________________________________________________________________
 ROMEHisto::ROMEHisto()
 :TObject()
-,fCstop(0)
 ,fActive(kTRUE)
 ,fTitle("")
 ,fTitleOrig("")
@@ -86,7 +87,8 @@ const char* ROMEHisto::GetTitle() const{
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetFolderTitle() {
+const char* ROMEHisto::GetFolderTitle() const
+{
    if (fFolderTitle.Length()==0)
       return fFolderTitleOrig;
    else
@@ -94,7 +96,8 @@ const char* ROMEHisto::GetFolderTitle() {
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetXLabel() {
+const char* ROMEHisto::GetXLabel() const
+{
    if (fXLabel.Length()==0)
       return fXLabelOrig;
    else
@@ -102,7 +105,8 @@ const char* ROMEHisto::GetXLabel() {
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetYLabel() {
+const char* ROMEHisto::GetYLabel() const
+{
    if (fYLabel.Length()==0)
       return fYLabelOrig;
    else
@@ -110,7 +114,8 @@ const char* ROMEHisto::GetYLabel() {
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetZLabel() {
+const char* ROMEHisto::GetZLabel() const
+{
    if (fZLabel.Length()==0)
       return fZLabelOrig;
    else
@@ -118,15 +123,17 @@ const char* ROMEHisto::GetZLabel() {
 }
 
 //______________________________________________________________________________
-int ROMEHisto::GetArraySize() {
+int ROMEHisto::GetArraySize() const
+{
    if (fArraySize.Length()==0)
       return fArraySizeOrig;
    else
-      return strtol(fArraySize.Data(),&fCstop,10);
+      return strtol(fArraySize.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetArraySizeString(ROMEString &string) {
+const char* ROMEHisto::GetArraySizeString(ROMEString &string) const
+{
    if (fArraySize.Length()==0)
       string.SetFormatted("%d",fArraySizeOrig);
    else
@@ -135,15 +142,17 @@ const char* ROMEHisto::GetArraySizeString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-int ROMEHisto::GetArrayStartIndex() {
+int ROMEHisto::GetArrayStartIndex() const
+{
    if (fArrayStartIndex.Length()==0)
       return fArrayStartIndexOrig;
    else
-      return strtol(fArrayStartIndex.Data(),&fCstop,10);
+      return strtol(fArrayStartIndex.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetArrayStartIndexString(ROMEString &string) {
+const char* ROMEHisto::GetArrayStartIndexString(ROMEString &string) const
+{
    if (fArrayStartIndex.Length()==0)
       string.SetFormatted("%d",fArrayStartIndexOrig);
    else
@@ -152,15 +161,17 @@ const char* ROMEHisto::GetArrayStartIndexString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-int ROMEHisto::GetXNbins() {
+int ROMEHisto::GetXNbins() const
+{
    if (fXNbins.Length()==0)
       return fXNbinsOrig;
    else
-      return strtol(fXNbins.Data(),&fCstop,10);
+      return strtol(fXNbins.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetXNbinsString(ROMEString &string) {
+const char* ROMEHisto::GetXNbinsString(ROMEString &string) const
+{
    if (fXNbins.Length()==0)
       string.SetFormatted("%d",fXNbinsOrig);
    else
@@ -169,15 +180,17 @@ const char* ROMEHisto::GetXNbinsString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEHisto::GetXmin() {
+double ROMEHisto::GetXmin() const
+{
    if (fXmin.Length()==0)
       return fXminOrig;
    else
-      return strtod(fXmin.Data(),&fCstop);
+      return strtod(fXmin.Data(),&fgCstop);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetXminString(ROMEString &string) {
+const char* ROMEHisto::GetXminString(ROMEString &string) const
+{
    if (fXmin.Length()==0)
       string.SetFormatted("%f",fXminOrig);
    else
@@ -186,15 +199,17 @@ const char* ROMEHisto::GetXminString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEHisto::GetXmax() {
+double ROMEHisto::GetXmax() const
+{
    if (fXmax.Length()==0)
       return fXmaxOrig;
    else
-      return strtod(fXmax.Data(),&fCstop);
+      return strtod(fXmax.Data(),&fgCstop);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetXmaxString(ROMEString &string) {
+const char* ROMEHisto::GetXmaxString(ROMEString &string) const
+{
    if (fXmax.Length()==0)
       string.SetFormatted("%f",fXmaxOrig);
    else
@@ -203,15 +218,17 @@ const char* ROMEHisto::GetXmaxString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-int ROMEHisto::GetYNbins() {
+int ROMEHisto::GetYNbins() const
+{
    if (fYNbins.Length()==0)
       return fYNbinsOrig;
    else
-      return strtol(fYNbins.Data(),&fCstop,10);
+      return strtol(fYNbins.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetYNbinsString(ROMEString &string) {
+const char* ROMEHisto::GetYNbinsString(ROMEString &string) const
+{
    if (fYNbins.Length()==0)
       string.SetFormatted("%d",fYNbinsOrig);
    else
@@ -220,15 +237,17 @@ const char* ROMEHisto::GetYNbinsString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEHisto::GetYmin() {
+double ROMEHisto::GetYmin() const
+{
    if (fYmin.Length()==0)
       return fYminOrig;
    else
-      return strtod(fYmin.Data(),&fCstop);
+      return strtod(fYmin.Data(),&fgCstop);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetYminString(ROMEString &string) {
+const char* ROMEHisto::GetYminString(ROMEString &string) const
+{
    if (fYmin.Length()==0)
       string.SetFormatted("%f",fYminOrig);
    else
@@ -237,15 +256,17 @@ const char* ROMEHisto::GetYminString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEHisto::GetYmax() {
+double ROMEHisto::GetYmax() const
+{
    if (fYmax.Length()==0)
       return fYmaxOrig;
    else
-      return strtod(fYmax.Data(),&fCstop);
+      return strtod(fYmax.Data(),&fgCstop);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetYmaxString(ROMEString &string) {
+const char* ROMEHisto::GetYmaxString(ROMEString &string) const
+{
    if (fYmax.Length()==0)
       string.SetFormatted("%f",fYmaxOrig);
    else
@@ -254,15 +275,17 @@ const char* ROMEHisto::GetYmaxString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-int ROMEHisto::GetZNbins() {
+int ROMEHisto::GetZNbins() const
+{
    if (fZNbins.Length()==0)
       return fZNbinsOrig;
    else
-      return strtol(fZNbins.Data(),&fCstop,10);
+      return strtol(fZNbins.Data(),&fgCstop,10);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetZNbinsString(ROMEString &string) {
+const char* ROMEHisto::GetZNbinsString(ROMEString &string) const
+{
    if (fZNbins.Length()==0)
       string.SetFormatted("%d",fZNbinsOrig);
    else
@@ -271,15 +294,17 @@ const char* ROMEHisto::GetZNbinsString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEHisto::GetZmin() {
+double ROMEHisto::GetZmin() const
+{
    if (fZmin.Length()==0)
       return fZminOrig;
    else
-      return strtod(fZmin.Data(),&fCstop);
+      return strtod(fZmin.Data(),&fgCstop);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetZminString(ROMEString &string) {
+const char* ROMEHisto::GetZminString(ROMEString &string) const
+{
    if (fZmin.Length()==0)
       string.SetFormatted("%f",fZminOrig);
    else
@@ -288,15 +313,17 @@ const char* ROMEHisto::GetZminString(ROMEString &string) {
 }
 
 //______________________________________________________________________________
-double ROMEHisto::GetZmax() {
+double ROMEHisto::GetZmax() const
+{
    if (fZmax.Length()==0)
       return fZmaxOrig;
    else
-      return strtod(fZmax.Data(),&fCstop);
+      return strtod(fZmax.Data(),&fgCstop);
 }
 
 //______________________________________________________________________________
-const char* ROMEHisto::GetZmaxString(ROMEString &string) {
+const char* ROMEHisto::GetZmaxString(ROMEString &string) const
+{
    if (fZmax.Length()==0)
       string.SetFormatted("%f",fZmaxOrig);
    else

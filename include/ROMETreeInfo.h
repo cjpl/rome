@@ -21,9 +21,9 @@ public:
    ROMETreeInfo():TObject(),run(0),event(0),time(0) { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); }
    virtual ~ROMETreeInfo() {};
 
-   Long64_t GetRunNumber()      { return run; }
-   Long64_t GetEventNumber()    { return event; }
-   Int_t    GetTimeStamp()      { return time; }
+   Long64_t GetRunNumber() const   { return run; }
+   Long64_t GetEventNumber() const { return event; }
+   Int_t    GetTimeStamp() const   { return time; }
 
    void     SetRunNumber       (Long64_t RunNumber       ) { run            = RunNumber; }
    void     SetEventNumber     (Long64_t EventNumber     ) { event          = EventNumber; }

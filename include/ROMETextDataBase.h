@@ -31,16 +31,16 @@ public:
    Bool_t      Init(const char* name,const char* path,const char* connection);
    Bool_t      Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
    Bool_t      Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
-   const char *GetType() { return "text"; }
-   const char *GetDescription() { return "Text data base using the file system to store tables"; }
+   const char *GetType() const { return "text"; }
+   const char *GetDescription() const { return "Text data base using the file system to store tables"; }
 
 protected:
-   void        RemoveComment(ROMEString &buffer,Bool_t initialize = false);
-   Bool_t      ContainsData(const char* buffer);
-   const char *StartMark(const char* valueName);
-   const char *EndMark(const char* valueName);
-   void        AddHeader(ROMEString &buffer,const char* fileName);
-   void        RemoveHeader(ROMEString &buffer);
+   void        RemoveComment(ROMEString &buffer,Bool_t initialize = false) const;
+   Bool_t      ContainsData(const char* buffer) const;
+   const char *StartMark(const char* valueName) const;
+   const char *EndMark(const char* valueName) const;
+   void        AddHeader(ROMEString &buffer,const char* fileName) const;
+   void        RemoveHeader(ROMEString &buffer) const;
 
    ClassDef(ROMETextDataBase, 0) // Simple database class
 };

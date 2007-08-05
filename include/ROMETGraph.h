@@ -28,7 +28,7 @@ public:
    ROMETGraph& operator=(const ROMETGraph&);
 
    void  SetPoint(Int_t i, Double_t x, Double_t y);
-   TH1F* GetHistogramHandle() { return fHistogram; }
+   TH1F* GetHistogramHandle() const { return fHistogram; }
    void  DeleteHistogram() { SafeDelete(fHistogram); }
 
    ClassDef(ROMETGraph, 0) // TGraph class for rome

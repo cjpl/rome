@@ -46,9 +46,9 @@ public:
    void    FreeResult();
    Int_t   GetErrorCode();
    const char *GetErrorMessage();
-   Bool_t  StartTransaction( const char* option );
-   Bool_t  CommitTransaction( const char* option );
-   Bool_t  RollbackTransaction( const char* option );
+   Bool_t  StartTransaction(const char* option);
+   Bool_t  CommitTransaction(const char* option);
+   Bool_t  RollbackTransaction(const char* option);
 
 #if !defined (__CINT__)
    bool  DataSeek(my_ulonglong offset);

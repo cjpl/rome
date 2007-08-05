@@ -69,8 +69,228 @@
 					<FieldComment></FieldComment>
 				</Field>
 			</Folder>
+			<Folder>
+				<FolderName>VariousTypeOfFields</FolderName>
+				<FolderTitle>This folder has various type of fields</FolderTitle>
+				<Author>Ryu Sawada</Author>
+				<Include>
+					<IncludeName>TRef.h</IncludeName>
+					<IncludeType>global</IncludeType>
+				</Include>
+				<Include>
+					<IncludeName>TString.h</IncludeName>
+					<IncludeType>global</IncludeType>
+				</Include>
+				<Include>
+					<IncludeName>TVector3.h</IncludeName>
+					<IncludeType>global</IncludeType>
+				</Include>
+				<!-- single fields -->
+				<Field>
+					<FieldName>SingleFolder</FieldName>
+					<FieldType>DummyFolder</FieldType>
+				</Field>
+				<Field>
+					<FieldName>SingleTRef</FieldName>
+					<FieldType>TRef</FieldType>
+					<InheritTObject>true</InheritTObject>
+				</Field>
+				<Field>
+					<FieldName>SingleTArray</FieldName>
+					<FieldType>TArrayI</FieldType>
+				</Field>
+				<Field>
+					<FieldName>SingleTObjectObject</FieldName>
+					<FieldType>TVector3</FieldType>
+					<InheritTObject>true</InheritTObject>
+				</Field>
+				<Field>
+					<FieldName>SingleTObjectPointer</FieldName>
+					<FieldType>TVector3*</FieldType>
+					<InheritTObject>true</InheritTObject>
+				</Field>
+				<Field>
+					<FieldName>SingleSTDString</FieldName>
+					<FieldType>std::string</FieldType>
+				</Field>
+				<Field>
+					<FieldName>SingleTString</FieldName>
+					<FieldType>TString</FieldType>
+				</Field>
+				<Field>
+					<FieldName>SinglePremitive</FieldName>
+					<FieldType>Double_t</FieldType>
+				</Field>
+				<!-- one dimension fixed length array fields -->
+				<Field>
+					<FieldName>OneDimFixedFolder</FieldName>
+					<FieldType>DummyFolder</FieldType>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedTRef</FieldName>
+					<FieldType>TRef</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedTArray</FieldName>
+					<FieldType>TArrayI</FieldType>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedTObjectObject</FieldName>
+					<FieldType>TVector3</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedTObjectPointer</FieldName>
+					<FieldType>TVector3*</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedSTDString</FieldName>
+					<FieldType>std::string</FieldType>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedTString</FieldName>
+					<FieldType>TString</FieldType>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>OneDimFixedPremitive</FieldName>
+					<FieldType>Double_t</FieldType>
+					<ArraySize>10</ArraySize>
+				</Field>
+				<!-- one dimension variable length array fields -->
+				<Field>
+					<FieldName>OneDimVariableFolder</FieldName>
+					<FieldType>DummyFolder</FieldType>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>OneDimVariableTRef</FieldName>
+					<FieldType>TRef</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+<!--
+				<Field>
+					<FieldName>OneDimVariableTArray</FieldName>
+					<FieldType>TArrayI</FieldType>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+-->
+				<Field>
+					<FieldName>OneDimVariableTObjectObject</FieldName>
+					<FieldType>TVector3</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>OneDimVariableTObjectPointer</FieldName>
+					<FieldType>TVector3*</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>OneDimVariableSTDString</FieldName>
+					<FieldType>std::string</FieldType>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>OneDimVariableTString</FieldName>
+					<FieldType>TString</FieldType>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>OneDimVariablePremitive</FieldName>
+					<FieldType>Double_t</FieldType>
+					<ArraySize>variable</ArraySize>
+					<FieldComment>!</FieldComment>
+				</Field>
+				<!-- multi dimension fixed length array fields -->
+<!--
+				<Field>
+					<FieldName>MultiDimFolder</FieldName>
+					<FieldType>DummyFolder</FieldType>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+<!--
+				<Field>
+					<FieldName>MultiDimTRef</FieldName>
+					<FieldType>TRef</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+<!--
+				<Field>
+					<FieldName>MultiDimTArray</FieldName>
+					<FieldType>TArrayI</FieldType>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+<!--
+				<Field>
+					<FieldName>MultiDimTObjectObject</FieldName>
+					<FieldType>TVector3</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+<!--
+				<Field>
+					<FieldName>MultiDimTObjectPointer</FieldName>
+					<FieldType>TVector3*</FieldType>
+					<InheritTObject>true</InheritTObject>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+<!--
+				<Field>
+					<FieldName>MultiDimSTDString</FieldName>
+					<FieldType>std::string</FieldType>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+<!--
+				<Field>
+					<FieldName>MultiDimTString</FieldName>
+					<FieldType>TString</FieldType>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+-->
+				<Field>
+					<FieldName>MultiDimPremitive</FieldName>
+					<FieldType>Double_t</FieldType>
+					<ArraySize>10:4:2</ArraySize>
+				</Field>
+			</Folder>
 		</Folder>
 	</Folders>
+	<SupportFolders>
+			<SupportFolder>
+				<FolderName>DummyFolder</FolderName>
+				<FolderTitle>Dummy</FolderTitle>
+				<Author>Ryu Sawada</Author>
+				<Field>
+					<FieldName>DummyField</FieldName>
+					<FieldType>Int_t</FieldType>
+				</Field>
+			</SupportFolder>
+        </SupportFolders>
 	<NetFolders>
 		<NetFolder>
 			<NetFolderName>mynetfolder</NetFolderName>

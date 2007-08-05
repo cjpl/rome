@@ -27,10 +27,10 @@ public:
    ROMEStr2DArray(Int_t sizeX = TCollection::kInitCapacity, Int_t sizeY = TCollection::kInitCapacity);
    virtual          ~ROMEStr2DArray();
 
-   Int_t            GetEntries();
-   Int_t            GetEntriesFast();  //only OK when no gaps
-   Int_t            GetEntriesAt(Int_t idx);
-   Int_t            GetEntriesFastAt(Int_t idx);  //only OK when no gaps
+   Int_t            GetEntries() const;
+   Int_t            GetEntriesFast() const;  //only OK when no gaps
+   Int_t            GetEntriesAt(Int_t idx) const;
+   Int_t            GetEntriesFastAt(Int_t idx) const;  //only OK when no gaps
 
    virtual void     SetAt(TString &str, Int_t idx, Int_t idy);
    virtual void     SetAt(const char* str, Int_t idx, Int_t idy);
@@ -39,7 +39,7 @@ public:
    virtual void     RemoveAllAt(Int_t idx);
    virtual void     RemoveAll();
 
-   TString          At(Int_t idx, Int_t idy);
+   TString          At(Int_t idx, Int_t idy) const;
 
    ClassDef(ROMEStr2DArray, 1) // Two dimensional ROMEString array
 };

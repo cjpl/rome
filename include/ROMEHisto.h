@@ -11,9 +11,6 @@
 #include "ROMEString.h"
 
 class ROMEHisto : public TObject {
-private:
-   char*      fCstop; //!
-
 protected:
    Bool_t     fActive;                  // Active flag
    ROMEString fTitle;                   // Title
@@ -95,36 +92,36 @@ public:
    void        SetZNbinsOriginal(Int_t value) { fZNbinsOrig = value; };
    void        SetZminOriginal(Double_t value) { fZminOrig = value; };
    void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
-   bool        IsActive() { return fActive; };
+   bool        IsActive() const { return fActive; };
    const char *GetTitle() const;
-   const char *GetFolderTitle();
-   const char *GetXLabel();
-   const char *GetYLabel();
-   const char *GetZLabel();
-   int         GetArraySize();
-   const char *GetArraySizeString(ROMEString &string);
-   int         GetArrayStartIndex();
-   const char *GetArrayStartIndexString(ROMEString &string);
-   int         GetXNbins();
-   const char *GetXNbinsString(ROMEString &string);
-   double      GetXmin();
-   const char *GetXminString(ROMEString &string);
-   double      GetXmax();
-   const char *GetXmaxString(ROMEString &string);
-   int         GetYNbins();
-   const char *GetYNbinsString(ROMEString &string);
-   double      GetYmin();
-   const char *GetYminString(ROMEString &string);
-   double      GetYmax();
-   const char *GetYmaxString(ROMEString &string);
-   int         GetZNbins();
-   const char *GetZNbinsString(ROMEString &string);
-   double      GetZmin();
-   const char *GetZminString(ROMEString &string);
-   double      GetZmax();
-   const char *GetZmaxString(ROMEString &string);
+   const char *GetFolderTitle() const;
+   const char *GetXLabel() const;
+   const char *GetYLabel() const;
+   const char *GetZLabel() const;
+   int         GetArraySize() const;
+   const char *GetArraySizeString(ROMEString &string) const;
+   int         GetArrayStartIndex() const;
+   const char *GetArrayStartIndexString(ROMEString &string) const;
+   int         GetXNbins() const;
+   const char *GetXNbinsString(ROMEString &string) const;
+   double      GetXmin() const;
+   const char *GetXminString(ROMEString &string) const;
+   double      GetXmax() const;
+   const char *GetXmaxString(ROMEString &string) const;
+   int         GetYNbins() const;
+   const char *GetYNbinsString(ROMEString &string) const;
+   double      GetYmin() const;
+   const char *GetYminString(ROMEString &string) const;
+   double      GetYmax() const;
+   const char *GetYmaxString(ROMEString &string) const;
+   int         GetZNbins() const;
+   const char *GetZNbinsString(ROMEString &string) const;
+   double      GetZmin() const;
+   const char *GetZminString(ROMEString &string) const;
+   double      GetZmax() const;
+   const char *GetZmaxString(ROMEString &string) const;
 
-   Bool_t      isAccumulation() { return fAccumulation; };
+   Bool_t      isAccumulation() const { return fAccumulation; };
    void        SetAccumulation(Bool_t flag) { fAccumulation = flag; };
 
    ClassDef(ROMEHisto,0) // ROMEHisto

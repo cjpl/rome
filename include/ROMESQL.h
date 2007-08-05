@@ -36,12 +36,12 @@ public:
    virtual void    FreeResult() = 0;
    virtual Int_t   GetErrorCode() = 0;
    virtual const char *GetErrorMessage() = 0;
-   virtual Bool_t  StartTransaction( const char* /*option*/ ){ return true; }
-   virtual Bool_t  CommitTransaction( const char* /*option*/ ){ return true; }
-   virtual Bool_t  RollbackTransaction( const char* /*option*/ ){ return true; }
+   virtual Bool_t  StartTransaction( const char* /*option*/ ) { return true; }
+   virtual Bool_t  CommitTransaction( const char* /*option*/ ) { return true; }
+   virtual Bool_t  RollbackTransaction( const char* /*option*/ ) { return true; }
 
    // DBMS independent methods
-   Bool_t          MakeQuery(TString& query,Bool_t store){ return MakeQuery(query.Data(),store); }
+   Bool_t          MakeQuery(TString& query,Bool_t store) { return MakeQuery(query.Data(),store); }
    Bool_t          CreateDataBase(const char* database);
    Bool_t          DeleteDataBase(const char* database);
    Bool_t          CreateTable(const char* table,const char* fields);

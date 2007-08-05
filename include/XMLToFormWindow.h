@@ -71,7 +71,7 @@ protected:
    void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); };
    void   HideFrame(XMLToFormFrame *frame);
    void   HideFrame(TGFrame *frame) { TGCompositeFrame::HideFrame(frame); }
-   void   GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest);
+   void   GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest) const;
    Bool_t ReloadValues(const char* xmlFileName);
    Bool_t ReloadValues(XMLToFormFrame *frame);
    void   UpdateFileSelector(const char *xmlFileName);

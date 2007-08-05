@@ -62,23 +62,25 @@ ROMEString& ROMEString::SetFormatted(const char* va_(fmt), ...)
 }
 
 //______________________________________________________________________________
-void ROMEString::Write() {
+void ROMEString::Write() const
+{
    cout << Data();
 }
 
 //______________________________________________________________________________
-void ROMEString::WriteLine() {
+void ROMEString::WriteLine() const
+{
    cout << Data() << endl;
 }
 
 //______________________________________________________________________________
-Int_t ROMEString::NumberOfOccurrence(ROMEString& subString)
+Int_t ROMEString::NumberOfOccurrence(ROMEString& subString) const
 {
    return NumberOfOccurrence(subString.Data());
 }
 
 //______________________________________________________________________________
-Int_t ROMEString::NumberOfOccurrence(const char* subString)
+Int_t ROMEString::NumberOfOccurrence(const char* subString) const
 {
    Int_t numberOfOccurrence = 0;
    const char* str = Data();
@@ -92,7 +94,8 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString)
 }
 
 //______________________________________________________________________________
-istream& ROMEString::ReadFile(istream& str) {
+istream& ROMEString::ReadFile(istream& str)
+{
    Resize(0);
    char *buffer;
    int bufferSize = 2000;
@@ -109,7 +112,8 @@ istream& ROMEString::ReadFile(istream& str) {
 }
 
 //______________________________________________________________________________
-istream& ROMEString::ReadLine(istream& str) {
+istream& ROMEString::ReadLine(istream& str)
+{
    Resize(0);
    char *buffer;
    int bufferSize = 2000;
@@ -126,35 +130,35 @@ istream& ROMEString::ReadLine(istream& str) {
 }
 
 //______________________________________________________________________________
-Int_t ROMEString::ToInteger()
+Int_t ROMEString::ToInteger() const
 {
    char *cstop;
    return strtol(Data(), &cstop, 10);
 }
 
 //______________________________________________________________________________
-Long_t ROMEString::ToLong()
+Long_t ROMEString::ToLong() const
 {
    char *cstop;
    return strtol(Data(), &cstop, 10);
 }
 
 //______________________________________________________________________________
-Double_t ROMEString::ToDouble()
+Double_t ROMEString::ToDouble() const
 {
    char *cstop;
    return strtod(Data(), &cstop);
 }
 
 //______________________________________________________________________________
-Float_t ROMEString::ToFloat()
+Float_t ROMEString::ToFloat() const
 {
    char *cstop;
    return static_cast<Float_t>(strtod(Data(), &cstop));
 }
 
 //______________________________________________________________________________
-Bool_t ROMEString::ToBool()
+Bool_t ROMEString::ToBool() const
 {
    if (CompareTo("true", TString::kIgnoreCase)) {
       return true;
@@ -166,12 +170,13 @@ Bool_t ROMEString::ToBool()
 }
 
 //______________________________________________________________________________
-void ROMEString::ToLower() {
+void ROMEString::ToLower()
+{
    static_cast<TString*>(this)->ToLower();
 }
 
 //______________________________________________________________________________
-const char* ROMEString::ToLower(ROMEString& destination)
+const char* ROMEString::ToLower(ROMEString& destination) const
 {
    destination = Data();
    destination.ToLower();
@@ -179,12 +184,13 @@ const char* ROMEString::ToLower(ROMEString& destination)
 }
 
 //______________________________________________________________________________
-void ROMEString::ToUpper() {
+void ROMEString::ToUpper()
+{
    static_cast<TString*>(this)->ToUpper();
 }
 
 //______________________________________________________________________________
-const char* ROMEString::ToUpper(ROMEString& destination)
+const char* ROMEString::ToUpper(ROMEString& destination) const
 {
    destination = Data();
    destination.ToUpper();
@@ -192,7 +198,8 @@ const char* ROMEString::ToUpper(ROMEString& destination)
 }
 
 //______________________________________________________________________________
-ROMEString& ROMEString::StripSpaces(){
+ROMEString& ROMEString::StripSpaces()
+{
 // Strip space, tab and new line at both sides
    Ssiz_t start = 0;             // Index of first character
    Ssiz_t end = Length();        // One beyond last character
