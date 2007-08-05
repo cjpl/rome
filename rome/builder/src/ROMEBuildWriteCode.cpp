@@ -13817,7 +13817,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("   virtual ~%s%sDAQ() {}\n",shortCut.Data(),daqName[iDAQ].Data());
 
          // Methods
-         buffer.AppendFormatted("   Int_t    GetTimeStamp() { return 0; }\n");!
+         buffer.AppendFormatted("   Int_t    GetTimeStamp() { return 0; }\n");
          buffer.AppendFormatted("   const char* GetName() const { return \"%s\"; }\n",daqName[iDAQ].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Bool_t   Init();\n");
