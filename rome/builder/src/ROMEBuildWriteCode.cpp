@@ -6487,7 +6487,12 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
          continue;
       if (folderArray[i] == "1" && !folderSupport[i]) {
          for (j = 0; j < numOfValue[i]; j++) {
-            if (valueDimension[i][j] == 0) {
+            if (valueDimension[i][j] == 0 &&
+                !isFolder(valueType[i][j].Data()) &&
+                !valueType[i][j].Contains("TRef") &&
+                !(valueIsTObject[i][j] &&
+                  !valueType[i][j].Contains("ROMEString") &&
+                  !valueType[i][j].Contains("TString"))) {
                buffer.AppendFormatted("   if (path == \"/%s/%s\")\n",folderName[i].Data(),valueName[i][j].Data());
                buffer.AppendFormatted("      return %d;\n",codeNumber);
                buffer.AppendFormatted("   if (path.Index(\"/%s/%s\") != -1)\n",folderName[i].Data(),

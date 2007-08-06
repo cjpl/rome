@@ -181,6 +181,12 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <!-- If true, this bank will be analyzed. Default is false. -->
           <Active>true</Active>
         </Bank>
+        <Bank>
+          <!-- Description of a midas bank. -->
+          <BankName>STRT</BankName>
+          <!-- If true, this bank will be analyzed. Default is false. -->
+          <Active>true</Active>
+        </Bank>
       </Event>
 
       <Event>
