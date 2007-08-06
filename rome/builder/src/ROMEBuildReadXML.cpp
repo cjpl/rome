@@ -1439,7 +1439,8 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             }
          }
          if (valueDimension[numOfFolder][numOfValue[numOfFolder]] > 2) {
-            if (!isNumber(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+            if (!isNumber(valueType[numOfFolder][numOfValue[numOfFolder]]) &&
+                !isBoolType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
                cerr<<"Multiple dimension array of "<<valueType[numOfFolder][numOfValue[numOfFolder]]<<" is not supported."<<endl;
                cerr<<"Terminating program."<<endl;
                return false;
