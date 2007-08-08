@@ -16,6 +16,7 @@
 #  pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
+#include <TVirtualMutex.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #  pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -137,6 +138,42 @@ inline void ROMEUtilities::ByteSwap(Long64_t *x)
 inline void ROMEUtilities::ByteSwap(Double_t *x)
 {
    ByteSwap(reinterpret_cast<ULong64_t*>(x));
+}
+
+// Mutex
+
+// Zero overhead macros in case not compiled with thread support
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
+#   define ROME_LOCKGUARD(mutex) R__LOCKGUARD2(mutex)
+#else
+#   define ROME_LOCKGUARD(mutex)                        \
+   if (gAllocMutex && !mutex) {                         \
+      gAllocMutex->Lock();                              \
+      if (!mutex)                                       \
+         mutex = new TVirtualMutex(kTRUE);              \
+      gAllocMutex->UnLock();                            \
+   }                                                    \
+   R__LOCKGUARD(mutex)
+#endif
+
+inline Int_t ROME_TRYLOCK(TVirtualMutex* &mutex)
+{
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
+   if (gGlobalMutex && !mutex) {
+      gGlobalMutex->Lock();
+      if (!mutex)
+         mutex = gGlobalMutex->Factory(kTRUE);
+      gGlobalMutex->UnLock();
+   }
+#else
+   if (gAllocMutex && !mutex) {
+      gAllocMutex->Lock();
+      if (!mutex)
+         mutex = new TVirtualMutex(kTRUE);
+      gAllocMutex->UnLock();
+   }
+#endif
+   return mutex->TryLock();
 }
 
 #endif // ROMEUtilities_H

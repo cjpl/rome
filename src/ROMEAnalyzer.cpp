@@ -91,6 +91,7 @@ ClassImp(ROMEAnalyzer)
 ROMEAnalyzer *gROME = 0;  // global ROMEAnalyzer Handle
 static TVirtualMutex *fgRunEventNumberMutex = 0;
 static TVirtualMutex *fgUpdateObjectStorageMutex = 0;
+TVirtualMutex        *gObjectStorageMutex = 0;
 
 //______________________________________________________________________________
 ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t nographics, Int_t analysisMode,
@@ -1625,6 +1626,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 //______________________________________________________________________________
 THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
 {
+   ROME_LOCKGUARD(gObjectStorageMutex);
    localThis->GetNetFolderServer()->UpdateObjects();
    localThis->SetObjectStorageUpdated();
    localThis->GetNetFolderServer()->SetEventStorageAvailable(true);

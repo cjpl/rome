@@ -96,7 +96,8 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       Long64_t oldEventNumber = eventStr.ToLong(); // --> This should be ToLong64
 
       ret = kFALSE;
-      if ((oldRunNumber<runNumber || oldRunNumber==runNumber && oldEventNumber<eventNumber) && localThis->IsEventStorageAvailable()) {
+      if ((oldRunNumber<runNumber || (oldRunNumber==runNumber && oldEventNumber<eventNumber)) &&
+          localThis->IsEventStorageAvailable()) {
          gROME->UpdateObjectStorage();
          while (!gROME->IsObjectStorageUpdated())
             gSystem->Sleep(20);

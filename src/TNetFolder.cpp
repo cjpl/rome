@@ -40,11 +40,12 @@ TNetFolder::TNetFolder()
 TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Bool_t reconnect)
 :TNamed(name, title)
 ,fSocket(socket)
-,fFolder(GetPointer())
+,fFolder(0)
 ,fReconnect(reconnect)
 ,fHost(socket->GetUrl())
 ,fPort(socket->GetPort())
 {
+   fFolder = GetPointer();
 }
 
 //______________________________________________________________________________
@@ -55,7 +56,8 @@ TNetFolder::~TNetFolder()
 //______________________________________________________________________________
 void TNetFolder::Reconnect()
 {
-   Warning("Reconnect", "can not make socket connection to %s on port %d.\nprogram sleeps for 5s and tries again.", fHost.Data(), fPort);
+   Warning("Reconnect", "can not make socket connection to %s on port %d.\nprogram sleeps for 5s and tries again.",
+           fHost.Data(), fPort);
    gSystem->Sleep(5000);
    delete fSocket;
    fSocket = new TSocket (fHost.Data(), fPort);
