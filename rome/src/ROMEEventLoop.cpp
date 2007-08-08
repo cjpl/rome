@@ -59,7 +59,7 @@ bool ROMEEventLoop::fHotLinksChanged = kFALSE;
 
 ClassImp(ROMEEventLoop)
 
-static TVirtualMutex *fgObjectStorageMutex = 0;
+extern TVirtualMutex *gObjectStorageMutex; // declared in ROMEAnalyzer.cpp
 
 //______________________________________________________________________________
 ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
@@ -543,21 +543,23 @@ Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
       const ULong_t kInterval = 10; // this should be changed to parameter
       if (static_cast<ULong_t>(gSystem->Now()) > fLastNetFolderServerUpdateTime + kInterval) {
-         ROME_LOCKGUARD(fgObjectStorageMutex);
-         fLastNetFolderServerUpdateTime = static_cast<ULong_t>(gSystem->Now());
-         gROME->FillObjectStorage();
-         if (fNetFolderServerUpdateThread) {
-            TThread::Delete(fNetFolderServerUpdateThread);
-            fNetFolderServerUpdateThread = 0;
-         }
-         if (useThread) {
-            fNetFolderServerUpdateThread =
-                  new TThread("CopyThread",
-                              reinterpret_cast<THREADTYPE(*)(void*)>(&ROMEAnalyzer::FillObjectsInNetFolderServer),
-                              static_cast<void*>(gROME));
-            fNetFolderServerUpdateThread->Run();
-         } else {
-            gROME->FillObjectsInNetFolderServer(gROME);
+         if (ROME_TRYLOCK(gObjectStorageMutex) == 0) {
+            fLastNetFolderServerUpdateTime = static_cast<ULong_t>(gSystem->Now());
+            gROME->FillObjectStorage();
+            if (fNetFolderServerUpdateThread) {
+               TThread::Delete(fNetFolderServerUpdateThread);
+               fNetFolderServerUpdateThread = 0;
+            }
+            gObjectStorageMutex->UnLock();
+            if (useThread) {
+               fNetFolderServerUpdateThread =
+                     new TThread("CopyThread",
+                                 reinterpret_cast<THREADTYPE(*)(void*)>(&ROMEAnalyzer::FillObjectsInNetFolderServer),
+                                 static_cast<void*>(gROME));
+               fNetFolderServerUpdateThread->Run();
+            } else {
+               gROME->FillObjectsInNetFolderServer(gROME);
+            }
          }
       }
    }
