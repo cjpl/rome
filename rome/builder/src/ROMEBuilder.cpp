@@ -5,6 +5,7 @@
   $Id$
 
 ********************************************************************/
+#include <map>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
@@ -1970,12 +1971,20 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
    return stringBuffer;
 }
 
+static map<string, int> fgIsFolderCache;
 //______________________________________________________________________________
 Bool_t ROMEBuilder::isFolder(const char *type)
 {
+   if (fgIsFolderCache[type] == 1) {
+      return kTRUE;
+   } else if (fgIsFolderCache[type] == -1) {
+      return kFALSE;
+   }
+
    int j;
    ROMEString str;
    Int_t n = -1;
+   bool ret = kFALSE;
    for (j = 0; j < numOfFolder && n < 0; j++) {
       if (folderName[j] == type)
          n = j;
@@ -1989,7 +1998,10 @@ Bool_t ROMEBuilder::isFolder(const char *type)
       if (str == type)
          n = j;
    }
-   return n >= 0  && folderUsed[n] && FolderToBeGenerated(n);
+   ret = (n >= 0  && folderUsed[n] && FolderToBeGenerated(n));
+   fgIsFolderCache[type] = ret ? 1 : -1;
+
+   return ret;
 }
 
 //______________________________________________________________________________
