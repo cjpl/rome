@@ -15731,7 +15731,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    if (numOfTree>0)
       buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
-   if (midas)
+   if (numOfEvent>0 && midas)
       buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
