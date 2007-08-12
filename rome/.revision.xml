@@ -186,3 +186,9 @@
   <Directory>/scratch2/sawada/analysis/rome/rome_test</Directory>
   <LastCompile>Fri, 13 Jul 2007 14:33:27 +0000 (GMT) + 29078000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>megonln01</Host>
+  <Directory>/scratch3/users/sawada/rome.old</Directory>
+  <LastCompile>Sun, 12 Aug 2007 12:47:47 +0000 (GMT) +719692000 nsec</LastCompile>
+</Entry>
