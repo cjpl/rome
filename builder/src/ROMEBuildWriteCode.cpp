@@ -25,7 +25,7 @@
 
 namespace {
    const char* Relation(ROMEString &str) {
-      if (str.Contains("*")) {
+      if (str.ContainsFast("*")) {
          return "->";
       } else {
          return ".";
@@ -115,7 +115,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                   continue;
                }
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                   && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") &&
+                   && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString") &&
                    !isTArrayType(valueType[iFold][i])) {
                   continue;
                }
@@ -151,14 +151,14 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted(",%s(new TClonesArray(\"%s\"))\n",valueName[iFold][i].Data(),tmp.Data());
             }
          } else if (valueIsTObject[iFold][i] && !isTArrayType(valueType[iFold][i]) &&
-                    !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                    !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
             if (isPointerType(valueType[iFold][i].Data()) && valueArray[iFold][i][0] == "1") {
                buffer.AppendFormatted(",%s(%s_value)\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             } else {
                buffer.AppendFormatted(",%s()\n",valueName[iFold][i].Data());
             }
          } else if (isTArrayType(valueType[iFold][i])) {
-            if (valueType[iFold][i].Contains("*")) {
+            if (valueType[iFold][i].ContainsFast("*")) {
                tmp = valueType[iFold][i];
                tmp.ReplaceAll("*","");
                buffer.AppendFormatted(",%s(new %s(%s))\n",valueName[iFold][i].Data(),tmp.Data(),
@@ -198,10 +198,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                }
             }
          } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                    && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
             continue;
          } else if (isTArrayType(valueType[iFold][i])) {
-            if (valueType[iFold][i].Contains("*")) {
+            if (valueType[iFold][i].ContainsFast("*")) {
                tmp = valueType[iFold][i];
                tmp.ReplaceAll("*","");
                buffer.AppendFormatted("   %s%sReset(%s);\n",valueName[iFold][i].Data(),Relation(valueType[iFold][i]),
@@ -250,7 +250,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             if (isPointerType(valueType[iFold][i].Data())) {
                buffer.AppendFormatted("   SafeDelete(%s);\n",valueName[iFold][i].Data());
             }
-         } else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].Contains("*")) {
+         } else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].ContainsFast("*")) {
             buffer.AppendFormatted("   SafeDelete(%s);\n",valueName[iFold][i].Data());
          } else if (valueDimension[iFold][i] != 0 && valueArray[iFold][i][0] == "variable") {
             buffer.AppendFormatted("   SafeDeleteArray(%s);\n",valueName[iFold][i].Data());
@@ -314,7 +314,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s* %s::Get%sAt(",valueType[iFold][i].Data(),clsName.Data(),
                                       valueName[iFold][i].Data());
@@ -338,7 +338,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s %s::Get%sAt(Int_t indx) const\n",valueType[iFold][i].Data(),clsName.Data(),
                                       valueName[iFold][i].Data());
@@ -412,9 +412,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          } else {
             if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
-                       && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
             } else if (valueType[iFold][i] == "TRef") {
             } else {
             }
@@ -536,7 +536,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                       valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!array || !n) return;\n");
-               if (valueType[iFold][i].Contains("*")) {
+               if (valueType[iFold][i].ContainsFast("*")) {
                   buffer.AppendFormatted("   if (!%s || %s%sGetSize() < n) Set%sSize(n);\n",valueName[iFold][i].Data(),
                                          valueName[iFold][i].Data(),Relation(valueType[iFold][i]),valueName[iFold][i].Data());
                } else {
@@ -549,7 +549,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                continue;
             } else if (valueArray[iFold][i][0] == "variable") {
                buffer.Append(kMethodLine);
@@ -672,7 +672,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             continue;
          }
          if (valueIsTObject[iFold][i]
-             && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+             && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
             continue;
          }
          if (valueDimension[iFold][i] == 0) {
@@ -793,7 +793,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                if (isFolder(valueType[iFold][i].Data()))
                   continue;
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                   && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+                   && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString"))
                   continue;
                if (valueDimension[iFold][i] == 0) {
                   if (valueType[iFold][i] == "TRef") {
@@ -810,7 +810,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                if (isFolder(valueType[iFold][i].Data()))
                   continue;
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                   && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+                   && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString"))
                   continue;
                if (valueDimension[iFold][i] == 0) {
                   buffer.AppendFormatted("   %s = %s_value;\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
@@ -865,7 +865,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                }
             }
             if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") &&
+                && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString") &&
                 !isTArrayType(valueType[iFold][i])) {
                format.SetFormatted("%%%ds   %%s",valueDimension[iFold][i]*3);
                buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
@@ -873,7 +873,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                   buffer.AppendFormatted("[%c%d]",valueCounter[iDm],i);
                buffer.AppendFormatted(".Clear();\n");
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
-                       && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                format.SetFormatted("%%%ds   if (%%s",valueDimension[iFold][i]*3);
                buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
@@ -1265,7 +1265,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                if (isFolder(valueType[iFold][i].Data()))
                   continue;
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                   !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") &&
+                   !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString") &&
                    !isTArrayType(valueType[iFold][i]))
                   continue;
                if (valueType[iFold][i] == "TRef") {
@@ -1313,7 +1313,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                                    lb);
                buffer.AppendFormatted(format.Data(),TArray2StandardType(valueType[iFold][i],tempBuffer),
                                       valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),Relation(valueType[iFold][i]),"");
-               if (valueType[iFold][i].Contains("*")) {
+               if (valueType[iFold][i].ContainsFast("*")) {
                   format.SetFormatted("   %%-%ds  Get%%s() const%%%ds { return %%s;%%%ds }\n",typeLen,lb,lb);
                   buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",
                                          valueName[iFold][i].Data(),"");
@@ -1325,7 +1325,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),
                                       TArray2StandardType(valueType[iFold][i],tempBuffer));
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                       && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                format.SetFormatted("   %%-%ds* Get%%sAt(",typeLen);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
@@ -1333,7 +1333,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.Resize(buffer.Length()-2);
                buffer.AppendFormatted(");\n");
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                format.SetFormatted("   %%-%ds  Get%%sAt(Int_t indx) const;\n",typeLen);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
             } else if (valueArray[iFold][i][0] == "variable") {
@@ -1370,12 +1370,12 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",
                                       valueName[iFold][i].Data(),"");
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                format.SetFormatted("   %%-%ds* Get%%s()%%%ds { return &%%s;%%%ds }\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",
                                       valueName[iFold][i].Data(),"");
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                format.SetFormatted("   %%-%ds  Get%%s() const%%%ds { return %%s;%%%ds }\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",
                                       valueName[iFold][i].Data(),"");
@@ -1415,7 +1415,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                // operator= is not implemented
             } else {
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                   && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") &&
+                   && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString") &&
                    !isTArrayType(valueType[iFold][i])) {
                   buffer.AppendFormatted("   // you might have errors to use Set%s, if operator= is not implemented\n",
                                          valueName[iFold][i].Data());
@@ -1459,7 +1459,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),
                                       TArray2StandardType(valueType[iFold][i],tempBuffer));
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                       !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+                       !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
                continue;
             } else if (valueArray[iFold][i][0] == "variable") {
                format.SetFormatted("   void Set%%sAt%%%ds(Int_t indx,%%-%ds %%s_value);\n",lb,typeLen);
@@ -1497,7 +1497,7 @@ Bool_t ROMEBuilder::WriteFolderH()
             continue;
          }
          if (valueIsTObject[iFold][i]
-             && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+             && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
             continue;
          }
          int lb = nameLen-valueName[iFold][i].Length();
@@ -1569,7 +1569,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                if (isFolder(valueType[iFold][i].Data()))
                   continue;
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                   && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+                   && !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString"))
                   continue;
                if (valueDimension[iFold][i] == 0) {
                   if (valueType[iFold][i] == "TRef") {
@@ -1764,19 +1764,17 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       buffer.Resize(0);
       // File name
       cppFile.SetFormatted("%ssrc/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+      fileBuffer.ReadFile(cppFile.Data(), kTRUE);
 
       // Generated Includes
       buffer.Resize(0);
       WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
       genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(),
                            taskName[iTask].Data());
-      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
 
       numOfTaskAccessedFolder[iTask] = 0;
       for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer,j)) {
+         if (accessFolder(cppFile.Data(),j)) {
             if (!folderUsed[j])
                continue;
             if (FolderToBeGenerated(j) && !folderSupport[j]) {
@@ -1791,14 +1789,14 @@ Bool_t ROMEBuilder::WriteTaskCpp()
             }
          }
       }
-      if (fileBuffer.Contains("GetWindow") || fileBuffer.Contains("fWindow"))
+      if (fileBuffer.ContainsFast("GetWindow") || fileBuffer.ContainsFast("fWindow"))
          buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
-      if (fileBuffer.Contains("GetGSP"))
+      if (fileBuffer.ContainsFast("GetGSP"))
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       for (j = 0; j < daqNameArray->GetEntriesFast(); j++) {
          tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
          tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
-         if (fileBuffer.Contains(tmp) || fileBuffer.Contains(tmp2))
+         if (fileBuffer.ContainsFast(tmp) || fileBuffer.ContainsFast(tmp2))
             buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),
                                    daqNameArray->At(j).Data());
       }
@@ -1841,12 +1839,9 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       }
       clsDescription.AppendFormatted("End_Html\n\n");
       clsDescription.AppendFormatted("The event methods have been written by %s.\n",taskAuthor[iTask].Data());
-      fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       bool first = true;
       for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer, j, kTRUE)) {
+         if (accessFolder(cppFile.Data(), j, kTRUE)) {
             if (first) {
                clsDescription.AppendFormatted("\n");
                clsDescription.AppendFormatted("Please note: The following information is only correct after executing the ROMEBuilder.\n");
@@ -1948,7 +1943,6 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
-   ROMEString fileBuffer;
    ROMEString tmp;
 
    ROMEString format;
@@ -1969,9 +1963,6 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       clsName.SetFormatted("%sT%s_Base", shortCut.Data(), taskName[iTask].Data());
       clsDescription = taskDescription[iTask].Data();
       clsDescription.AppendFormatted("\n\n");
-      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
 
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
 
@@ -3409,6 +3400,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
       header.Resize(0);
       // File name
       cppFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+      fileBuffer.ReadFile(cppFile.Data(), kTRUE);
 
       // Generated Includes
       buffer.Resize(0);
@@ -3424,11 +3416,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
       buffer.AppendFormatted("#include <Windows4Root.h>\n");
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer,j)) {
+         if (accessFolder(cppFile.Data(),j)) {
             if (!folderUsed[j])
                continue;
             if (FolderToBeGenerated(j) && !folderSupport[j]) {
@@ -3440,15 +3429,15 @@ Bool_t ROMEBuilder::WriteTabCpp()
             }
          }
       }
-      if (fileBuffer.Contains("GetWindow"))
+      if (fileBuffer.ContainsFast("GetWindow"))
          buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
-      if (fileBuffer.Contains("GetGSP"))
+      if (fileBuffer.ContainsFast("GetGSP"))
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
 
       for (j = 0; j < daqNameArray->GetEntriesFast(); j++) {
          tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
          tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
-         if (fileBuffer.Contains(tmp) || fileBuffer.Contains(tmp2))
+         if (fileBuffer.ContainsFast(tmp) || fileBuffer.ContainsFast(tmp2))
             buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),
                                    daqNameArray->At(j).Data());
       }
@@ -3623,12 +3612,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
    ROMEString format;
    ROMEString clsDescription;
    ROMEString clsName;
-   ROMEString fileBuffer;
    ROMEString str;
    ROMEString str1;
    ROMEString str2;
    ROMEString tabFile;
-   fstream *fileStream;
+   ROMEString tabFileBuffer;
    Bool_t second;
 
    if (makeOutput)
@@ -3644,9 +3632,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
       clsName.SetFormatted("%sT%s_Base", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = tabDescription[iTab].Data();
-      fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.AppendFormatted("\n\n");
@@ -3712,15 +3697,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       }
 
       tabFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
-      fileStream = new fstream(tabFile.Data(),ios::in);
-      fileBuffer.Resize(0);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
+      tabFileBuffer.SetFormatted("%sBuffer", tabFile.Data());
       for (j = 0; j < numOfTaskHierarchy; j++) {
          if (!taskUsed[taskHierarchyClassIndex[j]])
             continue;
          for (k = 0; k < numOfGraphs[taskHierarchyClassIndex[j]]; k++) {
-            if (accessGraph(fileBuffer,taskHierarchyClassIndex[j],k) && !taskListed[taskHierarchyClassIndex[j]]) {
+            if (accessGraph(tabFile.Data(),taskHierarchyClassIndex[j],k) &&
+                !taskListed[taskHierarchyClassIndex[j]]) {
                taskListed[taskHierarchyClassIndex[j]] = true;
                buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),
                                       taskHierarchyName[j].Data());
@@ -4074,13 +4057,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                                       tabObjectDisplayObjectType[iTab][i].Data());
                buffer.AppendFormatted("      static_cast<%s*>(static_cast<TObjArray*>(fObjects->Last())->Last())->SetPoint(0, 0, 0);\n",
                                       tabObjectDisplayObjectType[iTab][i].Data());
-            } else if (tabObjectDisplayObjectType[iTab][i].Contains("1")) {
+            } else if (tabObjectDisplayObjectType[iTab][i].ContainsFast("1")) {
                buffer.AppendFormatted("      static_cast<TObjArray*>(fObjects->Last())->AddLast(new %s(str.Data(),\"\", 1, 0, 1));\n",
                                       tabObjectDisplayObjectType[iTab][i].Data());
-            } else if (tabObjectDisplayObjectType[iTab][i].Contains("2")) {
+            } else if (tabObjectDisplayObjectType[iTab][i].ContainsFast("2")) {
                buffer.AppendFormatted("      static_cast<TObjArray*>(fObjects->Last())->AddLast(new %s(str.Data(),\"\", 1, 0, 1, 1, 0, 1));\n",
                                       tabObjectDisplayObjectType[iTab][i].Data());
-            } else if (tabObjectDisplayObjectType[iTab][i].Contains("3")) {
+            } else if (tabObjectDisplayObjectType[iTab][i].ContainsFast("3")) {
                buffer.AppendFormatted("      static_cast<TObjArray*>(fObjects->Last())->AddLast(new %s(str.Data(),\"\", 1, 0, 1, 1, 0, 1, 1, 0, 1));\n",
                                       tabObjectDisplayObjectType[iTab][i].Data());
             }
@@ -4138,13 +4121,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted("      static_cast<ROMETCutG*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->GetHistogram()->SetName(str.Data());\n");
                   buffer.AppendFormatted("      static_cast<ROMETCutG*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
                   buffer.AppendFormatted("      static_cast<ROMETCutG*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->SetPoint(0, 0, 0);\n");
-               } else if (tabObjectDisplayObjectType[iTab][i].Contains("1")) {
+               } else if (tabObjectDisplayObjectType[iTab][i].ContainsFast("1")) {
                   buffer.AppendFormatted("      static_cast<TObjArray*>(fUserObjects->Last())->AddLast(new %s(str.Data(),\"\", 1, 0, 1));\n",
                                          tabObjectDisplayObjectType[iTab][i].Data());
-               } else if (tabObjectDisplayObjectType[iTab][i].Contains("2")) {
+               } else if (tabObjectDisplayObjectType[iTab][i].ContainsFast("2")) {
                   buffer.AppendFormatted("      static_cast<TObjArray*>(fUserObjects->Last())->AddLast(new %s(str.Data(),\"\", 1, 0, 1, 1, 0, 1));\n",
                                          tabObjectDisplayObjectType[iTab][i].Data());
-               } else if (tabObjectDisplayObjectType[iTab][i].Contains("3")) {
+               } else if (tabObjectDisplayObjectType[iTab][i].ContainsFast("3")) {
                   buffer.AppendFormatted("      static_cast<TObjArray*>(fUserObjects->Last())->AddLast(new %s(str.Data(),\"\", 1, 0, 1, 1, 0, 1, 1, 0, 1));\n",
                                          tabObjectDisplayObjectType[iTab][i].Data());
                }
@@ -4691,13 +4674,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %sT%s_Base::RegisterObjects()\n{\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor() && fRegisteringActive) {\n");
-      tabFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
-      fileStream = new fstream(tabFile.Data(),ios::in);
-      fileBuffer.Resize(0);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer,j) || accessFolder(buffer,j)) {
+         if (accessFolder(tabFile.Data(),j) || accessFolderBuffer(buffer,j,tabFileBuffer.Data())) {
             buffer.AppendFormatted("      gAnalyzer->Register%s();\n",folderName[j].Data());
          }
       }
@@ -4705,8 +4683,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          if (!taskUsed[taskHierarchyClassIndex[j]])
             continue;
          for (k = 0; k < numOfGraphs[taskHierarchyClassIndex[j]]; k++) {
-            if (accessGraph(fileBuffer,taskHierarchyClassIndex[j],k) || accessGraph(buffer,taskHierarchyClassIndex[j],
-                                                                                    k)) {
+            if (accessGraph(tabFile.Data(),taskHierarchyClassIndex[j],k) ||
+                accessGraphBuffer(buffer,taskHierarchyClassIndex[j], k,tabFileBuffer.Data())) {
                buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->Register%s();\n",
                                       taskHierarchyName[j].Data(),
                                       taskHierarchySuffix[j].Data(),graphName[taskHierarchyClassIndex[j]][k].Data());
@@ -4722,12 +4700,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("void %sT%s_Base::UnRegisterObjects()\n{\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor() && fRegisteringActive) {\n");
       tabFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
-      fileStream = new fstream(tabFile.Data(),ios::in);
-      fileBuffer.Resize(0);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       for (j = 0; j < numOfFolder; j++) {
-         if (accessFolder(fileBuffer,j) || accessFolder(buffer,j)) {
+         if (accessFolder(tabFile.Data(),j) || accessFolderBuffer(buffer,j,tabFileBuffer.Data())) {
             buffer.AppendFormatted("      gAnalyzer->UnRegister%s();\n",folderName[j].Data());
          }
       }
@@ -4735,8 +4709,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          if (!taskUsed[taskHierarchyClassIndex[j]])
             continue;
          for (k = 0; k < numOfGraphs[taskHierarchyClassIndex[j]]; k++) {
-            if (accessGraph(fileBuffer,taskHierarchyClassIndex[j],k) || accessGraph(buffer,taskHierarchyClassIndex[j],
-                                                                                    k)) {
+            if (accessGraph(tabFile.Data(),taskHierarchyClassIndex[j],k) ||
+                accessGraphBuffer(buffer,taskHierarchyClassIndex[j], k,tabFileBuffer.Data())) {
                buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->UnRegister%s();\n",
                                       taskHierarchyName[j].Data(),taskHierarchySuffix[j].Data(),
                                       graphName[taskHierarchyClassIndex[j]][k].Data());
@@ -4847,11 +4821,9 @@ Bool_t ROMEBuilder::WriteTabH()
       // Write File
 
       // Check for deprecated constructor
-      fstream *fileStream = new fstream(hFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
+      fileBuffer.ReadFile(hFile.Data(), kTRUE);
       str.SetFormatted(" %sT%s()",shortCut.Data(),tabName[iTab].Data());
-      if (fileBuffer.Contains(str)) {
+      if (fileBuffer.ContainsFast(str)) {
          str.SetFormatted("Please replace %sT%s():%sT%s_Base() with %sT%s(%sWindow* window):%sT%s_Base(window).",
                           shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),
                           tabName[iTab].Data(),shortCut.Data(),shortCut.Data(),tabName[iTab].Data());
@@ -5187,7 +5159,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
       } else {
          tmp.SetFormatted("#include <%s>",gspInclude[i].Data());
       }
-      if (!buffer.Contains(tmp))
+      if (!buffer.ContainsFast(tmp))
          buffer.AppendFormatted("%s\n",tmp.Data());
    }
    // Folder includes
@@ -5203,7 +5175,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
             } else {
                tmp.SetFormatted("#include <%s>",folderInclude[i][j].Data());
             }
-            if (!buffer.Contains(tmp))
+            if (!buffer.ContainsFast(tmp))
                buffer.AppendFormatted("%s\n",tmp.Data());
          }
       }
@@ -6489,10 +6461,10 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
          for (j = 0; j < numOfValue[i]; j++) {
             if (valueDimension[i][j] == 0 &&
                 !isFolder(valueType[i][j].Data()) &&
-                !valueType[i][j].Contains("TRef") &&
+                !valueType[i][j].ContainsFast("TRef") &&
                 !(valueIsTObject[i][j] &&
-                  !valueType[i][j].Contains("ROMEString") &&
-                  !valueType[i][j].Contains("TString"))) {
+                  !valueType[i][j].ContainsFast("ROMEString") &&
+                  !valueType[i][j].ContainsFast("TString"))) {
                buffer.AppendFormatted("   if (path == \"/%s/%s\")\n",folderName[i].Data(),valueName[i][j].Data());
                buffer.AppendFormatted("      return %d;\n",codeNumber);
                buffer.AppendFormatted("   if (path.Index(\"/%s/%s\") != -1)\n",folderName[i].Data(),
@@ -10088,7 +10060,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
             tmp.SetFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
-            if (!buffer.Contains(tmp)) {
+            if (!buffer.ContainsFast(tmp)) {
                buffer.Append(tmp);
             }
          }
@@ -10274,7 +10246,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
             tmp.SetFormatted("class %s%s;\n", shortCut.Data(), runHeaderFolder[i][j].Data());
-            if (!buffer.Contains(tmp)) {
+            if (!buffer.ContainsFast(tmp)) {
                buffer.Append(tmp.Data());
             }
          }
@@ -10873,14 +10845,12 @@ Bool_t ROMEBuilder::WriteDBCpp() {
 #if 0
 // this special treatment is neccesary only for several month from Feb.2006
       if (!gSystem->AccessPathName(cppFile.Data(),kFileExists)) {
-         fstream *fileStream = new fstream(cppFile.Data(),ios::in);
          ROMEString fileBuffer;
-         fileBuffer.ReadFile(*fileStream);
-         delete fileStream;
-         if (fileBuffer.Contains("int runNumber")
-             || fileBuffer.Contains("int eventNumber")
-             || fileBuffer.Contains("long runNumber")
-             || fileBuffer.Contains("long eventNumber")) {
+         fileBuffer.ReadFile(cppFile.Data(), kTRUE);
+         if (fileBuffer.ContainsFast("int runNumber")
+             || fileBuffer.ContainsFast("int eventNumber")
+             || fileBuffer.ContainsFast("long runNumber")
+             || fileBuffer.ContainsFast("long eventNumber")) {
             cerr<<"type of event number was changed to Long64."<<endl
                 <<"Please modify."<<shortCut<<dbName[iDB]<<".h and "
                 <<shortCut<<dbName[iDB]<<".cpp"<<endl;
@@ -10963,14 +10933,12 @@ Bool_t ROMEBuilder::WriteDBH()
 #if 0
 // this special treatment is neccesary only for several month from Feb.2006
       if (!gSystem->AccessPathName(hFile.Data(),kFileExists)) {
-         fstream *fileStream = new fstream(hFile.Data(),ios::in);
          ROMEString fileBuffer;
-         fileBuffer.ReadFile(*fileStream);
-         delete fileStream;
-         if (fileBuffer.Contains("int runNumber")
-             || fileBuffer.Contains("int eventNumber")
-             || fileBuffer.Contains("long runNumber")
-             || fileBuffer.Contains("long eventNumber")) {
+         fileBuffer.ReadFile(hFile.Data(), kTRUE);
+         if (fileBuffer.ContainsFast("int runNumber")
+             || fileBuffer.ContainsFast("int eventNumber")
+             || fileBuffer.ContainsFast("long runNumber")
+             || fileBuffer.ContainsFast("long eventNumber")) {
             cerr<<"type of event number was changed to Long64."<<endl
                 <<"Please modify."<<shortCut<<dbName[iDB]<<".h and "
                 <<shortCut<<dbName[iDB]<<".cpp"<<endl;
@@ -12451,17 +12419,12 @@ Bool_t ROMEBuilder::WriteMain()
    if (this->pgsql) {
       cmd.SetFormatted("pg_config --includedir > %s", tmpName.Data());
       gSystem->Exec(cmd);
-      ifs.open(tmpName.Data());
-      if (ifs.good()) {
-         cmdRes.ReadFile(ifs);
-         ifs.close();
-         if (cmdRes.Length()) {
-            cmdRes.ReplaceAll("\\\\","/");
-            cmdRes.ReplaceAll("\\","/");
-            if (cmdRes.EndsWith("\n"))
-               cmdRes.Resize(cmdRes.Length() - 1);
-            buffer.AppendFormatted("      \" -I%s\"\n", cmdRes.Data());
-         }
+      if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+         cmdRes.ReplaceAll("\\\\","/");
+         cmdRes.ReplaceAll("\\","/");
+         if (cmdRes.EndsWith("\n"))
+            cmdRes.Resize(cmdRes.Length() - 1);
+         buffer.AppendFormatted("      \" -I%s\"\n", cmdRes.Data());
       }
       gSystem->Unlink(tmpName.Data());
    }
@@ -12470,14 +12433,10 @@ Bool_t ROMEBuilder::WriteMain()
       cmd.SetFormatted("mysql_config --include > %s", tmpName.Data());
       gSystem->Exec(cmd);
       ifs.open(tmpName.Data());
-      if (ifs.good()) {
-         cmdRes.ReadFile(ifs);
-         ifs.close();
-         if (cmdRes.Length()) {
-            if (cmdRes.EndsWith("\n"))
-               cmdRes.Resize(cmdRes.Length() - 1);
-            buffer.AppendFormatted("      \" %s\"\n", cmdRes.Data());
-         }
+      if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+         if (cmdRes.EndsWith("\n"))
+            cmdRes.Resize(cmdRes.Length() - 1);
+         buffer.AppendFormatted("      \" %s\"\n", cmdRes.Data());
       }
       gSystem->Unlink(tmpName.Data());
    }
@@ -12487,16 +12446,12 @@ Bool_t ROMEBuilder::WriteMain()
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
    gSystem->Exec(cmd);
    ifs.open(tmpName.Data());
-   if (ifs.good()) {
-      cmdRes.ReadFile(ifs);
-      ifs.close();
-      if (cmdRes.Length()) {
-         if (cmdRes.EndsWith("\n"))
-            cmdRes.Resize(cmdRes.Length() - 1);
-         finkDir = cmdRes;
-      }
-      gSystem->Unlink(tmpName.Data());
+   if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+      if (cmdRes.EndsWith("\n"))
+         cmdRes.Resize(cmdRes.Length() - 1);
+      finkDir = cmdRes;
    }
+   gSystem->Unlink(tmpName.Data());
    if (finkDir.Length())
       buffer.AppendFormatted("      \" -I%s/include\"\n", finkDir.Data());
 #endif
@@ -12774,8 +12729,6 @@ void ROMEBuilder::WriteHTMLDoku()
    // Tasks
    ROMEString cppFile;
    ROMEString str;
-   fstream *fileStream;
-   ROMEString fileBuffer;
    for (i = 0; i < numOfTask; i++) {
       if (!taskUsed[i])
          continue;
@@ -12858,16 +12811,13 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<h4>Folders</h4>\n");
       buffer.AppendFormatted("<p>\n");
       cppFile.SetFormatted("src/tasks/%sT%s.cpp",shortCut.Data(),taskName[i].Data()); // we are already in outputDir
-      fileStream = new fstream(cppFile.Data(),ios::in);
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
       buffer.AppendFormatted("This task accesses data from the following folders :\n");
       buffer.AppendFormatted("<ul>\n");
       for (j = 0; j < numOfFolder; j++) {
          if (!folderUsed[j]) {
             continue;
          }
-         if (accessFolder(fileBuffer, j, kTRUE)) {
+         if (accessFolder(cppFile.Data(), j, kTRUE)) {
             buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
          }
       }

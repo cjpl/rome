@@ -49,7 +49,7 @@ const Int_t maxNumberOfAffiliations = 20;
 const Int_t maxNumberOfArguments = 40;
 const Int_t maxNumberOfClassesInDictionary = 10;
 
-const Ssiz_t kTStringResizeIncrement = 4096;
+const Ssiz_t kTStringResizeIncrement = 1<<15;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
 
 const char  valueCounter[] = {'i','j','k'};
@@ -760,9 +760,13 @@ private:
    void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark,
                             const char* header = 0);
    Bool_t  BackUpFile(const char* filename);
-   Bool_t  accessFolder(ROMEString &fileBuffer, Int_t numFolder, Bool_t includeUnused = kFALSE);
-   Bool_t  accessHisto(ROMEString &fileBuffer, Int_t numTask, Int_t numHisto);
-   Bool_t  accessGraph(ROMEString &fileBuffer, Int_t numTask, Int_t numGraph);
+   Bool_t  accessFolder(const char* filename, Int_t numFolder, Bool_t includeUnused = kFALSE);
+   Bool_t  accessFolderBuffer(ROMEString &fileBuffer, Int_t numFolder, const char* cachename, Bool_t includeUnused = kFALSE);
+   Bool_t  accessHisto(const char* filename, Int_t numTask, Int_t numHisto);
+   Bool_t  accessHistoBuffer(ROMEString &fileBuffer, Int_t numTask, Int_t numHisto, const char* cachename);
+   Bool_t  accessGraph(const char* filename, Int_t numTask, Int_t numGraph);
+   Bool_t  accessGraphBuffer(ROMEString &fileBuffer, Int_t numTask, Int_t numGraph, const char* cachename);
+   void    UpdateAccessCache(ROMEString &fileBuffer, const char* filename);
    Bool_t  RemoveFile(const char* filename, const char* str = 0);
    void    RemoveDepFiles(const char* str = 0);
    void    RelativeWindowsPath(ROMEString &path,const char *referencePath);

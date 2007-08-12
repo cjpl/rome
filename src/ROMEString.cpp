@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <TString.h>
+#include <map>
 #include <TMath.h>
 #include <TVirtualMutex.h>
 #include "ROMEiostream.h"
@@ -91,6 +91,28 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString) const
       str = strstr(str, subString);
    }
    return numberOfOccurrence;
+}
+
+static map<string, string> fgReadFileCache;
+//______________________________________________________________________________
+Int_t ROMEString::ReadFile(const char *filename, Bool_t useCache)
+{
+   if (useCache && fgReadFileCache[filename].length()) {
+      *this = fgReadFileCache[filename].data();
+      return Length();
+   }
+
+   fstream *fileStream = new fstream(filename, ios::in);
+   if (fileStream && fileStream->good()) {
+      ReadFile(*fileStream);
+      fgReadFileCache[filename] = Data();
+      return Length();
+      delete fileStream;
+   } else {
+      delete fileStream;
+      Resize(0);
+      return -1;
+   }
 }
 
 //______________________________________________________________________________
