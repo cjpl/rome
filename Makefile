@@ -152,6 +152,7 @@ endif
 BldObjects := obj/ROMEBuilder.o \
               obj/ROMEBuildReadXML.o \
               obj/ROMEBuildWriteCode.o \
+              obj/ROMEBuildWriteCode2.o \
               obj/ROMEBuildMakeFile.o \
               obj/ROMEString.o \
               obj/ROMEStrArray.o \
@@ -364,7 +365,11 @@ obj/%Dict.o: %Dict.cpp %Dict.h
 	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMEPICOPT) -O0 -MMD -MP -MF $(@:.o=.d) -MT $@  -c $(INCLUDE) -o $@ $<
 
-obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
+obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
+	$(call romeechoing, "compiling $@")
+	$(Q)$(CXX) $(CXXFLAGS) $(ROMEBLD_FLAGS) $(ROMEPICDEF) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -MT $@ -c -o $@ $<
+
+obj/ROMEBuildWriteCode%.o: builder/src/ROMEBuildWriteCode%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
 	$(call romeechoing, "compiling $@")
 	$(Q)$(CXX) $(CXXFLAGS) $(ROMEBLD_FLAGS) $(ROMEPICDEF) $(INCLUDE) -MMD -MP -MF $(@:.o=.d) -MT $@ -c -o $@ $<
 
