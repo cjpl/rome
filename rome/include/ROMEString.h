@@ -42,9 +42,11 @@ public:
    const char*  ToLower(ROMEString& destination) const;
    void         ToUpper();
    const char*  ToUpper(ROMEString& destination) const;
+   Int_t        ReadFile(const char *filename, Bool_t useCache = kFALSE);
    istream&     ReadFile(istream& str);
    istream&     ReadLine(istream& str);
    ROMEString&  StripSpaces();
+   Bool_t       ContainsFast(const char* s) const { return strstr(Data(), s) != 0; }
 
    ClassDef(ROMEString, 1) // Functional TString for ROME
 };

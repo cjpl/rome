@@ -1720,14 +1720,10 @@ void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMESt
 Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace, Bool_t backup)
 {
    // return true when backup file is created
-   fstream *fileStream;
-   ROMEString fileBuffer = "";
    bool backupCreated = false;
-
-   if ((fileStream = new fstream(filename,ios::in))) {
-      fileBuffer.ReadFile(*fileStream);
-      delete fileStream;
-   }
+   fstream * fileStream;
+   ROMEString fileBuffer;
+   fileBuffer.ReadFile(filename, kTRUE);
 
    if (fileBuffer != body) {
       if (backup)
@@ -2153,14 +2149,9 @@ void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, In
 //______________________________________________________________________________
 Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
 {
-   fstream *fileStreamI;
    fstream *fileStreamO;
    ROMEString fileBuffer;
-   if ((fileStreamI = new fstream(oldFileName,ios::in))) {
-      fileBuffer.ReadFile(*fileStreamI);
-      fileStreamI->close();
-      delete fileStreamI;
-   } else {
+   if (!fileBuffer.ReadFile(oldFileName, kTRUE)) {
       return false;
    }
    if ((fileStreamO = new fstream(newFileName,ios::out | ios::trunc))) {
