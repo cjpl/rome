@@ -5,6 +5,7 @@
   $Id$
 
 ********************************************************************/
+#include <map>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
