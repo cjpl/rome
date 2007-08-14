@@ -188,7 +188,7 @@ Bool_t ArgusWindow::Start()
    MapWindow();
    fCurrentTabID = 1;
 
-   while (IsMapped()) {
+   while (!IsMapped()) {
       gSystem->Sleep(20);
    }
 
