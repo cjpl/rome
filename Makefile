@@ -145,6 +145,7 @@ ifeq ($(LIBROME), yes)
   INCLUDE += -DHAVE_LIBROME
   LIBROMEFILE := librome.a
   DICTIONARIES += ROMELibDict.h
+  TARGET += $(LIBROMEFILE)
 else
   LIBROMEFILE =
 endif
