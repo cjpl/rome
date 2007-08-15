@@ -818,7 +818,7 @@ Bool_t ROMEBuilder::StartBuilder()
                }
             }
             if (!found) {
-               if (numOfTab<0)
+               if (numOfTab < 0)
                   numOfTab = 0;
                tabName[numOfTab] = histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
                tabTitle[numOfTab] = histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
@@ -878,7 +878,7 @@ Bool_t ROMEBuilder::StartBuilder()
                }
             }
             if (!found) {
-               if (numOfTab<0)
+               if (numOfTab < 0)
                   numOfTab = 0;
                tabName[numOfTab] = graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
                tabTitle[numOfTab] = graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
@@ -1001,7 +1001,7 @@ Bool_t ROMEBuilder::StartBuilder()
    }
 
    // Add DAQs to daqArray
-   if (numOfEvent > 0) {
+   if (numOfEvent > 0 || midas) {
       daqNameArray->AddLast("Midas");
       daqTypeArray->AddLast(shortCut.Data());
       daqDirArray->AddLast("generated/");
@@ -1143,7 +1143,7 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteConfig3Cpp()) return false;
    if (!WriteConfig4Cpp()) return false;
    if (!WriteConfigH()) return false;
-   if (numOfEvent > 0) {
+   if (numOfEvent > 0 || midas) {
       if (!WriteMidasDAQCpp()) return false;
       if (!WriteMidasDAQH()) return false;
    }

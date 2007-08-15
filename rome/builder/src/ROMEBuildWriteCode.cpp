@@ -6958,7 +6958,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // DAQ Access Methods
    buffer.AppendFormatted("   // Deprecated DAQ Access Methods\n");
-   if (numOfEvent > 0)
+   if (numOfEvent > 0 || midas)
       buffer.AppendFormatted("   %sMidasDAQ* GetMidas() const { return GetMidasDAQ(); }\n",shortCut.Data());
    if (numOfTree > 0)
       buffer.AppendFormatted("   %sRomeDAQ* GetRome() const { return GetRomeDAQ(); }\n",shortCut.Data());
@@ -9579,6 +9579,9 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
 
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sMidasDAQ::IsActiveEventID(Int_t id) const\n{\n",shortCut.Data());
+   if (numOfEvent <= 0) {
+      buffer.AppendFormatted("   WarningSuppression(id);\n");
+   }
    for (i = 0; i < numOfEvent; i++) {
       buffer.AppendFormatted("   if (f%sEventActive && id == %s)\n",eventName[i].Data(),eventID[i].Data());
       buffer.AppendFormatted("      return true;\n");
@@ -11776,7 +11779,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    if (numOfTree>0)
       buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
-   if (numOfEvent>0 && midas)
+   if (numOfEvent>0 || midas)
       buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 

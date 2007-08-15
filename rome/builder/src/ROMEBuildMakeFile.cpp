@@ -24,8 +24,8 @@ void ROMEBuilder::AddIncludeDirectories()
    numOfIncludeDirectories = 6;
    if (numOfDAQ > 0) numOfIncludeDirectories++;
    if (numOfDB > 0) numOfIncludeDirectories++;
-   if (numOfTab >0) numOfIncludeDirectories++;
-   if (numOfTask >0) numOfIncludeDirectories++;
+   if (numOfTab > 0) numOfIncludeDirectories++;
+   if (numOfTask > 0) numOfIncludeDirectories++;
 #if defined( R__VISUAL_CPLUSPLUS )
    if (midas) numOfIncludeDirectories++;
    if (mysql) numOfIncludeDirectories++;
@@ -44,8 +44,8 @@ void ROMEBuilder::AddIncludeDirectories()
    includeDirectories->AddFormatted("include/generated");
    if (numOfDAQ > 0) includeDirectories->AddFormatted("include/daqs");
    if (numOfDB > 0) includeDirectories->AddFormatted("include/databases");
-   if (numOfTab >0) includeDirectories->AddFormatted("include/tabs");
-   if (numOfTask >0) includeDirectories->AddFormatted("include/tasks");
+   if (numOfTab > 0) includeDirectories->AddFormatted("include/tabs");
+   if (numOfTask > 0) includeDirectories->AddFormatted("include/tasks");
 #if defined( R__VISUAL_CPLUSPLUS )
    if (midas) includeDirectories->AddFormatted("$(MIDASSYS)/include/");
    if (mysql) includeDirectories->AddFormatted("$(ROMESYS)/include/mysql/");
@@ -126,13 +126,13 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormElement.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormElementSignal.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
-   if (numOfEvent>0)
+   if (numOfEvent > 0 || midas)
       romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
-   if (numOfTree>0)
+   if (numOfTree > 0)
       romeHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
-   if (numOfRootTree>0)
+   if (numOfRootTree > 0)
       romeHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
    if (this->mysql)
       romeHeaders->Add("$(ROMESYS)/include/ROMEMySQL.h");
@@ -175,7 +175,7 @@ void ROMEBuilder::AddRomeDictHeaders()
    romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMERint.h");
    romeLinkDefSuffix->Add("");
-   if (numOfEvent>0) {
+   if (numOfEvent > 0 || midas) {
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
       romeLinkDefSuffix->Add("");
    }
@@ -240,11 +240,11 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENoDAQSystem.h");
       romeLinkDefSuffix->Add("");
-      if (numOfTree>0) {
+      if (numOfTree > 0) {
          romeDictHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
          romeLinkDefSuffix->Add("");
       }
-      if (numOfRootTree>0) {
+      if (numOfRootTree > 0) {
          romeDictHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
          romeLinkDefSuffix->Add("");
       }
@@ -281,7 +281,7 @@ void ROMEBuilder::AddRomeSources()
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMERint.cpp");
-   if (numOfEvent>0)
+   if (numOfEvent > 0 || midas)
       romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");
    if (!librome) {
       romeSources->Add("$(ROMESYS)/src/mxml.c");
@@ -291,9 +291,9 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEHisto.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEODBOfflineDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEPath.cpp");
-      if (numOfTree>0)
+      if (numOfTree > 0)
          romeSources->Add("$(ROMESYS)/src/ROMERomeDAQ.cpp");
-      if (numOfRootTree>0)
+      if (numOfRootTree > 0)
          romeSources->Add("$(ROMESYS)/src/ROMERootDAQ.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMESplashScreen.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEStr2DArray.cpp");
@@ -403,11 +403,11 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sNetFolderServer.h",shortCut.Data());
    if (readGlobalSteeringParameters)
       generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
-   if (numOfEvent>0)
+   if (numOfEvent > 0 || midas)
       generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
-   if (numOfTree>0)
+   if (numOfTree > 0)
       generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
-   if (numOfRootTree>0)
+   if (numOfRootTree > 0)
       generatedHeaders->AddFormatted("include/generated/%sRootDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
    for (i = 0; i < numOfFolder; i++) {
@@ -464,15 +464,15 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sNetFolderServer.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
-   if (numOfEvent>0) {
+   if (numOfEvent > 0 || midas) {
       generatedDictHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
       generatedLinkDefSuffix->Add("");
    }
-   if (numOfTree>0) {
+   if (numOfTree > 0) {
       generatedDictHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
       generatedLinkDefSuffix->Add("");
    }
-   if (numOfRootTree>0) {
+   if (numOfRootTree > 0) {
       generatedDictHeaders->AddFormatted("include/generated/%sRootDAQ.h",shortCut.Data());
       generatedLinkDefSuffix->Add("");
    }
@@ -578,11 +578,11 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sConfig4.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sDBAccess.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sNetFolderServer.cpp",shortCut.Data());
-   if (numOfEvent>0)
+   if (numOfEvent > 0 || midas)
       generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
-   if (numOfTree>0)
+   if (numOfTree > 0)
       generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
-   if (numOfRootTree>0)
+   if (numOfRootTree > 0)
       generatedSources->AddFormatted("src/generated/%sRootDAQ.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfigToForm.cpp",shortCut.Data());
    for (i = 0; i < numOfTask; i++) {
@@ -1352,12 +1352,12 @@ void ROMEBuilder::GetIncludeDirString(ROMEString& buffer,const char* separator,c
    int i;
    buffer = "";
    for (i = 0; i < includeDirectories->GetEntriesFast(); i++) {
-      if (i>0)
+      if (i > 0)
          buffer.AppendFormatted(separator);
       buffer.AppendFormatted("%sI%s",flagSign,includeDirectories->At(i).Data());
    }
    for (i = 0; i < numOfMFIncDirs; i++) {
-      if (i>0 || includeDirectories->GetEntriesFast()>0)
+      if (i > 0 || includeDirectories->GetEntriesFast() > 0)
          buffer.AppendFormatted(separator);
       buffer.AppendFormatted("%sI%s",flagSign,mfIncDir[i].Data());
    }
@@ -1371,7 +1371,7 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
    ROMEString fileName;
    ROMEString fileExtension;
    static ROMEString separator = " ";
-   if (sources->GetEntriesFast()>0) {
+   if (sources->GetEntriesFast() > 0) {
 #if defined( R__UNIX )
       static bool calledFirstTime = true;
       if (calledFirstTime) {
@@ -1610,7 +1610,7 @@ void ROMEBuilder::GetUserDictIncludeDirString(ROMEString& buffer,const char* sep
       str.ReplaceAll("$(","%");
       str.ReplaceAll(")","%");
 #endif
-      if (i>0)
+      if (i > 0)
          buffer.AppendFormatted(separator);
       buffer.AppendFormatted("-I%s",str.Data());
    }
@@ -2607,12 +2607,12 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
       buffer.AppendFormatted("#pragma link off all classes;\n");
       buffer.AppendFormatted("#pragma link off all functions;\n");
       buffer.AppendFormatted("\n");
-      if (headers->GetEntriesFast()>0) {
+      if (headers->GetEntriesFast() > 0) {
          for (i = iFile * maxNumberOfClassesInDictionary;
               i < nClass && i < (iFile + 1) * maxNumberOfClassesInDictionary; i++) {
             classname = gSystem->BaseName(headers->At(i).Data());
             classname.Resize(classname.Length()-2); // remove ".h"
-            if (ldsuffix->At(i).Length()>0) {
+            if (ldsuffix->At(i).Length() > 0) {
                buffer.AppendFormatted("#pragma link C++ class %s%s;\n", classname.Data(), ldsuffix->At(i).Data());
             } else {
                buffer.AppendFormatted("#pragma link C++ class %s;\n", classname.Data());
@@ -2652,7 +2652,7 @@ Bool_t ROMEBuilder::WriteUserLinkDefH()
          if (mfDictHeaderUsed[i]) {
             classname = gSystem->BaseName(mfDictHeaderName[i]);
             classname.Resize(classname.Length()-2); // remove ".h"
-            if (mfDictHeaderLinkDefSuffix[i].Length()>0) {
+            if (mfDictHeaderLinkDefSuffix[i].Length() > 0) {
                buffer.AppendFormatted("#pragma link C++ class %s%s;\n", classname.Data(),
                                       mfDictHeaderLinkDefSuffix[i].Data());
             } else {

@@ -112,9 +112,11 @@ Bool_t ROMEMidasDAQ::Init() {
 
       // place a request for a specific event id
       if (this->GetNumberOfEventRequests() <= 0) {
+#if 0 // Is no event request invalid ?
          ROMEPrint::Error("\nNo Events Requests for online mode!\n");
          ROMEPrint::Error("\nPlace Events Requests into the ROME configuration file.\n");
          return false;
+#endif
       }
       const int nRequest = this->GetNumberOfEventRequests();
       for (i=0;i<nRequest;i++) {

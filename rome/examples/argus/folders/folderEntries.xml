@@ -67,11 +67,8 @@
 				<FieldType>Int_t</FieldType>
 				<FieldComment>Run number</FieldComment>
 				<FieldInitialization>0</FieldInitialization>
-<!-- ODB access is not supported yet -->
-<!--
-				<DataBaseName>myodb</DataBaseName>
+				<DataBaseName>odb</DataBaseName>
 				<DataBasePath>&quot;/Runinfo/Run number&quot;</DataBasePath>
--->
 			</Field>
 		</Folder>
 		<Folder>
