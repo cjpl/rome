@@ -1083,7 +1083,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          }
       }
       // Trees
-      if (numOfTree>0) {
+      if (numOfTree > 0) {
          subsubGroup = new ROMEConfigParameterGroup("Trees");
          subGroup->AddSubGroup(subsubGroup);
          // Accumulate
@@ -1272,7 +1272,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
                                                        shortCut.Data());
       }
       // Tasks
-      if (numOfTask>0) {
+      if (numOfTask > 0) {
          subsubGroup = new ROMEConfigParameterGroup("Tasks");
          subGroup->AddSubGroup(subsubGroup);
          AddTaskConfigParameters(subsubGroup, -1);
@@ -1284,7 +1284,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // Display
-      if (numOfTab>0) {
+      if (numOfTab > 0) {
          subsubGroup = new ROMEConfigParameterGroup("Display");
          subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
          subGroup->AddSubGroup(subsubGroup);
@@ -1375,7 +1375,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetNetFolderPort(%d));",i);
       }
       // Tabs
-      if (numOfTab>0) {
+      if (numOfTab > 0) {
          subsubGroup = new ROMEConfigParameterGroup("Tabs");
          subGroup->AddSubGroup(subsubGroup);
          AddTabConfigParameters(subsubGroup, -1);
@@ -1383,7 +1383,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    }
 
    // midas banks
-   if (numOfEvent>0) {
+   if (numOfEvent > 0) {
       subGroup = new ROMEConfigParameterGroup("Midas");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Midas","/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:annotation/xs:documentation");
       mainParGroup->AddSubGroup(subGroup);
@@ -1846,7 +1846,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
                                                        graphName[taskHierarchyClassIndex[i]][j].Data());
          subGroup->AddSubGroup(subSubGroup);
       }
-      if (numOfSteering[taskHierarchyClassIndex[i]]>0) {
+      if (numOfSteering[taskHierarchyClassIndex[i]] > 0) {
          steerPointerT.SetFormatted("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->GetSP()",shortCut.Data(),
                                     taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i]);
          taskPointerT.SetFormatted("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))",shortCut.Data(),
@@ -1941,7 +1941,7 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
          subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsPadConfigActive()?1:0];",
                                                     tabName[i].Data(),tabSuffix[i].Data());
       }
-      if (numOfTabSingleObjects[i]>0) {
+      if (numOfTabSingleObjects[i] > 0) {
          int nskip = 0;
          int *skip = new int[numOfTabSingleObjects[i]];
          bool skipthis = false;
@@ -2009,7 +2009,7 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
          }
       }
       parGroup->AddSubGroup(subGroup);
-      if (numOfSteering[i+numOfTask + 1]>0) {
+      if (numOfSteering[i+numOfTask + 1] > 0) {
          steerPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()->GetSP()", tabName[i].Data(),
                                     tabSuffix[i].Data());
          tabPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()", tabName[i].Data(), tabSuffix[i].Data());
@@ -2184,7 +2184,7 @@ Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
 {
    int i;
    for (i = 0; i < parGroup->GetNumberOfParameters(); i++) {
-      if (parGroup->GetParameterAt(i)->IsWriteLinesAlways() && parGroup->GetParameterAt(i)->GetNumberOfWriteLines()>0) {
+      if (parGroup->GetParameterAt(i)->IsWriteLinesAlways() && parGroup->GetParameterAt(i)->GetNumberOfWriteLines() > 0) {
          parGroup->SetWriteAlways();
          break;
       }
@@ -2464,7 +2464,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
       buffer.AppendFormatted("%s%sf%sModified = (%sf%s != \"\");\n",sTab.Data(),pointer.Data(),
                              parGroup->GetParameterAt(i)->GetName(),pointer.Data(),
                              parGroup->GetParameterAt(i)->GetName());
-      if (parGroup->GetParameterAt(i)->GetNumberOfReadModifiedTrueLines()>0) {
+      if (parGroup->GetParameterAt(i)->GetNumberOfReadModifiedTrueLines() > 0) {
          buffer.AppendFormatted("%sif (%sf%s == \"\") {\n",sTab.Data(),pointer.Data(),
                                 parGroup->GetParameterAt(i)->GetName());
          for (j = 0; j < parGroup->GetParameterAt(i)->GetNumberOfReadModifiedTrueLines(); j++) {
@@ -2519,7 +2519,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
          pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab+2,groupNameT,classNameT,pointerT,indexesT,iSub);
       } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
+         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),
                                     parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
                                     parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
@@ -2534,7 +2534,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab + 1,groupNameT,classNameT,pointerT,indexesT,iSub);
       } else {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
+         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%d]/",groupName.Data(),
                                     parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
                                     parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
@@ -2622,7 +2622,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
          pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab+2,groupNameT,classNameT,pointerT,indexesT,iSub);
       } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
+         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),
                                     parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
                                     parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
@@ -2638,7 +2638,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
          WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab + 1,groupNameT,classNameT,
                                   pointerT,indexesT,iSub);
       } else {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
+         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%d]/",groupName.Data(),
                                     parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
                                     parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
@@ -2670,7 +2670,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
          (*iSub)++;
          WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab,groupNameT,classNameT,pointerT,indexes,iSub);
       }
-      if (parGroup->GetSubGroupAt(i)->GetNumberOfParameters()+parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups()>0) {
+      if (parGroup->GetSubGroupAt(i)->GetNumberOfParameters()+parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups() > 0) {
          buffer.AppendFormatted("%s// %s%s--\n",sTabT.Data(),groupName.Data(),
                                 parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%sif (",sTabT.Data());
@@ -2786,7 +2786,7 @@ Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *
       return true;
    }
    for (i = 0; i < parGroup->GetNumberOfParameters() ; i++) {
-      if (parGroup->GetParameterAt(i)->GetNumberOfSetLines()>0) {
+      if (parGroup->GetParameterAt(i)->GetNumberOfSetLines() > 0) {
          buffer.AppendFormatted("%s// %s%s\n",sTab.Data(),groupName.Data(),parGroup->GetParameterAt(i)->GetName());
          buffer.AppendFormatted("%sif (modConfigData->%sf%sModified) {\n",sTab.Data(),pointer.Data(),
                                 parGroup->GetParameterAt(i)->GetName());
@@ -2965,7 +2965,7 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
       }
       if (i != 0 && parGroup->GetSubGroupAt(i)->GetWriteEmptyLine())
          buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTab.Data());
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
+      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),
                                 parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data());
          if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
@@ -4051,8 +4051,8 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
       //check if the file has string to be replaced.
       for (i = 0; i < TMath::Min(TMath::Min(arr1.GetEntriesFast(),arr2.GetEntriesFast()),
                                  TMath::Min(condition.GetEntriesFast(),replaceWhenFound.GetSize())); i++) {
-         if (arr1.At(i).Length()>0  && fileBuffer.ContainsFast(arr1.At(i))) {
-            if (condition.At(i).Length()>0 && (fileBuffer.ContainsFast(condition.At(i)) && replaceWhenFound.At(i)) ||
+         if (arr1.At(i).Length() > 0  && fileBuffer.ContainsFast(arr1.At(i))) {
+            if (condition.At(i).Length() > 0 && (fileBuffer.ContainsFast(condition.At(i)) && replaceWhenFound.At(i)) ||
                 (!fileBuffer.ContainsFast(condition.At(i)) && !replaceWhenFound.At(i))) {
                writeFile = true;
                fileBuffer.ReplaceAll(arr1.At(i), arr2.At(i));

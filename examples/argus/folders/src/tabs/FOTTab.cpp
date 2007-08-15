@@ -34,13 +34,8 @@ ClassImp(FOTTab)
 void FOTTab::Init()
 {
    //ODB
-// connection to ODB is not supported yet.
-#if 0
-   gAnalyzer->ReadODB();
-   cout<<gAnalyzer->GetODB()->GetRunNumber()<<endl;
-#else
-   gAnalyzer->GetODB()->SetRunNumber(0);
-#endif
+   gAnalyzer->GetDBAccess()->ReadODB();
+   cout<<endl<<endl<<"Run number is "<<gAnalyzer->GetODB()->GetRunNumber()<<endl<<endl;
 
    //ROMEDataBase
    gAnalyzer->GetDBAccess()->ReadROMEDataBase();

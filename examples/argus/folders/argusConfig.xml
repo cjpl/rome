@@ -11,8 +11,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
   <MainConfiguration>
     <Modes>
-      <AnalyzingMode>offline</AnalyzingMode>
-      <DAQSystem>none</DAQSystem>
+      <AnalyzingMode>online</AnalyzingMode>
+      <DAQSystem>midas</DAQSystem>
     </Modes>
 
     <Offline>
@@ -60,7 +60,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <DataBases>
 
         <DataBase>
-          <Name>myodb</Name>
+          <Name>odb</Name>
           <Connection></Connection>
           <Type>odb</Type>
           <EventBased>false</EventBased>
