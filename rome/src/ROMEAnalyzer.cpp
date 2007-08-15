@@ -1636,6 +1636,10 @@ THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
 //______________________________________________________________________________
 void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer, TObject* source, TObject* destination)
 {
+   if (!buffer || !source || !destination) {
+      return;
+   }
+
    buffer->Reset();
    buffer->SetWriteMode();
    buffer->MapObject(source);  //register obj in map to handle self reference
