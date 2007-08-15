@@ -11182,7 +11182,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("\n");
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("int %sNetFolderServer::CheckCommand(TSocket *socket,char *str)\n{\n",shortCut.Data());
-   buffer.AppendFormatted("   if (!socket->IsValid())\n");
+   buffer.AppendFormatted("   if (!socket->IsValid() || !gAnalyzer)\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   %sNetFolderServer* localThis = static_cast<%sNetFolderServer*>(gAnalyzer->GetNetFolderServer());\n",
@@ -11381,11 +11381,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("THREADTYPE %sNetFolderServer::Server(void *arg)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   TSocket *socket = (TSocket *) arg;\n");
+   buffer.AppendFormatted("   if (!socket->IsValid() || !gAnalyzer)\n");
+   buffer.AppendFormatted("      return THREADRETURN;\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   %sNetFolderServer* localThis = static_cast<%sNetFolderServer*>(gAnalyzer->GetNetFolderServer());\n",
                           shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   if (!socket->IsValid())\n");
-   buffer.AppendFormatted("      return THREADRETURN;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (localThis->Register(socket) == -1)\n");
    buffer.AppendFormatted("      return THREADRETURN;\n");
@@ -11459,6 +11459,9 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   if (!gAnalyzer)\n");
+   buffer.AppendFormatted("      return kFALSE;\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ROME_LOCKGUARD(fgSocketServerMutex);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
