@@ -58,7 +58,7 @@ int ROMENetFolderServer::ResponseFunction(TSocket *socket)
 //______________________________________________________________________________
 int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
 {
-   if (!socket->IsValid())
+   if (!socket->IsValid() || !gROME)
       return 1;
 
    ROMENetFolderServer* localThis = static_cast<ROMENetFolderServer*>(gROME->GetNetFolderServer());
@@ -146,10 +146,11 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
 THREADTYPE ROMENetFolderServer::Server(void *arg)
 {
    TSocket *socket = static_cast<TSocket*>(arg);
-   ROMENetFolderServer* localThis = gROME->GetNetFolderServer();
 
-   if (!socket->IsValid())
+   if (!socket->IsValid() || !gROME)
       return THREADRETURN;
+
+   ROMENetFolderServer* localThis = gROME->GetNetFolderServer();
 
    if(localThis->Register(socket) == -1)
       return THREADRETURN;
