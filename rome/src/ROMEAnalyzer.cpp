@@ -68,6 +68,7 @@
 #include <TArrayI.h>
 #include <TArrayL.h>
 #include <TVirtualMutex.h>
+#include <TThread.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -199,6 +200,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 //______________________________________________________________________________
 ROMEAnalyzer::~ROMEAnalyzer()
 {
+   TThread::Lock(); // lock other threads.
    SafeDelete(fNetFolderServer);
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
