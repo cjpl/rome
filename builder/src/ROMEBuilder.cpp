@@ -1089,7 +1089,7 @@ Bool_t ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    path.SetFormatted("%sres/xmltoform", outDir.Data());
    gSystem->MakeDirectory(path.Data());
-   path.SetFormatted("%sres/document", outDir.Data());
+   path.SetFormatted("%sres/documents", outDir.Data());
    gSystem->MakeDirectory(path.Data());
 
    char* romesys = getenv("ROMESYS");
