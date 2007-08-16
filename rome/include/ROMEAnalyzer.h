@@ -63,6 +63,8 @@ const Int_t kEventNumberTerminate  = -4;
 class ROMEAnalyzer : public TObject
 {
 friend class ArgusWindow;
+friend class ROMEEventLoop;
+
 public:
    // Analysis Mode
    enum {
