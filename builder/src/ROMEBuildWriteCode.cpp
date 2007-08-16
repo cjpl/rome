@@ -12630,7 +12630,7 @@ void ROMEBuilder::WriteHTMLDoku()
    ROMEString mapFileName, mapIconName;
    ROMEString dotOption = "";
 #if defined( R__MACOSX )
-   ROMEString dotOption = " -Nfontname=/System/Library/Fonts/Times.dfont -Gfontname=/System/Library/Fonts/Times.dfont";
+   dotOption = " -Nfontname=/System/Library/Fonts/Times.dfont -Gfontname=/System/Library/Fonts/Times.dfont";
 #endif
    mapFileName.SetFormatted("res/document/%s%s.gif", shortCut.Data(),mainProgName.Data());
    mapIconName.SetFormatted("res/document/%s%s_icon.gif", shortCut.Data(),mainProgName.Data());
@@ -13722,7 +13722,9 @@ Bool_t ROMEBuilder::WriteDOT()
       }
       depthold = depth;
    }
-   for (i = 0; i < depth; i++) buffer.AppendFormatted("%*s}\n", 3 * depth, "");
+   for (i = 1; i < depth; i++) {
+      buffer.AppendFormatted("%*s}\n", 3 * (depth - i), "");
+   }
 
    buffer.AppendFormatted("}\n");
 
