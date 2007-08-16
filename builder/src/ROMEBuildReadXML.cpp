@@ -219,6 +219,8 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks,maxNumberOfInclude));
    numOfTaskAccessedFolder = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    taskAccessedFolder = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfFolders));
+   numOfTaskConnectedFrom = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   taskConnectedFrom = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfTasks));
    numOfHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    histoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
@@ -279,6 +281,8 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskHierarchyLevel = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
    taskHierarchyObjectIndex = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
    taskHierarchySuffix = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
+   numOfTaskHierarchyConnectedFrom = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+   taskHierarchyConnectedFrom = static_cast<ROMEString**>(AllocateROMEString(2*maxNumberOfTasks,2*maxNumberOfTasks));
 
    // steering
    numOfSteering = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1));
@@ -803,6 +807,10 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      taskHierarchyClassIndex[i] = i;
                      taskHierarchyMultiplicity[i] = 1;
                      taskHierarchyLevel[i] = 1;
+                     numOfTaskHierarchyConnectedFrom[i] = numOfTaskConnectedFrom[i];
+                     for (j = 0; j < numOfTaskHierarchyConnectedFrom[i]; j++) {
+                        taskHierarchyConnectedFrom[i][j] = taskConnectedFrom[i][j];
+                     }
                   }
                   numOfTaskHierarchy = numOfTask;
                }
@@ -836,6 +844,20 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         }
                         if (!taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]])
                            numOfTaskHierarchy--;
+                     }
+                     if (type == 1 && !strcmp(name,"TaskConnectedFrom")) {
+                        if (numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] == 2 * maxNumberOfTasks) {
+                           cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
+                                 taskHierarchyName[numOfTaskHierarchy].Data()<<"' reached : "<<
+                                 2 * maxNumberOfTasks<<" !"<<endl;
+                           cout<<"Terminating program."<<endl;
+                           return false;
+                        }
+                        xml->GetValue(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
+                                      "");
+                        FormatText(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
+                                   kTRUE);
+                        numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]++;
                      }
                      if (type == 1 && !strcmp(name,"Task")) {
                         depth++;
@@ -1313,7 +1335,6 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                          <<" is larger than "<<maxNumberOfValueDimension<<" in "<<folderName[numOfFolder]<<"."<<endl;
                      cout<<"Terminating program."<<endl;
                      return false;
-
                   }
                   valueArray[numOfFolder][numOfValue[numOfFolder]][valueDimension[numOfFolder][numOfValue[numOfFolder]]-2] =
                         tmp(istart,iend-istart);
@@ -1578,6 +1599,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    numOfSteering[numOfTask] = -1;
    numOfSteerFields[numOfTask][0] = 0;
    numOfSteerChildren[numOfTask][0] = 0;
+   numOfTaskConnectedFrom[numOfTask] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2204,6 +2226,19 @@ Bool_t ROMEBuilder::ReadXMLTask()
             return false;
          }
          continue;
+      }
+      // task connected from
+      if (type == 1 && !strcmp(name,"TaskConnectedFrom")) {
+         if (numOfTaskConnectedFrom[numOfTask] == maxNumberOfTasks) {
+            cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
+                  taskName[numOfTask].Data()<<"' reached : "<<
+                  maxNumberOfTasks<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+         xml->GetValue(taskConnectedFrom[numOfTask][numOfTaskConnectedFrom[numOfTask]],"");
+         FormatText(taskConnectedFrom[numOfTask][numOfTaskConnectedFrom[numOfTask]], kTRUE);
+         numOfTaskConnectedFrom[numOfTask]++;
       }
       // task steering parameters
       if (type == 1 && !strcmp(name,"SteeringParameters")) {

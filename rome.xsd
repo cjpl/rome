@@ -765,6 +765,11 @@
 						<xs:documentation>Known problems of the task. It will be used for the html documentation and the task header.(optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+				<xs:element name="TaskConnectedFrom" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Task name of the previous step in the analysis chain. This is used to generate a picture of task connection of the project. The generated picture will be found in the generated HTML file. The picture will be generated when &quot;graphviz&guot; package is installed in the system. For detail of this tag, please see &quot;examples/document&quot;. For detail of &quot;graphviz&quot;, please visit http://www.graphviz.org. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Defines an include, which is added to the task. (optional)</xs:documentation>

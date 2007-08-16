@@ -230,6 +230,8 @@ protected:
    Bool_t      **taskLocalFlag;
    Int_t        *numOfTaskAccessedFolder;
    Int_t       **taskAccessedFolder;
+   Int_t        *numOfTaskConnectedFrom;
+   ROMEString  **taskConnectedFrom;
    Int_t        *numOfHistos;
    ROMEString  **histoName;
    ROMEString  **histoTitle;
@@ -285,6 +287,8 @@ protected:
    Int_t        *taskHierarchyLevel;
    Int_t        *taskHierarchyObjectIndex;
    ROMEString   *taskHierarchySuffix;
+   Int_t        *numOfTaskHierarchyConnectedFrom;
+   ROMEString  **taskHierarchyConnectedFrom;
 
 // steering
    Int_t        *numOfSteering;
@@ -683,6 +687,7 @@ private:
    Bool_t  WriteEventLoopH();
    Bool_t  WriteMain();
    Bool_t  WriteReadTreesC();
+   Bool_t  WriteDOT();
    Bool_t  WriteVersionH();
    Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* dictionaryName);
    Bool_t  WriteUserLinkDefH();

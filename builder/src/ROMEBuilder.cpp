@@ -154,6 +154,8 @@ ROMEBuilder::ROMEBuilder()
 ,taskLocalFlag(0)
 ,numOfTaskAccessedFolder(0)
 ,taskAccessedFolder(0)
+,numOfTaskConnectedFrom(0)
+,taskConnectedFrom(0)
 ,numOfHistos(0)
 ,histoName(0)
 ,histoTitle(0)
@@ -207,6 +209,8 @@ ROMEBuilder::ROMEBuilder()
 ,taskHierarchyLevel(0)
 ,taskHierarchyObjectIndex(0)
 ,taskHierarchySuffix(0)
+,numOfTaskHierarchyConnectedFrom(0)
+,taskHierarchyConnectedFrom(0)
 ,numOfSteering(0)
 ,numOfSteerFields(0)
 ,numOfSteerChildren(0)
@@ -533,6 +537,8 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskLocalFlag;
    delete [] numOfTaskAccessedFolder;
    delete [] taskAccessedFolder;
+   delete [] numOfTaskConnectedFrom;
+   delete [] taskConnectedFrom;
    delete [] numOfHistos;
    delete [] histoName;
    delete [] histoTitle;
@@ -587,6 +593,8 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskHierarchyLevel;
    delete [] taskHierarchyObjectIndex;
    delete [] taskHierarchySuffix;
+   delete [] numOfTaskHierarchyConnectedFrom;
+   delete [] taskHierarchyConnectedFrom;
 
    // steering
    delete [] numOfSteering;
@@ -1081,6 +1089,8 @@ Bool_t ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    path.SetFormatted("%sres/xmltoform", outDir.Data());
    gSystem->MakeDirectory(path.Data());
+   path.SetFormatted("%sres/document", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
 
    char* romesys = getenv("ROMESYS");
    oldFile.SetFormatted("%s/res/xmltoform/PadConfigDia.xml", romesys);
@@ -1162,6 +1172,7 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteNetFolderServerH()) return false;
    if (!WriteMain()) return false;
    if (!WriteReadTreesC()) return false;
+   if (!WriteDOT()) return false;
    if (!WriteVersionH()) return false;
 
    ROMEString buffer;

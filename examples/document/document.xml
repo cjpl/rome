@@ -1,0 +1,122 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+  <Experiment>
+    <ExperimentShortCut>DOC</ExperimentShortCut>
+    <ProgramName>Analyzer</ProgramName>
+    <FrameworkDescription>Description of DOCAnalyzer</FrameworkDescription>
+  </Experiment>
+  <Folders>
+    <Folder>
+      <FolderName>Data</FolderName>
+      <FolderDescription>Description of a folder</FolderDescription>
+      <FolderShortDescription>Short description of a folder</FolderShortDescription>
+      <Field>
+        <FieldName>data</FieldName>
+        <FieldType>Int_t</FieldType>
+        <FieldComment>Description of a field</FieldComment>
+      </Field>
+    </Folder>
+  </Folders>
+  <Tasks>
+    <Task>
+      <TaskName>A</TaskName>
+      <TaskDescription>Description of the task A</TaskDescription>
+      <TaskShortDescription>Short description of the task A</TaskShortDescription>
+    </Task>
+    <Task>
+      <TaskName>B</TaskName>
+      <TaskDescription>Description of the task B</TaskDescription>
+      <TaskConnectedFrom>A</TaskConnectedFrom>
+    </Task>
+    <Task>
+      <TaskName>C</TaskName>
+      <TaskDescription>Description of the task C</TaskDescription>
+      <TaskConnectedFrom>B</TaskConnectedFrom>
+    </Task>
+    <Task>
+      <TaskName>D</TaskName>
+      <TaskDescription>Description of the task D</TaskDescription>
+      <TaskConnectedFrom>B</TaskConnectedFrom>
+    </Task>
+    <Task>
+      <TaskName>E</TaskName>
+      <TaskDescription>Description of the task E</TaskDescription>
+      <TaskConnectedFrom>C</TaskConnectedFrom>
+    </Task>
+    <Task>
+      <TaskName>F</TaskName>
+      <TaskDescription>Description of the task F</TaskDescription>
+    </Task>
+    <Task>
+      <TaskName>G</TaskName>
+      <TaskDescription>Description of the task G</TaskDescription>
+    </Task>
+    <Task>
+      <TaskName>H</TaskName>
+      <TaskDescription>Description of the task G</TaskDescription>
+    </Task>
+    <Task>
+      <TaskName>I</TaskName>
+      <TaskDescription>Description of the task G</TaskDescription>
+    </Task>
+    <Task>
+      <TaskName>J</TaskName>
+      <TaskDescription>Description of the task G</TaskDescription>
+    </Task>
+  </Tasks>
+  <TaskHierarchy>
+    <Task>
+      <TaskName>A</TaskName>
+    </Task>
+    <Task>
+      <TaskName>B</TaskName>
+    </Task>
+    <Task>
+      <TaskName>C</TaskName>
+    </Task>
+    <Task>
+      <TaskName>D</TaskName>
+    </Task>
+    <Task>
+      <TaskName>E</TaskName>
+      <Task>
+        <TaskName>F</TaskName>
+        <TaskConnectedFrom>E</TaskConnectedFrom>
+        <Task>
+          <TaskName>H</TaskName>
+          <TaskConnectedFrom>F_0</TaskConnectedFrom>
+        </Task>
+      </Task>
+      <Task>
+        <TaskName>G</TaskName>
+        <TaskConnectedFrom>F_0</TaskConnectedFrom>
+      </Task>
+      <Task>
+        <TaskName>F</TaskName>
+        <TaskConnectedFrom>G_0</TaskConnectedFrom>
+      </Task>
+      <Task>
+        <TaskName>G</TaskName>
+        <TaskConnectedFrom>F_1</TaskConnectedFrom>
+        <Task>
+          <TaskName>H</TaskName>
+          <TaskConnectedFrom>G_1</TaskConnectedFrom>
+        </Task>
+      </Task>
+    </Task>
+    <Task>
+      <TaskName>I</TaskName>
+      <TaskConnectedFrom>G_1</TaskConnectedFrom>
+      <TaskConnectedFrom>D</TaskConnectedFrom>
+    </Task>
+    <Task>
+      <TaskName>J</TaskName>
+    </Task>
+  </TaskHierarchy>
+  <GlobalSteeringParameters>
+    <SteeringParameterField>
+      <SPFieldName>SteerParam</SPFieldName>
+      <SPFieldType>bool</SPFieldType>
+      <SPFieldComment>Description of a steering parameter</SPFieldComment>
+    </SteeringParameterField>
+  </GlobalSteeringParameters>
+</ROMEFrameworkDefinition>
