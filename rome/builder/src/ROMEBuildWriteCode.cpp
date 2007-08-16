@@ -12632,8 +12632,8 @@ void ROMEBuilder::WriteHTMLDoku()
 #if defined( R__MACOSX )
    dotOption = " -Nfontname=/System/Library/Fonts/Times.dfont -Gfontname=/System/Library/Fonts/Times.dfont";
 #endif
-   mapFileName.SetFormatted("res/document/%s%s.gif", shortCut.Data(),mainProgName.Data());
-   mapIconName.SetFormatted("res/document/%s%s_icon.gif", shortCut.Data(),mainProgName.Data());
+   mapFileName.SetFormatted("res/documents/%s%s.gif", shortCut.Data(),mainProgName.Data());
+   mapIconName.SetFormatted("res/documents/%s%s_icon.gif", shortCut.Data(),mainProgName.Data());
 #if defined( R__UNIX )
    char *dotexe = gSystem->Which(gSystem->Getenv("PATH"), "dot", kExecutePermission);
    ROMEString dotCommand;
