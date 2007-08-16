@@ -297,10 +297,6 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          startSplashScreen();
       }
 
-      if (isSocketServerActive()) {
-         StartNetFolderServer();
-      }
-
       if (!this->isBatchMode()) {
          ROMEPrint::Print("Program steering\n");
          ROMEPrint::Print("----------------\n");

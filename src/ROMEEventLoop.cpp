@@ -236,15 +236,23 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
       }
 
-      // Start ARGUS
-      //-------------
-      if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
-         if (IsTerminal()) {
-            ROMEPrint::Print("Starting argus monitor ...                            \r");
+      if (ii == 0) {
+         // Start ARGUS
+         //-------------
+         if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+            if (IsTerminal()) {
+               ROMEPrint::Print("Starting argus monitor ...                            \r");
+            }
+            gROME->StartWindow();
+            ROMEPrint::Print("Argus monitor running                                 \n");
+            fWindowFirstDraw = kTRUE;
+
+            // Start socket server
+            //-------------
+            if (gROME->isSocketServerActive()) {
+               gROME->StartNetFolderServer();
+            }
          }
-         gROME->StartWindow();
-         ROMEPrint::Print("Argus monitor running                                 \n");
-         fWindowFirstDraw = kTRUE;
       }
 
       // Loop over Events
