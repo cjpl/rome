@@ -348,7 +348,7 @@ void ROMEAnalyzer::ParameterUsage() const
    ROMEPrint::Print("  -b       Batch Mode (no Argument)\n");
    ROMEPrint::Print("  -D       Daemon Mode (no Argument)\n");
    ROMEPrint::Print("  -q       Quit Mode (no Argument)\n");
-   ROMEPrint::Print("  -v       Verbose level :(mute/error/warning/normal/debug)\n");
+   ROMEPrint::Print("  -v       Verbose level :(mute/error/warning/normal/verbose/debug)\n");
    ROMEPrint::Print("  -ng      No graphics is used\n");
    ROMEPrint::Print("  -c       Turn on graphical configuration panel\n");
    ROMEPrint::Print("  -nc      Turn off graphical configuration panel\n");
