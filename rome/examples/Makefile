@@ -39,6 +39,7 @@ export TCUTGOPT =$(OPT)
 export BFOPT    =$(OPT)
 export MSGOPT   =$(OPT)
 export UMFOPT   =$(OPT)
+export DOCOPT   =$(OPT)
 
 ROMEProjects = multirun/mranalyzer.exe \
                dbexample/rdbframework.exe \
@@ -61,7 +62,8 @@ ROMEProjects = multirun/mranalyzer.exe \
                cutg/tcutgexample.exe \
                basefolder/bfsample.exe \
                message/msganalyzer.exe \
-               userMakefile/umfanalyzer.exe
+               userMakefile/umfanalyzer.exe \
+               document/docanalyzer.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
                 argus/timer/ttmonitor.exe \
@@ -176,6 +178,10 @@ message/msganalyzer.exe:
 userMakefile/umfanalyzer.exe:
 	$(ROMESYS)/bin/romebuilder.exe -i userMakefile/userMakefile.xml -o userMakefile -nl;
 	make $(JOBSFLAG) -C userMakefile/
+
+document/docanalyzer.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i document/document.xml -o document -nl;
+	make $(JOBSFLAG) -C document/
 
 argus/file/flmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -nl 

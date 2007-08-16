@@ -12626,6 +12626,32 @@ void ROMEBuilder::WriteHTMLDoku()
    int depth = 0;
    bool trodd = true;
 
+   // Generate task connection map
+   ROMEString mapFileName, mapIconName;
+   ROMEString dotOption = "";
+#if defined( R__MACOSX )
+   ROMEString dotOption = " -Nfontname=/System/Library/Fonts/Times.dfont -Gfontname=/System/Library/Fonts/Times.dfont";
+#endif
+   mapFileName.SetFormatted("res/document/%s%s.gif", shortCut.Data(),mainProgName.Data());
+   mapIconName.SetFormatted("res/document/%s%s_icon.gif", shortCut.Data(),mainProgName.Data());
+#if defined( R__UNIX )
+   char *dotexe = gSystem->Which(gSystem->Getenv("PATH"), "dot", kExecutePermission);
+   ROMEString dotCommand;
+   if (dotexe) {
+      dotCommand.SetFormatted("%s -Tgif %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
+                              shortCut.Data(),mainProgName.Data(),
+                              mapFileName.Data());
+      gSystem->Exec(dotCommand.Data());
+      dotCommand.SetFormatted("%s -Tgif -Gsize=\"5,5\" %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
+                              shortCut.Data(),mainProgName.Data(),
+                              mapIconName.Data());
+      gSystem->Exec(dotCommand.Data());
+   }
+   delete [] dotexe;
+#endif
+   bool mapImageFound = !gSystem->AccessPathName(mapFileName.Data(), kFileExists) &&
+         !gSystem->AccessPathName(mapIconName.Data(), kFileExists);
+
    // Header
    // ------
    buffer.Resize(0);
@@ -12710,6 +12736,11 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<p>\n\n");
    // Task Hierarchy
    buffer.AppendFormatted("<h3><a name=taskhierarchy>Task Hierarchy</a></h3>\n");
+   if (mapImageFound) {
+      buffer.AppendFormatted("<a href=\"%s\"><img src=\"%s\"></a>\n", mapFileName.Data(), mapIconName.Data());
+      buffer.AppendFormatted("This image was generated from &lt;TaskConnectedFrom&gt; tag in task definition.\n");
+   }
+
    buffer.AppendFormatted("<p>\n");
    int ddelta;
    depthold = 1;
@@ -13613,6 +13644,90 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    }
    delete [] branchNameTmp;
 
+   return true;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::WriteDOT()
+{
+   // Write dot file for task map
+   ROMEString dotFile;
+   ROMEString buffer;
+   ROMEString dotDescription;
+   buffer.Resize(0);
+   dotDescription.Resize(0);
+
+   const char* const color[] = {"#FFFFFF", "#EEEEEE", "#DDDDDD", "#CCCCCC",
+                                "#BBBBBB", "#AAAAAA", "#999999", "#888888",
+                                "#777777", "#666666", "#555555", "#444444",
+                                "#333333", "#222222", "#111111", "#000000"};
+   // File name
+   dotFile.SetFormatted("%ssrc/generated/%s%s.dot", outDir.Data(), shortCut.Data(),mainProgName.Data());
+   WriteHeader(buffer, mainAuthor, true);
+   dotDescription.AppendFormatted("This is a DOT file describing the connection of tasks in %s%s.\n",
+                                  shortCut.Data(), mainProgName.Data());
+   dotDescription.AppendFormatted("To generate images, graphviz((http://www.graphviz.org) is necessary.\n\n");
+   dotDescription.AppendFormatted("You can make an image with a command like,\n");
+   dotDescription.AppendFormatted("   dot -Tgif %s%s.dot -o %s%s.gif\n", shortCut.Data(), mainProgName.Data(),
+                                  shortCut.Data(), mainProgName.Data());
+   WriteDescription(buffer, gSystem->BaseName(dotFile.Data()), dotDescription.Data(), false);
+   buffer.AppendFormatted("\n\n");
+
+   buffer.AppendFormatted("digraph %s%s {\n", shortCut.Data(), mainProgName.Data());
+   int ddelta;
+   int depth = 0;
+   int depthold = 1;
+   int i, j, k;
+   ROMEString name;
+   ROMEString nameTmp;
+   Bool_t found;
+   buffer.AppendFormatted("graph [compound = true, splines=true, label = \"Task Map of %s%s\", labelloc = t, labeljust = l];\n",
+                          shortCut.Data(), mainProgName.Data());
+   for (i = 0; i < numOfTaskHierarchy; i++) {
+      name.SetFormatted("%s%s", taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      depth = taskHierarchyLevel[i];
+      ddelta = depth - depthold;
+      if (ddelta > 0) {
+         for (k = 0; k < ddelta; k++) {
+            buffer.AppendFormatted("%*ssubgraph cluster%s {\n", 3 * (depth - 1), "", taskHierarchyName[i - 1].Data());
+            buffer.AppendFormatted("%*slabel = \"%s\";\n", 3 * depth, "", taskHierarchyName[i - 1].Data());
+            buffer.AppendFormatted("%*slabeljust = l;\n", 3 * depth, "");
+            buffer.AppendFormatted("%*sfillcolor = \"%s\";\n", 3 * depth, "", color[depth - 1]);
+            buffer.AppendFormatted("%*sstyle = filled;\n", 3 * depth, "");
+         }
+      }
+      if (ddelta < 0) {
+         for (k = 0; k < -ddelta; k++) {
+            buffer.AppendFormatted("%*s}\n", 3 * (depth - ddelta - k - 1), "");
+         }
+      }
+      buffer.AppendFormatted("%*s%s[style = filled, fillcolor = \"#FFFFFF\"];\n", 3 * depth, "",  name.Data());
+      for (j = 0; j < numOfTaskHierarchyConnectedFrom[i]; j++) {
+         found = kFALSE;
+         for (k = i - 1; k >= 0; k--) {
+            nameTmp.SetFormatted("%s%s", taskHierarchyName[k].Data(), taskHierarchySuffix[k].Data());
+            if (!taskUsed[taskHierarchyClassIndex[k]])
+               continue;
+            if (nameTmp == taskHierarchyConnectedFrom[i][j]) {
+               found = kTRUE;
+               break;
+            }
+         }
+         if (!found) {
+            cerr<<"Warning : task '"<<taskHierarchyConnectedFrom[i][j]<<"' connected from '"<<name<<"' was not found."<<endl;
+         }
+         buffer.AppendFormatted("%*s%s -> %s;\n", 3 * depth, "", taskHierarchyConnectedFrom[i][j].Data(), name.Data());
+      }
+      depthold = depth;
+   }
+   for (i = 0; i < depth; i++) buffer.AppendFormatted("%*s}\n", 3 * depth, "");
+
+   buffer.AppendFormatted("}\n");
+
+   // Write File
+   WriteFile(dotFile.Data(),buffer.Data(),6);
    return true;
 }
 
