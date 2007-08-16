@@ -106,8 +106,8 @@ Int_t ROMEString::ReadFile(const char *filename, Bool_t useCache)
    if (fileStream && fileStream->good()) {
       ReadFile(*fileStream);
       fgReadFileCache[filename] = Data();
-      return Length();
       delete fileStream;
+      return Length();
    } else {
       delete fileStream;
       Resize(0);
