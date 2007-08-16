@@ -13690,20 +13690,22 @@ Bool_t ROMEBuilder::WriteDOT()
       depth = taskHierarchyLevel[i];
       ddelta = depth - depthold;
       if (ddelta > 0) {
-         for (k = 0; k < ddelta; k++) {
-            buffer.AppendFormatted("%*ssubgraph cluster%s {\n", 3 * (depth - 1), "", taskHierarchyName[i - 1].Data());
-            buffer.AppendFormatted("%*slabel = \"%s\";\n", 3 * depth, "", taskHierarchyName[i - 1].Data());
-            buffer.AppendFormatted("%*slabeljust = l;\n", 3 * depth, "");
-            buffer.AppendFormatted("%*sfillcolor = \"%s\";\n", 3 * depth, "", color[depth - 1]);
-            buffer.AppendFormatted("%*sstyle = filled;\n", 3 * depth, "");
-         }
+         nameTmp.SetFormatted("%s%s", taskHierarchyName[i - 1].Data(), taskHierarchySuffix[i - 1].Data());
+         buffer.AppendFormatted("%*ssubgraph cluster%s {\n", 3 * (depth - 1), "", nameTmp.Data());
+         buffer.AppendFormatted("%*slabel = \"%s\";\n", 3 * depth, "", nameTmp.Data());
+         buffer.AppendFormatted("%*slabeljust = l;\n", 3 * depth, "");
+         buffer.AppendFormatted("%*sfillcolor = \"%s\";\n", 3 * depth, "", color[depth - 1]);
+         buffer.AppendFormatted("%*sstyle = filled;\n", 3 * depth, "");
+         buffer.AppendFormatted("%*s%s[style = filled, fillcolor = \"#FFFFFF\"];\n", 3 * depth, "", nameTmp.Data());
       }
       if (ddelta < 0) {
          for (k = 0; k < -ddelta; k++) {
             buffer.AppendFormatted("%*s}\n", 3 * (depth - ddelta - k - 1), "");
          }
       }
-      buffer.AppendFormatted("%*s%s[style = filled, fillcolor = \"#FFFFFF\"];\n", 3 * depth, "",  name.Data());
+      if (i == numOfTaskHierarchy - 1 || taskHierarchyParentIndex[i + 1] != i) {
+         buffer.AppendFormatted("%*s%s[style = filled, fillcolor = \"#FFFFFF\"];\n", 3 * depth, "", name.Data());
+      }
       for (j = 0; j < numOfTaskHierarchyConnectedFrom[i]; j++) {
          found = kFALSE;
          for (k = i - 1; k >= 0; k--) {
