@@ -10,6 +10,9 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
+#   if !defined( __CINT__ )
+#      include <Windows4Root.h>
+#   endif
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -2212,13 +2215,20 @@ Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
 void ROMEBuilder::ReadCommandOutput(const char* command, ROMEString& out)
 {
    ROMEString cmd;
-   ROMEString tmpName;
-   tmpName.SetFormatted("%s/romebuilder.%d", outDir.Data(), gSystem->GetPid());
-   cmd.SetFormatted("%s > %s", command, tmpName.Data());
-   if (gSystem->Exec(cmd) == 0) {
-      out.ReadFile(tmpName.Data());
+   ROMEString tmpFileName;
+   tmpFileName.SetFormatted("romebuilder%d", gSystem->GetPid());
+#if defined( R__UNIX )
+   fclose(gSystem->TempFileName(tmpFileName));
+   gSystem->Unlink(tmpFileName.Data());
+#else
+   tmpFileName.Resize(256);
+   GetTempFileName("c:\\", "", 0, (char*)tmpFileName.Data());
+#endif
+   cmd.SetFormatted("%s > %s 2>&1", command, tmpFileName.Data());
+   if (gSystem->Exec(cmd.Data()) == 0) {
+      out.ReadFile(tmpFileName.Data());
    } else {
       out = "";
    }
-   gSystem->Unlink(tmpName.Data());
+   gSystem->Unlink(tmpFileName.Data());
 }

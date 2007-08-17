@@ -17,7 +17,6 @@
 		<Tab>
 			<TabName>Tab1</TabName>
 			<TabTitle>1</TabTitle>
-			<Author>Ryu Sawada</Author>
 			<TabVersion>1</TabVersion>
 			<ThreadFunctions>
 				<ThreadFunction>
@@ -31,7 +30,6 @@
 		<Tab>
 			<TabName>Tab2</TabName>
 			<TabTitle>2</TabTitle>
-			<Author>Ryu Sawada</Author>
 			<TabVersion>1</TabVersion>
 			<ThreadFunctions>
 				<ThreadFunction>

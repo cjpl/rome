@@ -1,4 +1,4 @@
-// Author: Ryu Sawada
+// Author: Ryu Sawada <mailto:ryu.sawada _AtMark_ psi.ch>
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
