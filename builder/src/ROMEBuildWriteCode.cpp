@@ -12751,7 +12751,7 @@ void ROMEBuilder::WriteHTMLDoku()
                               shortCut.Data(),mainProgName.Data(),
                               mapFileName.Data());
       gSystem->Exec(dotCommand.Data());
-      dotCommand.SetFormatted("%s -Tgif -Gsize=\"5,5\" %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
+      dotCommand.SetFormatted("%s -Tgif -Gsize=\"5.5\" %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
                               shortCut.Data(),mainProgName.Data(),
                               mapIconName.Data());
       gSystem->Exec(dotCommand.Data());
