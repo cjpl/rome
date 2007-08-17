@@ -12529,7 +12529,6 @@ Bool_t ROMEBuilder::WriteMain()
    }
 #endif // R__UNIX
 #if defined( R__MACOSX )
-   TString finkDir;
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
    gSystem->Exec(cmd);
    if (cmdRes.ReadFile(tmpName.Data()) > 0) {
