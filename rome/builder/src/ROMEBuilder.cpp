@@ -2214,7 +2214,7 @@ void ROMEBuilder::ReadCommandOutput(const char* command, ROMEString& out)
    ROMEString cmd;
    ROMEString tmpName;
    tmpName.SetFormatted("%s/romebuilder.%d", outDir.Data(), gSystem->GetPid());
-   cmd.SetFormatted("%s >& %s", command, tmpName.Data());
+   cmd.SetFormatted("%s > %s", command, tmpName.Data());
    if (gSystem->Exec(cmd) == 0) {
       out.ReadFile(tmpName.Data());
    } else {
