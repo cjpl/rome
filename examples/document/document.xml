@@ -4,11 +4,41 @@
     <ProgramName>Analyzer</ProgramName>
     <FrameworkDescription>Description of DOCAnalyzer</FrameworkDescription>
   </Experiment>
+  <Author>
+    <AuthorName>Main author-1</AuthorName>
+    <AuthorInstitute>Main author-1 institute</AuthorInstitute>
+    <AuthorCollaboration>Main author-1 collaboration</AuthorCollaboration>
+    <AuthorEmail>Mainauthor-1@rome.com</AuthorEmail>
+  </Author>
+  <Author>
+    <AuthorName>Main author-2</AuthorName>
+    <AuthorInstitute>Main author-2 institute</AuthorInstitute>
+    <AuthorCollaboration>Main author-2 collaboration</AuthorCollaboration>
+    <AuthorEmail>Mainauthor-2@rome.com</AuthorEmail>
+  </Author>
   <Folders>
     <Folder>
       <FolderName>Data</FolderName>
       <FolderDescription>Description of a folder</FolderDescription>
       <FolderShortDescription>Short description of a folder</FolderShortDescription>
+      <Author>
+        <AuthorName>Datafolder author-1</AuthorName>
+        <AuthorInstitute>Datafolder author-1 institute</AuthorInstitute>
+        <AuthorCollaboration>Datafolder author-1 collaboration</AuthorCollaboration>
+        <AuthorEmail>Datafolderauthor-1@rome.com</AuthorEmail>
+      </Author>
+      <Author>
+      <AuthorName>Datafolder author-2</AuthorName>
+      <AuthorInstitute>Datafolder author-2 institute</AuthorInstitute>
+      <AuthorCollaboration>Datafolder author-2 collaboration</AuthorCollaboration>
+      <AuthorEmail>Datafolderauthor-2@rome.com</AuthorEmail>
+      </Author>
+      <Author>
+        <AuthorName>Datafolder author-3</AuthorName>
+        <AuthorInstitute>Datafolder author-3 institute</AuthorInstitute>
+      <AuthorCollaboration>Datafolder author-3 collaboration</AuthorCollaboration>
+      <AuthorEmail>Datafolderauthor-3@rome.com</AuthorEmail>
+      </Author>
       <Field>
         <FieldName>data</FieldName>
         <FieldType>Int_t</FieldType>
@@ -21,6 +51,18 @@
       <TaskName>A</TaskName>
       <TaskDescription>Description of the task A</TaskDescription>
       <TaskShortDescription>Short description of the task A</TaskShortDescription>
+      <Author>
+        <AuthorName>Task-A author-1</AuthorName>
+        <AuthorInstitute>Task-A author-1 institute</AuthorInstitute>
+        <AuthorCollaboration>Task-A author-1 collaboration</AuthorCollaboration>
+        <AuthorEmail>Task-Aauthor-1@rome.com</AuthorEmail>
+      </Author>
+      <Author>
+        <AuthorName>Task-A author-2</AuthorName>
+        <AuthorInstitute>Task-A author-2 institute</AuthorInstitute>
+        <AuthorCollaboration>Task-A author-2 collaboration</AuthorCollaboration>
+      <AuthorEmail>Task-Aauthor-1@rome.com</AuthorEmail>
+      </Author>
     </Task>
     <Task>
       <TaskName>B</TaskName>

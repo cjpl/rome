@@ -164,7 +164,11 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    folderInheritName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderArray = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
-   folderAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   numOfFolderAuthors = static_cast<Int_t*>(AllocateInt(maxNumberOfFolders));
+   folderAuthor = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders, maxNumberOfAuthors));
+   folderAuthorInstitute = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders, maxNumberOfAuthors));
+   folderAuthorCollaboration = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders, maxNumberOfAuthors));
+   folderAuthorEmail = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders, maxNumberOfAuthors));
    folderVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfInclude));
    folderLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfInclude));
@@ -209,10 +213,11 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskStatus = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskToDo = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskKnownProblems = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
-   taskAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
-   taskAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
-   taskAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
-   taskAuthorEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   numOfTaskAuthors = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   taskAuthor = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks, maxNumberOfAuthors));
+   taskAuthorInstitute = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks, maxNumberOfAuthors));
+   taskAuthorCollaboration = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks, maxNumberOfAuthors));
+   taskAuthorEmail = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks, maxNumberOfAuthors));
    taskVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskDependence = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfInclude));
@@ -346,10 +351,11 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabStatus = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabToDo = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabKnownProblems = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
-   tabAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
-   tabAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
-   tabAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
-   tabAuthorEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   numOfTabAuthors = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabAuthor = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs, maxNumberOfAuthors));
+   tabAuthorInstitute = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs, maxNumberOfAuthors));
+   tabAuthorCollaboration = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs, maxNumberOfAuthors));
+   tabAuthorEmail = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs, maxNumberOfAuthors));
    tabVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabDependence = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabHeredity = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
@@ -503,6 +509,11 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
                                                                           maxNumberOfAffiliations));
    mfSourceFileUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFSources));
 
+   mainAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfAuthors));
+   mainInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfAuthors));
+   mainCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfAuthors));
+   mainEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfAuthors));
+
    // precompiled headers;
    precompiledHeaders = new ROMEStrArray(1);
    precompiledIncludeHeaders = new ROMEStrArray(3);
@@ -527,12 +538,11 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    shortCut = "";
    mainProgName = "";
    mainDescription = "";
-   mainAuthor = "";
-   mainInstitute = "";
-   mainCollaboration = "";
+
+   numOfMainAuthors = 0;
+
    mainDefinitionVersion = "1";
    dictionaryType = 1;
-   mainEmail = "";
    usedCLO = ROMECommandLineOptions;
 
    readExperiment = false;
@@ -649,27 +659,34 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   continue;
                }
                if (!strcmp(name,"Author")) {
+                  if (numOfMainAuthors == maxNumberOfAuthors) {
+                     cout<<"Maximal number of main authors reached : "<<maxNumberOfAuthors<<" !"<<endl;
+                     cout<<"Terminating program."<<endl;
+                     return false;
+                  }
                   while (xml->NextLine()&&!finished) {
                      type = xml->GetType();
                      name = xml->GetName();
                      if (type == 1 && !strcmp(name,"AuthorName")) {
-                        xml->GetValue(mainAuthor,mainAuthor);
-                        FormatText(mainAuthor, kTRUE);
+                        xml->GetValue(mainAuthor[numOfMainAuthors],mainAuthor[numOfMainAuthors]);
+                        FormatText(mainAuthor[numOfMainAuthors], kTRUE);
                      }
                      if (type == 1 && !strcmp(name,"AuthorInstitute")) {
-                        xml->GetValue(mainInstitute,mainInstitute);
-                        FormatText(mainInstitute, kTRUE);
+                        xml->GetValue(mainInstitute[numOfMainAuthors],mainInstitute[numOfMainAuthors]);
+                        FormatText(mainInstitute[numOfMainAuthors], kTRUE);
                      }
                      if (type == 1 && !strcmp(name,"AuthorCollaboration")) {
-                        xml->GetValue(mainCollaboration,mainCollaboration);
-                        FormatText(mainCollaboration, kTRUE);
+                        xml->GetValue(mainCollaboration[numOfMainAuthors],mainCollaboration[numOfMainAuthors]);
+                        FormatText(mainCollaboration[numOfMainAuthors], kTRUE);
                      }
                      if (type == 1 && !strcmp(name,"AuthorEmail")) {
-                        xml->GetValue(mainEmail,mainEmail);
-                        FormatText(mainEmail, kTRUE);
+                        xml->GetValue(mainEmail[numOfMainAuthors],mainEmail[numOfMainAuthors]);
+                        FormatText(mainEmail[numOfMainAuthors], kTRUE);
                      }
-                     if (type == 15 && !strcmp(name,"Author"))
+                     if (type == 15 && !strcmp(name,"Author")) {
+                        numOfMainAuthors++;
                         break;
+                     }
                   }
                   continue;
                }
@@ -1033,7 +1050,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    folderDescription[numOfFolder] = "";
    folderShortDescription[numOfFolder] = "";
    folderInheritName[numOfFolder] = "";
-   folderAuthor[numOfFolder] = mainAuthor;
+   numOfFolderAuthors[numOfFolder] = 0;
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;
    folderNoReset[numOfFolder] = false;
@@ -1065,6 +1082,14 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             cout<<"Terminating program."<<endl;
             return false;
          }
+         if (!numOfFolderAuthors[currentNumberOfFolders]) {
+            numOfFolderAuthors[currentNumberOfFolders] = numOfMainAuthors;
+            for (i = 0; i < numOfFolderAuthors[currentNumberOfFolders]; i++) {
+               folderAuthorInstitute[currentNumberOfFolders][i] = mainInstitute[i];
+               folderAuthorCollaboration[currentNumberOfFolders][i] = mainCollaboration[i];
+               folderAuthorEmail[currentNumberOfFolders][i] = mainEmail[i];
+            }
+         }
          if (affiliations.GetEntriesFast() > 0) {
             folderUsed[currentNumberOfFolders] = false;
             for (i = 0; i < affiliations.GetEntriesFast() && !folderUsed[currentNumberOfFolders]; i++) {
@@ -1076,11 +1101,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                }
             }
          }
-         if (folderUsed[numOfFolder]) {
-            if (folderUserCode[numOfFolder]) {
+         if (folderUsed[currentNumberOfFolders]) {
+            if (folderUserCode[currentNumberOfFolders]) {
                hasFolderUserCode = true;
             } else {
-               if (folderSupport[numOfFolder]) {
+               if (folderSupport[currentNumberOfFolders]) {
                   hasSupportFolderGenerated = true;
                } else {
                   hasFolderGenerated = true;
@@ -1173,16 +1198,38 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       }
       // folder author
       if (type == 1 && !strcmp(name,"Author")) {
+         if (numOfFolderAuthors[numOfFolder] == maxNumberOfAuthors) {
+            cout<<"Maximal number of authors in folder '"<<folderName[numOfFolder]<<"' reached : "<<maxNumberOfAuthors<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
-            // author name
             if (type == 1 && !strcmp(name,"AuthorName")) {
-               xml->GetValue(folderAuthor[numOfFolder],folderAuthor[numOfFolder]);
-               FormatText(folderAuthor[numOfFolder], kTRUE);
+               xml->GetValue(folderAuthor[numOfFolder][numOfFolderAuthors[numOfFolder]],
+                             folderAuthor[numOfFolder][numOfFolderAuthors[numOfFolder]]);
+               FormatText(folderAuthor[numOfFolder][numOfFolderAuthors[numOfFolder]], kTRUE);
             }
-            if (type == 15 && !strcmp(name,"Author"))
+            if (type == 1 && !strcmp(name,"AuthorInstitute")) {
+               xml->GetValue(folderAuthorInstitute[numOfFolder][numOfFolderAuthors[numOfFolder]],
+                             folderAuthorInstitute[numOfFolder][numOfFolderAuthors[numOfFolder]]);
+               FormatText(folderAuthorInstitute[numOfFolder][numOfFolderAuthors[numOfFolder]], kTRUE);
+            }
+            if (type == 1 && !strcmp(name,"AuthorCollaboration")) {
+               xml->GetValue(folderAuthorCollaboration[numOfFolder][numOfFolderAuthors[numOfFolder]],
+                             folderAuthorCollaboration[numOfFolder][numOfFolderAuthors[numOfFolder]]);
+               FormatText(folderAuthorCollaboration[numOfFolder][numOfFolderAuthors[numOfFolder]], kTRUE);
+            }
+            if (type == 1 && !strcmp(name,"AuthorEmail")) {
+               xml->GetValue(folderAuthorEmail[numOfFolder][numOfFolderAuthors[numOfFolder]],
+                             folderAuthorEmail[numOfFolder][numOfFolderAuthors[numOfFolder]]);
+               FormatText(folderAuthorEmail[numOfFolder][numOfFolderAuthors[numOfFolder]], kTRUE);
+            }
+            if (type == 15 && !strcmp(name,"Author")) {
+               numOfFolderAuthors[numOfFolder]++;
                break;
+            }
          }
          continue;
       }
@@ -1584,7 +1631,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    numOfTaskAffiliations[numOfTask] = 0;
    taskUsed[numOfTask] = true;
    taskEventID[numOfTask] = "-1";
-   taskAuthor[numOfTask] = mainAuthor;
+   numOfTaskAuthors[numOfTask] = 0;
    taskVersion[numOfTask] = "0";
    taskDependence[numOfTask] = "";
    taskDescription[numOfTask] = "";
@@ -1621,6 +1668,14 @@ Bool_t ROMEBuilder::ReadXMLTask()
             cout<<"The "<<(currentNumberOfTasks + 1)<<". Task has no name !"<<endl;
             cout<<"Terminating program."<<endl;
             return false;
+         }
+         if (!numOfTaskAuthors[numOfTask]) {
+            numOfTaskAuthors[numOfTask] = numOfMainAuthors;
+            for (i = 0; i < numOfTaskAuthors[numOfTask]; i++) {
+               taskAuthorInstitute[numOfTask][i] = mainInstitute[i];
+               taskAuthorCollaboration[numOfTask][i] = mainCollaboration[i];
+               taskAuthorEmail[numOfTask][i] = mainEmail[i];
+            }
          }
          if (affiliations.GetEntriesFast() > 0) {
             taskUsed[numOfTask] = false;
@@ -1680,27 +1735,38 @@ Bool_t ROMEBuilder::ReadXMLTask()
       }
       // task author
       if (type == 1 && !strcmp(name,"Author")) {
+         if (numOfTaskAuthors[numOfTask] == maxNumberOfAuthors) {
+            cout<<"Maximal number of authors in '"<<taskName[numOfTask]<<"' reached : "<<maxNumberOfAuthors<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             if (type == 1 && !strcmp(name,"AuthorName")) {
-               xml->GetValue(taskAuthor[numOfTask],taskAuthor[numOfTask]);
-               FormatText(taskAuthor[numOfTask], kTRUE);
+               xml->GetValue(taskAuthor[numOfTask][numOfTaskAuthors[numOfTask]],
+                             taskAuthor[numOfTask][numOfTaskAuthors[numOfTask]]);
+               FormatText(taskAuthor[numOfTask][numOfTaskAuthors[numOfTask]], kTRUE);
             }
             if (type == 1 && !strcmp(name,"AuthorInstitute")) {
-               xml->GetValue(taskAuthorInstitute[numOfTask],taskAuthorInstitute[numOfTask]);
-               FormatText(taskAuthorInstitute[numOfTask], kTRUE);
+               xml->GetValue(taskAuthorInstitute[numOfTask][numOfTaskAuthors[numOfTask]],
+                             taskAuthorInstitute[numOfTask][numOfTaskAuthors[numOfTask]]);
+               FormatText(taskAuthorInstitute[numOfTask][numOfTaskAuthors[numOfTask]], kTRUE);
             }
             if (type == 1 && !strcmp(name,"AuthorCollaboration")) {
-               xml->GetValue(taskAuthorCollaboration[numOfTask],taskAuthorCollaboration[numOfTask]);
-               FormatText(taskAuthorCollaboration[numOfTask], kTRUE);
+               xml->GetValue(taskAuthorCollaboration[numOfTask][numOfTaskAuthors[numOfTask]],
+                             taskAuthorCollaboration[numOfTask][numOfTaskAuthors[numOfTask]]);
+               FormatText(taskAuthorCollaboration[numOfTask][numOfTaskAuthors[numOfTask]], kTRUE);
             }
             if (type == 1 && !strcmp(name,"AuthorEmail")) {
-               xml->GetValue(taskAuthorEmail[numOfTask],taskAuthorEmail[numOfTask]);
-               FormatText(taskAuthorEmail[numOfTask], kTRUE);
+               xml->GetValue(taskAuthorEmail[numOfTask][numOfTaskAuthors[numOfTask]],
+                             taskAuthorEmail[numOfTask][numOfTaskAuthors[numOfTask]]);
+               FormatText(taskAuthorEmail[numOfTask][numOfTaskAuthors[numOfTask]], kTRUE);
             }
-            if (type == 15 && !strcmp(name,"Author"))
+            if (type == 15 && !strcmp(name,"Author")) {
+               numOfTaskAuthors[numOfTask]++;
                break;
+            }
          }
       }
       // task version
@@ -2281,9 +2347,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabName[currentNumberOfTabs] = "";
    tabTitle[currentNumberOfTabs] = "";
    tabObjectDisplay[currentNumberOfTabs] = false;
-   numOfTabAffiliations[numOfTab] = 0;
-   tabUsed[numOfTab] = true;
-   tabAuthor[currentNumberOfTabs] = mainAuthor;
+   numOfTabAffiliations[currentNumberOfTabs] = 0;
+   tabUsed[currentNumberOfTabs] = true;
+   numOfTabAuthors[currentNumberOfTabs] = 0;
    tabVersion[currentNumberOfTabs] = "0";
    tabDependence[currentNumberOfTabs] = "";
    tabDescription[currentNumberOfTabs] = "";
@@ -2329,6 +2395,14 @@ Bool_t ROMEBuilder::ReadXMLTab()
             cout<<"The "<<(currentNumberOfTabs + 1)<<". Tab has no name !"<<endl;
             cout<<"Terminating program."<<endl;
             return kFALSE;
+         }
+         if (!numOfTabAuthors[currentNumberOfTabs]) {
+            numOfTabAuthors[currentNumberOfTabs] = numOfMainAuthors;
+            for (i = 0; i < numOfTabAuthors[currentNumberOfTabs]; i++) {
+               tabAuthorInstitute[currentNumberOfTabs][i] = mainInstitute[i];
+               tabAuthorCollaboration[currentNumberOfTabs][i] = mainCollaboration[i];
+               tabAuthorEmail[currentNumberOfTabs][i] = mainEmail[i];
+            }
          }
          if (affiliations.GetEntriesFast() > 0) {
             tabUsed[currentNumberOfTabs] = false;
@@ -2412,27 +2486,38 @@ Bool_t ROMEBuilder::ReadXMLTab()
 
       // tab author
       if (type == 1 && !strcmp(name,"Author")) {
+         if (numOfTabAuthors[currentNumberOfTabs] == maxNumberOfAuthors) {
+            cout<<"Maximal number of authors in '"<<tabName[currentNumberOfTabs]<<"' reached : "<<maxNumberOfAuthors<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             if (type == 1 && !strcmp(name,"AuthorName")) {
-               xml->GetValue(tabAuthor[currentNumberOfTabs],tabAuthor[currentNumberOfTabs]);
-               FormatText(tabAuthor[currentNumberOfTabs], kTRUE);
+               xml->GetValue(tabAuthor[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]],
+                             tabAuthor[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]]);
+               FormatText(tabAuthor[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]], kTRUE);
             }
             if (type == 1 && !strcmp(name,"AuthorInstitute")) {
-               xml->GetValue(tabAuthorInstitute[currentNumberOfTabs],tabAuthorInstitute[currentNumberOfTabs]);
-               FormatText(tabAuthorInstitute[currentNumberOfTabs], kTRUE);
+               xml->GetValue(tabAuthorInstitute[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]],
+                             tabAuthorInstitute[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]]);
+               FormatText(tabAuthorInstitute[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]], kTRUE);
             }
             if (type == 1 && !strcmp(name,"AuthorCollaboration")) {
-               xml->GetValue(tabAuthorCollaboration[currentNumberOfTabs],tabAuthorCollaboration[currentNumberOfTabs]);
-               FormatText(tabAuthorCollaboration[currentNumberOfTabs], kTRUE);
+               xml->GetValue(tabAuthorCollaboration[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]],
+                             tabAuthorCollaboration[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]]);
+               FormatText(tabAuthorCollaboration[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]], kTRUE);
             }
             if (type == 1 && !strcmp(name,"AuthorEmail")) {
-               xml->GetValue(tabAuthorEmail[currentNumberOfTabs],tabAuthorEmail[currentNumberOfTabs]);
-               FormatText(tabAuthorEmail[currentNumberOfTabs], kTRUE);
+               xml->GetValue(tabAuthorEmail[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]],
+                             tabAuthorEmail[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]]);
+               FormatText(tabAuthorEmail[currentNumberOfTabs][numOfTabAuthors[currentNumberOfTabs]], kTRUE);
             }
-            if (type == 15 && !strcmp(name,"Author"))
+            if (type == 15 && !strcmp(name,"Author")) {
+               numOfTabAuthors[currentNumberOfTabs]++;
                break;
+            }
          }
       }
       // tab version

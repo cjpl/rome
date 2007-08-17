@@ -4673,10 +4673,23 @@ void ROMEBuilder::UpdateAccessCache(ROMEString &fileBuffer, const char* filename
 }
 
 //______________________________________________________________________________
-void ROMEBuilder::WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite)
+void ROMEBuilder::WriteHeader(ROMEString& buffer, Int_t nAuthor, const ROMEString* author,
+                              const ROMEString* email, Bool_t overwrite)
 {
-   if (author && strlen(author))
-      buffer.AppendFormatted("// Author: %s\n\n", author);
+   Int_t i;
+   ROMEString separator = " ";
+   if (nAuthor > 0) {
+      buffer.AppendFormatted("// Author:");
+      for (i = 0; i < nAuthor; i++) {
+         buffer.Append(separator);
+         buffer.Append(author[i]);
+         if (email[i].Length()) {
+            buffer.AppendFormatted(" <%s>", email[i].Data());
+         }
+         separator = ", ";
+      }
+      buffer.Append("\n\n");
+   }
 
    if (overwrite) {
       buffer.AppendFormatted("/******************************************************************************\n");

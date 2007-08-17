@@ -85,7 +85,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
 
       // Description
       buffer.Resize(0);
-      WriteHeader(buffer, folderAuthor[iFold].Data(), kTRUE);
+      WriteHeader(buffer, numOfFolderAuthors[iFold], folderAuthor[iFold], folderAuthorEmail[iFold], kTRUE);
       if (folderUserCode[iFold]) {
          clsName.SetFormatted("%s%s_Base", shortCut.Data(), folderName[iFold].Data());
       } else {
@@ -1031,7 +1031,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       if (folderUserCode[iFold] && (changeableFlagChanged || gSystem->AccessPathName(cppFile.Data(),kFileExists))) {
          buffer.Resize(0);
          // Description
-         WriteHeader(buffer, folderAuthor[iFold].Data(), kFALSE);
+         WriteHeader(buffer, numOfFolderAuthors[iFold], folderAuthor[iFold], folderAuthorEmail[iFold], kFALSE);
          clsName.SetFormatted("%s%s", shortCut.Data(), folderName[iFold].Data());
          clsDescription = folderDescription[iFold].Data();
          WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
@@ -1096,7 +1096,7 @@ Bool_t ROMEBuilder::WriteFolderH()
 
       // Description
       buffer.Resize(0);
-      WriteHeader(buffer, folderAuthor[iFold].Data(), kTRUE);
+      WriteHeader(buffer, numOfFolderAuthors[iFold], folderAuthor[iFold], folderAuthorEmail[iFold], kTRUE);
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("#ifndef %s%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("#define %s%s_Base_H\n\n",shortCut.Data(),folderName[iFold].Data());
@@ -1665,7 +1665,7 @@ Bool_t ROMEBuilder::WriteFolderH()
          buffer.Resize(0);
 
          // Description
-         WriteHeader(buffer, folderAuthor[iFold].Data(), kFALSE);
+         WriteHeader(buffer, numOfFolderAuthors[iFold], folderAuthor[iFold], folderAuthorEmail[iFold], kFALSE);
          buffer.AppendFormatted("#ifndef %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
          clsName.SetFormatted("%s%s", shortCut.Data(), folderName[iFold].Data());
@@ -1716,7 +1716,7 @@ Bool_t ROMEBuilder::WriteAllFoldersH() {
 
    buffer.Resize(0);
    hFile.SetFormatted("%sinclude/generated/%sAllFolders.h", outDir.Data(), shortCut.Data());
-   WriteHeader(buffer, mainAuthor, true);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
 
    buffer.AppendFormatted("#ifndef %sAllFolders_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sAllFolders_H\n\n",shortCut.Data());
@@ -1768,7 +1768,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
 
       // Generated Includes
       buffer.Resize(0);
-      WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
+      WriteHeader(buffer, numOfTaskAuthors[iTask], taskAuthor[iTask], taskAuthorEmail[iTask], kTRUE);
       genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(),
                            taskName[iTask].Data());
 
@@ -1804,7 +1804,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       WriteFile(genFile.Data(), buffer.Data(),6);
 
       // Description
-      WriteHeader(header, taskAuthor[iTask].Data(), kFALSE);
+      WriteHeader(header, numOfTaskAuthors[iTask], taskAuthor[iTask], taskAuthorEmail[iTask], kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data(), taskName[iTask].Data());
       clsDescription = "Begin_Html\n\n";
       if (taskDescription[iTask].Length()) {
@@ -1838,7 +1838,11 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          clsDescription.AppendFormatted("</p>\n\n");
       }
       clsDescription.AppendFormatted("End_Html\n\n");
-      clsDescription.AppendFormatted("The event methods have been written by %s.\n",taskAuthor[iTask].Data());
+      clsDescription.AppendFormatted("The event methods have been written by\n");
+      for (j = 0; j < numOfTaskAuthors[iTask]; j++) {
+         clsDescription.AppendFormatted(" %s", taskAuthor[iTask][j].Data());
+      }
+      clsDescription.AppendFormatted(".\n");
       bool first = true;
       for (j = 0; j < numOfFolder; j++) {
          if (accessFolder(cppFile.Data(), j, kTRUE)) {
@@ -1959,7 +1963,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       cppFile.SetFormatted("%ssrc/generated/%sT%s_Base.cpp",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
       // Description
-      WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
+      WriteHeader(buffer, numOfTaskAuthors[iTask], taskAuthor[iTask], taskAuthorEmail[iTask], kTRUE);
       clsName.SetFormatted("%sT%s_Base", shortCut.Data(), taskName[iTask].Data());
       clsDescription = taskDescription[iTask].Data();
       clsDescription.AppendFormatted("\n\n");
@@ -3045,7 +3049,7 @@ Bool_t ROMEBuilder::WriteTaskH()
       if ((gSystem->AccessPathName(hFile.Data(),kFileExists))) {
          // Description
          buffer.Resize(0);
-         WriteHeader(buffer, taskAuthor[iTask].Data(), kFALSE);
+         WriteHeader(buffer, numOfTaskAuthors[iTask], taskAuthor[iTask], taskAuthorEmail[iTask], kFALSE);
          buffer.AppendFormatted("#ifndef %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("#define %sT%s_H\n\n",shortCut.Data(),taskName[iTask].Data());
          clsName.SetFormatted("%sT%s", shortCut.Data(), taskName[iTask].Data());
@@ -3116,7 +3120,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
 
       // Description
       buffer.Resize(0);
-      WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
+      WriteHeader(buffer, numOfTaskAuthors[iTask], taskAuthor[iTask], taskAuthorEmail[iTask], kTRUE);
       buffer.AppendFormatted("#ifndef %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("#define %sT%s_Base_H\n\n",shortCut.Data(),taskName[iTask].Data());
       clsName.SetFormatted("%sT%s_Base", shortCut.Data(), taskName[iTask].Data());
@@ -3404,7 +3408,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       // Generated Includes
       buffer.Resize(0);
-      WriteHeader(buffer, tabAuthor[iTab].Data(), kTRUE);
+      WriteHeader(buffer, numOfTabAuthors[iTab], tabAuthor[iTab], tabAuthorEmail[iTab], kTRUE);
       genFile.SetFormatted("%sinclude/generated/%sT%sGeneratedIncludes.h", outDir.Data(), shortCut.Data(),
                            tabName[iTab].Data());
 #if defined( R__VISUAL_CPLUSPLUS ) // This fixes errors in root includes on windows
@@ -3446,7 +3450,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       // Description
       buffer.Resize(0);
-      WriteHeader(header, tabAuthor[iTab].Data(), kFALSE);
+      WriteHeader(header, numOfTabAuthors[iTab], tabAuthor[iTab], tabAuthorEmail[iTab], kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = "Begin_Html\n\n";
       if (tabDescription[iTab].Length()) {
@@ -3629,7 +3633,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       cppFile.SetFormatted("%ssrc/generated/%sT%s_Base.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
 
       // Description
-      WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
+      WriteHeader(buffer, numOfTabAuthors[iTab], tabAuthor[iTab], tabAuthorEmail[iTab], kFALSE);
       clsName.SetFormatted("%sT%s_Base", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = tabDescription[iTab].Data();
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
@@ -4754,7 +4758,7 @@ Bool_t ROMEBuilder::WriteTabH()
       hFile.SetFormatted("%sinclude/tabs/%sT%s.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       // Description
       buffer.Resize(0);
-      WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
+      WriteHeader(buffer, numOfTabAuthors[iTab], tabAuthor[iTab], tabAuthorEmail[iTab], kFALSE);
       buffer.AppendFormatted("#ifndef %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#define %sT%s_H\n\n", shortCut.Data(), tabName[iTab].Data());
       clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
@@ -4877,7 +4881,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       // Description
       buffer.Resize(0);
-      WriteHeader(buffer, tabAuthor[iTab].Data(), kTRUE);
+      WriteHeader(buffer, numOfTabAuthors[iTab], tabAuthor[iTab], tabAuthorEmail[iTab], kTRUE);
       buffer.AppendFormatted("#ifndef %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#define %sT%s_Base_H\n\n", shortCut.Data(), tabName[iTab].Data());
       clsName.SetFormatted("%sT%s_Base", shortCut.Data() ,tabName[iTab].Data());
@@ -5137,7 +5141,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sGlobalSteering_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sGlobalSteering_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sGlobalSteering", shortCut.Data());
@@ -5237,7 +5241,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sAnalyzer", shortCut.Data());
    clsDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",
                                shortCut.Data(),mainProgName.Data());
@@ -6189,7 +6193,7 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sAnalyzer", shortCut.Data());
    clsDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",
                                shortCut.Data(),mainProgName.Data());
@@ -6297,7 +6301,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sAnalyzer", shortCut.Data());
    clsDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",
                                shortCut.Data(),mainProgName.Data());
@@ -6525,7 +6529,7 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sAnalyzer", shortCut.Data());
    clsDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",
                                shortCut.Data(),mainProgName.Data());
@@ -6704,7 +6708,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sAnalyzer_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sAnalyzer_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sAnalyzer", shortCut.Data());
@@ -7044,7 +7048,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sWindow", shortCut.Data());
    clsDescription.SetFormatted("Main window class for the %s%s. This class creates main window and manages Tabs.",
                                shortCut.Data(), mainProgName.Data());
@@ -7521,7 +7525,7 @@ Bool_t ROMEBuilder::WriteWindow2Cpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sWindow", shortCut.Data());
    clsDescription.SetFormatted("Main window class for the %s%s. This class creates main window and manages Tabs.",
                                shortCut.Data(), mainProgName.Data());
@@ -7614,7 +7618,7 @@ Bool_t ROMEBuilder::WriteWindowH()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sWINDOW_H\n", shortCut.Data());
    buffer.AppendFormatted("#define %sWINDOW_H\n\n", shortCut.Data());
    clsName.SetFormatted("%sWindow", shortCut.Data());
@@ -7774,7 +7778,7 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sDBAccess", shortCut.Data());
    clsDescription.SetFormatted("Handles the database access for the %s%s.", shortCut.Data(), mainProgName.Data());
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
@@ -8021,7 +8025,7 @@ Bool_t ROMEBuilder::WriteDBAccessH()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sDBACCESS_H\n", shortCut.Data());
    buffer.AppendFormatted("#define %sDBACCESS_H\n\n", shortCut.Data());
    clsName.SetFormatted("%sDBAccess", shortCut.Data());
@@ -8108,7 +8112,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    cppFile.SetFormatted("%ssrc/generated/%sConfigToForm.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sConfigToForm", shortCut.Data());
    clsDescription.SetFormatted("This class makes form for configuration for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -8281,7 +8285,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sConfigToForm_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sConfigToForm_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sConfigToForm", shortCut.Data());
@@ -8361,7 +8365,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    cppFile.SetFormatted("%ssrc/generated/%sConfig.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sConfig", shortCut.Data());
    clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -8686,7 +8690,7 @@ Bool_t ROMEBuilder::WriteConfig2Cpp() {
    cppFile.SetFormatted("%ssrc/generated/%sConfig2.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sConfig", shortCut.Data());
    clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -8791,7 +8795,7 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
    cppFile.SetFormatted("%ssrc/generated/%sConfig3.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sConfig", shortCut.Data());
    clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -8909,7 +8913,7 @@ Bool_t ROMEBuilder::WriteConfig4Cpp() {
    cppFile.SetFormatted("%ssrc/generated/%sConfig4.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sConfig", shortCut.Data());
    clsDescription.SetFormatted("This class handles the framework configuration file for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -9023,7 +9027,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sConfig_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sConfig_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sConfig", shortCut.Data());
@@ -9115,7 +9119,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    cppFile.SetFormatted("%ssrc/generated/%sMidasDAQ.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sMidasDAQ", shortCut.Data());
    clsDescription.SetFormatted("This class implements the midas odb access for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -9667,7 +9671,7 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sMidasDAQ_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sMidasDAQ_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sMidasDAQ", shortCut.Data());
@@ -10038,7 +10042,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    cppFile.SetFormatted("%ssrc/generated/%sRomeDAQ.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sRomeDAQ", shortCut.Data());
    clsDescription.SetFormatted("This class implements the ROOT TTree access for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -10233,7 +10237,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sRomeDAQ_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sRomeDAQ_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sRomeDAQ", shortCut.Data());
@@ -10329,7 +10333,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
    cppFile.SetFormatted("%ssrc/generated/%sRootDAQ.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sRootDAQ", shortCut.Data());
    clsDescription.SetFormatted("This class implements the ROOT DAQ for %s%s.",shortCut.Data(),mainProgName.Data());
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
@@ -10436,7 +10440,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sRootDAQ_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sRootDAQ_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sRootDAQ", shortCut.Data());
@@ -10579,7 +10583,7 @@ Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %s_H\n",rootBranchClassName[iTree][iBranch].Data());
    buffer.AppendFormatted("#define %s_H\n\n",rootBranchClassName[iTree][iBranch].Data());
    clsName.SetFormatted("%s",rootBranchClassName[iTree][iBranch].Data());
@@ -10696,7 +10700,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
       if (gSystem->AccessPathName(cppFile.Data(),kFileExists)) {
          // Description
          buffer.Resize(0);
-         WriteHeader(buffer, mainAuthor.Data(), kFALSE);
+         WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kFALSE);
          clsName.SetFormatted("%s%sDAQ", shortCut.Data(), daqName[iDAQ].Data());
          clsDescription.SetFormatted("%s DAQ class for %s%s.",daqName[iDAQ].Data(),shortCut.Data(),mainProgName.Data());
          WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
@@ -10777,7 +10781,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
       if (gSystem->AccessPathName(hFile.Data(),kFileExists)) {
          // Description
          buffer.Resize(0);
-         WriteHeader(buffer, mainAuthor.Data(), kFALSE);
+         WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kFALSE);
          buffer.AppendFormatted("#ifndef %s%sDAQ_H\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("#define %s%sDAQ_H\n\n",shortCut.Data(),daqName[iDAQ].Data());
          clsName.SetFormatted("%s%sDAQ", shortCut.Data(), daqName[iDAQ].Data());
@@ -10865,7 +10869,7 @@ Bool_t ROMEBuilder::WriteDBCpp() {
 #endif
          // Description
          buffer.Resize(0);
-         WriteHeader(buffer, mainAuthor.Data(), kFALSE);
+         WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kFALSE);
          clsName.SetFormatted("%s%s", shortCut.Data(), dbName[iDB].Data());
          clsDescription.SetFormatted("%s database class for %s%s.",dbName[iDB].Data(),shortCut.Data(),
                                      mainProgName.Data());
@@ -10953,7 +10957,7 @@ Bool_t ROMEBuilder::WriteDBH()
 #endif
          // Description
          buffer.Resize(0);
-         WriteHeader(buffer, mainAuthor.Data(), kFALSE);
+         WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kFALSE);
          buffer.AppendFormatted("#ifndef %s%sDataBase_H\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("#define %s%sDataBase_H\n\n",shortCut.Data(),dbName[iDB].Data());
          clsName.SetFormatted("%s%s", shortCut.Data(), dbName[iDB].Data());
@@ -11015,7 +11019,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    cppFile.SetFormatted("%ssrc/generated/%sNetFolderServer.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sNetFolderServer", shortCut.Data());
    clsDescription.SetFormatted("This class implements the NetFolderServer for %s%s.",shortCut.Data(),
                                mainProgName.Data());
@@ -11576,7 +11580,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sNetFolderServer_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sNetFolderServer_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sNetFolderServer", shortCut.Data());
@@ -11735,7 +11739,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    cppFile.SetFormatted("%ssrc/generated/%sEventLoop.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    clsName.SetFormatted("%sEventLoop", shortCut.Data());
    clsDescription.SetFormatted("Framework specific event loop class for %s%s.",shortCut.Data(),mainProgName.Data());
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
@@ -12302,7 +12306,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
 
    // Description
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
    buffer.AppendFormatted("#ifndef %sEventLoop_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sEventLoop_H\n\n",shortCut.Data());
    clsName.SetFormatted("%sEventLoop", shortCut.Data());
@@ -12387,7 +12391,7 @@ Bool_t ROMEBuilder::WriteMain()
    cppFile.SetFormatted("%ssrc/generated/main.cpp",outDir.Data());
 
    buffer.Resize(0);
-   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, kTRUE);
 
    buffer.AppendFormatted("#include <RConfig.h>\n");
    buffer.AppendFormatted("#include <string.h>\n");
@@ -12877,7 +12881,13 @@ void ROMEBuilder::WriteHTMLDoku()
          continue;
       buffer.AppendFormatted("<h3><a name=%sTask class=\"object\">%s</a></h3>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("contact person : %s, %s\n",taskAuthor[i].Data(),taskAuthorEmail[i].Data());
+      if (numOfTaskAuthors[i] > 0) {
+         buffer.AppendFormatted("contact person :");
+      }
+      for (j = 0; j < numOfTaskAuthors[i]; j++) {
+         buffer.AppendFormatted(" %s<%s>",taskAuthor[i][j].Data(),taskAuthorEmail[i][j].Data());
+      }
+      buffer.AppendFormatted("\n");
       if (taskDescription[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Description</h4>\n");
@@ -13004,7 +13014,13 @@ void ROMEBuilder::WriteHTMLDoku()
          continue;
       buffer.AppendFormatted("<h3><a name=%sTab class=\"object\">%s</a></h3>\n",tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("contact person : %s, %s\n",tabAuthor[i].Data(),tabAuthorEmail[i].Data());
+      if (numOfTabAuthors[i] > 0) {
+         buffer.AppendFormatted("contact person :");
+      }
+      for (j = 0; j < numOfTabAuthors[i]; j++) {
+         buffer.AppendFormatted(" %s<%s>\n",tabAuthor[i][j].Data(),tabAuthorEmail[i][j].Data());
+      }
+      buffer.AppendFormatted("\n");
       if (tabDescription[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Description</h4>\n");
@@ -13405,10 +13421,13 @@ void ROMEBuilder::WriteHTMLDoku()
    // Footer
    buffer.AppendFormatted("<ADDRESS>\n");
    buffer.AppendFormatted("<u> Contact person from the %s Experiment</u></br>\n",shortCut.Data());
-   buffer.AppendFormatted("%s</br>\n",mainAuthor.Data());
-   buffer.AppendFormatted("%s</br>\n",mainInstitute.Data());
-   buffer.AppendFormatted("%s</br>\n",mainCollaboration.Data());
-   buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail.Data(),mainEmail.Data());
+   for (i = 0; i < numOfMainAuthors; i++) {
+      buffer.AppendFormatted("%s</br>\n",mainAuthor[i].Data());
+      buffer.AppendFormatted("%s</br>\n",mainInstitute[i].Data());
+      buffer.AppendFormatted("%s</br>\n",mainCollaboration[i].Data());
+      buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+         buffer.AppendFormatted("</br>\n");
+   }
    buffer.AppendFormatted("<u> Contact person from ROME</u></br>\n");
    buffer.AppendFormatted("Matthias Schneebeli (PSI)</br>\n");
    buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
@@ -13457,10 +13476,13 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("  <hr width=\"100%%\">\n");
       buffer.AppendFormatted("<address>\n");
       buffer.AppendFormatted("<u> Contact person from the %s Experiment</u></br>\n",shortCut.Data());
-      buffer.AppendFormatted("%s</br>\n",mainAuthor.Data());
-      buffer.AppendFormatted("%s</br>\n",mainInstitute.Data());
-      buffer.AppendFormatted("%s</br>\n",mainCollaboration.Data());
-      buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail.Data(),mainEmail.Data());
+      for (i = 0; i < numOfMainAuthors; i++) {
+         buffer.AppendFormatted("%s</br>\n",mainAuthor[i].Data());
+         buffer.AppendFormatted("%s</br>\n",mainInstitute[i].Data());
+         buffer.AppendFormatted("%s</br>\n",mainCollaboration[i].Data());
+         buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+         buffer.AppendFormatted("</br>\n");
+      }
       buffer.AppendFormatted("<u> Contact person from ROME</u></br>\n");
       buffer.AppendFormatted("Matthias Schneebeli (PSI)</br>\n");
       buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
@@ -13502,7 +13524,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
 
    // File name
    cFile.SetFormatted("%ssrc/generated/%sReadTrees.C", outDir.Data(), shortCut.Data());
-   WriteHeader(buffer, mainAuthor, true);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
    macroDescription.AppendFormatted("This macro shows how to read output file from %s%s.exe.\n\n",
                                     shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
    macroDescription.AppendFormatted(" Usage\n");
@@ -13771,7 +13793,7 @@ Bool_t ROMEBuilder::WriteDOT()
 
    // File name
    dotFile.SetFormatted("%ssrc/generated/%s%s.dot", outDir.Data(), shortCut.Data(),mainProgName.Data());
-   WriteHeader(buffer, mainAuthor, true);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
    dotDescription.AppendFormatted("This is a DOT file describing the connection of tasks in %s%s.\n",
                                   shortCut.Data(), mainProgName.Data());
    dotDescription.AppendFormatted("To generate images, graphviz((http://www.graphviz.org) is necessary.\n\n");
@@ -13901,7 +13923,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    // prepare new file.
    buffer.Resize(0);
    headerDescription.Resize(0);
-   WriteHeader(buffer, mainAuthor, true);
+   WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
    headerDescription.AppendFormatted("This header contains Subversion revision code of %s%s.\n\n", shortCut.Data(),
                                      mainProgName.Data());
    headerDescription.AppendFormatted("It makes sense when you use Subversion.\n");
@@ -13977,7 +13999,7 @@ Bool_t ROMEBuilder::WritePrecompiledHeaders()
       hFile.SetFormatted("include/%s", precompiledHeaders->At(i).Data()); // we are in outDir.
       buffer.Resize(0);
       headerDescription.Resize(0);
-      WriteHeader(buffer, mainAuthor, true);
+      WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
       headerDescription.AppendFormatted("Header including headers to be precompiled.\n\n");
       WriteDescription(buffer, gSystem->BaseName(hFile.Data()), headerDescription.Data(), false);
       buffer.AppendFormatted("\n\n");

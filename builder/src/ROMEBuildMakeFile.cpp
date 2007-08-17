@@ -2599,7 +2599,7 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
    for (iFile = 0; iFile < (nClass - 1) / maxNumberOfClassesInDictionary + 1; iFile++) {
       filename.SetFormatted("include/generated/%s%dLinkDef.h", dictionaryName, iFile);
 
-      WriteHeader(buffer, mainAuthor, true);
+      WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
 
       buffer.SetFormatted("#ifdef __CINT__\n");
       buffer.AppendFormatted("\n");
@@ -2639,7 +2639,7 @@ Bool_t ROMEBuilder::WriteUserLinkDefH()
    for (iFile = 0; iFile < (nClass - 1) / maxNumberOfClassesInDictionary + 1; iFile++) {
       filename.SetFormatted("include/generated/%sUserDict%dLinkDef.h", shortCut.Data(), iFile);
 
-      WriteHeader(buffer, mainAuthor, true);
+      WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
 
       buffer.SetFormatted("#ifdef __CINT__\n");
       buffer.AppendFormatted("\n");
