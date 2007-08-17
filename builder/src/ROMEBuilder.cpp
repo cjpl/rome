@@ -2207,3 +2207,18 @@ Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
    }
    return true;
 }
+
+//______________________________________________________________________________
+void ROMEBuilder::ReadCommandOutput(const char* command, ROMEString& out)
+{
+   ROMEString cmd;
+   ROMEString tmpName;
+   tmpName.SetFormatted("%s/romebuilder.%d", outDir.Data(), gSystem->GetPid());
+   cmd.SetFormatted("%s >& %s", command, tmpName.Data());
+   if (gSystem->Exec(cmd) == 0) {
+      out.ReadFile(tmpName.Data());
+   } else {
+      out = "";
+   }
+   gSystem->Unlink(tmpName.Data());
+}

@@ -12424,41 +12424,37 @@ Bool_t ROMEBuilder::WriteMain()
    ROMEString cmd;
    ROMEString cmdRes;
    ROMEString tmpName;
-   tmpName.SetFormatted("%s/romebuilder.%d", outDir.Data(), gSystem->GetPid());
    if (this->pgsql) {
       cmd.SetFormatted("pg_config --includedir > %s", tmpName.Data());
-      gSystem->Exec(cmd);
-      if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+      ReadCommandOutput(cmd.Data(), cmdRes);
+      if (cmdRes.Length() > 0) {
          cmdRes.ReplaceAll("\\\\","/");
          cmdRes.ReplaceAll("\\","/");
          if (cmdRes.EndsWith("\n"))
             cmdRes.Resize(cmdRes.Length() - 1);
          buffer.AppendFormatted("      \" -I%s\"\n", cmdRes.Data());
       }
-      gSystem->Unlink(tmpName.Data());
    }
 #if defined( R__UNIX )
    if (this->mysql) {
       cmd.SetFormatted("mysql_config --include > %s", tmpName.Data());
-      gSystem->Exec(cmd);
-      if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+      ReadCommandOutput(cmd.Data(), cmdRes);
+      if (cmdRes.Length() > 0) {
          if (cmdRes.EndsWith("\n"))
             cmdRes.Resize(cmdRes.Length() - 1);
          buffer.AppendFormatted("      \" %s\"\n", cmdRes.Data());
       }
-      gSystem->Unlink(tmpName.Data());
    }
 #endif // R__UNIX
 #if defined( R__MACOSX )
    TString finkDir;
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
-   gSystem->Exec(cmd);
-   if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+   ReadCommandOutput(cmd.Data(), cmdRes);
+   if (cmdRes.Length() > 0) {
       if (cmdRes.EndsWith("\n"))
          cmdRes.Resize(cmdRes.Length() - 1);
       finkDir = cmdRes;
    }
-   gSystem->Unlink(tmpName.Data());
    if (finkDir.Length())
       buffer.AppendFormatted("      \" -I%s/include\"\n", finkDir.Data());
 #endif
@@ -12502,41 +12498,37 @@ Bool_t ROMEBuilder::WriteMain()
 
    // Source directory for THTML document generation
    buffer.AppendFormatted("const char* kHTMLSourceDir =\n");
-   tmpName.SetFormatted("%s/romebuilder.%d", outDir.Data(), gSystem->GetPid());
    if (this->pgsql) {
       cmd.SetFormatted("pg_config --includedir > %s", tmpName.Data());
-      gSystem->Exec(cmd);
-      if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+      ReadCommandOutput(cmd.Data(), cmdRes);
+      if (cmdRes.Length() > 0) {
          cmdRes.ReplaceAll("\\\\","/");
          cmdRes.ReplaceAll("\\","/");
          if (cmdRes.EndsWith("\n"))
             cmdRes.Resize(cmdRes.Length() - 1);
          buffer.AppendFormatted("      \":%s\"\n", cmdRes.Data());
       }
-      gSystem->Unlink(tmpName.Data());
    }
 #if defined( R__UNIX )
    if (this->mysql) {
       cmd.SetFormatted("mysql_config --include > %s", tmpName.Data());
-      gSystem->Exec(cmd);
-      if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+      ReadCommandOutput(cmd.Data(), cmdRes);
+      if (cmdRes.Length() > 0) {
          if (cmdRes.EndsWith("\n"))
             cmdRes.Resize(cmdRes.Length() - 1);
          cmdRes.ReplaceAll("-I", "");
          buffer.AppendFormatted("      \":%s\"\n", cmdRes.Data());
       }
-      gSystem->Unlink(tmpName.Data());
    }
 #endif // R__UNIX
 #if defined( R__MACOSX )
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
-   gSystem->Exec(cmd);
-   if (cmdRes.ReadFile(tmpName.Data()) > 0) {
+   ReadCommandOutput(cmd.Data(), cmdRes);
+   if (cmdRes.Length() > 0) {
       if (cmdRes.EndsWith("\n"))
          cmdRes.Resize(cmdRes.Length() - 1);
       finkDir = cmdRes;
    }
-   gSystem->Unlink(tmpName.Data());
    if (finkDir.Length())
       buffer.AppendFormatted("      \":%s/include\"\n", finkDir.Data());
 #endif
@@ -12746,15 +12738,25 @@ void ROMEBuilder::WriteHTMLDoku()
 #if defined( R__UNIX )
    char *dotexe = gSystem->Which(gSystem->Getenv("PATH"), "dot", kExecutePermission);
    ROMEString dotCommand;
+   ROMEString cmdRes;
    if (dotexe) {
-      dotCommand.SetFormatted("%s -Tgif %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
-                              shortCut.Data(),mainProgName.Data(),
-                              mapFileName.Data());
-      gSystem->Exec(dotCommand.Data());
-      dotCommand.SetFormatted("%s -Tgif -Gsize=\"5.5\" %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
-                              shortCut.Data(),mainProgName.Data(),
-                              mapIconName.Data());
-      gSystem->Exec(dotCommand.Data());
+      dotCommand.SetFormatted("dot -V");
+      ReadCommandOutput(dotCommand.Data(), cmdRes);
+      cmdRes.Replace(0, sizeof("dot version ") - 1, "");
+      if (cmdRes.Index(" ", 1, TString::kExact) != -1) {
+         cmdRes.Resize(cmdRes.Index(" ", 1, TString::kExact));
+      }
+      Double_t dotVersion = cmdRes.ToDouble();
+      if (dotVersion > 1.155) { // I know that v1.6 support GIF output. I don't know about older versions
+         dotCommand.SetFormatted("%s -Tgif %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
+                                 shortCut.Data(),mainProgName.Data(),
+                                 mapFileName.Data());
+         gSystem->Exec(dotCommand.Data());
+         dotCommand.SetFormatted("%s -Tgif -Gsize=\"5.5\" %s src/generated/%s%s.dot -o %s",dotexe,dotOption.Data(),
+                                 shortCut.Data(),mainProgName.Data(),
+                                 mapIconName.Data());
+         gSystem->Exec(dotCommand.Data());
+      }
    }
    delete [] dotexe;
 #endif
