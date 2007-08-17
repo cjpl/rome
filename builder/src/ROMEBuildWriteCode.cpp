@@ -13657,10 +13657,12 @@ Bool_t ROMEBuilder::WriteDOT()
    buffer.Resize(0);
    dotDescription.Resize(0);
 
-   const char* const color[] = {"#FFFFFF", "#EEEEEE", "#DDDDDD", "#CCCCCC",
-                                "#BBBBBB", "#AAAAAA", "#999999", "#888888",
-                                "#777777", "#666666", "#555555", "#444444",
-                                "#333333", "#222222", "#111111", "#000000"};
+   int i, j, k;
+   Int_t maxDepth = 8;
+   for (i = 0; i < numOfTaskHierarchy; i++) {
+      maxDepth = TMath::Max(taskHierarchyLevel[i], maxDepth);
+   }
+
    // File name
    dotFile.SetFormatted("%ssrc/generated/%s%s.dot", outDir.Data(), shortCut.Data(),mainProgName.Data());
    WriteHeader(buffer, mainAuthor, true);
@@ -13677,10 +13679,10 @@ Bool_t ROMEBuilder::WriteDOT()
    int ddelta;
    int depth = 0;
    int depthold = 1;
-   int i, j, k;
    ROMEString name;
    ROMEString nameTmp;
    Bool_t found;
+   unsigned char grayScale;
    buffer.AppendFormatted("graph [compound = true, splines=true, label = \"Task Map of %s%s\", labelloc = t, labeljust = l];\n",
                           shortCut.Data(), mainProgName.Data());
    for (i = 0; i < numOfTaskHierarchy; i++) {
@@ -13694,7 +13696,9 @@ Bool_t ROMEBuilder::WriteDOT()
          buffer.AppendFormatted("%*ssubgraph cluster%s {\n", 3 * (depth - 1), "", nameTmp.Data());
          buffer.AppendFormatted("%*slabel = \"%s\";\n", 3 * depth, "", nameTmp.Data());
          buffer.AppendFormatted("%*slabeljust = l;\n", 3 * depth, "");
-         buffer.AppendFormatted("%*sfillcolor = \"%s\";\n", 3 * depth, "", color[depth - 1]);
+         grayScale = TMath::Max(static_cast<unsigned char>(0),
+                                static_cast<unsigned char>(static_cast<Double_t>(0xFF) / maxDepth * (maxDepth - depth + 1)));
+         buffer.AppendFormatted("%*sfillcolor = \"#%02X%02X%02X\";\n", 3 * depth, "", grayScale, grayScale, grayScale);
          buffer.AppendFormatted("%*sstyle = filled;\n", 3 * depth, "");
          buffer.AppendFormatted("%*s%s[style = filled, fillcolor = \"#FFFFFF\"];\n", 3 * depth, "", nameTmp.Data());
       }
