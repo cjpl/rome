@@ -99,7 +99,11 @@ ROMEBuilder::ROMEBuilder()
 ,folderInheritName(0)
 ,folderTitle(0)
 ,folderArray(0)
+,numOfFolderAuthors(0)
 ,folderAuthor(0)
+,folderAuthorInstitute(0)
+,folderAuthorCollaboration(0)
+,folderAuthorEmail(0)
 ,folderVersion(0)
 ,folderInclude(0)
 ,folderLocalFlag(0)
@@ -143,6 +147,7 @@ ROMEBuilder::ROMEBuilder()
 ,taskStatus(0)
 ,taskToDo(0)
 ,taskKnownProblems(0)
+,numOfTaskAuthors(0)
 ,taskAuthor(0)
 ,taskAuthorInstitute(0)
 ,taskAuthorCollaboration(0)
@@ -253,6 +258,7 @@ ROMEBuilder::ROMEBuilder()
 ,tabStatus(0)
 ,tabToDo(0)
 ,tabKnownProblems(0)
+,numOfTabAuthors(0)
 ,tabAuthor(0)
 ,tabAuthorInstitute(0)
 ,tabAuthorCollaboration(0)
@@ -389,10 +395,11 @@ ROMEBuilder::ROMEBuilder()
 ,mfSourceFileAffiliation(0)
 ,mfSourceFileUsed(0)
 ,objDirList()
-,mainAuthor("")
-,mainInstitute("")
-,mainCollaboration("")
-,mainEmail("")
+,numOfMainAuthors(0)
+,mainAuthor(0)
+,mainInstitute(0)
+,mainCollaboration(0)
+,mainEmail(0)
 ,mainProgName("")
 ,mainDefinitionVersion("1")
 ,mainDescription("")
@@ -483,7 +490,11 @@ ROMEBuilder::~ROMEBuilder()
    delete [] folderInheritName;
    delete [] folderTitle;
    delete [] folderArray;
+   delete [] numOfFolderAuthors;
    delete [] folderAuthor;
+   delete [] folderAuthorInstitute;
+   delete [] folderAuthorCollaboration;
+   delete [] folderAuthorEmail;
    delete [] folderVersion;
    delete [] folderInclude;
    delete [] folderLocalFlag;
@@ -527,6 +538,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskStatus;
    delete [] taskToDo;
    delete [] taskKnownProblems;
+   delete [] numOfTaskAuthors;
    delete [] taskAuthor;
    delete [] taskAuthorInstitute;
    delete [] taskAuthorCollaboration;
@@ -636,6 +648,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabStatus;
    delete [] tabToDo;
    delete [] tabKnownProblems;
+   delete [] numOfTabAuthors;
    delete [] tabAuthor;
    delete [] tabAuthorInstitute;
    delete [] tabAuthorCollaboration;
@@ -759,6 +772,10 @@ ROMEBuilder::~ROMEBuilder()
    delete [] numOfMFSourceAffiliations;
    delete [] mfSourceFileAffiliation;
    delete [] mfSourceFileUsed;
+   delete [] mainAuthor;
+   delete [] mainInstitute;
+   delete [] mainCollaboration;
+   delete [] mainEmail;
 
    delete precompiledHeaders;
    delete precompiledIncludeHeaders;
@@ -831,7 +848,12 @@ Bool_t ROMEBuilder::StartBuilder()
                tabName[numOfTab] = histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
                tabTitle[numOfTab] = histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
                tabObjectDisplay[numOfTab] = false;
-               tabAuthor[numOfTab] = mainAuthor;
+               numOfTabAuthors[numOfTab] = numOfMainAuthors;
+               for (l = 0; l < numOfTabAuthors[numOfTab]; l++) {
+                  tabAuthorInstitute[numOfTab][l] = mainInstitute[l];
+                  tabAuthorCollaboration[numOfTab][l] = mainCollaboration[l];
+                  tabAuthorEmail[numOfTab][l] = mainEmail[l];
+               }
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";
                tabShortDescription[numOfTab] = "";
@@ -891,7 +913,12 @@ Bool_t ROMEBuilder::StartBuilder()
                tabName[numOfTab] = graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
                tabTitle[numOfTab] = graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
                tabObjectDisplay[numOfTab] = false;
-               tabAuthor[numOfTab] = mainAuthor;
+               numOfTabAuthors[numOfTab] = numOfMainAuthors;
+               for (l = 0; l < numOfTabAuthors[numOfTab]; l++) {
+                  tabAuthorInstitute[numOfTab][l] = mainInstitute[l];
+                  tabAuthorCollaboration[numOfTab][l] = mainCollaboration[l];
+                  tabAuthorEmail[numOfTab][l] = mainEmail[l];
+               }
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";
                tabShortDescription[numOfTab] = "";
@@ -1555,6 +1582,12 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    folderDescription[numOfFolder] = "folder for configuration parameters";
    folderShortDescription[numOfFolder] = "";
    folderAuthor[numOfFolder] = mainAuthor;
+   numOfFolderAuthors[numOfFolder] = numOfMainAuthors;
+   for (i = 0; i < numOfFolderAuthors[numOfFolder]; i++) {
+      folderAuthorInstitute[numOfFolder][i] = mainInstitute[i];
+      folderAuthorCollaboration[numOfFolder][i] = mainCollaboration[i];
+      folderAuthorEmail[numOfFolder][i] = mainEmail[i];
+   }
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;
    folderNoReset[numOfFolder] = true;

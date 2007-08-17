@@ -48,6 +48,7 @@ const Int_t maxNumberOfMFSourceFlags = 10;
 const Int_t maxNumberOfAffiliations = 20;
 const Int_t maxNumberOfArguments = 40;
 const Int_t maxNumberOfClassesInDictionary = 10;
+const Int_t maxNumberOfAuthors = 20;
 
 const Ssiz_t kTStringResizeIncrement = 1<<15;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
@@ -170,7 +171,11 @@ protected:
    ROMEString   *folderInheritName;
    ROMEString   *folderTitle;
    ROMEString   *folderArray;
-   ROMEString   *folderAuthor;
+   Int_t        *numOfFolderAuthors;
+   ROMEString  **folderAuthor;
+   ROMEString  **folderAuthorInstitute;
+   ROMEString  **folderAuthorCollaboration;
+   ROMEString  **folderAuthorEmail;
    ROMEString   *folderVersion;
    ROMEString  **folderInclude;
    Bool_t      **folderLocalFlag;
@@ -219,10 +224,11 @@ protected:
    ROMEString   *taskStatus;
    ROMEString   *taskToDo;
    ROMEString   *taskKnownProblems;
-   ROMEString   *taskAuthor;
-   ROMEString   *taskAuthorInstitute;
-   ROMEString   *taskAuthorCollaboration;
-   ROMEString   *taskAuthorEmail;
+   Int_t        *numOfTaskAuthors;
+   ROMEString  **taskAuthor;
+   ROMEString  **taskAuthorInstitute;
+   ROMEString  **taskAuthorCollaboration;
+   ROMEString  **taskAuthorEmail;
    ROMEString   *taskVersion;
    ROMEString   *taskDependence;
    Int_t        *numOfTaskInclude;
@@ -336,10 +342,11 @@ protected:
    ROMEString   *tabStatus;
    ROMEString   *tabToDo;
    ROMEString   *tabKnownProblems;
-   ROMEString   *tabAuthor;
-   ROMEString   *tabAuthorInstitute;
-   ROMEString   *tabAuthorCollaboration;
-   ROMEString   *tabAuthorEmail;
+   Int_t        *numOfTabAuthors;
+   ROMEString  **tabAuthor;
+   ROMEString  **tabAuthorInstitute;
+   ROMEString  **tabAuthorCollaboration;
+   ROMEString  **tabAuthorEmail;
    ROMEString   *tabVersion;
    ROMEString   *tabDependence;
    ROMEString   *tabHeredity;
@@ -495,10 +502,11 @@ protected:
    ROMEStrArray  objDirList;
 
 // main
-   ROMEString    mainAuthor;
-   ROMEString    mainInstitute;
-   ROMEString    mainCollaboration;
-   ROMEString    mainEmail;
+   Int_t        numOfMainAuthors;
+   ROMEString   *mainAuthor;
+   ROMEString   *mainInstitute;
+   ROMEString   *mainCollaboration;
+   ROMEString   *mainEmail;
    ROMEString    mainProgName;
    ROMEString    mainDefinitionVersion;
    ROMEString    mainDescription;
@@ -761,7 +769,7 @@ private:
                          bool replaceWhenFound = true);
    Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace, ROMEStrArray& arr1,
                          ROMEStrArray& arr2,ROMEStrArray& condition,TArrayI &replaceWhenFound);
-   void    WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite);
+   void    WriteHeader(ROMEString& buffer, Int_t nAuthor, const ROMEString* author, const ROMEString* email, Bool_t overwrite);
    void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark,
                             const char* header = 0);
    Bool_t  BackUpFile(const char* filename);
