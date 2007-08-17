@@ -92,6 +92,7 @@ ROMEAnalyzer *gROME = 0;  // global ROMEAnalyzer Handle
 static TVirtualMutex *fgRunEventNumberMutex = 0;
 static TVirtualMutex *fgUpdateObjectStorageMutex = 0;
 TVirtualMutex        *gObjectStorageMutex = 0;
+extern const char*    kHTMLSourceDir; // must be declared in generated main.cpp
 
 //______________________________________________________________________________
 ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t nographics, Int_t analysisMode,
@@ -378,6 +379,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2))
          html.SetProductName(fProgramName.Data());
 #endif
+         ROMEString sourceDir = html.GetSourceDir();
+         sourceDir.Append(kHTMLSourceDir);
+         html.SetSourceDir(sourceDir.Data());
          html.MakeAll(false);
          return false;
       }
