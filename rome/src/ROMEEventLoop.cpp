@@ -262,7 +262,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
             // Start socket server
             //-------------
-            if (gROME->isSocketServerActive()) {
+            if (gROME->isSocketServerActive() &&
+                (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())) {
                gROME->StartNetFolderServer();
             }
          }
