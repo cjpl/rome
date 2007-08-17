@@ -259,13 +259,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             gROME->StartWindow();
             ROMEPrint::Print("Argus monitor running                                 \n");
             fWindowFirstDraw = kTRUE;
-
-            // Start socket server
-            //-------------
-            if (gROME->isSocketServerActive() &&
-                (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())) {
-               gROME->StartNetFolderServer();
-            }
+         }
+         // Start socket server
+         //-------------
+         if (gROME->isSocketServerActive() &&
+             (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())) {
+            gROME->StartNetFolderServer();
          }
       }
 
