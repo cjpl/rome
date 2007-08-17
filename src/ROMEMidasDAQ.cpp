@@ -88,65 +88,11 @@ Bool_t ROMEMidasDAQ::Init() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       // Connect to the Frontend
-      INT requestId;
-      Int_t i;
+      if (!ConnectExperiment()) {
+         return kFALSE;
+      }
 
       ROMEPrint::Print("Program is running online.\n");
-
-      // Connect to the experiment
-      if (cm_connect_experiment(const_cast<char*>(gROME->GetOnlineHost()),
-                                const_cast<char*>(gROME->GetOnlineExperiment()),
-                                const_cast<char*>(gROME->GetOnlineAnalyzerName()), NULL) != SUCCESS) {
-         ROMEPrint::Error("\nCan not connect to experiment\n");
-         return false;
-      }
-
-      // regesters a disconnection to be executed when the program terminates normally.
-      atexit(reinterpret_cast<void (*)(void)>(&cm_disconnect_experiment));
-
-      // open the "system" buffer, 1M size
-      bm_open_buffer(const_cast<char*>(gROME->GetOnlineMemoryBuffer()), 2 * MAX_EVENT_SIZE, &fMidasOnlineBuffer);
-
-      // set the buffer cache size
-      bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);
-
-      // place a request for a specific event id
-      if (this->GetNumberOfEventRequests() <= 0) {
-#if 0 // Is no event request invalid ?
-         ROMEPrint::Error("\nNo Events Requests for online mode!\n");
-         ROMEPrint::Error("\nPlace Events Requests into the ROME configuration file.\n");
-         return false;
-#endif
-      }
-      const int nRequest = this->GetNumberOfEventRequests();
-      for (i=0;i<nRequest;i++) {
-         if (this->GetEventRequestRate(i)==1) {
-            fRequestAll = true;
-         }
-         bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
-                          this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
-      }
-
-      // place a request for system messages
-      cm_msg_register(ProcessMessage);
-
-      // turn off watchdog if in debug mode
-#if defined( MIDAS_DEBUG )
-      cm_set_watchdog_params(TRUE, 0);
-#endif
-
-      // Registers a callback function for run transitions.
-      if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
-         cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
-         ROMEPrint::Error("\nCan not connect to experiment\n");
-         return false;
-      }
-
-      // Connect to the online database
-      if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
-         ROMEPrint::Error("\nCan not connect to the online database\n");
-         return false;
-      }
 
       // Check Run Status
       int state = 0;
@@ -198,6 +144,7 @@ Bool_t ROMEMidasDAQ::Init() {
 
       // Tree Switches
       const Int_t nTree = gROME->GetTreeObjectEntries();
+      Int_t i;
       for (i=0;i<nTree;i++) {
          str="//Tree switches/";
          str.Insert(1,gROME->GetOnlineAnalyzerName());
@@ -852,3 +799,67 @@ INT ROMEMidasDAQ::bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWO
    return 0;
 }
 #endif
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::ConnectExperiment() {
+   // Connect to the experiment
+#if defined( HAVE_MIDAS )
+   if (cm_connect_experiment(const_cast<char*>(gROME->GetOnlineHost()),
+                             const_cast<char*>(gROME->GetOnlineExperiment()),
+                             const_cast<char*>(gROME->GetOnlineAnalyzerName()), NULL) != SUCCESS) {
+      ROMEPrint::Error("\nCan not connect to experiment\n");
+      return kFALSE;
+   }
+   // regesters a disconnection to be executed when the program terminates normally.
+   atexit(reinterpret_cast<void (*)(void)>(&cm_disconnect_experiment));
+
+   INT requestId;
+   Int_t i;
+
+   // open the "system" buffer, 1M size
+   bm_open_buffer(const_cast<char*>(gROME->GetOnlineMemoryBuffer()), 2 * MAX_EVENT_SIZE, &fMidasOnlineBuffer);
+
+   // set the buffer cache size
+   bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);
+
+   // place a request for a specific event id
+   if (this->GetNumberOfEventRequests() <= 0) {
+#if 0 // Is no event request invalid ?
+      ROMEPrint::Error("\nNo Events Requests for online mode!\n");
+      ROMEPrint::Error("\nPlace Events Requests into the ROME configuration file.\n");
+      return false;
+#endif
+   }
+   const int nRequest = this->GetNumberOfEventRequests();
+   for (i=0;i<nRequest;i++) {
+      if (this->GetEventRequestRate(i)==1) {
+         fRequestAll = true;
+      }
+      bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
+                       this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
+   }
+
+   // place a request for system messages
+   cm_msg_register(ProcessMessage);
+
+   // turn off watchdog if in debug mode
+#if defined( MIDAS_DEBUG )
+   cm_set_watchdog_params(TRUE, 0);
+#endif
+
+   // Registers a callback function for run transitions.
+   if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
+       cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
+      ROMEPrint::Error("\nCan not connect to experiment\n");
+      return false;
+   }
+
+   // Connect to the online database
+   if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
+      ROMEPrint::Error("\nCan not connect to the online database\n");
+      return false;
+   }
+#endif
+
+   return kTRUE;
+}

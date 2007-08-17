@@ -41,6 +41,7 @@
 #include "ArgusWindow.h"
 #include "ArgusAnalyzerController.h"
 #include "ROMENetFolderServer.h"
+#include "ROMEMidasDAQ.h"
 
 #if defined( HAVE_MIDAS )
 #   include "midas.h"
@@ -156,6 +157,18 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          gROME->SetTerminationFlag();
          ROMEPrint::Print("\n\nTerminating Program !\n");
          return;
+      }
+   } else {
+      if (gROME->IsActiveDAQ("midas") && gROME->isOnline()) {
+#if defined( HAVE_MIDAS )
+         // connect midas experiment
+         if(!static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->ConnectExperiment()) {
+            this->Terminate();
+            gROME->SetTerminationFlag();
+            ROMEPrint::Print("\n\nTerminating Program !\n");
+            return;
+         }
+#endif
       }
    }
 

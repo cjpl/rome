@@ -34,7 +34,10 @@ ClassImp(FOTTab)
 void FOTTab::Init()
 {
    //ODB
-   gAnalyzer->GetDBAccess()->ReadODB();
+   if ((gROME->IsActiveDAQ("midas") && gROME->isOnline() /* we have ODB connection */) &&
+       !IsROMEMonitor() /* current running mode is not 'monitor connection to analyzer */) {
+      gAnalyzer->GetDBAccess()->ReadODB();
+   }
    cout<<endl<<endl<<"Run number is "<<gAnalyzer->GetODB()->GetRunNumber()<<endl<<endl;
 
    //ROMEDataBase

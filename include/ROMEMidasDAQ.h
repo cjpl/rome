@@ -170,6 +170,7 @@ public:
    static INT     bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
    virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) const { return aData; }       // Must be overwritten by analyzermidas code.
+   Bool_t         ConnectExperiment();
 
    ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
 };
