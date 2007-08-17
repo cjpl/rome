@@ -1838,7 +1838,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          clsDescription.AppendFormatted("</p>\n\n");
       }
       clsDescription.AppendFormatted("End_Html\n\n");
-      clsDescription.AppendFormatted("The event methods have been written by\n");
+      clsDescription.AppendFormatted("The event methods have been written by");
       for (j = 0; j < numOfTaskAuthors[iTask]; j++) {
          clsDescription.AppendFormatted(" %s", taskAuthor[iTask][j].Data());
       }
