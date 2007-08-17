@@ -4683,8 +4683,12 @@ void ROMEBuilder::WriteHeader(ROMEString& buffer, Int_t nAuthor, const ROMEStrin
       for (i = 0; i < nAuthor; i++) {
          buffer.Append(separator);
          buffer.Append(author[i]);
-         if (email[i].Length()) {
-            buffer.AppendFormatted(" <%s>", email[i].Data());
+         if (email[i].Length() > 1) {
+            if (email[i].ContainsFast("://")) {
+               buffer.AppendFormatted(" <%s>", email[i].Data());
+            } else {
+               buffer.AppendFormatted(" <mailto:%s>", email[i].Data());
+            }
          }
          separator = ", ";
       }
