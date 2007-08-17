@@ -88,143 +88,143 @@ dbwrapper :
 	make -C romedbwrapper
 
 multirun/mranalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i multirun/multirun.xml -o multirun -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i multirun/multirun.xml -o multirun -nl -pch;
 	make $(JOBSFLAG) -C multirun/
 
 dbexample/rdbframework.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i dbexample/RDBframework.xml -o dbexample -nl -mysql -sqlite3;
+	$(ROMESYS)/bin/romebuilder.exe -i dbexample/RDBframework.xml -o dbexample -nl -pch -mysql -sqlite3;
 	make $(JOBSFLAG) -C dbexample/
 
 taskhierarchy/thexample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchy/taskhierarchy.xml -o taskhierarchy -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchy/taskhierarchy.xml -o taskhierarchy -nl -pch;
 	make $(JOBSFLAG) -C taskhierarchy/
 
 taskhierarchydependence/thexample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchydependence/taskhierarchy.xml -o taskhierarchydependence -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchydependence/taskhierarchy.xml -o taskhierarchydependence -nl -pch;
 	make $(JOBSFLAG) -C taskhierarchydependence/
 
 netfolder/nfexample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i netfolder/netfolder.xml -o netfolder -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i netfolder/netfolder.xml -o netfolder -nl -pch;
 	make $(JOBSFLAG) -C netfolder/
 
 stepbystep/sbsanalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i stepbystep/stepbystep.xml -o stepbystep -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i stepbystep/stepbystep.xml -o stepbystep -nl -pch;
 	make $(JOBSFLAG) -C stepbystep/
 
 tree_write_read/twrsample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read/tree_write_read.xml -o tree_write_read -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read/tree_write_read.xml -o tree_write_read -nl -pch;
 	make $(JOBSFLAG) -C tree_write_read/
 
 tree_write_read2/twr2sample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read2/tree_write_read2.xml -o tree_write_read2 -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read2/tree_write_read2.xml -o tree_write_read2 -nl -pch;
 	make $(JOBSFLAG) -C tree_write_read2/
 
 tree_write_read3/twr3sample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read3/tree_write_read3.xml -o tree_write_read3 -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i tree_write_read3/tree_write_read3.xml -o tree_write_read3 -nl -pch;
 	make $(JOBSFLAG) -C tree_write_read3/
 
 stepbystephisto/sbshanalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i stepbystephisto/stepbystephisto.xml -o stepbystephisto -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i stepbystephisto/stepbystephisto.xml -o stepbystephisto -nl -pch;
 	make $(JOBSFLAG) -C stepbystephisto/
 
 histoGUI/hguiexample.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i histoGUI/histoGUI.xml -o histoGUI -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i histoGUI/histoGUI.xml -o histoGUI -nl -pch;
 	make $(JOBSFLAG) -C histoGUI/
 
 stepbystepdbdaq/sdaqanalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i stepbystepdbdaq/stepbystepdbdaq.xml -o stepbystepdbdaq -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i stepbystepdbdaq/stepbystepdbdaq.xml -o stepbystepdbdaq -nl -pch;
 	make $(JOBSFLAG) -C stepbystepdbdaq/
 
 stepbystepmydaq/smdanalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i stepbystepmydaq/stepbystepmydaq.xml -o stepbystepmydaq -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i stepbystepmydaq/stepbystepmydaq.xml -o stepbystepmydaq -nl -pch;
 	make $(JOBSFLAG) -C stepbystepmydaq/
 
 runheader/runhanalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i runheader/runheader.xml -o runheader -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i runheader/runheader.xml -o runheader -nl -pch;
 	make $(JOBSFLAG) -C runheader/
 
 rootDAQ/rdaqanalyzer.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i rootDAQ/rootDAQ.xml -o rootDAQ -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i rootDAQ/rootDAQ.xml -o rootDAQ -nl -pch;
 	make $(JOBSFLAG) -C rootDAQ/
 
 midas/midanalyzer.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i midas/midas.xml -o midas -nl -midas;
+	$(ROMESYS)/bin/romebuilder.exe -i midas/midas.xml -o midas -nl -pch -midas;
 	make $(JOBSFLAG) -C midas/
 
 taskhierarchyandhistos/thhexample.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchyandhistos/taskhierarchyandhistos.xml -o taskhierarchyandhistos -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchyandhistos/taskhierarchyandhistos.xml -o taskhierarchyandhistos -nl -pch;
 	make $(JOBSFLAG) -C taskhierarchyandhistos/
 
 displayobjects/doexample.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i displayobjects/displayObjects.xml -o displayobjects -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i displayobjects/displayObjects.xml -o displayobjects -nl -pch;
 	make $(JOBSFLAG) -C displayobjects/
 
 macros/mcranalyzer.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i macros/macros.xml -o macros -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i macros/macros.xml -o macros -nl -pch;
 	make $(JOBSFLAG) -C macros/
 
 cutg/tcutgexample.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i cutg/cutg.xml -o cutg -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i cutg/cutg.xml -o cutg -nl -pch;
 	make $(JOBSFLAG) -C cutg/
 
 basefolder/bfsample.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i basefolder/basefolder.xml -o basefolder -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i basefolder/basefolder.xml -o basefolder -nl -pch;
 	make $(JOBSFLAG) -C basefolder/
 
 message/msganalyzer.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i message/message.xml -o message -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i message/message.xml -o message -nl -pch;
 	make $(JOBSFLAG) -C message/
 
 userMakefile/umfanalyzer.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i userMakefile/userMakefile.xml -o userMakefile -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i userMakefile/userMakefile.xml -o userMakefile -nl -pch;
 	make $(JOBSFLAG) -C userMakefile/
 
 document/docanalyzer.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i document/document.xml -o document -nl;
+	$(ROMESYS)/bin/romebuilder.exe -i document/document.xml -o document -nl -pch;
 	make $(JOBSFLAG) -C document/
 
 argus/file/flmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -nl 
+	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -nl -pch 
 	make $(JOBSFLAG) -C argus/file/
 
 argus/timer/ttmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/timer/timer.xml -o argus/timer -nl 
+	$(ROMESYS)/bin/romebuilder.exe -i argus/timer/timer.xml -o argus/timer -nl -pch 
 	make $(JOBSFLAG) -C argus/timer/
 
 argus/processMessage/pmmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/processMessage/processMessage.xml -o argus/processMessage -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/processMessage/processMessage.xml -o argus/processMessage -nl -pch
 	make $(JOBSFLAG) -C argus/processMessage/
 
 argus/menu/tmmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/menu/menu.xml -o argus/menu -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/menu/menu.xml -o argus/menu -nl -pch
 	make $(JOBSFLAG) -C argus/menu/
 
 argus/thread/ttmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/thread/thread.xml -o argus/thread -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/thread/thread.xml -o argus/thread -nl -pch
 	make $(JOBSFLAG) -C argus/thread/
 
 argus/tabs/tbmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/tabs/tabs.xml -o argus/tabs -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/tabs/tabs.xml -o argus/tabs -nl -pch
 	make $(JOBSFLAG) -C argus/tabs/
 
 argus/helloWorld/hwmonitor.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/helloWorld/HelloWorld.xml -o argus/helloWorld -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/helloWorld/HelloWorld.xml -o argus/helloWorld -nl -pch
 	make $(JOBSFLAG) -C argus/helloWorld/
 
 argus/histogram/romeproject/hgframework.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/histogram/romeproject/histogram.xml -o argus/histogram/romeproject -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/histogram/romeproject/histogram.xml -o argus/histogram/romeproject -nl -pch
 	make $(JOBSFLAG) -C argus/histogram/romeproject/
 
 argus/histogram/hgmonitor.exe : argus/histogram/romeproject/hgframework.exe
-	$(ROMESYS)/bin/romebuilder.exe -i argus/histogram/histogram.xml -o argus/histogram -nl
+	$(ROMESYS)/bin/romebuilder.exe -i argus/histogram/histogram.xml -o argus/histogram -nl -pch
 	make $(JOBSFLAG) -C argus/histogram/
 
 argus/folders/romeproject/foframework.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/romeproject/FOframework.xml -o argus/folders/romeproject -nl -midas
+	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/romeproject/FOframework.xml -o argus/folders/romeproject -nl -pch -midas
 	make $(JOBSFLAG) -C argus/folders/romeproject/
 
 argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
-	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -nl -midas
+	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -nl -pch -midas
 	make $(JOBSFLAG) -C argus/folders/
 
 check : $(ROMEProjects) $(ARGUSProjects) dbwrapper

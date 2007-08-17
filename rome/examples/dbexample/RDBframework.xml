@@ -16,12 +16,10 @@
 		<Folder>
 			<FolderName>RDBFolder</FolderName>
 			<FolderTitle>Top folder.</FolderTitle>
-			<Author>Ryu Sawada</Author>
 			<Folder>
 				<FolderName>SingleFolder</FolderName>
 				<FolderTitle>This folder reads ROME database. Array size is 1.</FolderTitle>
 				<DataBaseAccess>true</DataBaseAccess>
-				<Author>Ryu Sawada</Author>
 				<ConnectionType>ROMEDataBase</ConnectionType>
 				<Field>
 					<FieldName>bbb</FieldName>
@@ -42,7 +40,6 @@
 				<FolderName>ArrayFolder</FolderName>
 				<FolderTitle>This folder reads ROME database. Array size is greater than 1.</FolderTitle>
 				<DataBaseAccess>true</DataBaseAccess>
-				<Author>Ryu Sawada</Author>
 				<ConnectionType>ROMEDataBase</ConnectionType>
 				<ArraySize>3</ArraySize>
 				<ArraySize>gAnalyzer->GetSingleFolder()->Getbbb()</ArraySize>

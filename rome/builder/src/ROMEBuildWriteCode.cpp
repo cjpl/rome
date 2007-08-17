@@ -1838,11 +1838,13 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          clsDescription.AppendFormatted("</p>\n\n");
       }
       clsDescription.AppendFormatted("End_Html\n\n");
-      clsDescription.AppendFormatted("The event methods have been written by");
-      for (j = 0; j < numOfTaskAuthors[iTask]; j++) {
-         clsDescription.AppendFormatted(" %s", taskAuthor[iTask][j].Data());
+      if (numOfTaskAuthors[iTask] > 0) {
+         clsDescription.AppendFormatted("The event methods have been written by");
+         for (j = 0; j < numOfTaskAuthors[iTask]; j++) {
+            clsDescription.AppendFormatted(" %s", taskAuthor[iTask][j].Data());
+         }
+         clsDescription.AppendFormatted(".\n");
       }
-      clsDescription.AppendFormatted(".\n");
       bool first = true;
       for (j = 0; j < numOfFolder; j++) {
          if (accessFolder(cppFile.Data(), j, kTRUE)) {
@@ -12425,7 +12427,7 @@ Bool_t ROMEBuilder::WriteMain()
    ROMEString cmdRes;
    ROMEString tmpName;
    if (this->pgsql) {
-      cmd.SetFormatted("pg_config --includedir > %s", tmpName.Data());
+      cmd.SetFormatted("pg_config --includedir");
       ReadCommandOutput(cmd.Data(), cmdRes);
       if (cmdRes.Length() > 0) {
          cmdRes.ReplaceAll("\\\\","/");
@@ -12437,7 +12439,7 @@ Bool_t ROMEBuilder::WriteMain()
    }
 #if defined( R__UNIX )
    if (this->mysql) {
-      cmd.SetFormatted("mysql_config --include > %s", tmpName.Data());
+      cmd.SetFormatted("mysql_config --include");
       ReadCommandOutput(cmd.Data(), cmdRes);
       if (cmdRes.Length() > 0) {
          if (cmdRes.EndsWith("\n"))
@@ -12448,7 +12450,7 @@ Bool_t ROMEBuilder::WriteMain()
 #endif // R__UNIX
 #if defined( R__MACOSX )
    TString finkDir;
-   cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
+   cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\"");
    ReadCommandOutput(cmd.Data(), cmdRes);
    if (cmdRes.Length() > 0) {
       if (cmdRes.EndsWith("\n"))
@@ -12499,7 +12501,7 @@ Bool_t ROMEBuilder::WriteMain()
    // Source directory for THTML document generation
    buffer.AppendFormatted("const char* kHTMLSourceDir =\n");
    if (this->pgsql) {
-      cmd.SetFormatted("pg_config --includedir > %s", tmpName.Data());
+      cmd.SetFormatted("pg_config --includedir");
       ReadCommandOutput(cmd.Data(), cmdRes);
       if (cmdRes.Length() > 0) {
          cmdRes.ReplaceAll("\\\\","/");
@@ -12511,7 +12513,7 @@ Bool_t ROMEBuilder::WriteMain()
    }
 #if defined( R__UNIX )
    if (this->mysql) {
-      cmd.SetFormatted("mysql_config --include > %s", tmpName.Data());
+      cmd.SetFormatted("mysql_config --include");
       ReadCommandOutput(cmd.Data(), cmdRes);
       if (cmdRes.Length() > 0) {
          if (cmdRes.EndsWith("\n"))
@@ -12522,7 +12524,7 @@ Bool_t ROMEBuilder::WriteMain()
    }
 #endif // R__UNIX
 #if defined( R__MACOSX )
-   cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
+   cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\"");
    ReadCommandOutput(cmd.Data(), cmdRes);
    if (cmdRes.Length() > 0) {
       if (cmdRes.EndsWith("\n"))

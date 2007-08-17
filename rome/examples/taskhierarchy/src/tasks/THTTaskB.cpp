@@ -8,7 +8,6 @@
 <!--*/
 // --> End_Html
 //                                                                            //
-// The event methods have been written by .                                   //
 //                                                                            //
 //                                                                            //
 //                                                                            //

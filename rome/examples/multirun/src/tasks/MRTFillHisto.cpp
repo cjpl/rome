@@ -8,7 +8,6 @@
 <!--*/
 // --> End_Html
 //                                                                            //
-// The event methods have been written by .                                   //
 //                                                                            //
 // Please note: The following information is only correct after executing     //
 // the ROMEBuilder.                                                           //

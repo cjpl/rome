@@ -1085,6 +1085,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          if (!numOfFolderAuthors[currentNumberOfFolders]) {
             numOfFolderAuthors[currentNumberOfFolders] = numOfMainAuthors;
             for (i = 0; i < numOfFolderAuthors[currentNumberOfFolders]; i++) {
+               folderAuthor[currentNumberOfFolders][i] = mainAuthor[i];
                folderAuthorInstitute[currentNumberOfFolders][i] = mainInstitute[i];
                folderAuthorCollaboration[currentNumberOfFolders][i] = mainCollaboration[i];
                folderAuthorEmail[currentNumberOfFolders][i] = mainEmail[i];
@@ -1672,6 +1673,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
          if (!numOfTaskAuthors[numOfTask]) {
             numOfTaskAuthors[numOfTask] = numOfMainAuthors;
             for (i = 0; i < numOfTaskAuthors[numOfTask]; i++) {
+               taskAuthor[numOfTask][i] = mainAuthor[i];
                taskAuthorInstitute[numOfTask][i] = mainInstitute[i];
                taskAuthorCollaboration[numOfTask][i] = mainCollaboration[i];
                taskAuthorEmail[numOfTask][i] = mainEmail[i];
@@ -2399,6 +2401,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
          if (!numOfTabAuthors[currentNumberOfTabs]) {
             numOfTabAuthors[currentNumberOfTabs] = numOfMainAuthors;
             for (i = 0; i < numOfTabAuthors[currentNumberOfTabs]; i++) {
+               tabAuthor[currentNumberOfTabs][i] = mainAuthor[i];
                tabAuthorInstitute[currentNumberOfTabs][i] = mainInstitute[i];
                tabAuthorCollaboration[currentNumberOfTabs][i] = mainCollaboration[i];
                tabAuthorEmail[currentNumberOfTabs][i] = mainEmail[i];

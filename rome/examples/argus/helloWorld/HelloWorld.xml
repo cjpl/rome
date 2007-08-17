@@ -17,7 +17,6 @@
 		<Tab>
 			<TabName>English</TabName>
 			<TabTitle>1</TabTitle>
-			<Author>Ryu Sawada</Author>
 			<TabVersion>1</TabVersion>
 			<SteeringParameters>
 				<SteeringParameterField>
@@ -31,7 +30,6 @@
 		<Tab>
 			<TabName>German</TabName>
 			<TabTitle>2</TabTitle>
-			<Author>Ryu Sawada</Author>
 			<TabVersion>1</TabVersion>
 			<SteeringParameters>
 				<SteeringParameterField>
@@ -45,7 +43,6 @@
 		<Tab>
 			<TabName>Italian</TabName>
 			<TabTitle>3</TabTitle>
-			<Author>Ryu Sawada</Author>
 			<TabVersion>1</TabVersion>
 			<SteeringParameters>
 				<SteeringParameterField>
@@ -59,7 +56,6 @@
 		<Tab>
 			<TabName>French</TabName>
 			<TabTitle>4</TabTitle>
-			<Author>Ryu Sawada</Author>
 			<TabVersion>1</TabVersion>
 			<SteeringParameters>
 				<SteeringParameterField>

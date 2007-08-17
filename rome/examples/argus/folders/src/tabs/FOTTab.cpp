@@ -1,4 +1,4 @@
-// Author: Ryu Sawada
+// Author: 
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -34,8 +34,8 @@ ClassImp(FOTTab)
 void FOTTab::Init()
 {
    //ODB
-   if ((gROME->IsActiveDAQ("midas") && gROME->isOnline() /* we have ODB connection */) &&
-       !IsROMEMonitor() /* current running mode is not 'monitor connection to analyzer */) {
+   if ((gAnalyzer->IsActiveDAQ("midas") && gAnalyzer->isOnline() /* we have ODB connection */) &&
+       !gAnalyzer->IsROMEMonitor() /* current running mode is not 'monitor connection to analyzer */) {
       gAnalyzer->GetDBAccess()->ReadODB();
    }
    cout<<endl<<endl<<"Run number is "<<gAnalyzer->GetODB()->GetRunNumber()<<endl<<endl;
