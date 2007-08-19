@@ -55,10 +55,10 @@ extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
 const Int_t kMaxSocketClients = 100;
 
-const Int_t kEventNumberInit       = -2;
-const Int_t kEventNumberBeginOfRun = -1;
-const Int_t kEventNumberEndOfRun   = kMaxLong64 - 1;
-const Int_t kEventNumberTerminate  = kMaxLong64;
+const Long64_t kEventNumberInit       = -2;
+const Long64_t kEventNumberBeginOfRun = -1;
+const Long64_t kEventNumberEndOfRun   = kMaxLong64 - 1;
+const Long64_t kEventNumberTerminate  = kMaxLong64;
 
 class ROMEAnalyzer : public TObject
 {
