@@ -17,6 +17,7 @@
 #include <TGButton.h>
 #include <TGLabel.h>
 #include <TGTextEntry.h>
+#include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -82,6 +83,9 @@ ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t
    AddFrame(fF2, fL1);
 
    MapSubwindows();
+   while (!IsMapped()) {
+      gSystem->Sleep(20);
+   }
    Resize(GetDefaultSize());
 
    // position relative to the parent's window

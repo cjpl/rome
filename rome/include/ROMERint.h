@@ -30,7 +30,6 @@ private:
    TSignalHandler *fROMEInterruptHandler;    // special handler of ROMERint
    Int_t           fFPEMask;                 // Customized FPE mode
    Bool_t          fRemoteProcess;           // Flag if lines are processed remotely
-   TSocket        *fSocketClient;            // Socket client for remote execution
    TNetFolder     *fSocketClientNetFolder;   // Socket client for remote execution
    TString         fSocketClientHost;        // Hostname for remote execution
    Int_t           fSocketClientPort;        // Port number for remote execution

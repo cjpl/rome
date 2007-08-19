@@ -265,6 +265,9 @@ void ArgusHistoDisplay::BaseInit()
    fDisplayTypeOld = -1;
    MapSubwindows();
    MapWindow();
+   while (!IsMapped()) {
+      gSystem->Sleep(20);
+   }
    SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
 }
 

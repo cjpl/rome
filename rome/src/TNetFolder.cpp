@@ -16,7 +16,6 @@
 #include <TObjString.h>
 #include <TSystem.h>
 #include <TString.h>
-#include <TSocket.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -24,6 +23,8 @@
 #include "TNetFolder.h"
 
 ClassImp(TNetFolder)
+
+const Int_t kNetFolderTimeOut = 5000;
 
 //______________________________________________________________________________
 TNetFolder::TNetFolder()
@@ -51,6 +52,7 @@ TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Boo
 //______________________________________________________________________________
 TNetFolder::~TNetFolder()
 {
+   SafeDelete(fSocket);
 }
 
 //______________________________________________________________________________
@@ -60,13 +62,13 @@ void TNetFolder::Reconnect()
            fHost.Data(), fPort);
    gSystem->Sleep(5000);
    delete fSocket;
-   fSocket = new TSocket (fHost.Data(), fPort);
+   fSocket = new TSocket(fHost.Data(), fPort);
 }
 
 //______________________________________________________________________________
 Bool_t TNetFolder::Send(const TMessage &mess)
 {
-   if (fSocket->Send(mess) == -1) {
+   if(fSocket->Send(mess) < 0) {
       while (!fSocket->IsValid()) {
          Reconnect();
       }
@@ -79,7 +81,7 @@ Bool_t TNetFolder::Send(const TMessage &mess)
 //______________________________________________________________________________
 Bool_t TNetFolder::Send(const char *mess, Int_t kind)
 {
-   if (fSocket->Send(mess, kind) == -1) {
+   if (fSocket->Send(mess, kind) < 0) {
       do {
          Reconnect();
       } while (!fSocket->IsValid());
@@ -92,7 +94,7 @@ Bool_t TNetFolder::Send(const char *mess, Int_t kind)
 //______________________________________________________________________________
 Bool_t TNetFolder::Recv(TMessage *&mess)
 {
-   if (fSocket->Recv(mess) == -1) {
+   if (fSocket->Recv(mess) < 0) {
       while (!fSocket->IsValid()) {
          Reconnect();
       }
@@ -163,7 +165,7 @@ TObjArray *TNetFolder::GetListOfFolders()
    if (!Recv(mr))
       return GetListOfFolders();
    if (mr) {
-      TObjArray *list = static_cast<TObjArray*>(mr->ReadObject(mr->GetClass()));
+      TObjArray *list = static_cast<TObjArray*>(mr->ReadObjectAny(mr->GetClass()));
       delete mr;
       return list;
    }
@@ -206,7 +208,7 @@ TObject *TNetFolder::FindObject(const char *name) const
       delete mr;
       return NULL;
    }
-   TObject *obj = static_cast<TObject*>(mr->ReadObject(mr->GetClass()));
+   TObject *obj = static_cast<TObject*>(mr->ReadObjectAny(mr->GetClass()));
 
    delete mr;
    return obj;
@@ -237,7 +239,7 @@ TObject *TNetFolder::FindObjectAny(const char *name) const
       delete mr;
       return NULL;
    }
-   TObject *obj = static_cast<TObject*>(mr->ReadObject(mr->GetClass()));
+   TObject *obj = static_cast<TObject*>(mr->ReadObjectAny(mr->GetClass()));
 
    delete mr;
    return obj;
@@ -268,7 +270,7 @@ const char *TNetFolder::FindFullPathName(const char *name)
       return NULL;
    }
 
-   const char *path = static_cast<TObjString*>(mr->ReadObject(mr->GetClass()))->String().Data();
+   const char *path = static_cast<TObjString*>(mr->ReadObjectAny(mr->GetClass()))->String().Data();
 
    delete mr;
    return path;
