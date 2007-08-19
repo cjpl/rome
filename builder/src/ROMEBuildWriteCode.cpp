@@ -152,10 +152,17 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          } else if (valueIsTObject[iFold][i] && !isTArrayType(valueType[iFold][i]) &&
                     !valueType[iFold][i].ContainsFast("TRef") && !valueType[iFold][i].ContainsFast("TString")) {
-            if (isPointerType(valueType[iFold][i].Data()) && valueArray[iFold][i][0] == "1") {
-               buffer.AppendFormatted(",%s(%s_value)\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+            if (valueDimension[iFold][i] == 0) {
+               if (isPointerType(valueType[iFold][i].Data())) {
+                  buffer.AppendFormatted(",%s(%s_value)\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+               } else {
+                  buffer.AppendFormatted(",%s()\n",valueName[iFold][i].Data());
+               }
             } else {
-               buffer.AppendFormatted(",%s()\n",valueName[iFold][i].Data());
+               if (valueArray[iFold][i][0] == "variable") {
+                  buffer.AppendFormatted(",%s(0)\n",valueName[iFold][i].Data());
+                  buffer.AppendFormatted(",%sSize(0)\n",valueName[iFold][i].Data());
+               }
             }
          } else if (isTArrayType(valueType[iFold][i])) {
             if (valueType[iFold][i].ContainsFast("*")) {
@@ -3828,12 +3835,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   j = 0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   ROMEString str;\n");
       buffer.AppendFormatted("   RegisterObjects();\n");
-      buffer.AppendFormatted("   if (!RequestNewEvent(-1, -1)) {\n");
+      buffer.AppendFormatted("   if (!RequestNewEvent(kMinInt, kMinInt)) {\n");
       buffer.AppendFormatted("      ROMEPrint::Warning(\"The analyzer doesn't provide any data in it's current state.\\n\");\n");
       buffer.AppendFormatted("      ROMEPrint::Warning(\"The monitor waits until the analyzer provides new data.\\n\\n\");\n");
       buffer.AppendFormatted("      gSystem->Sleep(100);\n");
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   while (!RequestNewEvent(-1, -1))\n");
+      buffer.AppendFormatted("   while (!RequestNewEvent(kMinInt, kMinInt))\n");
       buffer.AppendFormatted("      gSystem->Sleep(100);\n");
       buffer.AppendFormatted("   fWatchUser.Start(false);\n");
       buffer.AppendFormatted("   Init();\n");
@@ -4530,7 +4537,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("Bool_t %sT%s_Base::Stop%s()\n{\n", shortCut.Data(), tabName[iTab].Data(),
                                 threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   gSystem->Sleep(1000); // wait a while for threads to halt\n");
+         buffer.AppendFormatted("   m%s->Join(); // wait a while for threads to halt\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   if (m%s) {\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      TThread::Delete(m%s);\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      m%s = 0;\n", threadFunctionName[iTab][i].Data());
@@ -5561,7 +5568,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   SafeDelete(fConfiguration);\n");
    buffer.AppendFormatted("   SafeDelete(fDBAccess);\n");
    buffer.AppendFormatted("   gAnalyzer = 0;\n");
-   buffer.AppendFormatted("   gROME = 0;\n");
    // End of Destructor
    buffer.AppendFormatted("}\n\n");
 
@@ -5938,9 +5944,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Connect Socket Client NetFolder
    buffer.AppendFormatted("// Connect Socket Client NetFolder\n");
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("Bool_t %sAnalyzer::ConnectSocketClientNetFolder()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sAnalyzer::ConnectSocketClientNetFolder(TSocket *sock)\n{\n",shortCut.Data());
    buffer.AppendFormatted("   SafeDelete(fSocketClientNetFolder);\n");
-   buffer.AppendFormatted("   fSocketClientNetFolder = new ROMENetFolder(\"%s\",\"RootNetFolder\", fSocketClient, true);\n",
+   buffer.AppendFormatted("   fSocketClientNetFolder = new ROMENetFolder(\"%s\",\"RootNetFolder\", sock, true);\n",
                           shortCut.Data());
    buffer.AppendFormatted("   if (!fSocketClientNetFolder->GetPointer()) {\n");
    buffer.AppendFormatted("      Warning(\"ConnectSocketClientNetFolder\", \"Failed to connect to the ROME analyzer.\");\n");
@@ -7013,7 +7019,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   void   UserParameterUsage() const;\n");
    buffer.AppendFormatted("   void   startSplashScreen();\n");
    buffer.AppendFormatted("   void   consoleStartScreen();\n");
-   buffer.AppendFormatted("   Bool_t ConnectSocketClientNetFolder();\n");
+   buffer.AppendFormatted("   Bool_t ConnectSocketClientNetFolder(TSocket *sock);\n");
    buffer.AppendFormatted("   void   StartNetFolderServer();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sAnalyzer, 0);\n",shortCut.Data());
@@ -11039,6 +11045,8 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("#include <TServerSocket.h>\n");
    buffer.AppendFormatted("#include <TMessage.h>\n");
    buffer.AppendFormatted("#include <TThread.h>\n");
+   buffer.AppendFormatted("#include <TList.h>\n");
+   buffer.AppendFormatted("#include <TCollection.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -11130,60 +11138,20 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("Int_t %sNetFolderServer::Register(TSocket* socket)\n",shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   Int_t i;\n");
-   buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
-   buffer.AppendFormatted("   Int_t id = -1;\n");
-   buffer.AppendFormatted("   for (i = 0; i < kMaxSocketClients; i++) {;\n");
-   buffer.AppendFormatted("      if(fAcceptedSockets[i] == 0) {\n");
-   buffer.AppendFormatted("         fAcceptedSockets[i] = socket;\n");
-   buffer.AppendFormatted("         id = i;\n");
-   buffer.AppendFormatted("         break;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if(id == -1)\n");
-   buffer.AppendFormatted("      Error(\"Register\", \"Number of netfolder clients exceeded the maximum (%%d)\", kMaxSocketClients);\n");
-   buffer.AppendFormatted("   return id;\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
-   buffer.Append(kMethodLine);
-   buffer.AppendFormatted("void %sNetFolderServer::UnRegister(TSocket* socket)\n",shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   Int_t id = FindId(socket);\n");
-   buffer.AppendFormatted("   if(id != -1) {\n");
-   buffer.AppendFormatted("      fAcceptedSockets[id] = 0;\n");
-   buffer.AppendFormatted("      fSocketClientRead[id] = kFALSE;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
-   buffer.Append(kMethodLine);
-   buffer.AppendFormatted("Int_t %sNetFolderServer::FindId(TSocket* socket) const\n",shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   Int_t i;\n");
-   buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
-   buffer.AppendFormatted("   for (i = 0; i < kMaxSocketClients; i++) {;\n");
-   buffer.AppendFormatted("      if(fAcceptedSockets[i] == socket) {\n");
-   buffer.AppendFormatted("         return i;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   return -1;\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
-   buffer.Append(kMethodLine);
    buffer.AppendFormatted("int %sNetFolderServer::ResponseFunction(TSocket *socket)\n{\n",shortCut.Data());
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
    buffer.AppendFormatted("      return 0;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Read Command\n");
    buffer.AppendFormatted("   char str[200];\n");
-   buffer.AppendFormatted("   if (socket->Recv(str, sizeof(str)) <= 0) {\n");
-   buffer.AppendFormatted("      socket->Close();\n");
-   buffer.AppendFormatted("      delete socket;\n");
+   buffer.AppendFormatted("   Int_t status = socket->Select(TSocket::kRead, kNetFolderServerTimeOut);\n");
+   buffer.AppendFormatted("   if (status == 0) { // time out\n");
+   buffer.AppendFormatted("      return 1;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (status == -1 || socket->Recv(str, sizeof(str)) <= 0) { // error\n");
    buffer.AppendFormatted("      return 0;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return CheckCommand(socket,str);\n");
-   buffer.AppendFormatted("   return 1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.Append(kMethodLine);
@@ -11195,18 +11163,13 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                           shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   TMessage message(kMESS_OBJECT);\n");
    buffer.AppendFormatted("   // Check Command\n");
-   buffer.AppendFormatted("   if (strncmp(str, \"GetCurrentRunNumber\", 19) == 0) {\n");
-   buffer.AppendFormatted("      //get run number\n");
-   buffer.AppendFormatted("      Long64_t runNumber = gAnalyzer->GetCurrentRunNumber();\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      message<<runNumber;\n");
-   buffer.AppendFormatted("      socket->Send(message);\n");
-   buffer.AppendFormatted("      return 1;\n");
-   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n");
    buffer.AppendFormatted("   if (id >= 0) {\n");
-   buffer.AppendFormatted("      while (!localThis->IsSocketClientRead(id))\n");
+   buffer.AppendFormatted("      while (gAnalyzer && gNetFolderServerRunning && !localThis->IsSocketClientRead(id))\n");
    buffer.AppendFormatted("         localThis->UpdateObjects();\n");
+   buffer.AppendFormatted("      if (!gAnalyzer || !gNetFolderServerRunning) {\n");
+   buffer.AppendFormatted("         return 1;\n");
+   buffer.AppendFormatted("      }\n");
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
@@ -11380,27 +11343,33 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    }
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return ROMENetFolderServer::CheckCommand(socket,str);\n");
-   buffer.AppendFormatted("   return 1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("THREADTYPE %sNetFolderServer::Server(void *arg)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   TSocket *socket = (TSocket *) arg;\n");
-   buffer.AppendFormatted("   if (!socket->IsValid() || !gAnalyzer)\n");
+   buffer.AppendFormatted("   if (!socket->IsValid() || !gAnalyzer) {\n");
+   buffer.AppendFormatted("      delete socket;\n");
    buffer.AppendFormatted("      return THREADRETURN;\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   %sNetFolderServer* localThis = static_cast<%sNetFolderServer*>(gAnalyzer->GetNetFolderServer());\n",
                           shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   if (localThis->Register(socket) == -1)\n");
+   buffer.AppendFormatted("   if (localThis->Register(socket) == -1) {\n");
+   buffer.AppendFormatted("      delete socket;\n");
    buffer.AppendFormatted("      return THREADRETURN;\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   localThis->ConstructObjects(socket);\n");
-   buffer.AppendFormatted("   while (%sNetFolderServer::ResponseFunction(socket))\n",shortCut.Data());
-   buffer.AppendFormatted("   {}\n");
+   buffer.AppendFormatted("   while (gAnalyzer && gNetFolderServerRunning && %sNetFolderServer::ResponseFunction(socket))\n",shortCut.Data());
+   buffer.AppendFormatted("   {}\n\n");
+//   buffer.AppendFormatted("   if (gAnalyzer && gNetFolderServerRunning) {\n");
    buffer.AppendFormatted("   localThis->DestructObjects(socket);\n");
    buffer.AppendFormatted("   localThis->UnRegister(socket);\n");
+//   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   delete socket;\n");
    buffer.AppendFormatted("   return THREADRETURN;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -11428,19 +11397,40 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("            ROMEPrint::Error(\"Error: Failed to connect port %%d\\n\", port);\n");
    buffer.AppendFormatted("            break;\n");
    buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      delete lsock;\n");
    buffer.AppendFormatted("      return THREADRETURN;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   fMonitor->Add(lsock);\n");
    buffer.AppendFormatted("   TSocket *sock;\n");
-   buffer.AppendFormatted("   while (fMonitor->GetActive() != 0) {\n");
-   buffer.AppendFormatted("      if ((sock = static_cast<TServerSocket*>(fMonitor->Select())->Accept()) > 0) {\n");
-   buffer.AppendFormatted("         TThread *thread = new TThread(\"Server\", %sNetFolderServer::Server, sock);\n",
+   buffer.AppendFormatted("   Int_t status;\n");
+   buffer.AppendFormatted("   TThread *thread;\n");
+   buffer.AppendFormatted("   while (gAnalyzer && gNetFolderServerRunning) {\n");
+   buffer.AppendFormatted("      status = lsock->Select(TSocket::kRead, kNetFolderServerTimeOut);\n");
+   buffer.AppendFormatted("      if (status == -1) { // error\n");
+   buffer.AppendFormatted("         break;\n");
+   buffer.AppendFormatted("      } else if (status == 0) { // time out\n");
+   buffer.AppendFormatted("         continue;\n");
+   buffer.AppendFormatted("      } else {\n");
+   buffer.AppendFormatted("         if ((sock = lsock->Accept()) > 0) {\n");
+   buffer.AppendFormatted("            TThread *thread = new TThread(\"Server\", %sNetFolderServer::Server, sock);\n",
                           shortCut.Data());
-   buffer.AppendFormatted("         thread->Run();\n");
+   buffer.AppendFormatted("            fServerThreadList->Add(thread);\n");
+   buffer.AppendFormatted("            thread->Run();\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      TIter join(fServerThreadList);\n");
+   buffer.AppendFormatted("      while ((thread = static_cast<TThread*>(join()))) {\n");
+   buffer.AppendFormatted("         if (thread->GetState() == TThread::kTerminatedState) {\n");
+   buffer.AppendFormatted("            thread->Join();\n");
+   buffer.AppendFormatted("            fServerThreadList->Remove(thread);\n");
+   buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   fMonitor->Remove(lsock);\n");
+   buffer.AppendFormatted("   TIter next(fServerThreadList);\n");
+   buffer.AppendFormatted("   while ((thread = static_cast<TThread*>(next()))) {\n");
+   buffer.AppendFormatted("      thread->Join();\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   delete lsock;\n");
    buffer.AppendFormatted("   return THREADRETURN;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -11449,17 +11439,17 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                           shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("// start Socket server loop\n");
-   buffer.AppendFormatted("   if (fServerRunning) {\n");
+   buffer.AppendFormatted("   if (gNetFolderServerRunning || fServerLoopThread) {\n");
    buffer.AppendFormatted("      Warning(\"StartServer\", \"server is already running.\");\n");
    buffer.AppendFormatted("      return;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   fApplication = app;\n");
    buffer.AppendFormatted("   fPort = port;\n");
    buffer.AppendFormatted("   fServerName = serverName;\n");
-   buffer.AppendFormatted("   fServerRunning = kTRUE;\n");
-   buffer.AppendFormatted("   TThread *thread = new TThread(\"server_loop\", %sNetFolderServer::ServerLoop, &fPort);\n",
+   buffer.AppendFormatted("   gNetFolderServerRunning = kTRUE;\n");
+   buffer.AppendFormatted("   fServerLoopThread = new TThread(\"server_loop\", %sNetFolderServer::ServerLoop, &fPort);\n",
                           shortCut.Data());
-   buffer.AppendFormatted("   thread->Run();\n");
+   buffer.AppendFormatted("   fServerLoopThread->Run();\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.Append(kMethodLine);
@@ -11682,9 +11672,6 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("   Bool_t UpdateObjects();\n");
    buffer.AppendFormatted("   void   ConstructObjects(TSocket* socket);\n");
    buffer.AppendFormatted("   void   DestructObjects(TSocket* socket);\n");
-   buffer.AppendFormatted("   Int_t  Register(TSocket* socket);\n");
-   buffer.AppendFormatted("   void   UnRegister(TSocket* socket);\n");
-   buffer.AppendFormatted("   Int_t  FindId(TSocket* socket) const;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   static Int_t      CheckCommand(TSocket *socket,char *str);\n");

@@ -22,18 +22,48 @@
 #include <TObjArray.h>
 #include <TApplication.h>
 #include <TThread.h>
+#include <TList.h>
+#include <TCollection.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include "Riostream.h"
 #include "TNetFolderServer.h"
 
-TApplication* TNetFolderServer::fApplication   = 0;
-TString       TNetFolderServer::fServerName    = "localhost";
-TMonitor*     TNetFolderServer::fMonitor       = 0;
-Bool_t        TNetFolderServer::fServerRunning = kFALSE;
+TApplication* TNetFolderServer::fApplication      = 0;
+Int_t         TNetFolderServer::fPort             = 9090;
+TString       TNetFolderServer::fServerName       = "localhost";
+TThread*      TNetFolderServer::fServerLoopThread = 0;
+TList*        TNetFolderServer::fServerThreadList = 0;
+Bool_t        gNetFolderServerRunning             = kFALSE;
 
 ClassImp(TNetFolderServer)
+
+//______________________________________________________________________________
+TNetFolderServer::TNetFolderServer()
+:TNamed()
+{
+   if (!fServerThreadList) {
+      fServerThreadList = new TList();
+   }
+}
+
+//______________________________________________________________________________
+TNetFolderServer::~TNetFolderServer()
+{
+   StopServer();
+   SafeDelete(fServerThreadList);
+}
+
+//______________________________________________________________________________
+void TNetFolderServer::StopServer()
+{
+   gNetFolderServerRunning = kFALSE;
+   if (fServerLoopThread) {
+      fServerLoopThread->Join();
+   }
+   SafeDelete(fServerLoopThread);
+}
 
 //______________________________________________________________________________
 TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
@@ -63,9 +93,11 @@ int TNetFolderServer::ResponseFunction(TSocket *socket) {
 
    // Read Command
    char str[200];
-   if (socket->Recv(str, sizeof(str)) <= 0) {
-      socket->Close();
-      delete socket;
+   Int_t status = socket->Select(TSocket::kRead, kNetFolderServerTimeOut);
+   if (status == 0) { // time out
+      return 1;
+   }
+   if (status == -1 || socket->Recv(str, sizeof(str)) <= 0) { // error
       return 0;
    }
    return CheckCommand(socket,str);
@@ -187,7 +219,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       Int_t retValue = folder->Occurence(obj);
 
       //write occurence
-      message.Reset(kMESS_OBJECT);
+      message.Reset(kMESS_ANY);
       message<<retValue;
       socket->Send(message);
 
@@ -270,11 +302,15 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
 THREADTYPE TNetFolderServer::Server(void *arg)
 {
    TSocket *socket = static_cast<TSocket*>(arg);
-   if (!socket->IsValid())
+   if (!socket->IsValid()) {
+      delete socket;
       return THREADRETURN;
+   }
 
-   while (TNetFolderServer::ResponseFunction(socket))
+   while (gNetFolderServerRunning && TNetFolderServer::ResponseFunction(socket))
    {}
+
+   delete socket;
    return THREADRETURN;
 }
 
@@ -302,18 +338,39 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
             cerr<<"Error: Failed to connect port "<<port<<endl;;
             break;
       };
+      delete lsock;
       return THREADRETURN;
    }
 
-   fMonitor->Add(lsock);
    TSocket *sock;
-   while (fMonitor->GetActive() != 0) {
-      if ((sock = static_cast<TServerSocket*>(fMonitor->Select())->Accept()) > 0) {
-         TThread *thread = new TThread("Server", TNetFolderServer::Server, sock);
-         thread->Run();
+   Int_t status;
+   TThread *thread;
+   while (gNetFolderServerRunning) {
+      status = lsock->Select(TSocket::kRead, kNetFolderServerTimeOut);
+      if (status == -1) { // error
+         break;
+      } else if (status == 0) { // time out
+         continue;
+      } else {
+         if ((sock = lsock->Accept()) > 0) {
+            thread = new TThread("Server", TNetFolderServer::Server, sock);
+            fServerThreadList->Add(thread);
+            thread->Run();
+         }
+      }
+      TIter join(fServerThreadList);
+      while ((thread = static_cast<TThread*>(join()))) {
+         if (thread->GetState() == TThread::kTerminatedState) {
+            thread->Join();
+            fServerThreadList->Remove(thread);
+         }
       }
    }
-   fMonitor->Remove(lsock);
+   TIter next(fServerThreadList);
+   while ((thread = static_cast<TThread*>(next()))) {
+      thread->Join();
+   }
+   delete lsock;
    return THREADRETURN;
 }
 
@@ -321,14 +378,14 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 void TNetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 // start Socket server loop
-   if (fServerRunning) {
+   if (gNetFolderServerRunning || fServerLoopThread) {
       Warning("StartServer", "server is already running.");
       return;
    }
    fApplication = app;
    fPort = port;
    fServerName = serverName;
-   fServerRunning = kTRUE;
-   TThread *thread = new TThread("server_loop", TNetFolderServer::ServerLoop, &fPort);
-   thread->Run();
+   gNetFolderServerRunning = kTRUE;
+   fServerLoopThread = new TThread("server_loop", TNetFolderServer::ServerLoop, &fPort);
+   fServerLoopThread->Run();
 }

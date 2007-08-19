@@ -166,6 +166,17 @@ Long_t ROMEString::ToLong() const
 }
 
 //______________________________________________________________________________
+Long64_t ROMEString::ToLong64() const
+{
+   char *cstop;
+#if defined( R__UNIX )
+   return strtoll(Data(), &cstop, 10);
+#else
+   return _strtoi64(Data(), &cstop, 10);
+#endif
+}
+
+//______________________________________________________________________________
 Double_t ROMEString::ToDouble() const
 {
    char *cstop;

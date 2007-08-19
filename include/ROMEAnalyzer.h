@@ -55,15 +55,14 @@ extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
 const Int_t kMaxSocketClients = 100;
 
-const Int_t kEventNumberInit       = -1;
-const Int_t kEventNumberBeginOfRun = -2;
-const Int_t kEventNumberEndOfRun   = -3;
-const Int_t kEventNumberTerminate  = -4;
+const Int_t kEventNumberInit       = -2;
+const Int_t kEventNumberBeginOfRun = -1;
+const Int_t kEventNumberEndOfRun   = kMaxLong64 - 1;
+const Int_t kEventNumberTerminate  = kMaxLong64;
 
 class ROMEAnalyzer : public TObject
 {
 friend class ArgusWindow;
-friend class ROMEEventLoop;
 
 public:
    // Analysis Mode
@@ -206,7 +205,6 @@ protected:
    Bool_t         fObjectStorageUpdated;         //! Object storage update flag
 
    // Socket Client
-   TSocket       *fSocketClient;                 //! Handle to socket connection to ROME
    ROMENetFolder *fSocketClientNetFolder;        //! Handle to the ROMENetFolder of the socket connection to ROME
    ROMEString     fSocketClientHost;             //! Socket connection to ROME host
    Int_t          fSocketClientPort;             //! Socket connection to ROME port
@@ -657,8 +655,9 @@ protected:
 
    virtual void    startSplashScreen() = 0;
    virtual void    consoleStartScreen() = 0;
-   virtual Bool_t  ConnectSocketClientNetFolder() = 0;
+   virtual Bool_t  ConnectSocketClientNetFolder(TSocket *sock) = 0;
    virtual void    StartNetFolderServer() = 0;
+   virtual void    StopNetFolderServer();
    virtual Bool_t  CheckTreeFileNames() const = 0;
 
    ClassDef(ROMEAnalyzer,0) // Base analyzer class

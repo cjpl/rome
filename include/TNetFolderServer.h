@@ -15,7 +15,6 @@
 #include <TNamed.h>
 #include <TString.h>
 #include <TFolder.h>
-#include <TMonitor.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -23,25 +22,31 @@
 
 class TApplication;
 class TSocket;
+class TThread;
+class TList;
+
+extern Bool_t gNetFolderServerRunning;
+const  Int_t  kNetFolderServerTimeOut = 20; // micro sec
 
 class TNetFolderServer : public TNamed
 {
 protected:
    static TApplication *fApplication;
-   Int_t                fPort;
+   static Int_t         fPort;
    static TString       fServerName;
-   static TMonitor     *fMonitor;
-   static Bool_t        fServerRunning;
+   static TThread      *fServerLoopThread;
+   static TList        *fServerThreadList;
 
 private:
    TNetFolderServer(const TNetFolderServer &server); // not implemented
    TNetFolderServer &operator=(const TNetFolderServer &rhs); // not implemented
 
 public:
-   TNetFolderServer():TNamed(),fPort(9090) { if (!fMonitor) { fMonitor = new TMonitor(); }}
-   virtual ~TNetFolderServer(){ fMonitor->DeActivateAll(); SafeDelete(fMonitor); }
+   TNetFolderServer();
+   virtual ~TNetFolderServer();
 
    virtual void       StartServer(TApplication *app,Int_t port,const char* serverName);
+   virtual void       StopServer();
    static Int_t       ResponseFunction(TSocket *socket);
 
 protected:

@@ -20,19 +20,17 @@ protected:
    Bool_t   fAllDataAvailable;
 
 public:
-   void              StartServer(TApplication *app,Int_t port,const char* serverName);
-   static  Int_t     ResponseFunction(TSocket *socket);
    virtual Bool_t    UpdateObjects() = 0;
    virtual void      ConstructObjects(TSocket* socket) = 0;
    virtual void      DestructObjects(TSocket* socket) = 0;
-   virtual Int_t     Register(TSocket* socket) = 0;
-   virtual void      UnRegister(TSocket* socket) = 0;
-
+   virtual Int_t     Register(TSocket* socket);
+   virtual void      UnRegister(TSocket* socket);
+   virtual Int_t     FindId(TSocket* socket) const;
    TSocket          *GetAcceptedSockets(Int_t i) const { return fAcceptedSockets[i]; };
 
 private:
-   ROMENetFolderServer(const ROMENetFolderServer &server);
-   ROMENetFolderServer &operator=(const ROMENetFolderServer &rhs);
+   ROMENetFolderServer(const ROMENetFolderServer &server); // not implemented
+   ROMENetFolderServer &operator=(const ROMENetFolderServer &rhs); // not implemented
 
 public:
    ROMENetFolderServer();
@@ -51,8 +49,6 @@ public:
 
 protected:
    static Int_t      CheckCommand(TSocket *socket,char *str);
-   static THREADTYPE Server(void *arg);
-   static THREADTYPE ServerLoop(void *arg);
 
    ClassDef(ROMENetFolderServer, 0) // Customized TNetFolder for ROME
 };

@@ -17,11 +17,10 @@
 #include <TMessage.h>
 #include <TFolder.h>
 #include <TObjArray.h>
+#include <TSocket.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-
-class TSocket;
 
 class TNetFolder : public TNamed
 {
@@ -59,6 +58,7 @@ public:
    void                ExecuteMacro(const char *macro);
    size_t              GetPointer();
    void                GetServerName(char* serverName,Int_t serverNameSize);
+   Bool_t              HaveValidSocket() { return fSocket && fSocket->IsValid(); }
 
 protected:
    void                Reconnect();

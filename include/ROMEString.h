@@ -35,6 +35,7 @@ public:
    void         WriteLine() const;
    Int_t        ToInteger() const;
    Long_t       ToLong() const;
+   Long64_t     ToLong64() const;
    Double_t     ToDouble() const;
    Float_t      ToFloat() const;
    Bool_t       ToBool() const;

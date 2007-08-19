@@ -40,25 +40,9 @@ ROMENetFolderServer::ROMENetFolderServer()
 }
 
 //______________________________________________________________________________
-int ROMENetFolderServer::ResponseFunction(TSocket *socket)
-{
-   if (!socket->IsValid())
-      return 0;
-
-   // Read Command
-   char str[200];
-   if (socket->Recv(str, sizeof(str)) <= 0) {
-      socket->Close();
-      delete socket;
-      return 0;
-   }
-   return CheckCommand(socket,str);
-}
-
-//______________________________________________________________________________
 int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
 {
-   if (!socket->IsValid() || !gROME)
+   if (!socket->IsValid() || !gROME || !gNetFolderServerRunning)
       return 1;
 
    ROMENetFolderServer* localThis = static_cast<ROMENetFolderServer*>(gROME->GetNetFolderServer());
@@ -68,7 +52,7 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       //get run number
       Long64_t runNumber = gROME->GetCurrentRunNumber();
 
-      TMessage message(kMESS_OBJECT);
+      TMessage message(kMESS_ANY);
       message<<runNumber;
       socket->Send(message);
       return 1;
@@ -77,7 +61,7 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       //get event number
       Long64_t eventNumber = gROME->GetCurrentEventNumber();
 
-      TMessage message(kMESS_OBJECT);
+      TMessage message(kMESS_ANY);
       message<<eventNumber;
       socket->Send(message);
       return 1;
@@ -90,21 +74,25 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       Long64_t eventNumber = gROME->GetCurrentEventNumber();
 
       ROMEString runStr = string(16,string.Length()-16);
-      Long64_t oldRunNumber = runStr.ToLong(); // --> This should be ToLong64
+      Long64_t oldRunNumber = runStr.ToLong64();
       int blank = runStr.Index(" ");
       ROMEString eventStr = runStr(blank+1,runStr.Length()-blank-1);
-      Long64_t oldEventNumber = eventStr.ToLong(); // --> This should be ToLong64
+      Long64_t oldEventNumber = eventStr.ToLong64();
 
       ret = kFALSE;
-      if ((oldRunNumber<runNumber || (oldRunNumber==runNumber && oldEventNumber<eventNumber)) &&
+      if ((oldRunNumber < runNumber || (oldRunNumber==runNumber && oldEventNumber < eventNumber)) &&
           localThis->IsEventStorageAvailable()) {
          gROME->UpdateObjectStorage();
-         while (!gROME->IsObjectStorageUpdated())
+         while (gROME && gNetFolderServerRunning && !gROME->IsObjectStorageUpdated())
             gSystem->Sleep(20);
-         ret = kTRUE;
+         if (!gROME || !gNetFolderServerRunning) {
+            ret = kFALSE;
+         } else {
+            ret = kTRUE;
+         }
       }
 
-      TMessage message(kMESS_OBJECT);
+      TMessage message(kMESS_ANY);
       message<<ret;
       socket->Send(message);
       return 1;
@@ -113,16 +101,20 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       //return current event
       Bool_t ret;
       ret = kFALSE;
-      if (localThis->IsAllDataAvailable())
+      if (gROME && gNetFolderServerRunning && localThis->IsAllDataAvailable())
          ret = kTRUE;
       else if (localThis->IsEventStorageAvailable()) {
          gROME->UpdateObjectStorage();
-         while (!gROME->IsObjectStorageUpdated())
+         while (gROME && gNetFolderServerRunning && !gROME->IsObjectStorageUpdated())
             gSystem->Sleep(20);
-         ret = kTRUE;
+         if (!gROME || !gNetFolderServerRunning) {
+            ret = kFALSE;
+         } else {
+            ret = kTRUE;
+         }
       }
 
-      TMessage message(kMESS_OBJECT);
+      TMessage message(kMESS_ANY);
       message<<ret;
       socket->Send(message);
       return 1;
@@ -134,88 +126,12 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       if (gROME->IsProgramTerminated())
          ret = kTRUE;
 
-      TMessage message(kMESS_OBJECT);
+      TMessage message(kMESS_ANY);
       message<<ret;
       socket->Send(message);
       return 1;
    }
    return TNetFolderServer::CheckCommand(socket,str);
-}
-
-//______________________________________________________________________________
-THREADTYPE ROMENetFolderServer::Server(void *arg)
-{
-   TSocket *socket = static_cast<TSocket*>(arg);
-
-   if (!socket->IsValid() || !gROME)
-      return THREADRETURN;
-
-   ROMENetFolderServer* localThis = gROME->GetNetFolderServer();
-
-   if(localThis->Register(socket) == -1)
-      return THREADRETURN;
-
-   localThis->ConstructObjects(socket);
-   while (ROMENetFolderServer::ResponseFunction(socket))
-   {}
-   localThis->DestructObjects(socket);
-   localThis->UnRegister(socket);
-   return THREADRETURN;
-}
-
-//______________________________________________________________________________
-THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
-{
-// Server loop listening for incoming network connections on port
-// specified by command line option -s. Starts a searver_thread for
-// each connection.
-   Int_t port;
-   memcpy(&port, arg, sizeof(Int_t));
-   TServerSocket *lsock = new TServerSocket(port, kTRUE);
-   if (!lsock->IsValid()) {
-      switch(lsock->GetErrorCode()) {
-         case -1:
-            ROMEPrint::Error("Error: Low level socket() call failed. Failed to connect port %d\n", port);
-            break;
-         case -2:
-            ROMEPrint::Error("Error: Low level bind() call failed. Failed to connect port %d\n", port);
-            break;
-         case -3:
-            ROMEPrint::Error("Error: Low level listen() call failed. Failed to connect port %d\n", port);
-            break;
-         default:
-            ROMEPrint::Error("Error: Failed to connect port %d\n", port);
-            break;
-      };
-      return THREADRETURN;
-   }
-
-   fMonitor->Add(lsock);
-   TSocket *sock;
-   while (fMonitor->GetActive() != 0) {
-      if ((sock = static_cast<TServerSocket*>(fMonitor->Select())->Accept()) > 0) {
-         TThread *thread = new TThread("Server", ROMENetFolderServer::Server, sock);
-         thread->Run();
-      }
-   }
-   fMonitor->Remove(lsock);
-   return THREADRETURN;
-}
-
-//______________________________________________________________________________
-void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
-{
-// start Socket server loop
-   if (fServerRunning) {
-      Warning("StartServer", "server is already running.");
-      return;
-   }
-   fApplication = app;
-   fPort = port;
-   fServerName = serverName;
-   fServerRunning = kTRUE;
-   TThread *thread = new TThread("server_loop", ROMENetFolderServer::ServerLoop, &fPort);
-   thread->Run();
 }
 
 //______________________________________________________________________________
@@ -226,4 +142,45 @@ void ROMENetFolderServer::SetCopyAll(bool copyAll)
    for (i = 0; i < kMaxSocketClients; i++) {
       fSocketClientRead[i] = kFALSE;
    }
+}
+
+//______________________________________________________________________________
+Int_t ROMENetFolderServer::Register(TSocket* socket)
+{
+   Int_t i;
+   i = 0; // to suppress unused warning
+   Int_t id = -1;
+   for (i = 0; i < kMaxSocketClients; i++) {
+      if(fAcceptedSockets[i] == 0) {
+         fAcceptedSockets[i] = socket;
+         id = i;
+         break;
+      }
+   }
+   if(id == -1)
+      Error("Register", "Number of netfolder clients exceeded the maximum (%d)", kMaxSocketClients);
+   return id;
+}
+
+//______________________________________________________________________________
+void ROMENetFolderServer::UnRegister(TSocket* socket)
+{
+   Int_t id = FindId(socket);
+   if(id != -1) {
+      fAcceptedSockets[id] = 0;
+      fSocketClientRead[id] = kFALSE;
+   }
+}
+
+//______________________________________________________________________________
+Int_t ROMENetFolderServer::FindId(TSocket* socket) const
+{
+   Int_t i;
+   i = 0; // to suppress unused warning
+   for (i = 0; i < kMaxSocketClients; i++) {
+      if(fAcceptedSockets[i] == socket) {
+         return i;
+      }
+   }
+   return -1;
 }

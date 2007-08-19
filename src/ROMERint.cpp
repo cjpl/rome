@@ -73,7 +73,6 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
 ,fROMEInterruptHandler(0)
 ,fFPEMask(0)
 ,fRemoteProcess(kFALSE)
-,fSocketClient(0)
 ,fSocketClientNetFolder(0)
 ,fSocketClientHost("localhost")
 ,fSocketClientPort(9090)
@@ -92,7 +91,6 @@ ROMERint::~ROMERint()
 {
    SafeDelete(fROMEInterruptHandler);
    SafeDelete(fSocketClientNetFolder);
-   SafeDelete(fSocketClient);
 }
 
 //______________________________________________________________________________
@@ -179,23 +177,22 @@ void ROMERint::SetSocketClientConnection(const char* connection)
 //______________________________________________________________________________
 Bool_t ROMERint::ConnectSocketClient()
 {
-   if (fSocketClient != 0) {
-      if (fSocketClient->IsValid()) {
+   if (fSocketClientNetFolder != 0) {
+      if (fSocketClientNetFolder->HaveValidSocket()) {
          return true;
       }
    }
-   if (fSocketClient == 0) {
-      fSocketClient = new TSocket(fSocketClientHost.Data(), fSocketClientPort);
-   }
-   while (!fSocketClient->IsValid()) {
-      delete fSocketClient;
+   TSocket *sock = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
+   while (!sock->IsValid()) {
+      delete sock;
       ROMEPrint::Warning("can not make socket connection to the ROME analyzer on host '%s' through port %d.\n",
                          fSocketClientHost.Data(), fSocketClientPort);
       ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
       gSystem->Sleep(5000);
-      fSocketClient = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
+      sock = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
    }
    SafeDelete(fSocketClientNetFolder);
-   fSocketClientNetFolder = new TNetFolder("", "", fSocketClient, kTRUE);
+   dbgprintf("\n");
+   fSocketClientNetFolder = new TNetFolder("", "", sock, kTRUE);
    return true;
 }

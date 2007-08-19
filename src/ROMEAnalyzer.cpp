@@ -164,7 +164,6 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fSocketServerActive(kFALSE)
 ,fSocketServerPortNumber(9090)
 ,fObjectStorageUpdated(kFALSE)
-,fSocketClient(0)
 ,fSocketClientNetFolder(0)
 ,fSocketClientHost("localhost")
 ,fSocketClientPort(9090)
@@ -203,7 +202,6 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDelete(fNetFolderServer);
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
-   SafeDelete(fSocketClient);
    SafeDelete(fSocketClientNetFolder);
    SafeDelete(fTaskObjects);
    SafeDelete(fMainTask);
@@ -234,6 +232,7 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDeleteArray(fDataBaseName);
    SafeDeleteArray(fDataBaseDir);
    SafeDeleteArray(fDataBaseHandle);
+   gROME = 0;
 }
 
 //______________________________________________________________________________
@@ -298,6 +297,10 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          startSplashScreen();
       }
 
+      if (isSocketServerActive()) {
+         StartNetFolderServer();
+      }
+
       if (!this->isBatchMode()) {
          ROMEPrint::Print("Program steering\n");
          ROMEPrint::Print("----------------\n");
@@ -307,9 +310,9 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          ROMEPrint::Print("r : Restarts the program\n");
          ROMEPrint::Print("c : Continuous Analysis\n");
          ROMEPrint::Print("o : Step by step Analysis\n");
-         ROMEPrint::Print("g : Run until event #\n");
-         ROMEPrint::Print("j : Jump to event #\n");
-         ROMEPrint::Print("i : Root interpreter\n");
+         ROMEPrint::Print("g : Runs until event #\n");
+         ROMEPrint::Print("j : Jumps to event #\n");
+         ROMEPrint::Print("i : ROOT interpreter\n");
          ROMEPrint::Print("\n");
       }
    }
@@ -320,6 +323,8 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    fMainTask->ExecuteTask("start");
 
    ROMEPrint::ReportSummary();
+
+   StopNetFolderServer();
 
    ss_getchar(1);
 
@@ -1301,23 +1306,22 @@ Bool_t ROMEAnalyzer::ConnectSocketClient(const char* hostname, Int_t port)
       fSocketClientPort = port;
    }
 
-   if (fSocketClient != 0) {
-      if (fSocketClient->IsValid()) {
+   if (fSocketClientNetFolder != 0) {
+      if (fSocketClientNetFolder->HaveValidSocket()) {
          return true;
       }
    }
-   if (fSocketClient == 0) {
-      fSocketClient = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
-   }
-   while (!fSocketClient->IsValid()) {
-      delete fSocketClient;
+
+   TSocket *sock = new TSocket(fSocketClientHost.Data(), fSocketClientPort);
+   while (!sock->IsValid()) {
+      delete sock;
       ROMEPrint::Warning("can not make socket connection to the ROME analyzer on host '%s' through port %d.\n",
                          fSocketClientHost.Data(), fSocketClientPort);
       ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
       gSystem->Sleep(5000);
-      fSocketClient = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
+      sock = new TSocket(fSocketClientHost.Data(), fSocketClientPort);
    }
-   ConnectSocketClientNetFolder();
+   ConnectSocketClientNetFolder(sock);
    return true;
 }
 
@@ -1728,6 +1732,14 @@ void ROMEAnalyzer::SetDataBase(Int_t i, ROMEDataBase *dataBase)
    if(i >= 0 && i < fNumberOfDataBases) {
       SafeDelete(fDataBaseHandle[i]);
       fDataBaseHandle[i] = dataBase;
+   }
+}
+
+//______________________________________________________________________________
+void ROMEAnalyzer::StopNetFolderServer()
+{
+   if (fNetFolderServer) {
+      fNetFolderServer->StopServer();
    }
 }
 
