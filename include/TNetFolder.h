@@ -26,7 +26,7 @@ class TNetFolder : public TNamed
 {
 protected:
    TSocket  *fSocket;     // connection to TObjServer server
-   size_t    fFolder;     // pointer to TFolder object
+   Long64_t  fFolder;     // pointer to TFolder object
    Bool_t    fReconnect;  // try to reconnect when connection is broken
    TString   fHost;       // host of socket connection
    Int_t     fPort;       // port of socket connection
@@ -56,7 +56,7 @@ public:
    virtual void        Remove(TObject *) { Error("Remove","Not available for TNetFolders"); }
    void                ExecuteCommand(const char *line);
    void                ExecuteMacro(const char *macro);
-   size_t              GetPointer();
+   Long64_t            GetPointer();
    void                GetServerName(char* serverName,Int_t serverNameSize);
    Bool_t              HaveValidSocket() { return fSocket && fSocket->IsValid(); }
 

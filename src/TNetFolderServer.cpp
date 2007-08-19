@@ -79,7 +79,7 @@ TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
       delete message;
       return NULL;
    }
-   size_t p;
+   Long64_t p;
    *message>>p;
    delete message;
    return reinterpret_cast<TFolder*>(p);
@@ -238,7 +238,7 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
 
       //write pointer
       message.Reset(kMESS_ANY);
-      size_t p = reinterpret_cast<size_t>(obj);
+      Long64_t p = reinterpret_cast<Long64_t>(obj);
       message<<p;
       socket->Send(message);
 

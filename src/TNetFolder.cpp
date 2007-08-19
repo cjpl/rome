@@ -105,7 +105,7 @@ Bool_t TNetFolder::Recv(TMessage *&mess)
 }
 
 //______________________________________________________________________________
-size_t TNetFolder::GetPointer()
+Long64_t TNetFolder::GetPointer()
 {
 // Get Pointer to the Servers Folder
    TMessage *m;
@@ -120,7 +120,7 @@ size_t TNetFolder::GetPointer()
       delete m;
       return 0;
    }
-   size_t p;
+   Long64_t p;
    *m >> p;
    delete m;
    return p;
