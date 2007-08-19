@@ -253,37 +253,27 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       ROMEString text;
       ROMEString tmp;
 #if defined(R__UNIX)
-      switch (event) {
-      case kEventNumberInit:
+      if (event == kEventNumberInit) {
          lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-         break;
-      case kEventNumberBeginOfRun:
+      } else if (event == kEventNumberBeginOfRun) {
          lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-         break;
-      case kEventNumberEndOfRun:
+      } else if (event == kEventNumberEndOfRun) {
          lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-         break;
-      case kEventNumberTerminate:
+      } else if (event == kEventNumberTerminate) {
          lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-         break;
-      default:
+      } else {
          lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
       }
 #else
-      switch (event) {
-      case kEventNumberInit:
+      if (event == kEventNumberInit) {
          lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-         break;
-      case kEventNumberBeginOfRun:
+      } else if (event == kEventNumberBeginOfRun) {
          lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-         break;
-      case kEventNumberEndOfRun:
+      } else if (event == kEventNumberEndOfRun) {
          lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-         break;
-      case kEventNumberTerminate:
+      } else if (event == kEventNumberTerminate) {
          lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-         break;
-      default:
+      } else {
          lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
       }
 #endif
