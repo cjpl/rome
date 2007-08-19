@@ -1848,7 +1848,13 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       if (numOfTaskAuthors[iTask] > 0) {
          clsDescription.AppendFormatted("The event methods have been written by");
          for (j = 0; j < numOfTaskAuthors[iTask]; j++) {
-            clsDescription.AppendFormatted(" %s", taskAuthor[iTask][j].Data());
+            if (j == 0) {
+               clsDescription.AppendFormatted(" %s", taskAuthor[iTask][j].Data());
+            } else if (j == numOfTaskAuthors[iTask] - 1) {
+               clsDescription.AppendFormatted(" and %s", taskAuthor[iTask][j].Data());
+            } else {
+               clsDescription.AppendFormatted(", %s", taskAuthor[iTask][j].Data());
+            } 
          }
          clsDescription.AppendFormatted(".\n");
       }
