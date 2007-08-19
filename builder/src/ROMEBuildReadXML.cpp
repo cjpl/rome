@@ -853,6 +853,14 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                            cout<<"Terminating program."<<endl;
                            return false;
                         }
+                        // task connected from
+                        numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] =
+                              numOfTaskConnectedFrom[taskHierarchyClassIndex[numOfTaskHierarchy]];
+                        for (j = 0; j < numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]; j++) {
+                           taskHierarchyConnectedFrom[numOfTaskHierarchy][j] =
+                                 taskConnectedFrom[taskHierarchyClassIndex[numOfTaskHierarchy]][j];
+                        }
+                        // count multiplicity
                         taskHierarchyMultiplicity[numOfTaskHierarchy] = 1;
                         for (i = 0; i < numOfTaskHierarchy; i++) {
                            if (taskHierarchyName[i] == taskHierarchyName[numOfTaskHierarchy] &&
