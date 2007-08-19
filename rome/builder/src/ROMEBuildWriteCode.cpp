@@ -13840,9 +13840,10 @@ Bool_t ROMEBuilder::WriteDOT()
             }
          }
          if (!found) {
-            cerr<<"Warning : task '"<<taskHierarchyConnectedFrom[i][j]<<"' connected from '"<<name<<"' was not found."<<endl;
+//            cerr<<"Warning : task '"<<taskHierarchyConnectedFrom[i][j]<<"' connected from '"<<name<<"' was not found."<<endl;
+         } else {
+            buffer.AppendFormatted("%*s%s -> %s;\n", 3 * depth, "", taskHierarchyConnectedFrom[i][j].Data(), name.Data());
          }
-         buffer.AppendFormatted("%*s%s -> %s;\n", 3 * depth, "", taskHierarchyConnectedFrom[i][j].Data(), name.Data());
       }
       depthold = depth;
    }
