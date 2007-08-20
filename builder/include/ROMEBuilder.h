@@ -180,6 +180,7 @@ protected:
    ROMEString  **folderInclude;
    Bool_t      **folderLocalFlag;
    Bool_t       *folderDataBase;
+   Bool_t       *folderIgnoreTObjectStreamer;
    Bool_t       *folderUserCode;
    Bool_t       *folderSupport;
    Bool_t       *folderNoReset;

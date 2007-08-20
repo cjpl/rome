@@ -192,7 +192,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
 
       buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
+      if (folderIgnoreTObjectStreamer[iFold] && folderInheritName[iFold].Length() == 0) {
+         buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
+      }
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i] == 0) {

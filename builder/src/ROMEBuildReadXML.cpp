@@ -173,6 +173,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    folderInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfInclude));
    folderLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfInclude));
    folderDataBase = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderIgnoreTObjectStreamer = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderUserCode = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderSupport = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderNoReset = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
@@ -1053,6 +1054,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    folderTitle[numOfFolder] = "";
    folderArray[numOfFolder] = "1";
    folderDataBase[numOfFolder] = false;
+   folderIgnoreTObjectStreamer[numOfFolder] = true;
    folderUserCode[numOfFolder] = false;
    folderVersion[numOfFolder] = "1";
    folderDescription[numOfFolder] = "";
@@ -1175,6 +1177,14 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          if (tmp == "true") {
             folderDataBase[numOfFolder] = true;
             folderNoReset[numOfFolder] = true;
+         }
+      }
+      // folder ignore TObject streamer
+      if (type == 1 && !strcmp(name,"IgnoreTObjectStreamer")) {
+         xml->GetValue(tmp,"true");
+         FormatText(tmp, kTRUE);
+         if (tmp == "false") {
+            folderIgnoreTObjectStreamer[numOfFolder] = false;
          }
       }
       // folder with changeble class file
