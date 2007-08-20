@@ -111,6 +111,7 @@ ROMEBuilder::ROMEBuilder()
 ,folderInclude(0)
 ,folderLocalFlag(0)
 ,folderDataBase(0)
+,folderIgnoreTObjectStreamer(0)
 ,folderUserCode(0)
 ,folderSupport(0)
 ,folderNoReset(0)
@@ -502,6 +503,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] folderInclude;
    delete [] folderLocalFlag;
    delete [] folderDataBase;
+   delete [] folderIgnoreTObjectStreamer;
    delete [] folderUserCode;
    delete [] folderSupport;
    delete [] folderNoReset;
@@ -1581,6 +1583,7 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    folderVersion[numOfFolder] = mainDefinitionVersion;
    folderArray[numOfFolder] = "1";
    folderDataBase[numOfFolder] = false;
+   folderIgnoreTObjectStreamer[numOfFolder] = true;
    folderUserCode[numOfFolder] = false;
    folderDescription[numOfFolder] = "folder for configuration parameters";
    folderShortDescription[numOfFolder] = "";
