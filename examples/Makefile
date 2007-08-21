@@ -40,6 +40,7 @@ export BFOPT    =$(OPT)
 export MSGOPT   =$(OPT)
 export UMFOPT   =$(OPT)
 export DOCOPT   =$(OPT)
+export REFOPT   =$(OPT)
 
 ROMEProjects = multirun/mranalyzer.exe \
                dbexample/rdbframework.exe \
@@ -63,7 +64,8 @@ ROMEProjects = multirun/mranalyzer.exe \
                basefolder/bfsample.exe \
                message/msganalyzer.exe \
                userMakefile/umfanalyzer.exe \
-               document/docanalyzer.exe
+               document/docanalyzer.exe \
+               reference/refanalyzer.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
                 argus/timer/ttmonitor.exe \
@@ -183,6 +185,10 @@ document/docanalyzer.exe:
 	$(ROMESYS)/bin/romebuilder.exe -i document/document.xml -o document -nl -pch;
 	make $(JOBSFLAG) -C document/
 
+reference/refanalyzer.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i reference/reference.xml -o reference -nl -pch;
+	make $(JOBSFLAG) -C reference/
+
 argus/file/flmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -nl -pch 
 	make $(JOBSFLAG) -C argus/file/
@@ -286,6 +292,9 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd message; ./msganalyzer.exe -i romeConfig.xml -q -nc
 
 	cd userMakefile; ./umfanalyzer.exe -i romeConfig.xml -q -nc
+
+	cd reference; ./refanalyzer.exe -i writeConfig.xml -q -nc
+	cd reference; ./refanalyzer.exe -i readConfig.xml -q -nc
 
 	cd argus/file; ./flmonitor.exe -i romeConfig.xml -q -e 0-99 -nc
 
