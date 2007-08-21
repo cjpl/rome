@@ -54,7 +54,6 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
 {
    Int_t j,k;
    ROMEString parentt;
-   ROMEString format;
    Int_t depth;
    ROMEString blank;
 
@@ -3045,7 +3044,6 @@ Bool_t ROMEBuilder::WriteUpdateObjectsObject(ROMEString &buffer,const char *obje
 //______________________________________________________________________________
 Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t numTask,Int_t tab)
 {
-   ROMEString format;
    ROMEString sc;
    ROMEString blank="";
    int j,i;
@@ -3099,18 +3097,18 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       if (!steerFieldUsed[numTask][numSteer][j])
          continue;
       if (steerFieldArraySize[numTask][numSteer][j] == "1") {
-         format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,
-                             nameLen+5-steerFieldName[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),
-                                steerFieldName[numTask][numSteer][j].Data(),"",
+         buffer.AppendFormatted("%s   %-*s f%s;%*s %s\n",blank.Data(),
+                                typeLen,steerFieldType[numTask][numSteer][j].Data(),
+                                steerFieldName[numTask][numSteer][j].Data(),
+                                nameLen+5-steerFieldName[numTask][numSteer][j].Length(), "",
                                 ProcessCommentCPP(steerFieldComment[numTask][numSteer][j],tmp).Data());
       } else {
-         format.SetFormatted("%%s   %%-%ds f%%s[%%s];%%%ds %%s\n",typeLen,
-                             nameLen + 3 - steerFieldName[numTask][numSteer][j].Length() -
-                             steerFieldArraySize[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),
+         buffer.AppendFormatted("%s   %-*s f%s[%s];%*s %s\n",blank.Data(),
+                                typeLen,steerFieldType[numTask][numSteer][j].Data(),
                                 steerFieldName[numTask][numSteer][j].Data(),
-                                steerFieldArraySize[numTask][numSteer][j].Data(),"",
+                                steerFieldArraySize[numTask][numSteer][j].Data(),
+                                nameLen + 3 - steerFieldName[numTask][numSteer][j].Length() -
+                                steerFieldArraySize[numTask][numSteer][j].Length(),"",
                                 ProcessCommentCPP(steerFieldComment[numTask][numSteer][j],tmp).Data());
       }
    }
@@ -3118,18 +3116,16 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
          continue;
       if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]] == "1") {
-         format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen - 1,
-                             nameLen + 1 - steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),
+         buffer.AppendFormatted("%s   %-*s *f%s;%*s // Handle to %s Class\n",blank.Data(),
+                                typeLen - 1, steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
-                                steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",
+                                nameLen + 1 - steerName[numTask][steerChildren[numTask][numSteer][i]].Length(),"",
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       } else {
-         format.SetFormatted("%%s   %%-%ds **f%%s;%%%ds // Handle to %%s Class\n",typeLen - 1,
-                             nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),
+         buffer.AppendFormatted("%s   %-*s **f%s;%*s // Handle to %s Class\n",blank.Data(),typeLen - 1,
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
-                                steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",
+                                steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
+                                nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length(),"",
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       }
    }
@@ -3257,16 +3253,16 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       if (!steerFieldUsed[numTask][numSteer][j])
          continue;
       if (steerFieldArraySize[numTask][numSteer][j] == "1") {
-         format.SetFormatted("%%s   %%-%ds Get%%s() const%%%ds { return f%%s; }\n",
-                             typeLen, nameLen + 7 - steerFieldName[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),
-                                steerFieldName[numTask][numSteer][j].Data(),"",
+         buffer.AppendFormatted("%s   %-*s Get%s() const%*s { return f%s; }\n",blank.Data(),typeLen,
+                                steerFieldType[numTask][numSteer][j].Data(),
+                                steerFieldName[numTask][numSteer][j].Data(),
+                                nameLen + 7 - steerFieldName[numTask][numSteer][j].Length(),"",
                                 steerFieldName[numTask][numSteer][j].Data());
       } else {
-         format.SetFormatted("%%s   %%-%ds Get%%sAt(Int_t i) const%%%ds{ return f%%s[i]; }\n",
-                             typeLen, nameLen - steerFieldName[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),
-                                steerFieldName[numTask][numSteer][j].Data(),"",
+         buffer.AppendFormatted("%s   %-*s Get%sAt(Int_t i) const%*s{ return f%s[i]; }\n",blank.Data(),typeLen,
+                                steerFieldType[numTask][numSteer][j].Data(),
+                                steerFieldName[numTask][numSteer][j].Data(),
+                                nameLen - steerFieldName[numTask][numSteer][j].Length(),"",
                                 steerFieldName[numTask][numSteer][j].Data());
       }
    }
@@ -3274,19 +3270,17 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
          continue;
       if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]] == "1") {
-         format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds const { return f%%s; }\n",
-                             typeLen - 1,
-                             nameLen + 7 - steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),
+         buffer.AppendFormatted("%s   %-*s *Get%s()%*s const { return f%s; }\n",blank.Data(),
+                                typeLen - 1,
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
-                                steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",
+                                steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
+                                nameLen + 7 - steerName[numTask][steerChildren[numTask][numSteer][i]].Length(),"",
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       } else {
-         format.SetFormatted("%%s   %%-%ds *Get%%sAt(Int_t i) const%%%ds { return f%%s[i]; }\n",
-                             typeLen - 1, nameLen - steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),
+         buffer.AppendFormatted("%s   %-*s *Get%sAt(Int_t i) const%*s { return f%s[i]; }\n",blank.Data(),
+                                typeLen - 1, steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
-                                steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",
+                                nameLen - steerName[numTask][steerChildren[numTask][numSteer][i]].Length(),"",
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       }
    }
@@ -3296,21 +3290,20 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       if (!steerFieldUsed[numTask][numSteer][j])
          continue;
       if (steerFieldArraySize[numTask][numSteer][j] == "1") {
-         format.SetFormatted("%%s   void Set%%s(%%s %%s)%%%ds { f%%s = %%s; }\n",
-                             2 * nameLen + typeLen + 8 - 2 * steerFieldName[numTask][numSteer][j].Length() -
-                             steerFieldType[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldName[numTask][numSteer][j].Data(),
+         buffer.AppendFormatted("%s   void Set%s(%s %s)%*s { f%s = %s; }\n",blank.Data(),steerFieldName[numTask][numSteer][j].Data(),
                                 steerFieldType[numTask][numSteer][j].Data(),
-                                steerFieldName[numTask][numSteer][j].Data(),"",
+                                steerFieldName[numTask][numSteer][j].Data(),
+                                2 * nameLen + typeLen + 8 - 2 * steerFieldName[numTask][numSteer][j].Length() -
+                                steerFieldType[numTask][numSteer][j].Length(),"",
                                 steerFieldName[numTask][numSteer][j].Data(),
                                 steerFieldName[numTask][numSteer][j].Data());
       } else {
-         format.SetFormatted("%%s   void Set%%sAt(Int_t i,%%s %%s)%%%ds { f%%s[i] = %%s; }\n",
-                             2 * nameLen + typeLen - 2 * steerFieldName[numTask][numSteer][j].Length() -
-                             steerFieldType[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldName[numTask][numSteer][j].Data(),
+         buffer.AppendFormatted("%s   void Set%sAt(Int_t i,%s %s)%*s { f%s[i] = %s; }\n",
+                                blank.Data(),steerFieldName[numTask][numSteer][j].Data(),
                                 steerFieldType[numTask][numSteer][j].Data(),
-                                steerFieldName[numTask][numSteer][j].Data(),"",
+                                steerFieldName[numTask][numSteer][j].Data(),
+                                2 * nameLen + typeLen - 2 * steerFieldName[numTask][numSteer][j].Length() -
+                                steerFieldType[numTask][numSteer][j].Length(),"",
                                 steerFieldName[numTask][numSteer][j].Data(),
                                 steerFieldName[numTask][numSteer][j].Data());
       }
@@ -3409,7 +3402,6 @@ Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numStee
    ROMEString steerPointerT;
    ROMEString decodedValue;
    ROMEString value;
-   ROMEString format;
    ROMEString arrayIndex;
    int nspace;
    char *cstop=0;
@@ -3425,8 +3417,7 @@ Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numStee
          nspace = 8-steerFieldCLOption[numTask][numSteer][k].Length()-arrayIndex.Length();
          if (nspace < 1)
             nspace = 1;
-         format.SetFormatted("   ROMEPrint::Print(\"  -%%s%%s%%%ds%%s",nspace);
-         buffer.AppendFormatted(format.Data(),steerFieldCLOption[numTask][numSteer][k].Data(),arrayIndex.Data(),"",
+         buffer.AppendFormatted("   ROMEPrint::Print(\"  -%s%s%*s%s",steerFieldCLOption[numTask][numSteer][k].Data(),arrayIndex.Data(),nspace,"",
                                 steerFieldCLDescription[numTask][numSteer][k].Data());
          if (isBoolType(steerFieldCLOption[numTask][numSteer][k].Data()))
             buffer.AppendFormatted(" (no Argument)");
@@ -3565,12 +3556,7 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
          continue;
       if (folderArray[i] == "1" && !folderSupport[i]) {
          for (j = 0; j < numOfValue[i]; j++) {
-            if (valueDimension[i][j] == 0 &&
-                !isFolder(valueType[i][j].Data()) &&
-                !valueType[i][j].ContainsFast("TRef") &&
-                !(valueIsTObject[i][j] &&
-                  !valueType[i][j].ContainsFast("ROMEString") &&
-                  !valueType[i][j].ContainsFast("TString"))) {
+            if (valueDimension[i][j] == 0 && !isFolder(valueType[i][j].Data()) && !valueIsTObject[i][j]) {
                buffer.AppendFormatted("      case %d:\n",codeNumber);
                tmp.SetFormatted("gAnalyzer->Get%s()->Get%s()",folderName[i].Data(),valueName[i][j].Data());
                stringBuffer = "buffer";
@@ -3630,9 +3616,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
          continue;
       }
 
-      if (valueIsTObject[numFolder][j] &&
-          !valueType[numFolder][j].ContainsFast("TRef") &&
-          !valueType[numFolder][j].ContainsFast("TString")) {
+      if (valueIsTObject[numFolder][j]) {
          continue;
       }
 
@@ -3756,7 +3740,6 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
       return;
-   ROMEString format;
    if (FolderToBeGenerated(numFolder)) {
       if (folderArray[numFolder] == "1") {
          buffer.AppendFormatted("   %s%s* Get%s();\n",shortCut.Data(),folderName[numFolder].Data(),
@@ -3784,7 +3767,6 @@ void ROMEBuilder::WriteFolderSetterInclude(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
       return;
-   ROMEString format;
    if (FolderToBeGenerated(numFolder)) {
       if (folderArray[numFolder] == "1") {
          buffer.AppendFormatted("   void Set%s(%s%s* pointer);\n",folderName[numFolder].Data(),shortCut.Data(),
@@ -3800,7 +3782,6 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
       return;
-   ROMEString format;
    if (FolderToBeGenerated(numFolder)) {
       if (folderArray[numFolder] == "1") {
          buffer.Append(kMethodLine);
@@ -3929,7 +3910,6 @@ void ROMEBuilder::WriteFolderSetterSource(ROMEString &buffer,Int_t numFolder)
 {
    if (folderSupport[numFolder])
       return;
-   ROMEString format;
    if (FolderToBeGenerated(numFolder)) {
       if (folderArray[numFolder] == "1") {
          buffer.Append(kMethodLine);
@@ -4709,7 +4689,6 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
                                    const char* header)
 {
    const Int_t nc = 80;
-   ROMEString format;
    ROMEString desc = description;
    ROMEStrArray descs;
    Ssiz_t p, pLast;
@@ -4767,8 +4746,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
       // cast to avoid inconsistency between format and arguments.
       buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
       buffer.AppendFormatted("//                                                                            //\n");
-      format.SetFormatted("// %%s%%%ds //\n", static_cast<int>(nc - strlen("//  //") - strlen(className)));
-      buffer.AppendFormatted(format.Data(), className, "");
+      buffer.AppendFormatted("// %s%*s //\n", className, static_cast<int>(nc - strlen("//  //") - strlen(className)), "");
       buffer.AppendFormatted("//                                                                            //\n");
       for (i = 0; i < descs.GetEntriesFast(); i++) {
          if (inHTML && descs[i] == "End_Html") {
@@ -4784,8 +4762,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
             if (descs[i].BeginsWith("#include") || descs[i].BeginsWith("#pragma") || inHTML) {
                buffer.AppendFormatted("%s\n", descs[i].Data());
             } else {
-               format.SetFormatted("// %%s%%%ds //\n", static_cast<int>(nc - strlen("//  //") - descs[i].Length()));
-               buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
+               buffer.AppendFormatted("// %s%*s //\n", descs[i].Data(), static_cast<int>(nc - strlen("//  //") - descs[i].Length()), "");
             }
 #else
             if (descs[i].BeginsWith("#include") || descs[i].BeginsWith("#pragma") || inHTML) {

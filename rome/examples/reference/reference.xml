@@ -1,0 +1,129 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>REF</ExperimentShortCut>
+		<ProgramName>Analyzer</ProgramName>
+		<ProgramDefinitionVersion>$Rev$</ProgramDefinitionVersion>
+	</Experiment>
+	<Folders>
+		<Folder>
+			<FolderName>Hit</FolderName>
+			<ArraySize>variable</ArraySize>
+			<IgnoreTObjectStreamer>false</IgnoreTObjectStreamer>
+			<Field>
+				<FieldName>X</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>X of hit</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>Y</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>Y of hit</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>Z</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>Z of hit</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>T</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>T of hit</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>Cluster</FolderName>
+			<ArraySize>variable</ArraySize>
+			<IgnoreTObjectStreamer>false</IgnoreTObjectStreamer>
+			<Include>
+				<IncludeName>TRef.h</IncludeName>
+			</Include>
+			<Include>
+				<IncludeName>TRefArray.h</IncludeName>
+			</Include>
+			<Field>
+				<FieldName>Hit</FieldName>
+				<FieldType>TRefArray</FieldType>
+				<FieldComment>Array of reference to hits</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>FirstHit</FieldName>
+				<FieldType>TRef</FieldType>
+				<FieldComment>Reference to the first hit in the cluster</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>HitID</FieldName>
+				<FieldType>TArrayI</FieldType>
+				<FieldComment>Index of hits in 'Hit' folder. This is only for check if TRefArray works correctly.</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>FirstHitID</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Index of a hit in 'Hit' folder. This is only for check if TRefArray works correctly.</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>X</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>X of cluster</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>Y</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>Y of cluster</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>Z</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>Z of cluster</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>T</FieldName>
+				<FieldType>Double_t</FieldType>
+				<FieldComment>T of cluster</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>MainCluster</FolderName>
+			<Include>
+				<IncludeName>TRef.h</IncludeName>
+			</Include>
+			<Field>
+				<FieldName>LargestCluster</FieldName>
+				<FieldType>TRef</FieldType>
+				<FieldComment>Reference to the largest cluster</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>LargestClusterID</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Index of a cluster in 'Cluster' folder. This is only for check if TRef works correctly.</FieldComment>
+			</Field>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>FillHits</TaskName>
+		</Task>
+		<Task>
+			<TaskName>Clustering</TaskName>
+		</Task>
+		<Task>
+			<TaskName>CheckReference</TaskName>
+		</Task>
+	</Tasks>
+	<Trees>
+		<Tree>
+			<TreeName>DataTree</TreeName>
+			<Branch>
+				<BranchName>hits</BranchName>
+				<RelatedFolder>Hit</RelatedFolder>
+			</Branch>
+			<Branch>
+				<BranchName>clusters</BranchName>
+				<RelatedFolder>Cluster</RelatedFolder>
+			</Branch>
+			<Branch>
+				<BranchName>maincluster</BranchName>
+				<RelatedFolder>MainCluster</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
+</ROMEFrameworkDefinition>

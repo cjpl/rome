@@ -1356,10 +1356,33 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
                   valueDimension[numOfFolder][numOfValue[numOfFolder]] = 1;
                   valueArray[numOfFolder][numOfValue[numOfFolder]][0] = "0";
+               } else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRefArray") {
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
+                  valueDimension[numOfFolder][numOfValue[numOfFolder]] = 1;
+                  valueArray[numOfFolder][numOfValue[numOfFolder]][0] = "0";
                } else if (isPointerType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
                } else {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
+               }
+               if (valueType[numOfFolder][numOfValue[numOfFolder]][0] == 'T' &&
+                   (valueType[numOfFolder][numOfValue[numOfFolder]] == "TClonesArray" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TCollection" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TComplex" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TDatime" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TLorentzVector" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TMCParticle" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TMatrixD" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TMatrixF" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TParticle" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TPrimary" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TRefArray" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TVector2" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TVector3" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TVectorF" ||
+                    valueType[numOfFolder][numOfValue[numOfFolder]] == "TVectorD")) {
+                  valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = kTRUE;
                }
             }
             // field initialization
@@ -1459,7 +1482,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             cout<<"Terminating program."<<endl;
             return false;
          }
-         if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1 &&
+         if (valueDimension[numOfFolder][numOfValue[numOfFolder]] > 1 &&
              (valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
               || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())
             ) {
@@ -1468,7 +1491,15 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             cout<<"Terminating program."<<endl;
             return false;
          }
-         if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1) {
+         if (valueDimension[numOfFolder][numOfValue[numOfFolder]] > 1 &&
+             (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef" ||
+              valueType[numOfFolder][numOfValue[numOfFolder]] == "TRefArray")) {
+            cout<<"Type of a multiple dimension field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
+                <<"' can not be TRef or TRefArray"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+         if (valueDimension[numOfFolder][numOfValue[numOfFolder]] > 1) {
             for (iDm = 1; iDm < 3; iDm++) {
                if (valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] == "variable") {
                   cout<<"Multiple dimension field '"<<valueName[numOfFolder][numOfValue[numOfFolder]]
