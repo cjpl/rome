@@ -2597,7 +2597,11 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
    nClass = headers->GetEntriesFast();
 
    for (iFile = 0; iFile < (nClass - 1) / maxNumberOfClassesInDictionary + 1; iFile++) {
+#if defined( R__VISUAL_CPLUSPLUS )
       filename.SetFormatted("%sinclude/generated/%s%dLinkDef.h", outDir.Data(),dictionaryName, iFile);
+#else
+      filename.SetFormatted("include/generated/%s%dLinkDef.h", dictionaryName, iFile);
+#endif
 
       WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
 
