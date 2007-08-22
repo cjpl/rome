@@ -47,7 +47,7 @@ const Int_t maxNumberOfMFUnixLibFlags = 10;
 const Int_t maxNumberOfMFSourceFlags = 10;
 const Int_t maxNumberOfAffiliations = 20;
 const Int_t maxNumberOfArguments = 40;
-const Int_t maxNumberOfClassesInDictionary = 10;
+const Int_t maxNumberOfClassesInDictionary = 15;
 const Int_t maxNumberOfAuthors = 20;
 
 const Ssiz_t kTStringResizeIncrement = 1<<15;

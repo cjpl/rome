@@ -173,8 +173,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating UpdateVersionH Dictionary"
-						CommandLine="rootcint -f UpdateVersionHDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ ROMEString.h ROMEXML.h ROMEPrint.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(ROMESYS)/include/ROMEString.h;$(ROMESYS)/include/ROMEXML.h;$(ROMESYS)/include/ROMEPrint.h"
+						CommandLine="rootcint -f UpdateVersionHDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ ROMEString.h ROMEStrArray.h ROMEXML.h ROMEPrint.h&#x0D;&#x0A;"
+						AdditionalDependencies="$(ROMESYS)/include/ROMEString.h;$(ROMESYS)/include/ROMEStrArray.h;$(ROMESYS)/include/ROMEXML.h;$(ROMESYS)/include/ROMEPrint.h"
 						Outputs="UpdateVersionHDict.cpp"
 					/>
 				</FileConfiguration>
@@ -189,6 +189,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\ROMEPrint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\ROMEStrArray.cpp"
 				>
 			</File>
 			<File

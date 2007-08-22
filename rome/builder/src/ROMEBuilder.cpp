@@ -1325,6 +1325,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, const char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
          affiliations.AddAtAndExpand("dchcabling",1);
+         affiliations.AddAtAndExpand("dchtic",2);
       } else if (!strcmp(argv[i],"-dchtic")) {
          makeOutput = false;
          midas = true;

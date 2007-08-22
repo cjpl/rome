@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
+#   include <Windows4Root.h>
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
