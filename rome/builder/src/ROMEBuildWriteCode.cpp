@@ -1740,32 +1740,32 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       if (taskDescription[iTask].Length()) {
          clsDescription.AppendFormatted("Description:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",taskDescription[iTask].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(taskDescription[iTask].Data());
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (taskUsage[iTask].Length()) {
          clsDescription.AppendFormatted("Usage:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",taskUsage[iTask].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(taskUsage[iTask]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (taskStatus[iTask].Length()) {
          clsDescription.AppendFormatted("Status:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",taskStatus[iTask].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(taskStatus[iTask]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (taskToDo[iTask].Length()) {
          clsDescription.AppendFormatted("To Do:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",taskToDo[iTask].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(taskToDo[iTask]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (taskKnownProblems[iTask].Length()) {
          clsDescription.AppendFormatted("Known Problems:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",taskKnownProblems[iTask].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(taskKnownProblems[iTask]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       clsDescription.AppendFormatted("End_Html\n\n");
       if (numOfTaskAuthors[iTask] > 0) {
@@ -3390,32 +3390,32 @@ Bool_t ROMEBuilder::WriteTabCpp()
       if (tabDescription[iTab].Length()) {
          clsDescription.AppendFormatted("Description:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",tabDescription[iTab].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(tabDescription[iTab]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (tabUsage[iTab].Length()) {
          clsDescription.AppendFormatted("Usage:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",tabUsage[iTab].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(tabUsage[iTab]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (tabStatus[iTab].Length()) {
          clsDescription.AppendFormatted("Status:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",tabStatus[iTab].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(tabStatus[iTab]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (tabToDo[iTab].Length()) {
          clsDescription.AppendFormatted("To Do:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",tabToDo[iTab].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(tabToDo[iTab]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       if (tabKnownProblems[iTab].Length()) {
          clsDescription.AppendFormatted("Known Problems:\n");
          clsDescription.AppendFormatted("<p>\n");
-         clsDescription.AppendFormatted("%s\n",tabKnownProblems[iTab].Data());
-         clsDescription.AppendFormatted("</p>\n\n");
+         clsDescription.Append(tabKnownProblems[iTab]);
+         clsDescription.AppendFormatted("\n</p>\n\n");
       }
       clsDescription.AppendFormatted("End_Html\n\n");
       // Thread
@@ -12767,32 +12767,32 @@ void ROMEBuilder::WriteHTMLDoku()
       if (taskDescription[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Description</h4>\n");
-         buffer.AppendFormatted("%s\n",taskDescription[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(taskDescription[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (taskUsage[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Usage</h4>\n");
-         buffer.AppendFormatted("%s\n",taskUsage[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(taskUsage[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (taskStatus[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Status</h4>\n");
-         buffer.AppendFormatted("%s\n",taskStatus[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(taskStatus[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (taskToDo[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>To Do</h4>\n");
-         buffer.AppendFormatted("%s\n",taskToDo[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(taskToDo[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (taskKnownProblems[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Known Problems</h4>\n");
-         buffer.AppendFormatted("%s\n",taskKnownProblems[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(taskKnownProblems[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Steering Parameters</h4>\n");
@@ -12900,32 +12900,32 @@ void ROMEBuilder::WriteHTMLDoku()
       if (tabDescription[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Description</h4>\n");
-         buffer.AppendFormatted("%s\n",tabDescription[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(tabDescription[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (tabUsage[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Usage</h4>\n");
-         buffer.AppendFormatted("%s\n",tabUsage[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(tabUsage[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (tabStatus[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Status</h4>\n");
-         buffer.AppendFormatted("%s\n",tabStatus[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(tabStatus[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (tabToDo[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>To Do</h4>\n");
-         buffer.AppendFormatted("%s\n",tabToDo[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(tabToDo[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       if (tabKnownProblems[i].Length()) {
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Known Problems</h4>\n");
-         buffer.AppendFormatted("%s\n",tabKnownProblems[i].Data());
-         buffer.AppendFormatted("</p>\n");
+         buffer.Append(tabKnownProblems[i]);
+         buffer.AppendFormatted("\n</p>\n");
       }
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Steering Parameters</h4>\n");
