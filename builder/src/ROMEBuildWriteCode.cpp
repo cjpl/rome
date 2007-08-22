@@ -13324,7 +13324,7 @@ void ROMEBuilder::WriteHTMLDoku()
       if (!mainEmail[i].ContainsFast("://")) {
          buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
       } else {
-         buffer.AppendFormatted("email: <a href=\"%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+         buffer.AppendFormatted("link : <a href=\"%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
       }
       buffer.AppendFormatted("</br>\n");
    }
