@@ -69,10 +69,13 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       if (changeableFlagChanged) {
          if (folderUserCode[iFold]) {
             cppFile.SetFormatted("src/generated/%s%s.cpp",shortCut.Data(),folderName[iFold].Data());
+            RemoveDepFiles(cppFile.Data());
          } else {
+            cppFile.SetFormatted("src/generated/%s%s_Base.cpp",shortCut.Data(),folderName[iFold].Data());
+            RemoveDepFiles(cppFile.Data());
             cppFile.SetFormatted("src/folders/%s%s.cpp",shortCut.Data(),folderName[iFold].Data());
+            RemoveDepFiles(cppFile.Data());
          }
-         RemoveDepFiles(cppFile.Data());
       }
 
       // File name
@@ -1027,10 +1030,13 @@ Bool_t ROMEBuilder::WriteFolderH()
       if (changeableFlagChanged) {
          if (folderUserCode[iFold]) {
             hFile.SetFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[iFold].Data());
+            RemoveDepFiles(hFile.Data());
          } else {
+            hFile.SetFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[iFold].Data());
+            RemoveDepFiles(hFile.Data());
             hFile.SetFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[iFold].Data());
+            RemoveDepFiles(hFile.Data());
          }
-         RemoveDepFiles(hFile.Data());
       }
 
       // File name
@@ -1110,7 +1116,9 @@ Bool_t ROMEBuilder::WriteFolderH()
             }
          }
       }
-      if (folderInheritName[iFold].Length()>0) {
+      if (folderInheritName[iFold].Length() > 0) {
+         // this line is limiting inheriting folder to be non-changeable class or, _Base class of changeable class.
+         // if some-one want to use changeable class as base class. we must modify here.
          buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderInheritName[iFold].Data());
       }
 
@@ -1608,11 +1616,13 @@ Bool_t ROMEBuilder::WriteFolderH()
          }
          buffer.Resize(buffer.Length() - 1);
          buffer.AppendFormatted(" ) : %s%s_Base( ",shortCut.Data(),folderName[iFold].Data());
+#if 0
          for (i = 0; i < numOfValue[iFold]; i++) {
             if (valueDimension[iFold][i] == 0)
                buffer.AppendFormatted("%s,",valueName[iFold][i].Data());
          }
          buffer.Resize(buffer.Length() - 1);
+#endif
          buffer.AppendFormatted(" ) {}\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n   ClassDef(%s%s,%s)",shortCut.Data(),folderName[iFold].Data(),
@@ -7693,7 +7703,11 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
    // Header
    for (i = 0; i < numOfFolder; i++) {
       if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
-         buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         if (folderUserCode[i]) {
+            buffer.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         } else {
+            buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());         
+         }
       }
    }
    if (readGlobalSteeringParameters)
@@ -13316,7 +13330,7 @@ void ROMEBuilder::WriteHTMLDoku()
    // Write UserHTML
 #if 0
    ROMEString userHtmlFile;
-   userHtmlFile.SetFormatted("%s/%sUserHTML.html",outDir.Data(),shortCut.Data());
+   userHtmlFile.SetFormatted("%sUserHTML.html",shortCut.Data()); // we are already in outputDir
    if (gSystem->AccessPathName(userHtmlFile.Data(),kFileExists)) {
       buffer.Resize(0);
       buffer.AppendFormatted("<html>\n");
