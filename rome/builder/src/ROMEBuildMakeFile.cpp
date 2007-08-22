@@ -2029,7 +2029,7 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
    ROMEString xmlbasename = gSystem->BaseName(xmlFile);
 
    buffer.AppendFormatted("build: \n");
-   buffer.AppendFormatted("\t %s -i %s -o .", builder, xmlbasename.Data());
+   buffer.AppendFormatted("\t%s -i %s -o .", builder, xmlbasename.Data());
    if (makeOutput)
       buffer.AppendFormatted(" -v");
    if (noLink)
@@ -2417,6 +2417,9 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileBuildRule(buffer,str.Data());
 #else
    WriteMakefileBuildRule(buffer,"$(ROMESYS)/bin/romebuilder.exe");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("src/generated/%% include/generated%%:\n");
+   buffer.AppendFormatted("\t$(MAKE) build\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("## Cleaning rules\n");
