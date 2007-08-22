@@ -192,9 +192,6 @@ Bool_t ROMERint::ConnectSocketClient()
       sock = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
    }
    SafeDelete(fSocketClientNetFolder);
-#if defined(R__UNIX)
-   dbgprintf("\n");
-#endif
    fSocketClientNetFolder = new TNetFolder("", "", sock, kTRUE);
    return true;
 }
