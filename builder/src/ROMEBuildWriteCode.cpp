@@ -12761,7 +12761,17 @@ void ROMEBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("contact person :");
       }
       for (j = 0; j < numOfTaskAuthors[i]; j++) {
-         buffer.AppendFormatted(" %s<%s>",taskAuthor[i][j].Data(),taskAuthorEmail[i][j].Data());
+         if (taskAuthorEmail[i][j].Length()) {
+            if (!taskAuthorEmail[i][j].ContainsFast("://")) {
+               buffer.AppendFormatted(" <a href=\"mailto:%s\">%s</a>\n",
+                                      taskAuthorEmail[i][j].Data(),taskAuthor[i][j].Data());
+            } else {
+               buffer.AppendFormatted(" <a href=\"%s\">%s</a>\n",
+                                      taskAuthorEmail[i][j].Data(),taskAuthor[i][j].Data());
+            }
+         } else {
+            buffer.AppendFormatted(" %s\n",taskAuthor[i][j].Data());
+         }
       }
       buffer.AppendFormatted("\n");
       if (taskDescription[i].Length()) {
@@ -12894,7 +12904,17 @@ void ROMEBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("contact person :");
       }
       for (j = 0; j < numOfTabAuthors[i]; j++) {
-         buffer.AppendFormatted(" %s<%s>\n",tabAuthor[i][j].Data(),tabAuthorEmail[i][j].Data());
+         if (tabAuthorEmail[i][j].Length()) {
+            if (!tabAuthorEmail[i][j].ContainsFast("://")) {
+               buffer.AppendFormatted(" <a href=\"mailto:%s\">%s</a>\n",
+                                      tabAuthorEmail[i][j].Data(),tabAuthor[i][j].Data());
+            } else {
+               buffer.AppendFormatted(" <a href=\"%s\">%s</a>\n",
+                                      tabAuthorEmail[i][j].Data(),tabAuthor[i][j].Data());
+            }
+         } else {
+            buffer.AppendFormatted(" %s\n",tabAuthor[i][j].Data());
+         }
       }
       buffer.AppendFormatted("\n");
       if (tabDescription[i].Length()) {
@@ -13301,8 +13321,12 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("%s</br>\n",mainAuthor[i].Data());
       buffer.AppendFormatted("%s</br>\n",mainInstitute[i].Data());
       buffer.AppendFormatted("%s</br>\n",mainCollaboration[i].Data());
-      buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
-         buffer.AppendFormatted("</br>\n");
+      if (!mainEmail[i].ContainsFast("://")) {
+         buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+      } else {
+         buffer.AppendFormatted("email: <a href=\"%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+      }
+      buffer.AppendFormatted("</br>\n");
    }
    buffer.AppendFormatted("<u> Contact person from ROME</u></br>\n");
    buffer.AppendFormatted("Matthias Schneebeli (PSI)</br>\n");
