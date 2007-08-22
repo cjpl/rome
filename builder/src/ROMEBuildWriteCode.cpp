@@ -187,6 +187,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
 
       buffer.AppendFormatted("{\n");
+      if (!folderIgnoreTObjectStreamer[iFold] && folderInheritName[iFold].Length() != 0) {
+         cout<<"Warning: <IgnoreTObjectStreamer> in "<<folderName[iFold]<<"'s definition does not make sense."<<endl<<
+               "         This key is available only in definitions of a class deriving directly from TObject."<<endl;
+      }
       if (folderIgnoreTObjectStreamer[iFold] && folderInheritName[iFold].Length() == 0) {
          buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
       }
