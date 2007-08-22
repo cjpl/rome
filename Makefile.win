@@ -17,6 +17,7 @@ Flags = /GX /GR
 BldObjects = obj/ROMEBuilder.obj \
 	  obj/ROMEBuildReadXML.obj \
 	  obj/ROMEBuildWriteCode.obj \
+	  obj/ROMEBuildWriteCode2.obj \
 	  obj/ROMEBuildMakeFile.obj \
 	  obj/ROMEBuildVisualProject.obj \
 	  obj/ROMEConfigParameter.obj \
@@ -38,12 +39,13 @@ BldDictHeaders = include/ROMEString.h \
 
 UpHObjects =    obj/UpdateVersionHmain.obj \
 		obj/ROMEString.obj \
+		obj/ROMEStrArray.obj \
 		obj/ROMEPrint.obj \
 		obj/ROMEXML.obj \
 		obj/mxml.obj \
 		obj/strlcpy.obj \
 		obj/UpdateVersionHDict.obj
-UpHDictHeaders = include/ROMEString.h include/ROMEXML.h include/ROMEPrint.h
+UpHDictHeaders = include/ROMEString.h include/ROMEStrArray.h include/ROMEXML.h include/ROMEPrint.h
 
 
 all:startecho obj UpdateVersion ROMEBuilder.exe endecho
@@ -83,6 +85,9 @@ obj/ROMEBuildReadXML.obj: Builder/src/ROMEBuildReadXML.cpp Builder/include/ROMEB
 
 obj/ROMEBuildWriteCode.obj: Builder/src/ROMEBuildWriteCode.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h include/ROMEStr2DArray.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildWriteCode.cpp /Foobj/ROMEBuildWriteCode.obj
+
+obj/ROMEBuildWriteCode2.obj: Builder/src/ROMEBuildWriteCode2.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h include/ROMEStr2DArray.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildWriteCode2.cpp /Foobj/ROMEBuildWriteCode2.obj
 
 obj/ROMEBuildMakeFile.obj: Builder/src/ROMEBuildMakeFile.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h include/ROMEStr2DArray.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildMakeFile.cpp /Foobj/ROMEBuildMakeFile.obj

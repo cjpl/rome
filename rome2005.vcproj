@@ -294,6 +294,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\builder\src\ROMEBuildWriteCode2.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\builder\src\ROMEConfigParameter.cpp"
 				>
 			</File>

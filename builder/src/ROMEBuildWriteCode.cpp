@@ -5234,32 +5234,32 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    bool same = false;
    int numAuthors = 1;
    ROMEString authors[50];
-   authors[0] = mainAuthor;
+   authors[0] = mainAuthor->Data();
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
       same = false;
       for (j = 0; j < numAuthors; j++) {
-         if (!authors[j].CompareTo(folderAuthor[i],TString::kIgnoreCase)) {
+         if (!authors[j].CompareTo(folderAuthor[i]->Data(),TString::kIgnoreCase)) {
             same = true;
             break;
          }
       }
       if (!same) {
-         authors[numAuthors] = folderAuthor[i];
+         authors[numAuthors] = folderAuthor[i]->Data();
          numAuthors++;
       }
    }
    for (i = 0; i < numOfTask; i++) {
       same = false;
       for (j = 0; j < numAuthors; j++) {
-         if (!authors[j].CompareTo(taskAuthor[i],TString::kIgnoreCase)) {
+         if (!authors[j].CompareTo(taskAuthor[i]->Data(),TString::kIgnoreCase)) {
             same = true;
             break;
          }
       }
       if (!same) {
-         authors[numAuthors] = taskAuthor[i];
+         authors[numAuthors] = taskAuthor[i]->Data();
          numAuthors++;
       }
    }
@@ -5268,13 +5268,13 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       same = false;
       for (j = 0; j < numAuthors; j++) {
-         if (!authors[j].CompareTo(tabAuthor[i],TString::kIgnoreCase)) {
+         if (!authors[j].CompareTo(tabAuthor[i]->Data(),TString::kIgnoreCase)) {
             same = true;
             break;
          }
       }
       if (!same) {
-         authors[numAuthors] = tabAuthor[i];
+         authors[numAuthors] = tabAuthor[i]->Data();
          numAuthors++;
       }
    }
