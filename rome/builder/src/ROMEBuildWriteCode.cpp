@@ -12601,6 +12601,7 @@ void ROMEBuilder::WriteHTMLDoku()
    int depthold = 0;
    int depth = 0;
    bool trodd = true;
+   ROMEString separator;
 
    // Generate task connection map
    ROMEString mapFileName, mapIconName;
@@ -12757,21 +12758,23 @@ void ROMEBuilder::WriteHTMLDoku()
          continue;
       buffer.AppendFormatted("<h3><a name=%sTask class=\"object\">%s</a></h3>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("<p>\n");
+      separator = "";
       if (numOfTaskAuthors[i] > 0) {
          buffer.AppendFormatted("contact person :");
       }
       for (j = 0; j < numOfTaskAuthors[i]; j++) {
          if (taskAuthorEmail[i][j].Length()) {
             if (!taskAuthorEmail[i][j].ContainsFast("://")) {
-               buffer.AppendFormatted(" <a href=\"mailto:%s\">%s</a>\n",
-                                      taskAuthorEmail[i][j].Data(),taskAuthor[i][j].Data());
+               buffer.AppendFormatted("%s <a href=\"mailto:%s\">%s</a>\n", separator.Data(),
+                                      taskAuthorEmail[i][j].Data(), taskAuthor[i][j].Data());
             } else {
-               buffer.AppendFormatted(" <a href=\"%s\">%s</a>\n",
-                                      taskAuthorEmail[i][j].Data(),taskAuthor[i][j].Data());
+               buffer.AppendFormatted("%s <a href=\"%s\">%s</a>\n", separator.Data(),
+                                      taskAuthorEmail[i][j].Data(), taskAuthor[i][j].Data());
             }
          } else {
-            buffer.AppendFormatted(" %s\n",taskAuthor[i][j].Data());
+            buffer.AppendFormatted("%s %s\n", separator.Data(), taskAuthor[i][j].Data());
          }
+         separator = ",";
       }
       buffer.AppendFormatted("\n");
       if (taskDescription[i].Length()) {
@@ -12900,21 +12903,23 @@ void ROMEBuilder::WriteHTMLDoku()
          continue;
       buffer.AppendFormatted("<h3><a name=%sTab class=\"object\">%s</a></h3>\n",tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("<p>\n");
+      separator = "";
       if (numOfTabAuthors[i] > 0) {
          buffer.AppendFormatted("contact person :");
       }
       for (j = 0; j < numOfTabAuthors[i]; j++) {
          if (tabAuthorEmail[i][j].Length()) {
             if (!tabAuthorEmail[i][j].ContainsFast("://")) {
-               buffer.AppendFormatted(" <a href=\"mailto:%s\">%s</a>\n",
-                                      tabAuthorEmail[i][j].Data(),tabAuthor[i][j].Data());
+               buffer.AppendFormatted("%s <a href=\"mailto:%s\">%s</a>\n", separator.Data(),
+                                      tabAuthorEmail[i][j].Data(), tabAuthor[i][j].Data());
             } else {
-               buffer.AppendFormatted(" <a href=\"%s\">%s</a>\n",
-                                      tabAuthorEmail[i][j].Data(),tabAuthor[i][j].Data());
+               buffer.AppendFormatted("%s <a href=\"%s\">%s</a>\n", separator.Data(),
+                                      tabAuthorEmail[i][j].Data(), tabAuthor[i][j].Data());
             }
          } else {
-            buffer.AppendFormatted(" %s\n",tabAuthor[i][j].Data());
+            buffer.AppendFormatted("%s %s\n", separator.Data(), tabAuthor[i][j].Data());
          }
+         separator = ",";
       }
       buffer.AppendFormatted("\n");
       if (tabDescription[i].Length()) {
