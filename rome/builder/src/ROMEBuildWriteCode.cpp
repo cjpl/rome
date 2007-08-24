@@ -12302,7 +12302,7 @@ Bool_t ROMEBuilder::WriteMain()
    ROMEString tmpName;
    if (this->pgsql) {
       cmd.SetFormatted("pg_config --includedir");
-      ReadCommandOutput(cmd.Data(), cmdRes);
+      cmdRes.ReadCommandOutput(cmd.Data());
       if (cmdRes.Length() > 0) {
          cmdRes.ReplaceAll("\\\\","/");
          cmdRes.ReplaceAll("\\","/");
@@ -12314,7 +12314,7 @@ Bool_t ROMEBuilder::WriteMain()
 #if defined( R__UNIX )
    if (this->mysql) {
       cmd.SetFormatted("mysql_config --include");
-      ReadCommandOutput(cmd.Data(), cmdRes);
+      cmdRes.ReadCommandOutput(cmd.Data());
       if (cmdRes.Length() > 0) {
          if (cmdRes.EndsWith("\n"))
             cmdRes.Resize(cmdRes.Length() - 1);
@@ -12325,7 +12325,7 @@ Bool_t ROMEBuilder::WriteMain()
 #if defined( R__MACOSX )
    TString finkDir;
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\"");
-   ReadCommandOutput(cmd.Data(), cmdRes);
+   cmdRes.ReadCommandOutput(cmd.Data());
    if (cmdRes.Length() > 0) {
       if (cmdRes.EndsWith("\n"))
          cmdRes.Resize(cmdRes.Length() - 1);
@@ -12376,7 +12376,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("const char* kHTMLSourceDir =\n");
    if (this->pgsql) {
       cmd.SetFormatted("pg_config --includedir");
-      ReadCommandOutput(cmd.Data(), cmdRes);
+      cmdRes.ReadCommandOutput(cmd.Data());
       if (cmdRes.Length() > 0) {
          cmdRes.ReplaceAll("\\\\","/");
          cmdRes.ReplaceAll("\\","/");
@@ -12388,7 +12388,7 @@ Bool_t ROMEBuilder::WriteMain()
 #if defined( R__UNIX )
    if (this->mysql) {
       cmd.SetFormatted("mysql_config --include");
-      ReadCommandOutput(cmd.Data(), cmdRes);
+      cmdRes.ReadCommandOutput(cmd.Data());
       if (cmdRes.Length() > 0) {
          if (cmdRes.EndsWith("\n"))
             cmdRes.Resize(cmdRes.Length() - 1);
@@ -12399,7 +12399,7 @@ Bool_t ROMEBuilder::WriteMain()
 #endif // R__UNIX
 #if defined( R__MACOSX )
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\"");
-   ReadCommandOutput(cmd.Data(), cmdRes);
+   cmdRes.ReadCommandOutput(cmd.Data());
    if (cmdRes.Length() > 0) {
       if (cmdRes.EndsWith("\n"))
          cmdRes.Resize(cmdRes.Length() - 1);
@@ -12617,7 +12617,7 @@ void ROMEBuilder::WriteHTMLDoku()
    ROMEString cmdRes;
    if (dotexe) {
       dotCommand.SetFormatted("dot -V");
-      ReadCommandOutput(dotCommand.Data(), cmdRes);
+      cmdRes.ReadCommandOutput(dotCommand.Data());
       cmdRes.Replace(0, sizeof("dot version ") - 1, "");
       if (cmdRes.Index(" ", 1, TString::kExact) != -1) {
          cmdRes.Resize(cmdRes.Index(" ", 1, TString::kExact));
