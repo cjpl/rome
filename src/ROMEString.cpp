@@ -134,6 +134,31 @@ istream& ROMEString::ReadFile(istream& str)
 }
 
 //______________________________________________________________________________
+const char* ROMEString::ReadCommandOutput(const char* command, Bool_t readError)
+{
+   Resize(0);
+   TString cmd = command;
+   TString tmp;
+   if (readError) {
+      cmd += " 2>&1";
+   }
+   FILE *pipe = gSystem->OpenPipe(cmd.Data(), "r");
+   if (!pipe) {
+      //      SysError("ReadCommandOutput","cannot run command: %s", command);
+      return 0;
+   }
+   while (tmp.Gets(pipe, kFALSE)) {
+      Append(tmp);
+   }
+   gSystem->ClosePipe(pipe);
+
+   if (EndsWith("\n")) {
+       Resize(Length() - 1);
+   }
+   return fData;
+}
+
+//______________________________________________________________________________
 istream& ROMEString::ReadLine(istream& str)
 {
    Resize(0);
