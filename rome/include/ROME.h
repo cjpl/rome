@@ -67,5 +67,17 @@
 #   define dbgcout cout<<"==== "<<gSystem->BaseName(__FILE__)<<":"<<__LINE__<<" in "<<__func__<<": "
 #endif
 
+#if (ROOT_VERSION_CODE < ROOT_VERSION(4,3,2))
+const Int_t     kMaxUChar    = 256;
+const Int_t     kMaxChar     = kMaxUChar >> 1;
+const Int_t     kMinChar     = -kMaxChar - 1;
+const Int_t     kMinShort    = -kMaxShort - 1;
+const Int_t     kMinInt      = -kMaxInt - 1;
+const ULong_t   kMaxULong    = ULong_t(~0);
+const Long_t    kMaxLong     = Long_t(kMaxULong >> 1);
+const Long_t    kMinLong     = -kMaxLong - 1;
+const Long64_t  kMinLong64   = -kMaxLong64 - 1;
+#endif
+
 #endif   // ROME_H
 
