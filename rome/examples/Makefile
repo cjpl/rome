@@ -326,6 +326,7 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 clean :
 	find $(ROMESYS)/examples -name "*.o" | xargs $(RM)
+	find $(ROMESYS)/examples -name "*.gch" | xargs $(RM)
 	find $(ROMESYS)/examples -name "*Dict*.cpp" | xargs $(RM)
 	find $(ROMESYS)/examples -name "*Dict*.h" | xargs $(RM)
 	$(MAKE) -C romedbwrapper clean
