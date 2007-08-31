@@ -2024,7 +2024,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("void %sT%s_Base::BookHisto()\n{\n",shortCut.Data(),taskName[iTask].Data());
       if (numOfHistos[iTask] > 0) {
          // create histo folders
-         buffer.AppendFormatted("   TObjArray *histoFolder = new TObjArray(%d);\n",numOfHistos[iTask]);
+         for (i = 0; i < numOfHistos[iTask]; i++) {
+            if (histoFolderIndex[i] > 0) {
+               buffer.AppendFormatted("   TObjArray *histoFolder = new TObjArray(%d);\n",numOfHistos[iTask]);
+               break;
+            }
+         }
          for (i = 0; i < numOfHistos[iTask]; i++) {
             if (histoFolderIndex[i]>0)
                buffer.AppendFormatted("   histoFolder->AddAt(GetHistoFolder()->AddFolder(\"%s\",\"folder to store %s histos/graphs\"),%d);\n",
@@ -2382,7 +2387,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("void %sT%s_Base::ReBookHisto()\n{\n",shortCut.Data(),taskName[iTask].Data());
       if (numOfHistos[iTask] > 0) {
          // get histo folders
-         buffer.AppendFormatted("   TObjArray *histoFolder = new TObjArray(%d);\n",numOfHistos[iTask]);
+         for (i = 0; i < numOfHistos[iTask]; i++) {
+            if (histoFolderIndex[i] > 0) {
+               buffer.AppendFormatted("   TObjArray *histoFolder = new TObjArray(%d);\n",numOfHistos[iTask]);
+               break;
+            }
+         }
          for (i = 0; i < numOfHistos[iTask]; i++) {
             if (histoFolderIndex[i]>0)
                buffer.AppendFormatted("   histoFolder->AddAt(static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\")),%d);\n",
