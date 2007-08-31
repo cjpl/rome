@@ -2000,11 +2000,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       for (i = 0; i < numOfHistos[iTask]; i++) {
          if (histoFolderName[iTask][i] == "")
             continue;
-         bool alreadyDefined = false;
-         histoFolderIndex[i] = i;
+         histoFolderIndex[i] = i+1;
          for (j = 0; j < i; j++) {
-            if (histoFolderName[iTask][i] == histoFolderName[iTask][j])
-               histoFolderIndex[i] = -j;
+            if (histoFolderName[iTask][i] == histoFolderName[iTask][j]) {
+               histoFolderIndex[i] = -j-1;
+               break;
+            }
          }
       }
 
@@ -2017,7 +2018,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          for (i = 0; i < numOfHistos[iTask]; i++) {
             if (histoFolderIndex[i]>=0)
                buffer.AppendFormatted("   histoFolder->AddAt(GetHistoFolder()->AddFolder(\"%s\",\"folder to store %s histos/graphs\"),%d);\n",
-                           histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderIndex[i]);
+                           histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderIndex[i]-1);
          }
          array = false;
          for (i = 0; i < numOfHistos[iTask]; i++) {
@@ -2155,7 +2156,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                                          histoType[iTask][i].Data(),i,i,i,i,i,i,i,i,i,i);
                }
                if (!homeFolder) {
-                  buffer.AppendFormatted("      ((TFolder*)histoFolder->At(%d))->Add(fHisto->At(%d));\n",TMath::Abs(histoFolderIndex[i]),i);
+                  buffer.AppendFormatted("      ((TFolder*)histoFolder->At(%d))->Add(fHisto->At(%d));\n",TMath::Abs(histoFolderIndex[i])-1,i);
                } else {
                   buffer.AppendFormatted("      GetHistoFolder()->Add(fHisto->At(%d));\n",i);
                }
@@ -2182,7 +2183,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                                          i,histoType[iTask][i].Data(),i,i,i,i,i,i,i,i,i);
                }
                if (!homeFolder) {
-                  buffer.AppendFormatted("         ((TFolder*)histoFolder->At(%d))->Add(((TObjArray*)fHisto->At(%d))->At(j));\n",TMath::Abs(histoFolderIndex[i]),i);
+                  buffer.AppendFormatted("         ((TFolder*)histoFolder->At(%d))->Add(((TObjArray*)fHisto->At(%d))->At(j));\n",TMath::Abs(histoFolderIndex[i])-1,i);
                } else {
                   buffer.AppendFormatted("         GetHistoFolder()->Add(((TObjArray*)fHisto->At(%d))->At(j));\n",i);
                }
@@ -2375,7 +2376,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          for (i = 0; i < numOfHistos[iTask]; i++) {
             if (histoFolderIndex[i]>=0)
                buffer.AppendFormatted("   histoFolder->AddAt(static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\")),%d);\n",
-                                      histoFolderName[iTask][i].Data(),histoFolderIndex[i]);
+                                      histoFolderName[iTask][i].Data(),histoFolderIndex[i]-1);
          }
          array = false;
          for (i = 0; i < numOfHistos[iTask]; i++) {
@@ -2511,7 +2512,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                                          i,histoType[iTask][i].Data(),i,i,i,i,i,i,i,i,i);
                }
                if (!homeFolder) {
-                  buffer.AppendFormatted("         ((TFolder*)histoFolder->At(%d))->Add(((TObjArray*)fHisto->At(%d))->At(j));\n",TMath::Abs(histoFolderIndex[i]),i);
+                  buffer.AppendFormatted("         ((TFolder*)histoFolder->At(%d))->Add(((TObjArray*)fHisto->At(%d))->At(j));\n",TMath::Abs(histoFolderIndex[i])-1,i);
                } else {
                   buffer.AppendFormatted("         GetHistoFolder()->Add(((TObjArray*)fHisto->At(%d))->At(j));\n",i);
                }
