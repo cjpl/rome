@@ -1064,6 +1064,15 @@ Bool_t ROMEBuilder::WriteFolderH()
       // Includes
       buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
+      for (i = 0; i < numOfFolderInclude[iFold]; i++) {
+         if (folderInclude[iFold][i]=="TRef.h") {
+            buffer.AppendFormatted("#include \"Windows4Root.h\"\n");
+            break;
+         }
+      }
+#endif // R__VISUAL_CPLUSPLUS
+
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4244 )\n");
@@ -1998,6 +2007,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
 
       // Create Histo Folder Index
       for (i = 0; i < numOfHistos[iTask]; i++) {
+         histoFolderIndex[i] = 0;
          if (histoFolderName[iTask][i] == "")
             continue;
          histoFolderIndex[i] = i+1;
@@ -2016,7 +2026,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          // create histo folders
          buffer.AppendFormatted("   TObjArray *histoFolder = new TObjArray(%d);\n",numOfHistos[iTask]);
          for (i = 0; i < numOfHistos[iTask]; i++) {
-            if (histoFolderIndex[i]>=0)
+            if (histoFolderIndex[i]>0)
                buffer.AppendFormatted("   histoFolder->AddAt(GetHistoFolder()->AddFolder(\"%s\",\"folder to store %s histos/graphs\"),%d);\n",
                            histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderIndex[i]-1);
          }
@@ -2374,7 +2384,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          // get histo folders
          buffer.AppendFormatted("   TObjArray *histoFolder = new TObjArray(%d);\n",numOfHistos[iTask]);
          for (i = 0; i < numOfHistos[iTask]; i++) {
-            if (histoFolderIndex[i]>=0)
+            if (histoFolderIndex[i]>0)
                buffer.AppendFormatted("   histoFolder->AddAt(static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\")),%d);\n",
                                       histoFolderName[iTask][i].Data(),histoFolderIndex[i]-1);
          }
