@@ -2209,6 +2209,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             }
             buffer.AppendFormatted("   }\n");
          }
+         for (i = 0; i < numOfHistos[iTask]; i++) {
+            if (histoFolderIndex[i] > 0) {
+               buffer.AppendFormatted("   delete histoFolder;\n");
+               break;
+            }
+         }
       }
       buffer.AppendFormatted("}\n\n");
 
@@ -2506,7 +2512,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                homeFolder = true;
             }
             // create histos
-            buffer.AppendFormatted("   if (((ROMEHisto*)fHistoParameter->At(%d))->IsActive() && !((ROMEHisto*)fHistoParameter->At(%d))->isAccumulation()) {\n",i,i);
+            buffer.AppendFormatted("   if (((ROMEHisto*)fHistoParameter->At(%d))->IsActive()) {\n",i);
             buffer.AppendFormatted("      histoName[%d] = \"%s\";\n",i,histoName[iTask][i].Data());
             buffer.AppendFormatted("      histoName[%d]+=fHistoSuffix;\n",i);
             if (histoArraySize[iTask][i] == "1") {
@@ -2543,6 +2549,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             }
             buffer.AppendFormatted("   }\n");
          }
+         for (i = 0; i < numOfHistos[iTask]; i++) {
+            if (histoFolderIndex[i] > 0) {
+               buffer.AppendFormatted("   delete histoFolder;\n");
+               break;
+            }
+         }
       }
       buffer.AppendFormatted("}\n\n");
 
@@ -2560,8 +2572,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                   alreadyDefined = true;
             }
             if (!alreadyDefined) {
-               buffer.AppendFormatted("      TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
-               buffer.AppendFormatted("      %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",
+               buffer.AppendFormatted("   TFolder *%sFolder;\n",graphFolderName[iTask][i].Data());
+               buffer.AppendFormatted("   %sFolder = static_cast<TFolder*>(GetHistoFolder()->FindObject(\"%s\"));\n",
                                       graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data());
             }
          }
