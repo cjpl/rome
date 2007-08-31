@@ -2153,7 +2153,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                }
                if (histoType[iTask][i] == "TProfile2D") {
                   buffer.AppendFormatted("      fHisto->AddAtAndExpand(new %s(histoName[%d].Data(),histoTitle[%d].Data(),xNbins[%d],xmin[%d],xmax[%d],yNbins[%d],ymin[%d],ymax[%d],zmin[%d],zmax[%d]),%d);\n",
-                                         histoType[iTask][i].Data(),i,i,i,i,i,i,i,i,i,i);
+                                         histoType[iTask][i].Data(),i,i,i,i,i,i,i,i,i,i,i);
                }
                if (!homeFolder) {
                   buffer.AppendFormatted("      ((TFolder*)histoFolder->At(%d))->Add(fHisto->At(%d));\n",TMath::Abs(histoFolderIndex[i])-1,i);
