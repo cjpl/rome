@@ -39,11 +39,6 @@ int main(int argc, const char *argv[])
       cout << "Please set the environment variable ROMESYS to the ROME root-directory." << endl;
       return 1;
    }
-   char* rootsys = getenv("ROOTSYS");
-   if (rootsys==NULL) {
-      cout << "Please set the environment variable ROOTSYS to the ROOT root-directory." << endl;
-      return 1;
-   }
 
    gROOT->SetBatch();
    ROMEBuilder* romeb = new ROMEBuilder();

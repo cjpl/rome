@@ -54,8 +54,16 @@ CXXLD ?= $(CXX)
 #####################################################################
 # Nothing needs to be modified after this line 
 #####################################################################
-INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
-LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml -lThread
+ifdef ROOTSYS
+ROOTCONFIG := $(ROOTSYS)/bin/root-config
+ROOTCINT   := $(ROOTSYS)/bin/rootcint
+else
+ROOTCONFIG := root-config
+ROOTCINT   := rootcint
+endif
+
+INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTCONFIG) --cflags)
+LIBRARY := $(shell $(ROOTCONFIG) --glibs) -lHtml -lThread
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
 # Required ROOT version
@@ -64,10 +72,10 @@ ROOT_MINOR_MIN = 02
 ROOT_PATCH_MIN = 00
 
 # Local ROOT version
-ROOT_VERSION := $(shell $(ROOTSYS)/bin/root-config --version)
-ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
-ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
-ROOT_PATCH := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f2)
+ROOT_VERSION := $(shell $(ROOTCONFIG) --version)
+ROOT_MAJOR := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'.' -f1)
+ROOT_MINOR := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
+ROOT_PATCH := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'/' -f2)
 
 ROOT_VERSION_ERROR := no
 ifeq ($(shell expr $(ROOT_MAJOR) \< $(ROOT_MAJOR_MIN)), 1)
@@ -279,17 +287,9 @@ LibDictHeaders += include/array64/TArrayL64.h
 endif
 
 ifeq ($(OSTYPE),darwin)
-  ifeq ($(DYLD_LIBRARY_PATH),)  
-    export DYLD_LIBRARY_PATH = $(shell $(ROOTSYS)/bin/root-config --libdir)
-  else
-    export DYLD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir)
-  endif
+  export DYLD_LIBRARY_PATH += :$(shell $(ROOTCONFIG) --libdir)
 else
-  ifeq ($(LD_LIBRARY_PATH),)  
-    export LD_LIBRARY_PATH = $(shell $(ROOTSYS)/bin/root-config --libdir)
-  else
-    export LD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir)
-  endif
+  export LD_LIBRARY_PATH += :$(shell $(ROOTCONFIG) --libdir)
 endif
 
 #
@@ -340,15 +340,15 @@ endif
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
-	$(Q)$(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(INCLUDE) $(LibDictHeaders) include/ROMELibLinkDef.h
+	$(Q)$(ROOTCINT) -f ROMELibDict.cpp -c -p $(INCLUDE) $(LibDictHeaders) include/ROMELibLinkDef.h
 
 ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
-	$(Q)$(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(INCLUDE) $(BldDictHeaders) include/ROMEBuildLinkDef.h
+	$(Q)$(ROOTCINT) -f ROMEBuilderDict.cpp -c -p $(INCLUDE) $(BldDictHeaders) include/ROMEBuildLinkDef.h
 
 UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
-	$(Q)$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders) include/UpdateVersionHLinkDef.h
+	$(Q)$(ROOTCINT) -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders) include/UpdateVersionHLinkDef.h
 
 obj/mxml.o: src/mxml.c include/mxml.h
 	$(call romeechoing, "compiling $@")
