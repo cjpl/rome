@@ -7,10 +7,18 @@ FC    ?= g77
 
 -include ../../Makefile.arch
 
-ROOT_VERSION := $(shell $(ROOTSYS)/bin/root-config --version)
-ROOT_MAJOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'.' -f1)
-ROOT_MINOR := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
-ROOT_PATCH := $(shell $(ROOTSYS)/bin/root-config --version 2>&1 | cut -d'/' -f2)
+ifdef ROOTSYS
+ROOTCONFIG := $(ROOTSYS)/bin/root-config
+ROOTCINT   := $(ROOTSYS)/bin/rootcint
+else
+ROOTCONFIG := root-config
+ROOTCINT   := rootcint
+endif
+
+ROOT_VERSION := $(shell $(ROOTCONFIG) --version)
+ROOT_MAJOR := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'.' -f1)
+ROOT_MINOR := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
+ROOT_PATCH := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'/' -f2)
 
 NEED_TARRAYL64 = no
 ifeq ($(ROOT_MAJOR), 5)
@@ -23,8 +31,8 @@ NEED_TARRAYL64 = yes
 endif
 
 ## Compile and link flags
-rootlibs  := $(shell $(ROOTSYS)/bin/root-config --libs)
-rootcflags:= $(shell $(ROOTSYS)/bin/root-config --cflags)
+rootlibs  := $(shell $(ROOTCONFIG) --libs)
+rootcflags:= $(shell $(ROOTCONFIG) --cflags)
 sqllibs   :=  -lsqlite3
 sqlcflags := -DHAVE_SQL -DHAVE_SQLITE3
 
@@ -90,7 +98,7 @@ Dict.o : Dict.cpp Dict.h
 	$(CXX) -c $(CFlags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
 
 Dict.h Dict.cpp: $(DICTHEADERS) Makefile
-	$(ROOTSYS)/bin/rootcint -f Dict.cpp -c -p $(Includes) $(DICTHEADERS) LinkDef.h
+	$(ROOTCINT) -f Dict.cpp -c -p $(Includes) $(DICTHEADERS) LinkDef.h
 
 ## Cleaning rules
 clean:

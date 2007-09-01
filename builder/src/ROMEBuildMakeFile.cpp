@@ -33,7 +33,11 @@ void ROMEBuilder::AddIncludeDirectories()
    if (sqlite3) numOfIncludeDirectories++;
 #endif
    includeDirectories = new ROMEStrArray(numOfIncludeDirectories);
-   includeDirectories->AddFormatted("$(ROOTSYS)/include/");
+#if defined( R__VISUAL_CPLUSPLUS )
+   includeDirectories->AddFormatted("$(ROOTSYS)/include");
+#else
+   includeDirectories->AddFormatted("$(shell $(ROOTCONFIG) --incdir)");
+#endif
    includeDirectories->AddFormatted("$(ROMESYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/argus/include/");
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
@@ -1149,9 +1153,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Compile and link flags\n");
-   buffer.AppendFormatted("rootlibs  := $(shell $(ROOTSYS)/bin/root-config --libs) -lHtml -lThread\n");
-   buffer.AppendFormatted("rootglibs := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml -lThread\n");
-   buffer.AppendFormatted("rootcflags:= $(shell $(ROOTSYS)/bin/root-config --cflags)\n");
+   buffer.AppendFormatted("rootlibs  := $(shell $(ROOTCONFIG) --libs) -lHtml -lThread\n");
+   buffer.AppendFormatted("rootglibs := $(shell $(ROOTCONFIG) --glibs) -lHtml -lThread\n");
+   buffer.AppendFormatted("rootcflags:= $(shell $(ROOTCONFIG) --cflags)\n");
    buffer.AppendFormatted("sqllibs   :=");
    if (this->mysql) {
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
@@ -1322,7 +1326,7 @@ void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
    separator = " \\\n            ";
 #endif // R__UNIX
    buffer.AppendFormatted("## Include directories\n");
-   buffer.AppendFormatted("Includes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("Includes %s $(%sINC) ",kEqualSign, shortCut.ToUpper(tmp));
    GetIncludeDirString(tmp,separator.Data(),kFlagSign);
    buffer.Append(tmp);
    buffer.AppendFormatted("\n");
@@ -1707,7 +1711,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    includedirs.AppendFormatted(" %s",bufferT.Data());
    GetUserDictHeaderString(includes," ",iFile);
 #if defined( R__UNIX )
-   dictionaryCommands->AddFormatted("$(Q)rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
+   dictionaryCommands->AddFormatted("$(Q)$(ROOTCINT)%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
 #else
    ROMEString command = "rootcint";
    command.Append(arguments);
@@ -2120,14 +2124,23 @@ void ROMEBuilder::WriteMakefile() {
 
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#elif defined( R__MACOSX )
+#else
+   buffer.AppendFormatted("ifdef ROOTSYS\n");
+   buffer.AppendFormatted("ROOTCONFIG := $(ROOTSYS)/bin/root-config\n");
+   buffer.AppendFormatted("ROOTCINT   := $(ROOTSYS)/bin/rootcint\n");
+   buffer.AppendFormatted("else\n");
+   buffer.AppendFormatted("ROOTCONFIG := root-config\n");
+   buffer.AppendFormatted("ROOTCINT   := rootcint\n");
+   buffer.AppendFormatted("endif\n");
+#   if defined( R__MACOSX )
    buffer.AppendFormatted("FINK_DIR        := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
    buffer.AppendFormatted("MACOSX_MAJOR    := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 1)\n");
    buffer.AppendFormatted("MACOSX_MINOR    := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 2)\n");
    buffer.AppendFormatted("export MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
-   buffer.AppendFormatted("export DYLD_LIBRARY_PATH := $(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir)\n");
-#else
-   buffer.AppendFormatted("export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir)\n");
+   buffer.AppendFormatted("export DYLD_LIBRARY_PATH := $(DYLD_LIBRARY_PATH):$(shell $(ROOTCONFIG) --libdir)\n");
+#   else
+   buffer.AppendFormatted("export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):$(shell $(ROOTCONFIG) --libdir)\n");
+#   endif
 #endif
    buffer.AppendFormatted("\n");
 
@@ -2525,7 +2538,7 @@ void ROMEBuilder::WriteRootCintCall(ROMEString& buffer)
    buffer.AppendFormatted("\t@-%%ROOTSYS%%\\bin\\rootcint");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(Q)$(ROOTSYS)/bin/rootcint");
+   buffer.AppendFormatted("\t$(Q)$(ROOTCINT)");
 #endif
 }
 
