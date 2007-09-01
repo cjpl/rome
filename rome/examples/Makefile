@@ -38,7 +38,6 @@ export TWR3OPT  =$(OPT)
 export TCUTGOPT =$(OPT)
 export BFOPT    =$(OPT)
 export MSGOPT   =$(OPT)
-export UMFOPT   =$(OPT)
 export DOCOPT   =$(OPT)
 export REFOPT   =$(OPT)
 
@@ -63,7 +62,6 @@ ROMEProjects = multirun/mranalyzer.exe \
                cutg/tcutgexample.exe \
                basefolder/bfsample.exe \
                message/msganalyzer.exe \
-               userMakefile/umfanalyzer.exe \
                document/docanalyzer.exe \
                reference/refanalyzer.exe
 
@@ -177,10 +175,6 @@ message/msganalyzer.exe:
 	$(ROMESYS)/bin/romebuilder.exe -i message/message.xml -o message -nl -pch;
 	make $(JOBSFLAG) -C message/
 
-userMakefile/umfanalyzer.exe:
-	$(ROMESYS)/bin/romebuilder.exe -i userMakefile/userMakefile.xml -o userMakefile -nl -pch;
-	make $(JOBSFLAG) -C userMakefile/
-
 document/docanalyzer.exe:
 	$(ROMESYS)/bin/romebuilder.exe -i document/document.xml -o document -nl -pch;
 	make $(JOBSFLAG) -C document/
@@ -290,8 +284,6 @@ check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd basefolder; ./bfsample.exe -i romeConfig.xml -q -nc
 
 	cd message; ./msganalyzer.exe -i romeConfig.xml -q -nc
-
-	cd userMakefile; ./umfanalyzer.exe -i romeConfig.xml -q -nc
 
 	cd reference; ./refanalyzer.exe -i writeConfig.xml -q -nc
 	cd reference; ./refanalyzer.exe -i readConfig.xml -q -nc

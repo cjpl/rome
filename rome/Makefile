@@ -55,7 +55,7 @@ CXXLD ?= $(CXX)
 # Nothing needs to be modified after this line 
 #####################################################################
 INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
-LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
+LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml -lThread
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
 # Required ROOT version
