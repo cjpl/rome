@@ -1288,6 +1288,16 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, const char *argv[])
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("meg",0);
+      } else if (!strcmp(argv[i],"-meg_test")) {
+         makeOutput = false;
+         midas = true;
+         noLink = true;
+         minRebuild = true;
+         sql = false;
+         mysql = true;
+         outDir = "C:/temp/meg_test/meganalyzer/";
+         xmlFile = "C:/temp/meg_test/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("meg",0);
       } else if (!strcmp(argv[i],"-drs")) {
          makeOutput = false;
          midas = false;
