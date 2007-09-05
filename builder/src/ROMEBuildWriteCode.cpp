@@ -2389,7 +2389,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       if (numOfHistos[iTask] > 0) {
          buffer.AppendFormatted("   SetOriginalHistoParameters();\n");
          buffer.AppendFormatted("   int j,k;\n");
-         buffer.AppendFormatted("   int arraySizeOld=0;\n");
+         for (i = 0; i < numOfHistos[iTask]; i++) {
+            if (histoArraySize[iTask][i] != "1") {
+               buffer.AppendFormatted("   int arraySizeOld=0;\n");
+               break;
+            }
+         }
          buffer.AppendFormatted("   ROMEString *histoArrayName[%d];\n",numOfHistos[iTask]);
          buffer.AppendFormatted("   ROMEString *histoArrayTitle[%d];\n",numOfHistos[iTask]);
          buffer.AppendFormatted("   ROMEHisto* histoHandle;\n");
