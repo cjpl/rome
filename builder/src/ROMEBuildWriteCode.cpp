@@ -2037,9 +2037,15 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                         graphFolderName[iTask][i].Data(),graphFolderName[iTask][i].Data(),numOfHistos[iTask]+i);
          }
       }
-      // Create Array Flags
+      // Create Names,Array Flags and Dimensions
       for (i = 0; i < numOfHistos[iTask]; i++) {
          buffer.AppendFormatted("   fHistoName[%d] = \"%s\";\n",i,histoName[iTask][i].Data());
+         if (histoType[iTask][i].Index("2")!=-1)
+            buffer.AppendFormatted("   fHistoDimension[%d] = 2;\n",i);
+         else if (histoType[iTask][i].Index("3")!=-1)
+            buffer.AppendFormatted("   fHistoDimension[%d] = 3;\n",i);
+         else
+            buffer.AppendFormatted("   fHistoDimension[%d] = 1;\n",i);
          if (histoArraySize[iTask][i] == "1")
             buffer.AppendFormatted("   fHistoArray[%d] = false;\n",i);
          else
@@ -2047,6 +2053,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       }
       for (i = 0; i < numOfGraphs[iTask]; i++) {
          buffer.AppendFormatted("   fGraphName[%d] = \"%s\";\n",i,graphName[iTask][i].Data());
+         if (graphType[iTask][i].Index("2")!=-1)
+            buffer.AppendFormatted("   fGraphDimension[%d] = 2;\n",i);
+         else if (graphType[iTask][i].Index("3")!=-1)
+            buffer.AppendFormatted("   fGraphDimension[%d] = 3;\n",i);
+         else
+            buffer.AppendFormatted("   fGraphDimension[%d] = 1;\n",i);
          if (graphArraySize[iTask][i] == "1")
             buffer.AppendFormatted("   fGraphArray[%d] = false;\n",i);
          else
@@ -3078,6 +3090,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
          buffer.AppendFormatted("   ROMEString fHistoSuffix; //!\n");
          buffer.AppendFormatted("   Bool_t fHistoArray[%d]; //!\n",numOfHistos[iTask]);
          buffer.AppendFormatted("   ROMEString fHistoName[%d]; //!\n",numOfHistos[iTask]);
+         buffer.AppendFormatted("   Int_t fHistoDimension[%d]; //!\n",numOfHistos[iTask]);
       }
       if (numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("   TObjArray* fGraph; // Handle to graphs\n");
@@ -3086,6 +3099,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
          buffer.AppendFormatted("   ROMEString fGraphSuffix; //!\n");
          buffer.AppendFormatted("   Bool_t fGraphArray[%d]; //!\n",numOfGraphs[iTask]);
          buffer.AppendFormatted("   ROMEString fGraphName[%d]; //!\n",numOfGraphs[iTask]);
+         buffer.AppendFormatted("   Int_t fGraphDimension[%d]; //!\n",numOfGraphs[iTask]);
       }
       if (numOfHistos[iTask]>0 || numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("   TObjArray* fRootFolder; // Handle to histogram/graph root folder\n");
@@ -3129,13 +3143,17 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       // Access Methods
       if (numOfHistos[iTask]>0) {
          buffer.AppendFormatted("   Int_t GetNumberOfHistos() { return %d; };\n",numOfHistos[iTask]);
+         buffer.AppendFormatted("   TObject* GetHistoAt(Int_t i) { return fHisto->At(i); };\n");
          buffer.AppendFormatted("   ROMEHisto* GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };\n");
          buffer.AppendFormatted("   ROMEString* GetHistoNameAt(Int_t i) { return &fHistoName[i]; };\n");
+         buffer.AppendFormatted("   Int_t GetHistoDimensionAt(Int_t i) { return fHistoDimension[i]; };\n");
       }
       if (numOfGraphs[iTask]>0) {
          buffer.AppendFormatted("   Int_t GetNumberOfGraphs() { return %d; };\n",numOfGraphs[iTask]);
+         buffer.AppendFormatted("   TObject* GetGraphAt(Int_t i) { return fGraph->At(i); };\n");
          buffer.AppendFormatted("   ROMEGraph* GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); };\n");
          buffer.AppendFormatted("   ROMEString* GetGraphNameAt(Int_t i) { return &fGraphName[i]; };\n");
+         buffer.AppendFormatted("   Int_t GetGraphDimensionAt(Int_t i) { return fGraphDimension[i]; };\n");
       }
       for (i = 0; i < numOfHistos[iTask]; i++) {
          if (histoArraySize[iTask][i] == "1") {

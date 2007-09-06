@@ -99,9 +99,9 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, ROMEStrArray *drawOpt,
          M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT - 400 + i * kMaxNumberOfPadsY + j;
       }
    }
-   for (i = 0; i < 10; i++) {
+   for (i = 0; i < kNumberOfDisplayViewSelections0; i++) {
       fMenuView100[i] = 0;
-      for (j = 0; j < 10; j++)
+      for (j = 0; j < kNumberOfDisplayViewSelections1; j++)
          fMenuView10[i][j] = 0;
    }
 
@@ -143,9 +143,9 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
    SafeDelete(fMenuDisplay);
    SafeDelete(fMenuView);
    SafeDelete(fMenuViewDivide);
-   for (i=0;i<10;i++) {
+   for (i=0;i<kNumberOfDisplayViewSelections0;i++) {
       SafeDelete(fMenuView100[i]);
-      for (j=0;j<10;j++)
+      for (j=0;j<kNumberOfDisplayViewSelections1;j++)
          SafeDelete(fMenuView10[i][j]);
    }
    SafeDelete(fCanvas);
@@ -338,7 +338,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
          }
       }
    }
-   for (i=0;i<kNumberOfDisplayViewSelections;i++) {
+   for (i=0;i<kNumberOfDisplayViewSelections0*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2;i++) {
       if (param == M_ARGUS_DISPLAY_VIEW_SELECT+i) {
          fChannelNumber = i;
          Display();
@@ -363,10 +363,10 @@ void ArgusHistoDisplay::BaseTabSelected()
    fMenuViewDivide->Associate(fWindow);
    fMenuViewSelect = new TGPopupMenu(fClient->GetRoot());
    fMenuViewSelect->Associate(fWindow);
-   for (i=0;i<10;i++) {
+   for (i=0;i<kNumberOfDisplayViewSelections0;i++) {
       fMenuView100[i] = new TGPopupMenu(fClient->GetRoot());
       fMenuView100[i]->Associate(fWindow);
-      for (j=0;j<10;j++) {
+      for (j=0;j<kNumberOfDisplayViewSelections1;j++) {
          fMenuView10[i][j] = new TGPopupMenu(fClient->GetRoot());
          fMenuView10[i][j]->Associate(fWindow);
       }
@@ -382,16 +382,16 @@ void ArgusHistoDisplay::BaseTabSelected()
       fMenuViewDivide->AddPopup(str.Data(), fMenuViewDivideColumn[i]);
    }
    fMenuView->AddPopup("Divide", fMenuViewDivide);
-   for (i=0;i<10;i++) {
-      for (j=0;j<10;j++) {
-         for (k=0;k<10;k++) {
-            str.SetFormatted("%d",i*100+j*10+k);
-            fMenuView10[i][j]->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i*100+j*10+k);
+   for (i=0;i<kNumberOfDisplayViewSelections0;i++) {
+      for (j=0;j<kNumberOfDisplayViewSelections1;j++) {
+         for (k=0;k<kNumberOfDisplayViewSelections2;k++) {
+            str.SetFormatted("%d",i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+j*kNumberOfDisplayViewSelections2+k);
+            fMenuView10[i][j]->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+j*kNumberOfDisplayViewSelections2+k);
          }
-         str.SetFormatted("%d-%d",i*100+j*10,i*100+(j+1)*10-1);
+         str.SetFormatted("%d-%d",i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+j*kNumberOfDisplayViewSelections2,i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+(j+1)*kNumberOfDisplayViewSelections2-1);
          fMenuView100[i]->AddPopup(str.Data(), fMenuView10[i][j]);
       }
-      str.SetFormatted("%d-%d",i*100,(i+1)*100-1);
+      str.SetFormatted("%d-%d",i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2,(i+1)*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2-1);
       fMenuViewSelect->AddPopup(str.Data(), fMenuView100[i]);
    }
    fMenuView->AddPopup("Select", fMenuViewSelect);
