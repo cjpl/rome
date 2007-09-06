@@ -38,9 +38,11 @@ class ArgusHistoDisplay : public ArgusTab
 protected:
    enum {
       kMaxNumberOfPads = 120,
-      kMaxNumberOfPadsX = 6,
+      kMaxNumberOfPadsX = 10,
       kMaxNumberOfPadsY = 20,
-      kNumberOfDisplayViewSelections = 1000,
+      kNumberOfDisplayViewSelections0 = 30,
+      kNumberOfDisplayViewSelections1 = 10,
+      kNumberOfDisplayViewSelections2 = 10,
       kMaxNumberOfLines = 20
    };
    enum MenuEnumeration {
@@ -60,8 +62,8 @@ protected:
    TGPopupMenu         *fMenuView;      //!
    TGPopupMenu         *fMenuViewDivide;//!
    TGPopupMenu         *fMenuViewSelect;//!
-   TGPopupMenu         *fMenuView10[10][10];  //!
-   TGPopupMenu         *fMenuView100[10]; //!
+   TGPopupMenu         *fMenuView10[kNumberOfDisplayViewSelections0][kNumberOfDisplayViewSelections1];  //!
+   TGPopupMenu         *fMenuView100[kNumberOfDisplayViewSelections0]; //!
    TGPopupMenu         *fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
 
    Int_t                fNumberOfCurrentDisplayTypes;//!

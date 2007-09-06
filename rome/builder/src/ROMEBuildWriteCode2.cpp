@@ -212,6 +212,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
                                                 ROMEString tabPointer,ROMEString configPointer,int level,int tab)
 {
    int i,j,histoDimension;
+   Bool_t histosWritten,graphsWritten;
    ROMEString sTab = "";
    for (i = 0; i < tab; i++)
       sTab += "   ";
@@ -258,14 +259,57 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
       }
    }
 
+   histosWritten = false;
+   graphsWritten= false;
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
+      // Special case histogram
+      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Histogram") {
+         if (!histosWritten) {
+            histosWritten = true;
+            buffer.AppendFormatted("%s// %sHistograms\n",sTab.Data(),tabPointer.Data());
+            buffer.AppendFormatted("%sfor (i=0;i<%sTask->GetNumberOfHistos();i++) {\n",sTab.Data(),parGroup->GetGroupName().Data());
+            comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+            buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
+            if (comment.Length() > 0) {
+               buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTab.Data(),
+                                      parGroup->GetSubGroupAt(i)->GetCommentLevel());
+               buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
+            }
+            buffer.AppendFormatted("%s   tempFrame[%d]->AddSubFrame(new XMLToFormFrame(tempFrame[%d],%sTask->GetHistoNameAt(i)->Data(),\"\",true,XMLToFormFrame::kListTreeItem,true,%d+i,comment.Data()));\n",
+                                   sTab.Data(),level,level,parGroup->GetGroupName().Data(),i);
+            buffer.AppendFormatted("%s   AddHisto(tempFrame[%d]->GetSubFrameAt(%d+i),%sTask->GetHistoParameterAt(i),%sTask->GetHistoDimensionAt(i));\n",sTab.Data(),level,i,parGroup->GetGroupName().Data(),parGroup->GetGroupName().Data());
+            buffer.AppendFormatted("%s}\n",sTab.Data());
+         }
+         continue;
+      }
+      // Special case graph
+      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Graph") {
+         if (!graphsWritten) {
+            graphsWritten = true;
+            buffer.AppendFormatted("%s// %sGraphs\n",sTab.Data(),tabPointer.Data());
+            buffer.AppendFormatted("%sfor (i=0;i<%sTask->GetNumberOfGraphs();i++) {\n",sTab.Data(),parGroup->GetGroupName().Data());
+            comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+            buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
+            if (comment.Length() > 0) {
+               buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTab.Data(),
+                                      parGroup->GetSubGroupAt(i)->GetCommentLevel());
+               buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
+            }
+            buffer.AppendFormatted("%s   tempFrame[%d]->AddSubFrame(new XMLToFormFrame(tempFrame[%d],%sTask->GetGraphNameAt(i)->Data(),\"\",true,XMLToFormFrame::kListTreeItem,true,%d+i,comment.Data()));\n",
+                                   sTab.Data(),level,level,parGroup->GetGroupName().Data(),i);
+            buffer.AppendFormatted("%s   AddGraph(tempFrame[%d]->GetSubFrameAt(%d+i),%sTask->GetGraphParameterAt(i));\n",sTab.Data(),level,i,parGroup->GetGroupName().Data());
+            buffer.AppendFormatted("%s}\n",sTab.Data());
+         }
+         continue;
+      }
+      // normal case
       if (level == 0 || (level == 1 && parGroup->GetGroupName() == "Common") ||
           (level == 2 && parGroup->GetGroupName() == "Folders")) {
          buffer.Append(kMethodLine);
          buffer.AppendFormatted("void %sConfigToForm::Add%sFrame(XMLToFormFrame *frame)\n",shortCut.Data(),
                                 parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("{\n");
-         buffer.AppendFormatted("   int ind;\n");
+         buffer.AppendFormatted("   int ind,dimension;\n");
          buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   bool writeFlag;\n");
          buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
@@ -282,12 +326,17 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          buffer.AppendFormatted("   nTabs = 0;\n");
          buffer.AppendFormatted("   int i,ii[100];\n");
          buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   dimension = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   tempFrame[%d] = frame;\n",level);
       } else {
          buffer.AppendFormatted("%s// %s%s\n",sTab.Data(),tabPointer.Data(),
                                 parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
+      // Special case task
+      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Task") {
+         buffer.AppendFormatted("%s%sT%s_Base* %sTask = gAnalyzer->Get%sTaskBase();\n",sTab.Data(),shortCut.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
       buffer.AppendFormatted("%scomment = \"\";\n",sTab.Data());
