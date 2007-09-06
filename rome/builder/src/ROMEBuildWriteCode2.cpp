@@ -336,7 +336,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
       }
       // Special case task
       if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Task") {
-         buffer.AppendFormatted("%s%sT%s_Base* %sTask = gAnalyzer->Get%sTaskBase();\n",sTab.Data(),shortCut.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s%sT%s_Base* %sTask;\n",sTab.Data(),shortCut.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s%sTask = gAnalyzer->Get%sTaskBase();\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
       buffer.AppendFormatted("%scomment = \"\";\n",sTab.Data());
