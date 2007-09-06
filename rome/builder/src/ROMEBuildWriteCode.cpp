@@ -2819,8 +2819,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("   if (!CheckGraphActive(%d)) return 0;\n",i);
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
                buffer.AppendFormatted("      return static_cast<TObjArray*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%ss\"));\n",
-                                      graphName[iTask][i].Data(),shortCut.Data(),taskName[iTask].Data(),
-                                      graphName[iTask][i].Data());
+                                      shortCut.Data(), taskName[iTask].Data(), graphName[iTask][i].Data());
                buffer.AppendFormatted("   return ((TObjArray*)fGraph->At(%d));\n",i);
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
