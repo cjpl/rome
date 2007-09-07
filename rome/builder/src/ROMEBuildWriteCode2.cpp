@@ -223,11 +223,11 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
    if (parGroup->GetGroupIdentifier() == "Histogram") {
       temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
       temp = temp(0, temp.Last('-'));
-      histoDimension = 3;
-      if (parGroup->GetInfo().Index("TH1") == 0)
-         histoDimension = 1;
-      if (parGroup->GetInfo().Index("TH2") == 0)
+      histoDimension = 1;
+      if (parGroup->GetInfo().Index("2") != -1)
          histoDimension = 2;
+      if (parGroup->GetInfo().Index("3") != -1)
+         histoDimension = 3;
       buffer.AppendFormatted("%sAddHisto(tempFrame[%d],%s,%d);\n",sTab.Data(),level,temp.Data(),histoDimension);
    } else if (parGroup->GetGroupIdentifier() == "Graph") {
       temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
@@ -448,11 +448,11 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
       temp = temp(0, temp.Last('-'));
       temp2 = "static_cast<"+shortCut+"Config*>(fConfiguration)->fConfigData[0]->"+configPointer;
       temp2 = temp2(0, temp2.Last('-'));
-      histoDimension = 3;
-      if (parGroup->GetInfo().Index("TH1") == 0)
-         histoDimension = 1;
-      if (parGroup->GetInfo().Index("TH2") == 0)
+      histoDimension = 1;
+      if (parGroup->GetInfo().Index("2") != -1)
          histoDimension = 2;
+      if (parGroup->GetInfo().Index("3") != -1)
+         histoDimension = 3;
       buffer.AppendFormatted("%s   SaveHisto(dialog,\"%s\",%s,%s,%d);\n",sTab.Data(),pointer.Data(),temp.Data(),
                              temp2.Data(),histoDimension);
    } else {
