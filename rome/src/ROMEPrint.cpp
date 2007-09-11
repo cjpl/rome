@@ -125,7 +125,6 @@ void ROMEPrint::Info(const char* va_(fmt),...)
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
    cm_msg(MINFO, "ROMEPrint::Info", text.Data());
-   cout<<text.Data()<<flush;
 #else
    cout<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
@@ -146,7 +145,6 @@ void ROMEPrint::Warning(const char* va_(fmt),...)
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
    cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
-   cerr<<text.Data()<<flush;
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
@@ -167,7 +165,6 @@ void ROMEPrint::Error(const char* va_(fmt),...)
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
    cm_msg(MERROR, "ROMEPrint::Error", text.Data());
-   cerr<<text.Data()<<flush;
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
@@ -210,16 +207,17 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       if (!report.EndsWith("\n")) {
          report += '\n';
       }
+#if defined( HAVE_MIDAS )
+      if (verboseLevel < kWarning) {
+         cm_msg(MERROR, "ROMEPrint::Report", report.Data());
+      } else {
+         cm_msg(MINFO, "ROMEPrint::Report", report.Data());
+      }
+#else
       if (verboseLevel <= kWarning) {
          cerr<<report<<flush;
       } else {
          cout<<report<<flush;
-      }
-#if defined( HAVE_MIDAS )
-      if (verboseLevel <= kWarning) {
-         cm_msg(MERROR, "ROMEPrint::Report", report.Data());
-      } else {
-         cm_msg(MINFO, "ROMEPrint::Report", report.Data());
       }
 #endif
       va_end(ap);
@@ -298,16 +296,17 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       va_end(ap);
 
       text += report;
+#if defined( HAVE_MIDAS )
+      if (verboseLevel < kWarning) {
+         cm_msg(MERROR, "ROMEPrint::Report", text.Data());
+      } else {
+         cm_msg(MINFO, "ROMEPrint::Report", text.Data());
+      }
+#else
       if (verboseLevel <= kWarning) {
          cerr<<text<<flush;
       } else {
          cout<<text<<flush;
-      }
-#if defined( HAVE_MIDAS )
-      if (verboseLevel <= kWarning) {
-         cm_msg(MERROR, "ROMEPrint::Report", text.Data());
-      } else {
-         cm_msg(MINFO, "ROMEPrint::Report", text.Data());
       }
 #endif
    }
