@@ -122,14 +122,12 @@ void ROMEPrint::Info(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
-   if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-      ROMEString text = ROMEString::Format(va_(fmt), ap);
-      cm_msg(MINFO, "ROMEPrint::Info", text.Data());
+   ROMEString text = ROMEString::Format(va_(fmt), ap);
+   cm_msg(MINFO, "ROMEPrint::Info", text.Data());
+#else
+   cout<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
-   } else {
-      cout<<ROMEString::Format(va_(fmt), ap)<<flush;
-   }
    va_end(ap);
 }
 
@@ -144,14 +142,12 @@ void ROMEPrint::Warning(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
-   if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-      ROMEString text = ROMEString::Format(va_(fmt), ap);
-      cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
+   ROMEString text = ROMEString::Format(va_(fmt), ap);
+   cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
+#else
+   cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
-   } else {
-      cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
-   }
    va_end(ap);
 }
 
@@ -166,14 +162,12 @@ void ROMEPrint::Error(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
-   if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-      ROMEString text = ROMEString::Format(va_(fmt), ap);
-      cm_msg(MERROR, "ROMEPrint::Error", text.Data());
+   ROMEString text = ROMEString::Format(va_(fmt), ap);
+   cm_msg(MERROR, "ROMEPrint::Error", text.Data());
+#else
+   cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
-   } else {
-      cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
-   }
    va_end(ap);
 }
 
@@ -213,22 +207,20 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       if (!report.EndsWith("\n")) {
          report += '\n';
       }
-      if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-         if (verboseLevel < kWarning) {
-            cm_msg(MERROR, "ROMEPrint::Report", report.Data());
-         } else {
-            cm_msg(MINFO, "ROMEPrint::Report", report.Data());
-         }
-#endif
+      if (verboseLevel < kWarning) {
+         cm_msg(MERROR, "ROMEPrint::Report", report.Data());
       } else {
-         if (verboseLevel <= kWarning) {
-            cerr<<report<<flush;
-         } else {
-            cout<<report<<flush;
-         }
-         va_end(ap);
+         cm_msg(MINFO, "ROMEPrint::Report", report.Data());
       }
+#else
+      if (verboseLevel <= kWarning) {
+         cerr<<report<<flush;
+      } else {
+         cout<<report<<flush;
+      }
+      va_end(ap);
+#endif
       return;
    }
 
@@ -259,7 +251,13 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       ROMEString text;
       ROMEString tmp;
 
-      if (verboseLevel >= kWarning && gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
+      Bool_t writeFileName = kTRUE;
+#if defined( HAVE_MIDAS )
+      if (verboseLevel >= kWarning) {
+         writeFileName = kFALSE;
+      }
+#endif
+      if (!writeFileName) {
          // not to write file name
          lineHeader = "";
          WarningSuppression(run);
@@ -313,21 +311,19 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       va_end(ap);
 
       text += report;
-      if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-         if (verboseLevel < kWarning) {
-            cm_msg(MERROR, "ROMEPrint::Report", text.Data());
-         } else {
-            cm_msg(MINFO, "ROMEPrint::Report", text.Data());
-         }
-#endif
+      if (verboseLevel < kWarning) {
+         cm_msg(MERROR, "ROMEPrint::Report", text.Data());
       } else {
-         if (verboseLevel <= kWarning) {
-            cerr<<text<<flush;
-         } else {
-            cout<<text<<flush;
-         }
+         cm_msg(MINFO, "ROMEPrint::Report", text.Data());
       }
+#else
+      if (verboseLevel <= kWarning) {
+         cerr<<text<<flush;
+      } else {
+         cout<<text<<flush;
+      }
+#endif
    }
 }
 
