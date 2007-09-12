@@ -122,12 +122,14 @@ void ROMEPrint::Info(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
+   if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-   ROMEString text = ROMEString::Format(va_(fmt), ap);
-   cm_msg(MINFO, "ROMEPrint::Info", text.Data());
-#else
-   cout<<ROMEString::Format(va_(fmt), ap)<<flush;
+      ROMEString text = ROMEString::Format(va_(fmt), ap);
+      cm_msg(MINFO, "ROMEPrint::Info", text.Data());
 #endif
+   } else {
+      cout<<ROMEString::Format(va_(fmt), ap)<<flush;
+   }
    va_end(ap);
 }
 
@@ -142,12 +144,14 @@ void ROMEPrint::Warning(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
+   if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-   ROMEString text = ROMEString::Format(va_(fmt), ap);
-   cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
-#else
-   cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
+      ROMEString text = ROMEString::Format(va_(fmt), ap);
+      cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
 #endif
+   } else {
+      cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
+   }
    va_end(ap);
 }
 
@@ -162,12 +166,14 @@ void ROMEPrint::Error(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
+   if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-   ROMEString text = ROMEString::Format(va_(fmt), ap);
-   cm_msg(MERROR, "ROMEPrint::Error", text.Data());
-#else
-   cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
+      ROMEString text = ROMEString::Format(va_(fmt), ap);
+      cm_msg(MERROR, "ROMEPrint::Error", text.Data());
 #endif
+   } else {
+      cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
+   }
    va_end(ap);
 }
 
@@ -207,20 +213,22 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       if (!report.EndsWith("\n")) {
          report += '\n';
       }
+      if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-      if (verboseLevel < kWarning) {
-         cm_msg(MERROR, "ROMEPrint::Report", report.Data());
-      } else {
-         cm_msg(MINFO, "ROMEPrint::Report", report.Data());
-      }
-#else
-      if (verboseLevel <= kWarning) {
-         cerr<<report<<flush;
-      } else {
-         cout<<report<<flush;
-      }
+         if (verboseLevel < kWarning) {
+            cm_msg(MERROR, "ROMEPrint::Report", report.Data());
+         } else {
+            cm_msg(MINFO, "ROMEPrint::Report", report.Data());
+         }
 #endif
-      va_end(ap);
+      } else {
+         if (verboseLevel <= kWarning) {
+            cerr<<report<<flush;
+         } else {
+            cout<<report<<flush;
+         }
+         va_end(ap);
+      }
       return;
    }
 
@@ -250,31 +258,40 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       // print
       ROMEString text;
       ROMEString tmp;
+
+      if (verboseLevel >= kWarning && gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
+         // not to write file name
+         lineHeader = "";
+         WarningSuppression(run);
+         WarningSuppression(event);
+      } else {
 #if defined(R__UNIX)
-      if (event == kEventNumberInit) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-      } else if (event == kEventNumberBeginOfRun) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-      } else if (event == kEventNumberEndOfRun) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-      } else if (event == kEventNumberTerminate) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-      } else {
-         lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
-      }
+         if (event == kEventNumberInit) {
+            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
+         } else if (event == kEventNumberBeginOfRun) {
+            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
+         } else if (event == kEventNumberEndOfRun) {
+            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
+         } else if (event == kEventNumberTerminate) {
+            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
+         } else {
+            lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+         }
 #else
-      if (event == kEventNumberInit) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-      } else if (event == kEventNumberBeginOfRun) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-      } else if (event == kEventNumberEndOfRun) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-      } else if (event == kEventNumberTerminate) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-      } else {
-         lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
-      }
+         if (event == kEventNumberInit) {
+            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
+         } else if (event == kEventNumberBeginOfRun) {
+            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
+         } else if (event == kEventNumberEndOfRun) {
+            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
+         } else if (event == kEventNumberTerminate) {
+            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
+         } else {
+            lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+         }
 #endif
+      }
+
       if (fgReportHeaderLength < lineHeader.Length()) {
          fgReportHeaderLength = lineHeader.Length();
       }
@@ -296,19 +313,21 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       va_end(ap);
 
       text += report;
+      if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
-      if (verboseLevel < kWarning) {
-         cm_msg(MERROR, "ROMEPrint::Report", text.Data());
-      } else {
-         cm_msg(MINFO, "ROMEPrint::Report", text.Data());
-      }
-#else
-      if (verboseLevel <= kWarning) {
-         cerr<<text<<flush;
-      } else {
-         cout<<text<<flush;
-      }
+         if (verboseLevel < kWarning) {
+            cm_msg(MERROR, "ROMEPrint::Report", text.Data());
+         } else {
+            cm_msg(MINFO, "ROMEPrint::Report", text.Data());
+         }
 #endif
+      } else {
+         if (verboseLevel <= kWarning) {
+            cerr<<text<<flush;
+         } else {
+            cout<<text<<flush;
+         }
+      }
    }
 }
 

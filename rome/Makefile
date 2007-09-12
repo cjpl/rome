@@ -193,7 +193,6 @@ UpHDictHeaders := include/ROMEString.h \
 LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEStrArray.o \
               obj/ROMEString.o \
-              obj/ROMEPrint.o \
               obj/ROMEXML.o \
               obj/ROMELibDict.o \
               obj/ROMEConfigToForm.o \

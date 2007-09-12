@@ -284,6 +284,7 @@ void ROMEBuilder::AddRomeSources()
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
+   romeSources->Add("$(ROMESYS)/src/ROMEPrint.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMERint.cpp");
    if (numOfEvent > 0 || midas)
       romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");
