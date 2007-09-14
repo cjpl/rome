@@ -209,9 +209,9 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       }
 #if defined( HAVE_MIDAS )
       if (verboseLevel < kWarning) {
-         cm_msg(MERROR, "ROMEPrint::Report", report.Data());
+         cm_msg(MT_ERROR, fileName, lineNumber, funcName, report.Data());
       } else {
-         cm_msg(MINFO, "ROMEPrint::Report", report.Data());
+         cm_msg(MT_INFO, fileName, lineNumber, funcName, report.Data());
       }
 #else
       if (verboseLevel <= kWarning) {
