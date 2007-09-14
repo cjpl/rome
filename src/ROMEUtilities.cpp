@@ -300,11 +300,7 @@ const char* ROMEUtilities::GetFormat(const type_info &t)
    } else if (t == typeid(unsigned long)) {
       return "%lu";
    } else if (t == typeid(long long)) {
-#if defined( R__VISUAL_CPLUSPLUS )
-      return "%I64d";
-#else
-      return "%lld";
-#endif
+      return R_LLD;
    } else if (t == typeid(unsigned long long)) {
 #if defined( R__VISUAL_CPLUSPLUS )
       return "%I64u";

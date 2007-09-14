@@ -218,15 +218,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   }
                }
                if (fInputFileNameIndex==-1) {
-#if defined( R__VISUAL_CPLUSPLUS )
-                  ROMEPrint::Warning("Run %I64d not found in the specified input files !\n",
+                  ROMEPrint::Warning("Run "R_LLD" not found in the specified input files !\n",
                                      gROME->GetCurrentRunNumber());
-                  ROMEPrint::Warning("Skipping run %I64d.\n",gROME->GetCurrentRunNumber());
-#else
-                  ROMEPrint::Warning("Run %lld not found in the specified input files !\n",
-                                     gROME->GetCurrentRunNumber());
-                  ROMEPrint::Warning("Skipping run %lld.\n",gROME->GetCurrentRunNumber());
-#endif
+                  ROMEPrint::Warning("Skipping run "R_LLD".\n",gROME->GetCurrentRunNumber());
                   this->SetEndOfRun();
                   return true;
                }
@@ -328,11 +322,7 @@ Long64_t ROMERomeDAQ::Seek(Long64_t event)
 {
    if (gROME->isOffline()) {
       if (event < 0 || event > fMaxEventNumber) {
-#if defined(R__UNIX)
-         Warning("Seek", "Event number %lld was not found.", event);
-#else
-         Warning("Seek", "Event number %I64d was not found.", event);
-#endif
+         Warning("Seek", "Event number "R_LLD" was not found.", event);
          event = gROME->GetCurrentEventNumber();
          gROME->SetDontReadNextEvent();
          SetContinue();

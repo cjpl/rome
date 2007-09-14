@@ -207,20 +207,12 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       if (!report.EndsWith("\n")) {
          report += '\n';
       }
-#if defined( HAVE_MIDAS )
-      if (verboseLevel < kWarning) {
-         cm_msg(MT_ERROR, fileName, lineNumber, funcName, report.Data());
-      } else {
-         cm_msg(MT_INFO, fileName, lineNumber, funcName, report.Data());
-      }
-#else
       if (verboseLevel <= kWarning) {
          cerr<<report<<flush;
       } else {
          cout<<report<<flush;
       }
       va_end(ap);
-#endif
       return;
    }
 
@@ -246,41 +238,32 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
 
    fgReportPrintCount.AddAt(fgReportPrintCount.At(indx) + 1, indx); // increment
 
+#if defined( HAVE_MIDAS )
+   const Int_t kMidasMessageSendingLevel = kNormal;
+#else
+   const Int_t kMidasMessageSendingLevel = -1; // never use cm_msg
+#endif
+
    if (gReportMaxCount <= 0 || fgReportPrintCount.At(indx) <= gReportMaxCount) {
       // print
       ROMEString text;
       ROMEString tmp;
 
-#if defined( HAVE_MIDAS )
-      WarningSuppression(run);
-      WarningSuppression(event);
-#else
-#   if defined(R__UNIX)
-      if (event == kEventNumberInit) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-      } else if (event == kEventNumberBeginOfRun) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-      } else if (event == kEventNumberEndOfRun) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-      } else if (event == kEventNumberTerminate) {
-         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
+      if (verboseLevel > kMidasMessageSendingLevel) {
+         if (event == kEventNumberInit) {
+            lineHeader.SetFormatted("[%c,"R_LLD"-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
+         } else if (event == kEventNumberBeginOfRun) {
+            lineHeader.SetFormatted("[%c,"R_LLD"-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
+         } else if (event == kEventNumberEndOfRun) {
+            lineHeader.SetFormatted("[%c,"R_LLD"-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
+         } else if (event == kEventNumberTerminate) {
+            lineHeader.SetFormatted("[%c,"R_LLD"-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
+         } else {
+            lineHeader.SetFormatted("[%c,"R_LLD"-"R_LLD",%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+         }
       } else {
-         lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+         lineHeader = "";
       }
-#   else
-      if (event == kEventNumberInit) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-      } else if (event == kEventNumberBeginOfRun) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-      } else if (event == kEventNumberEndOfRun) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-      } else if (event == kEventNumberTerminate) {
-         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-      } else {
-         lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
-      }
-#   endif
-#endif
 
       if (fgReportHeaderLength < lineHeader.Length()) {
          fgReportHeaderLength = lineHeader.Length();
@@ -303,19 +286,22 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       va_end(ap);
 
       text += report;
+
+      if (verboseLevel <= kMidasMessageSendingLevel) {
 #if defined( HAVE_MIDAS )
-      if (verboseLevel < kWarning) {
-         cm_msg(MT_ERROR, fileName, lineNumber, funcName, text.Data());
-      } else {
-         cm_msg(MT_INFO, fileName, lineNumber, funcName, text.Data());
-      }
-#else
-      if (verboseLevel <= kWarning) {
-         cerr<<text<<flush;
-      } else {
-         cout<<text<<flush;
-      }
+         if (verboseLevel <= kError) {
+            cm_msg(MT_ERROR, fileName, lineNumber, funcName, text.Data());
+         } else {
+            cm_msg(MT_INFO, fileName, lineNumber, funcName, text.Data());
+         }
 #endif
+      } else {
+         if (verboseLevel <= kWarning) {
+            cerr<<text<<flush;
+         } else {
+            cout<<text<<flush;
+         }
+      }
    }
 }
 

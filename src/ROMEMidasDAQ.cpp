@@ -405,11 +405,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 //______________________________________________________________________________
 Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
    if (event < 0) {
-#if defined(R__UNIX)
-      Warning("Seek", "Event number %lld was not found.", event);
-#else
-      Warning("Seek", "Event number %I64d was not found.", event);
-#endif
+      Warning("Seek", "Event number "R_LLD" was not found.", event);
       event = gROME->GetCurrentEventNumber();
       gROME->SetDontReadNextEvent();
       SetContinue();
@@ -502,11 +498,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
                ROMEPrint::Warning("Unexpected end of file\n");
             }
             fMaxDataEvent = fCurrentPosition - 2;
-#if defined(R__UNIX)
-            Warning("Seek", "Event number %lld was not found.", event);
-#else
-            Warning("Seek", "Event number %I64d was not found.", event);
-#endif
+            Warning("Seek", "Event number "R_LLD" was not found.", event);
             event = gROME->GetCurrentEventNumber();
             gROME->SetDontReadNextEvent();
             SetContinue();

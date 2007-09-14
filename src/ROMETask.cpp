@@ -246,15 +246,9 @@ void ROMETask::Exec(Option_t *option)
 //______________________________________________________________________________
 void ROMETask::StartRootInterpreter(const char* message)
 {
-#if defined( R__VISUAL_CPLUSPLUS )
-   ROMEPrint::Print("\nIn method %s of task %s of event number %I64d of run number %I64d\n",
+   ROMEPrint::Print("\nIn method %s of task %s of event number "R_LLD" of run number "R_LLD"\n",
                     fCurrentEventMethod.Data(), fName.Data(), gROME->GetCurrentEventNumber(),
                     gROME->GetCurrentRunNumber());
-#else
-   ROMEPrint::Print("\nIn method %s of task %s of event number %lld of run number %lld\n",
-                    fCurrentEventMethod.Data(), fName.Data(), gROME->GetCurrentEventNumber(),
-                    gROME->GetCurrentRunNumber());
-#endif
 
    if (message) {
       ROMEPrint::Print("%s\n", message);

@@ -2018,11 +2018,7 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
       } else if (isFloatingType(oldType)) {
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%.16g\",%s)",tmp.Data(),value);
       } else {
-#if defined( R__VISUAL_CPLUSPLUS )
-         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%I64d\",static_cast<Long64_t>(%s))",tmp.Data(),value);
-#else
-         return stringBuffer.SetFormatted("%s.SetFormatted(\"%%lld\",static_cast<Long64_t>(%s))",tmp.Data(),value);
-#endif
+         return stringBuffer.SetFormatted("%s.SetFormatted(\"%"R_LLD"\",static_cast<Long64_t>(%s))",tmp.Data(),value);
       }
    }
    return stringBuffer;
