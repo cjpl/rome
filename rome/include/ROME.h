@@ -79,5 +79,11 @@ const Long_t    kMinLong     = -kMaxLong - 1;
 const Long64_t  kMinLong64   = -kMaxLong64 - 1;
 #endif
 
+#if defined(R__UNIX)
+#   define R_LLD "%lld"
+#else
+#   define R_LLD "%I64d"
+#endif
+
 #endif   // ROME_H
 

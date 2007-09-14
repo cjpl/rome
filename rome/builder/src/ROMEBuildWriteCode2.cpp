@@ -1194,13 +1194,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(static_cast<Long_t>(##.ToInteger()));",
                                                            i);
             subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-#if defined( R__VISUAL_CPLUSPLUS )
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",
+            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%"R_LLD"\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",
                                                              i);
-#else
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%lld\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",
-                                                             i);
-#endif
             // TreeInputFileName
             subsubSubGroup->AddParameter(new ROMEConfigParameter("TreeInputFileName"));
             subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");

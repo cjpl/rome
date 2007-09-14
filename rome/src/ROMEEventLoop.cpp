@@ -240,11 +240,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
             // Output
             if (gROME->IsShowRunStat()) {
-#if defined( R__VISUAL_CPLUSPLUS )
-               ROMEPrint::Print("\n\nRun %I64d started\n", gROME->GetCurrentRunNumber());
-#else
-               ROMEPrint::Print("\n\nRun %lld started\n", gROME->GetCurrentRunNumber());
-#endif
+               ROMEPrint::Print("\n\nRun "R_LLD" started\n", gROME->GetCurrentRunNumber());
             }
          }
       }
@@ -296,13 +292,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
-#if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("Run %I64d stopped                                             \n", gROME->GetCurrentRunNumber());
-            ROMEPrint::Print("%I64d events processed\n\n", static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
-#else
-            ROMEPrint::Print("Run %lld stopped                                             \n", gROME->GetCurrentRunNumber());
-            ROMEPrint::Print("%lld events processed\n\n", static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
-#endif
+            ROMEPrint::Print("Run "R_LLD" stopped                                             \n", gROME->GetCurrentRunNumber());
+            ROMEPrint::Print(R_LLD" events processed\n\n", static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
          }
 
          // End of Run Tasks
@@ -926,13 +917,8 @@ Bool_t ROMEEventLoop::Update()
          fProgressWrite))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
          if (IsTerminal()) {
-#if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("processed event number %I64d                                              \r",
+            ROMEPrint::Print("processed event number "R_LLD"                                              \r",
                              gROME->GetCurrentEventNumber());
-#else
-            ROMEPrint::Print("processed event number %lld                                              \r",
-                             gROME->GetCurrentEventNumber());
-#endif
             ROMEPrint::Debug("\n");
          }
       }
@@ -1005,11 +991,7 @@ Bool_t ROMEEventLoop::UserInput()
       }
    } else if ((fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) ||
               (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
-#if defined( R__VISUAL_CPLUSPLUS )
-      ROMEPrint::Print("Stopped after event %I64d                   \r", gROME->GetCurrentEventNumber());
-#else
-      ROMEPrint::Print("Stopped after event %lld                   \r", gROME->GetCurrentEventNumber());
-#endif
+      ROMEPrint::Print("Stopped after event "R_LLD"                   \r", gROME->GetCurrentEventNumber());
       wait = true;
    } else if (!gROME->HasUserEvent() && fContinuous &&
               static_cast<ULong_t>(gSystem->Now()) < static_cast<ULong_t>(fUserInputLastTime + 300)) {
@@ -1058,11 +1040,7 @@ Bool_t ROMEEventLoop::UserInput()
             wait = false;
          }
          if (ch == 's' || ch == 'S' || gROME->IsUserEventS()) {
-#if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("Stopped after event %I64d                   \r", gROME->GetCurrentEventNumber());
-#else
-            ROMEPrint::Print("Stopped after event %lld                   \r", gROME->GetCurrentEventNumber());
-#endif
+            ROMEPrint::Print("Stopped after event "R_LLD"                   \r", gROME->GetCurrentEventNumber());
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
@@ -1073,11 +1051,7 @@ Bool_t ROMEEventLoop::UserInput()
             if (fContinuous) {
                ROMEPrint::Print("Step by step mode                 \n");
                if (!wait) {
-#if defined( R__VISUAL_CPLUSPLUS )
-                  ROMEPrint::Print("Stopped after event %I64d                   \r", gROME->GetCurrentEventNumber());
-#else
-                  ROMEPrint::Print("Stopped after event %lld                   \r", gROME->GetCurrentEventNumber());
-#endif
+                  ROMEPrint::Print("Stopped after event "R_LLD"                   \r", gROME->GetCurrentEventNumber());
                }
                fContinuous = false;
                wait = true;
@@ -1204,13 +1178,8 @@ Bool_t ROMEEventLoop::UserInput()
          gROME->DeleteUserEvent();
       }
       if (interpreter) {
-#if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("\nStart root session at the end of event number %I64d of run number %I64d\n",
+         ROMEPrint::Print("\nStart root session at the end of event number "R_LLD" of run number "R_LLD"\n",
                           gROME->GetCurrentEventNumber(), gROME->GetCurrentRunNumber());
-#else
-         ROMEPrint::Print("\nStart root session at the end of event number %lld of run number %lld\n",
-                          gROME->GetCurrentEventNumber(), gROME->GetCurrentRunNumber());
-#endif
          ROMEString prompt = gROME->GetProgramName();
          prompt.ToLower();
          prompt += " [%d] ";
@@ -1388,11 +1357,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
 void ROMEEventLoop::NextEvent()
 {
    RunEvent();
-#if defined( R__VISUAL_CPLUSPLUS )
-   ROMEPrint::Print("Executed Event %I64d                                                     \n", gROME->GetCurrentEventNumber());
-#else
-   ROMEPrint::Print("Executed Event %lld                                                      \n", gROME->GetCurrentEventNumber());
-#endif
+   ROMEPrint::Print("Executed Event "R_LLD"                                                      \n", gROME->GetCurrentEventNumber());
 }
 
 //______________________________________________________________________________
@@ -1400,11 +1365,7 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 {
    fCurrentEvent = gROME->GetActiveDAQ()->Seek(eventNumber);
    if (fCurrentEvent != -1) {
-#if defined( R__VISUAL_CPLUSPLUS )
-      ROMEPrint::Print("Stepped to Event %I64d                                                   \n", fCurrentEvent);
-#else
-      ROMEPrint::Print("Stepped to Event %lld                                                    \n", fCurrentEvent);
-#endif
+      ROMEPrint::Print("Stepped to Event "R_LLD"                                                    \n", fCurrentEvent);
    } else {
       ROMEPrint::Print("Failed to step                                                           \n");
    }

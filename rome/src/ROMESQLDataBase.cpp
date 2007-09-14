@@ -303,18 +303,10 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t ev
          sqlQuery += " LIMIT 1;";
 
          ROMEString tmpString;
-#if defined ( R__VISUAL_CPLUSPLUS )
-         tmpString.SetFormatted("%I64d",eventNumber);
-#else
-         tmpString.SetFormatted("%lld",eventNumber);
-#endif
+         tmpString.SetFormatted(R_LLD,eventNumber);
          sqlQuery.ReplaceAll(kEventNumberReplace, tmpString);
          // replace # with the current run number
-#if defined ( R__VISUAL_CPLUSPLUS )
-         tmpString.SetFormatted("%I64d",runNumber);
-#else
-         tmpString.SetFormatted("%lld",runNumber);
-#endif
+         tmpString.SetFormatted(R_LLD,runNumber);
          sqlQuery.ReplaceAll(kRunNumberReplace, tmpString);
 
          if (!fSQL->MakeQuery(sqlQuery.Data(),true)) {
@@ -590,21 +582,13 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
 
    // replace ## with the current run number
    if (fLastRunNumber != runNumber) {
-#if defined ( R__VISUAL_CPLUSPLUS )
-      sprintf(fLastRunNumberString, "%I64d", runNumber);
-#else
-      sprintf(fLastRunNumberString, "%lld", runNumber);
-#endif
+      sprintf(fLastRunNumberString, R_LLD, runNumber);
       fLastRunNumber = runNumber;
    }
    sqlQuery.ReplaceAll(kRunNumberReplace, fLastRunNumberString);
 
    if (fLastEventNumber != eventNumber) {
-#if defined ( R__VISUAL_CPLUSPLUS )
-      sprintf(fLastEventNumberString, "%I64d", eventNumber);
-#else
-      sprintf(fLastEventNumberString, "%lld", eventNumber);
-#endif
+      sprintf(fLastEventNumberString, R_LLD, eventNumber);
       fLastEventNumber = eventNumber;
    }
    sqlQuery.ReplaceAll(kEventNumberReplace, fLastEventNumberString);
