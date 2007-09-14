@@ -238,10 +238,6 @@ ROMEAnalyzer::~ROMEAnalyzer()
 //______________________________________________________________________________
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
-#if defined( HAVE_MIDAS )
-   cm_set_msg_print(0, 0, 0);
-#endif
-
    if (this->isDaemonMode()) {
       ss_daemon_init(kFALSE);
    }

@@ -251,44 +251,36 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       ROMEString text;
       ROMEString tmp;
 
-      Bool_t writeFileName = kTRUE;
 #if defined( HAVE_MIDAS )
-      if (verboseLevel >= kWarning) {
-         writeFileName = kFALSE;
-      }
-#endif
-      if (!writeFileName) {
-         // not to write file name
-         lineHeader = "";
-         WarningSuppression(run);
-         WarningSuppression(event);
-      } else {
-#if defined(R__UNIX)
-         if (event == kEventNumberInit) {
-            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-         } else if (event == kEventNumberBeginOfRun) {
-            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-         } else if (event == kEventNumberEndOfRun) {
-            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-         } else if (event == kEventNumberTerminate) {
-            lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-         } else {
-            lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
-         }
+      WarningSuppression(run);
+      WarningSuppression(event);
 #else
-         if (event == kEventNumberInit) {
-            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
-         } else if (event == kEventNumberBeginOfRun) {
-            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
-         } else if (event == kEventNumberEndOfRun) {
-            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
-         } else if (event == kEventNumberTerminate) {
-            lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
-         } else {
-            lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
-         }
-#endif
+#   if defined(R__UNIX)
+      if (event == kEventNumberInit) {
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
+      } else if (event == kEventNumberBeginOfRun) {
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
+      } else if (event == kEventNumberEndOfRun) {
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
+      } else if (event == kEventNumberTerminate) {
+         lineHeader.SetFormatted("[%c,%lld-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
+      } else {
+         lineHeader.SetFormatted("[%c,%lld-%lld,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
       }
+#   else
+      if (event == kEventNumberInit) {
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'I', fileLine.Data());
+      } else if (event == kEventNumberBeginOfRun) {
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'B', fileLine.Data());
+      } else if (event == kEventNumberEndOfRun) {
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'E', fileLine.Data());
+      } else if (event == kEventNumberTerminate) {
+         lineHeader.SetFormatted("[%c,%I64d-%c,%s] ", kReportLevelLetter[verboseLevel], run, 'T', fileLine.Data());
+      } else {
+         lineHeader.SetFormatted("[%c,%I64d-%I64d,%s] ", kReportLevelLetter[verboseLevel], run, event, fileLine.Data());
+      }
+#   endif
+#endif
 
       if (fgReportHeaderLength < lineHeader.Length()) {
          fgReportHeaderLength = lineHeader.Length();
@@ -313,9 +305,9 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       text += report;
 #if defined( HAVE_MIDAS )
       if (verboseLevel < kWarning) {
-         cm_msg(MERROR, "ROMEPrint::Report", text.Data());
+         cm_msg(MT_ERROR, fileName, lineNumber, funcName, text.Data());
       } else {
-         cm_msg(MINFO, "ROMEPrint::Report", text.Data());
+         cm_msg(MT_INFO, fileName, lineNumber, funcName, text.Data());
       }
 #else
       if (verboseLevel <= kWarning) {
