@@ -35,10 +35,9 @@ ROMETask::ROMETask()
 :TTask()
 ,fLevel(1)
 ,fWatchAll()
-,fWatchUser()
 ,fWatchUserEvent()
-,fTimeAllString("")
-,fTimeUserString("")
+,fCpuTimeAllString("")
+,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fVersion(0)
 ,fHasHistograms(kFALSE)
@@ -50,7 +49,6 @@ ROMETask::ROMETask()
 ,fMemoryAccumulated(0)
 {
    fWatchAll.Reset();
-   fWatchUser.Reset();
    fWatchUserEvent.Reset();
 }
 
@@ -60,10 +58,9 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version,
 :TTask(name, title)
 ,fLevel(level)
 ,fWatchAll()
-,fWatchUser()
 ,fWatchUserEvent()
-,fTimeAllString("")
-,fTimeUserString("")
+,fCpuTimeAllString("")
+,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fVersion(version)
 ,fHasHistograms(hasHisto)
@@ -75,7 +72,6 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version,
 ,fMemoryAccumulated(0)
 {
    fWatchAll.Reset();
-   fWatchUser.Reset();
    fWatchUserEvent.Reset();
 }
 
@@ -97,9 +93,7 @@ void ROMETask::Exec(Option_t *option)
    if (!strncmp(option, "Terminate", 9)) {
       fCurrentEventMethod = "Terminate";
       ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
-      fWatchUser.Start(false);
       Terminate();
-      fWatchUser.Stop();
    }
    if (gROME->isTerminationFlag() || gROME->IsSkipEvent()) {
       return;
@@ -110,9 +104,7 @@ void ROMETask::Exec(Option_t *option)
       BookHisto();
       BookGraph();
       ROMEPrint::Debug("Executing %s::Init\n", ClassName());
-      fWatchUser.Start(false);
       Init();
-      fWatchUser.Stop();
    } else if (!strncmp(option, "BeginOfRun", 10)) {
       fCurrentEventMethod = "BeginOfRun";
       fSkippedEvents = 0;
@@ -128,9 +120,7 @@ void ROMETask::Exec(Option_t *option)
       ResetHisto();
       ResetGraph();
       ROMEPrint::Debug("Executing %s::BeginOfRun\n", ClassName());
-      fWatchUser.Start(false);
       BeginOfRun();
-      fWatchUser.Stop();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
       if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
          gSystem->GetMemInfo(&mem);
@@ -149,9 +139,7 @@ void ROMETask::Exec(Option_t *option)
          usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
       }
 #endif
-      fWatchUser.Start(false);
       EndOfRun();
-      fWatchUser.Stop();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
       if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
          gSystem->GetMemInfo(&mem);
@@ -181,22 +169,17 @@ void ROMETask::Exec(Option_t *option)
          name = name(0, name.Last('_'));
       }
       ROMEPrint::Print(name.Data());
-      for (i = 0; i < 30 - name.Length() - fLevel-nchars; i++) {
+      for (i = 0; i < 35 - name.Length() - fLevel - nchars; i++) {
          ROMEPrint::Print(".");
       }
-      ROMEPrint::Print(" : %s", GetTimeOfAll());
-      if (fWatchUser.RealTime() > 0) {
-         ROMEPrint::Print("  ");
-         ROMEPrint::Print("%s", GetTimeOfUser());
-         if (fWatchUserEvent.RealTime() > 0) {
-            ROMEPrint::Print("  ");
-            ROMEPrint::Print("%s\n", GetTimeOfUserEvents());
-         } else {
-            ROMEPrint::Print("\n");
-         }
-      } else {
-         ROMEPrint::Print("\n");
-      }
+      ROMEPrint::Print(" : %s  %s",
+                       GetRealTimeOfAll(),
+                       GetCpuTimeOfAll());
+//      if (fWatchUserEvent.CpuTime() > 0) {
+      ROMEPrint::Print("  %s\n", GetTimeOfUserEvents());
+//      } else {
+//         ROMEPrint::Print("\n");
+//      }
    } else if (!strncmp(option, "PrintSkipped", 12)) {
       ROMEString name;
       name = fName;
@@ -215,7 +198,6 @@ void ROMETask::Exec(Option_t *option)
                                              fEventID == -1 || strtol(option + 5, &cstop, 10) == -1)) {
       fCurrentEventMethod = "Event";
       ROMEPrint::Debug("Executing %s::Event\n", ClassName());
-      fWatchUser.Start(false);
       Bool_t fillEventOld = gROME->isFillEvent();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
       if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
@@ -238,7 +220,6 @@ void ROMETask::Exec(Option_t *option)
       if (fillEventOld && !gROME->isFillEvent()) {
          fSkippedEvents++;
       }
-      fWatchUser.Stop();
    }
    fWatchAll.Stop();
 }
@@ -264,25 +245,25 @@ void ROMETask::StartRootInterpreter(const char* message)
 
 // Time methods
 //______________________________________________________________________________
-const char* ROMETask::GetTimeOfAll()
+const char* ROMETask::GetRealTimeOfAll()
 {
-   // Returns the elapsed time in a readable format
-   fWatchAll.GetRealTimeString(fTimeAllString);
-   return fTimeAllString.Data();
+   // Returns the elapsed real time in a readable format
+   fWatchAll.GetRealTimeString(fRealTimeAllString);
+   return fRealTimeAllString.Data();
 }
 
 //______________________________________________________________________________
-const char* ROMETask::GetTimeOfUser()
+const char* ROMETask::GetCpuTimeOfAll()
 {
-   // Returns the elapsed time in a readable format
-   fWatchUser.GetRealTimeString(fTimeUserString);
-   return fTimeUserString.Data();
+   // Returns the elapsed CPU time in a readable format
+   fWatchAll.GetCpuTimeString(fCpuTimeAllString);
+   return fCpuTimeAllString.Data();
 }
 
 //______________________________________________________________________________
 const char* ROMETask::GetTimeOfUserEvents()
 {
-   // Returns the elapsed time in a readable format
-   fWatchUserEvent.GetRealTimeString(fTimeUserEventString);
+   // Returns the elapsed CPU time in a readable format
+   fWatchUserEvent.GetCpuTimeString(fTimeUserEventString);
    return fTimeUserEventString.Data();
 }
