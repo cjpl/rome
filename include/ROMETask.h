@@ -18,11 +18,10 @@ private:
 
 protected:
    ROMEStopwatch  fWatchAll;           //! Records time used by Task
-   ROMEStopwatch  fWatchUser;          //! Records time used by the user part of the task
    ROMEStopwatch  fWatchUserEvent;     //! Records time used by the user part of the task's event methods
-   ROMEString     fTimeAllString;      //! Elapsed Time of all in a readable format
-   ROMEString     fTimeUserString;     //! Elapsed Time of user in a readable format
-   ROMEString     fTimeUserEventString;//! Elapsed Time of user events in a readable format
+   ROMEString     fCpuTimeAllString;   //! Elapsed CPU Time in a readable format
+   ROMEString     fRealTimeAllString;  //! Elapsed Real Time in a readable format
+   ROMEString     fTimeUserEventString;//! Elapsed CPU Time of user events in a readable format
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
    Bool_t         fHasGraphs;          // Flags Tasks containing Histograms
@@ -51,8 +50,8 @@ public:
 protected:
    void         StartRootInterpreter(const char* message = NULL);
    const char  *GetTimeOfUserEvents();
-   const char  *GetTimeOfUser();
-   const char  *GetTimeOfAll();
+   const char  *GetRealTimeOfAll();
+   const char  *GetCpuTimeOfAll();
 
    virtual void BookHisto() = 0;
    virtual void ReBookHisto() = 0;

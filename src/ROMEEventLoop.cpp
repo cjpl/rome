@@ -126,7 +126,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 // Event loop
    fWatchUserEvent.Reset();
-   fWatchUser.Reset();
    fWatchAll.Reset();
    fWatchAll.Start(false);
    if (fgBeginTask) {
@@ -325,8 +324,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
          ROMEString str;
-         ROMEPrint::Print("run times :                           All      User Methods   User Events\n");
-         ROMEPrint::Print("-----------                      ------------  ------------  ------------\n");
+         ROMEPrint::Print("run times :                           RealTime ALL  CPUTime All   User Events\n");
+         ROMEPrint::Print("-----------                           ------------  ------------  ------------\n");
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");

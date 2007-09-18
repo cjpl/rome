@@ -3687,9 +3687,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   while (!RequestNewEvent(kMinInt, kMinInt))\n");
       buffer.AppendFormatted("      gSystem->Sleep(100);\n");
-      buffer.AppendFormatted("   fWatchUser.Start(false);\n");
       buffer.AppendFormatted("   Init();\n");
-      buffer.AppendFormatted("   fWatchUser.Stop();\n");
       if (numOfTabSingleObjects[iTab] > 0) {
          buffer.AppendFormatted("   // Init Histos\n");
          buffer.AppendFormatted("   fGeneratedCanvas = new TRootEmbeddedCanvas(\"GeneratedCanvas\", this, 600, 600);\n");
@@ -4006,9 +4004,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          }
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseInit();\n");
       }
-      buffer.AppendFormatted("   fWatchUser.Start(false);\n");
       buffer.AppendFormatted("   EndInit();\n");
-      buffer.AppendFormatted("   fWatchUser.Stop();\n");
       buffer.AppendFormatted("   UnRegisterObjects();\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
@@ -4190,11 +4186,9 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             }
          }
       }
-      buffer.AppendFormatted("   fWatchUser.Start(false);\n");
       buffer.AppendFormatted("   fWatchUserEvent.Start(false);\n");
       buffer.AppendFormatted("   EventHandler();\n");
       buffer.AppendFormatted("   fWatchUserEvent.Stop();\n");
-      buffer.AppendFormatted("   fWatchUser.Stop();\n");
       if (tabObjectDisplay[iTab])
          buffer.AppendFormatted("   Display(false);\n");
       buffer.AppendFormatted("}\n");
