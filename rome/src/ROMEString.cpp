@@ -280,8 +280,8 @@ ROMEString& ROMEString::StripSpaces()
 Bool_t ROMEString::ContainsInLongString(const char* str)
 {
 // Check if 's' is contained by this string.
-// Suitable when this string is long and 's' is short.
-// If this string is short or 's' is long, use Contains or ContainsFast
+// Suitable when this string is long.
+// If this string is short, use Contains or ContainsFast
 //
 // Algorithm is copied from
 // "C++ Footprint and Performance Optimization" by Rene Alexander and Graham Bensley
