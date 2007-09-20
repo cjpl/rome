@@ -276,6 +276,58 @@ ROMEString& ROMEString::StripSpaces()
    return *this;
 }
 
+//______________________________________________________________________________
+Bool_t ROMEString::ContainsInLongString(const char* str)
+{
+// Check if 's' is contained by this string.
+// Suitable when this string is long and 's' is short.
+// If this string is short or 's' is long, use Contains or ContainsFast
+//
+// Algorithm is copied from
+// "C++ Footprint and Performance Optimization" by Rene Alexander and Graham Bensley
+
+   if (!str) {
+      return kFALSE;
+   }
+
+   Int_t   skips[kMaxChar + 1];
+   UChar_t searchLen = strlen(str);
+
+   if (searchLen > Length() || searchLen == 0) {
+      return kFALSE;
+   }
+
+   Int_t len2 = searchLen + 1;
+   Int_t i;
+
+   for (i = 0; i < kMaxChar + 1; i++) {
+      skips[i] = len2;
+   }
+   for (i = 0; i < searchLen; i++) {
+      skips[static_cast<UChar_t>(str[i])] = searchLen - i;
+   }
+
+   const char *testf = Data();
+   const char *end = testf + Length();
+   const char *skipindex;
+   len2 = searchLen - 1;
+
+   while(1) {
+      i = len2;
+      while (testf[i] == str[i] && --i >= 0);
+      if (i != -1) {
+         skipindex = testf + searchLen;
+         if (skipindex >= end) {
+            return kFALSE;
+         }
+         testf += skips[static_cast<UChar_t>(*skipindex)];
+      } else {
+         return kTRUE;
+      }
+   }
+   return kFALSE;
+}
+
 // formatting functions copied from TString.cxx
 #if defined( R__VISUAL_CPLUSPLUS )
 #define vsnprintf _vsnprintf
