@@ -49,6 +49,7 @@ public:
    const char*  ReadCommandOutput(const char* command, Bool_t readError = kTRUE);
    ROMEString&  StripSpaces();
    Bool_t       ContainsFast(const char* s) const { return strstr(Data(), s) != 0; }
+   Bool_t       ContainsInLongString(const char* str);
 
    ClassDef(ROMEString, 1) // Functional TString for ROME
 };
