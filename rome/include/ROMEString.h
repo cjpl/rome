@@ -48,6 +48,7 @@ public:
    istream&     ReadLine(istream& str);
    const char*  ReadCommandOutput(const char* command, Bool_t readError = kTRUE);
    ROMEString&  StripSpaces();
+   ROMEString&  ChopSpaces();
    Bool_t       ContainsFast(const char* s) const { return strstr(Data(), s) != 0; }
    Bool_t       ContainsInLongString(const char* str);
 
