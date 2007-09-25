@@ -198,3 +198,9 @@
   <Directory>/home/meg/rome</Directory>
   <LastCompile>Thu, 06 Sep 2007 13:57:28 +0000 (GMT) +694333000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>yamada</User>
+  <Host>lcmeg00</Host>
+  <Directory>/data/disk3/users/yamada/rome/trunk</Directory>
+  <LastCompile>Tue, 25 Sep 2007 09:41:37 +0000 (GMT) +926242000 nsec</LastCompile>
+</Entry>

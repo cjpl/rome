@@ -277,6 +277,22 @@ ROMEString& ROMEString::StripSpaces()
 }
 
 //______________________________________________________________________________
+ROMEString& ROMEString::ChopSpaces()
+{
+// Chop space, tab at the end
+   Ssiz_t start = 0;         // Index of first character
+   Ssiz_t end   = Length()-1;  // The last character
+   const char *direct = Data();    // Avoid a dereference w dumb compiler
+
+   while (start < end && (direct[end] == ' ' || direct[end] == '\t' )) {
+      --end;
+   }
+
+   Remove(end + 1, Length() - end -1);
+   return *this;
+}
+
+//______________________________________________________________________________
 Bool_t ROMEString::ContainsInLongString(const char* str)
 {
 // Check if 's' is contained by this string.

@@ -4914,8 +4914,11 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
 //______________________________________________________________________________
 void ROMEBuilder::FormatText(ROMEString& str, Bool_t stripSpace, const char* invalidCharacters)
 {
-   if (stripSpace)
+   if (stripSpace) {
       str.StripSpaces();
+   }
+
+   str.ChopSpaces();
 
    if (invalidCharacters) {
       Int_t n = strlen(invalidCharacters);
