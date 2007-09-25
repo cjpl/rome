@@ -36,10 +36,9 @@ ArgusTab::ArgusTab(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TA
 ,fCurrentRun(-1)
 ,fCurrentEvent(-1)
 ,fWatchAll()
-,fTimeAllString("")
-,fWatchUser()
-,fTimeUserString("")
 ,fWatchUserEvent()
+,fCpuTimeAllString("")
+,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fRegisteringActive(kTRUE)
 ,fDrawOption(drawOpt)
@@ -47,6 +46,8 @@ ArgusTab::ArgusTab(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TA
 ,fLogScaleY(logY)
 ,fLogScaleZ(logZ)
 {
+   fWatchAll.Reset();
+   fWatchUserEvent.Reset();  
 }
 
 //______________________________________________________________________________
@@ -72,9 +73,11 @@ void ArgusTab::ArgusEventHandler() {
    while (fBusy)
       gSystem->Sleep(10);
    fWatchAll.Start(false);
+   fWatchUserEvent.Start(false);
    fBusy = true;
    BaseEventHandler();
    fBusy = false;
+   fWatchUserEvent.Stop();
    fWatchAll.Stop();
 }
 
@@ -127,33 +130,33 @@ const char* ArgusTab::GetTimeStatisticsString(ROMEString& string)
       nchars = 5;
       name = this->GetName();
       string += name.Data();
-      for (i=0;i<30-name.Length()-5;i++)
+      for (i = 0; i < 35 - name.Length() - 5; i++)
          string += ".";
-      string.AppendFormatted(" : %s  %s  %s\n", GetTimeOfAll(), GetTimeOfUser(), GetTimeOfUserEvents());
+      string.AppendFormatted(" : %s  %s  %s\n", GetRealTimeOfAll(), GetCpuTimeOfAll(), GetTimeOfUserEvents());
    }
    return string;
 }
 
 //______________________________________________________________________________
-const char* ArgusTab::GetTimeOfAll()
+const char* ArgusTab::GetRealTimeOfAll()
 {
-   // Returns the elapsed time in a readable format
-   fWatchAll.GetRealTimeString(fTimeAllString);
-   return fTimeAllString.Data();
+   // Returns the elapsed real time in a readable format
+   fWatchAll.GetRealTimeString(fRealTimeAllString);
+   return fRealTimeAllString.Data();
 }
 
 //______________________________________________________________________________
-const char* ArgusTab::GetTimeOfUser()
+const char* ArgusTab::GetCpuTimeOfAll()
 {
-   // Returns the elapsed time in a readable format
-   fWatchUser.GetRealTimeString(fTimeUserString);
-   return fTimeUserString.Data();
+   // Returns the elapsed CPU time in a readable format
+   fWatchAll.GetCpuTimeString(fCpuTimeAllString);
+   return fCpuTimeAllString.Data();
 }
 
 //______________________________________________________________________________
 const char* ArgusTab::GetTimeOfUserEvents()
 {
-   // Returns the elapsed time in a readable format
-   fWatchUserEvent.GetRealTimeString(fTimeUserEventString);
+   // Returns the elapsed CPU time in a readable format
+   fWatchUserEvent.GetCpuTimeString(fTimeUserEventString);
    return fTimeUserEventString.Data();
 }

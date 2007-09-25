@@ -44,7 +44,8 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, TObjArray *tabobj)
 ,fSubWindowTimeString(new ROMEStrArray())
 ,fTabWindow(kTRUE)
 ,fWatchAll()
-,fTimeAllString("")
+,fCpuTimeAllString("")
+,fRealTimeAllString("")
 ,fArgusActive(kFALSE)
 ,fStatusBar(0)
 ,fStatusBarSwitch(statusBarSwitch)
@@ -76,7 +77,8 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, TObjArray *t
 ,fSubWindowTimeString(new ROMEStrArray())
 ,fTabWindow(tabWindow)
 ,fWatchAll()
-,fTimeAllString("")
+,fCpuTimeAllString("")
+,fRealTimeAllString("")
 ,fArgusActive(kFALSE)
 ,fStatusBar(0)
 ,fStatusBarSwitch(statusBarSwitch)
@@ -257,9 +259,11 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
    int i;
    ROMEString str;
    if (fTabWindow) {
-      string.SetFormatted("main window................... : %s\n", fWatchAll.GetRealTimeString(str));
+      string.SetFormatted("main window........................ : %s  %s\n",
+                          fWatchAll.GetRealTimeString(str), fWatchAll.GetCpuTimeString(str));
    } else {
-      string.SetFormatted("sub window %3d................ : %s\n", fWindowId, fWatchAll.GetRealTimeString(str));
+      string.SetFormatted("sub window %3d..................... : %s  %s\n", fWindowId,
+                          fWatchAll.GetRealTimeString(str), fWatchAll.GetCpuTimeString(str));
    }
    for (i = 0; i < fTabObjects->GetEntriesFast(); i++) {
       static_cast<ArgusTab*>(fTabObjects->At(i))->GetTimeStatisticsString(str);
