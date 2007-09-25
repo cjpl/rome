@@ -25,10 +25,9 @@
 #endif
 
 #include "ROME.h"
-#include "ROMEString.h"
-#include "ROMEStrArray.h"
 #include "ROMENetFolder.h"
 #include "ROMEStopwatch.h"
+#include "ROMEString.h"
 #include "ArgusAnalyzerController.h"
 #include "ArgusTab.h"
 
@@ -36,6 +35,7 @@ class TGTab;
 class TObjArray;
 class TGHProgressBar;
 class ROMECompositeFrame;
+class ROMEStrArray;
 
 class ArgusWindow : public TGMainFrame
 {
@@ -46,7 +46,8 @@ protected:
    ROMEStrArray            *fSubWindowTimeString;  //! Run time of sub window
    Bool_t                   fTabWindow;            //! Flags Monitor with Tabs
    ROMEStopwatch            fWatchAll;             //! Records time used by window
-   ROMEString               fTimeAllString;        //! Elapsed Time of all in a readable format
+   ROMEString               fCpuTimeAllString;     //! Elapsed CPU Time of all in a readable format
+   ROMEString               fRealTimeAllString;    //! Elapsed Real Time of all in a readable format
    Bool_t                   fArgusActive;          //! active flag
    TGStatusBar             *fStatusBar;            //! status bar
    Bool_t                   fStatusBarSwitch;      //! status bar switch

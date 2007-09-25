@@ -34,11 +34,10 @@ protected:
    Long64_t       fCurrentRun;            //! Records current run# displayed in the tab 
    Long64_t       fCurrentEvent;          //! Records current event# displayed in the tab 
    ROMEStopwatch  fWatchAll;              //! Records time used by tab
-   ROMEString     fTimeAllString;         //! Elapsed Time of all in a readable format
-   ROMEStopwatch  fWatchUser;             //! Records time used by user
-   ROMEString     fTimeUserString;        //! Elapsed Time of user in a readable format
    ROMEStopwatch  fWatchUserEvent;        //! Records time used by user events
-   ROMEString     fTimeUserEventString;   //! Elapsed Time of user events in a readable format
+   ROMEString     fCpuTimeAllString;      //! Elapsed CPU  Time of all in a readable format
+   ROMEString     fRealTimeAllString;     //! Elapsed Real Time of all in a readable format
+   ROMEString     fTimeUserEventString;   //! Elapsed CPU Time of user events in a readable format
    Bool_t         fRegisteringActive;     //! Registering active flag
 
    // General Histo/Graph parameters (object displays, single objects)
@@ -61,8 +60,8 @@ public:
    Bool_t RequestEvent();
 
    const char* GetTimeStatisticsString(ROMEString& string);
-   const char *GetTimeOfAll();
-   const char *GetTimeOfUser();
+   const char *GetCpuTimeOfAll();
+   const char *GetRealTimeOfAll();
    const char *GetTimeOfUserEvents();
 
    // General Histo/Graph parameter methods (object displays, single objects)
