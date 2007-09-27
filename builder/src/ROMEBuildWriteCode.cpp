@@ -12474,8 +12474,15 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      ROMERint *app = new ROMERint(\"App\", &argn, argp, 0, 0, true);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      if (!gClient || gClient->IsZombie())\n");
+   buffer.AppendFormatted("      if (!gClient || gClient->IsZombie()) {\n");
    buffer.AppendFormatted("         nographics = true;\n");
+   buffer.AppendFormatted("      }\n");
+#if defined( R__UNIX )
+   buffer.AppendFormatted("      if (!gSystem->Getenv(\"DISPLAY\")) {\n");
+   buffer.AppendFormatted("         cerr<<\"Graphics is disabled because DISPLAY is not set.\"<<endl;\n");
+   buffer.AppendFormatted("         nographics = true;\n");
+   buffer.AppendFormatted("      }\n");
+#endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      new %sAnalyzer(app,batch,daemon,nographics,mode);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
