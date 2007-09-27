@@ -1813,7 +1813,7 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile) const
          gSystem->Unlink(tmpFileName.Data());
          return kFALSE;
       }
-      *fileStream<<newFileBuffer;
+      *fileStream<<newFileBuffer.Data();
       fileStream->close();
       delete fileStream;
    }

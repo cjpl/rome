@@ -290,9 +290,9 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
       if (verboseLevel <= kMidasMessageSendingLevel) {
 #if defined( HAVE_MIDAS )
          if (verboseLevel <= kError) {
-            cm_msg(MT_ERROR, fileName, lineNumber, funcName, text.Data());
+            cm_msg(MT_ERROR, (char *)fileName, lineNumber, funcName, text.Data());
          } else {
-            cm_msg(MT_INFO, fileName, lineNumber, funcName, text.Data());
+            cm_msg(MT_INFO, (char *)fileName, lineNumber, funcName, text.Data());
          }
 #endif
       } else {
