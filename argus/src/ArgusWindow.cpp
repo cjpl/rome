@@ -298,8 +298,8 @@ void ArgusWindow::SetStatus(Int_t mode, const char *text, Double_t progress, Int
       return;
    }
 
-   fProgress->SetPosition((float)(fProgress->GetMax()*progress));
-   fProgress->SetPosition(static_cast<float>(fProgress->GetMax()*progress));
+   fProgress->SetPosition(static_cast<Float_t>(fProgress->GetMax()*progress));
+   fProgress->SetPosition(static_cast<Float_t>(fProgress->GetMax()*progress));
    fStatusBar->SetText(text);
 
    if (mode == 0) {
