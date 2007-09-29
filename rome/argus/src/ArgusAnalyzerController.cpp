@@ -302,20 +302,11 @@ ArgusAnalyzerController::~ArgusAnalyzerController()
 void ArgusAnalyzerController::Update()
 {
    char str[100];
-#if defined( R__VISUAL_CPLUSPLUS )
-   sprintf(str, "%I64d", TMath::Max(gROME->GetCurrentEventNumber(), static_cast<Long64_t>(0)));
-#else
-   sprintf(str, "%lld", TMath::Max(gROME->GetCurrentEventNumber(), static_cast<Long64_t>(0)));
-#endif
+   sprintf(str, R_LLD, TMath::Max(gROME->GetCurrentEventNumber(), static_cast<Long64_t>(0)));
    if(fEventNumberEntry) {
       fEventNumberEntry->SetText(str);
    }
-
-#if defined( R__VISUAL_CPLUSPLUS )
-   sprintf(str, "%I64d", TMath::Max(gROME->GetCurrentRunNumber(), static_cast<Long64_t>(0)));
-#else
-   sprintf(str, "%lld", TMath::Max(gROME->GetCurrentRunNumber(), static_cast<Long64_t>(0)));
-#endif
+   sprintf(str, R_LLD, TMath::Max(gROME->GetCurrentRunNumber(), static_cast<Long64_t>(0)));
    if(fRunNumberEntry) {
       fRunNumberEntry->SetText(str);
    }
@@ -361,11 +352,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   ROMEString command;
-#if defined( R__VISUAL_CPLUSPLUS )
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);", gROME->GetCurrentEventNumber() - fEventStep);
-#else
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() - fEventStep);
-#endif
+                  command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() - fEventStep);
                   fNetFolder->ExecuteCommand(command.Data());
                }
             }
@@ -377,11 +364,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   ROMEString command;
-#if defined( R__VISUAL_CPLUSPLUS )
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);", gROME->GetCurrentEventNumber() + fEventStep);
-#else
-                  command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() + fEventStep);
-#endif
+                  command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() + fEventStep);
                   fNetFolder->ExecuteCommand(command.Data());
                }
             }
@@ -453,16 +436,12 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                   if (fNetFolder) {
                      ROMEString str;
-#if defined( R__VISUAL_CPLUSPLUS )
-                     str.SetFormatted("gAnalyzer->SetUserEventJ(%I64d);",fEventNumber + 1);
-#else
-                     str.SetFormatted("gAnalyzer->SetUserEventJ(%lld);",fEventNumber + 1);
-#endif
+                     str.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");",fEventNumber);
                      fNetFolder->ExecuteCommand(str.Data());
                   }
                }
                else {
-                  gROME->SetUserEventJ(fEventNumber + 1);
+                  gROME->SetUserEventJ(fEventNumber);
                }
             }
             break;
