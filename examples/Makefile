@@ -227,7 +227,7 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -nl -pch -midas
 	make $(JOBSFLAG) -C argus/folders/
 
-check : $(ROMEProjects) $(ARGUSProjects) dbwrapper
+check : remove $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd romedbwrapper; ./test_c; ./test_f
 
