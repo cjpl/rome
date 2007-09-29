@@ -2548,7 +2548,12 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       if (numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("   SetOriginalGraphParameters();\n");
          buffer.AppendFormatted("   int j,k;\n");
-         buffer.AppendFormatted("   int arraySizeOld=0;\n");
+         for (i = 0; i < numOfGraphs[iTask]; i++) {
+            if (graphArraySize[iTask][i] != "1") {
+               buffer.AppendFormatted("   int arraySizeOld=0;\n");
+               break;
+            }
+         }
          buffer.AppendFormatted("   ROMEString *graphArrayName[%d];\n",numOfGraphs[iTask]);
          buffer.AppendFormatted("   ROMEString *graphArrayTitle[%d];\n",numOfGraphs[iTask]);
          buffer.AppendFormatted("   ROMEGraph* graphHandle;\n");
