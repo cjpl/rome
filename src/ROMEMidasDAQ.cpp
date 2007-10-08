@@ -478,6 +478,11 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       Int_t rawDataEventOld = fCurrentRawDataEvent;
       Long64_t currentEventNumber = gROME->GetCurrentEventNumber();
       Long64_t newEventNumber = currentEventNumber;
+
+      if (event == currentEventNumber) {
+         fReadExistingRawData = kTRUE;
+         return event;
+      }
       for (i = 0; i < fValidRawDataEvent; i++) {
          if (event < currentEventNumber) {
             fCurrentRawDataEvent = (fCurrentRawDataEvent - 1) % fValidRawDataEvent;
@@ -491,7 +496,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
                   break;
                }
             }
-         } else if (event > currentEventNumber) {
+         } else {
             fCurrentRawDataEvent = (fCurrentRawDataEvent + 1) % fValidRawDataEvent;
             if (reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent())->event_id == 1) {
                newEventNumber = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent())->serial_number;
@@ -500,14 +505,14 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
                   break;
                }
             }
-         } else {
-            found = kTRUE;
-            break;
          }
       }
       if (!found) {
          fCurrentRawDataEvent = rawDataEventOld;
          newEventNumber = currentEventNumber;
+         if (event > currentEventNumber) {
+            return newEventNumber;
+         }
       }
       fReadExistingRawData = kTRUE;
       return newEventNumber;
