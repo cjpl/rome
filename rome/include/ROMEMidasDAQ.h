@@ -77,15 +77,23 @@ const UShort_t TID_STRUCT    = 14;      //< structure with fixed length
 const UShort_t TID_KEY       = 15;      //< key in online database
 const UShort_t TID_LINK      = 16;      //< link in online database
 const UShort_t TID_LAST      = 17;      //< end of TID list indicator
+
+#ifndef MAX_EVENT_SIZE                       /* value can be set via Makefile */
+#   define MAX_EVENT_SIZE         0x400000   /**< maximum event size 4MB      */
+#endif
 #endif
 
 const Int_t kMaxMidasEventTypes = 5;
+const Int_t kRawDataEvents      = 8;
 
 class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
    Bool_t        fByteSwap;
-   char          fRawDataEvent[2][0xA00000];               //! Midas Inputdata Stack for the current Event and the last Event
+   char         *fRawDataEvent[kRawDataEvents];            //! Midas Inputdata Stack
+   Int_t         fNumberOfRawDataEvent;                    //! Number of Midas Inputdata Stack
    Int_t         fCurrentRawDataEvent;                     //! Index of the current event buffer
+   Int_t         fValidRawDataEvent;                       //! Buffer which is filled already
+   Bool_t        fReadExistingRawData;                     //! Flag to use event buffer instead of reading new evnet
 
    Int_t         fNumberOfEventRequests;                   //! Number of Event Requests
    Short_t       fEventRequestID[kMaxMidasEventTypes];     //! IDs of Event Requests
@@ -124,9 +132,13 @@ public:
 
    // Raw Data
    void          *GetRawDataEvent() { return fRawDataEvent[fCurrentRawDataEvent]; }
-   void          *GetLastRawDataEvent() { return fRawDataEvent[1-fCurrentRawDataEvent]; }
-   size_t         GetRawDataEventSize() const { return sizeof(fRawDataEvent[fCurrentRawDataEvent]); }
-   void           SwitchRawDataBuffer() { fCurrentRawDataEvent = 1-fCurrentRawDataEvent; }
+   void          *GetLastRawDataEvent() {
+      Int_t ev = (fCurrentRawDataEvent - 1) % fNumberOfRawDataEvent;
+      if (ev < 0) { ev += fNumberOfRawDataEvent; }
+      return fRawDataEvent[ev];
+   }
+   size_t         GetRawDataEventSize() const { return MAX_EVENT_SIZE; }
+   void           SwitchRawDataBuffer() { fCurrentRawDataEvent = (fCurrentRawDataEvent + 1) % fNumberOfRawDataEvent; }
 
    // Event Requests
    Int_t          GetNumberOfEventRequests() const { return fNumberOfEventRequests; }
@@ -169,7 +181,7 @@ public:
    static BOOL    bk_is32(void *event);
    static INT     bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
-   virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) const { return aData; }       // Must be overwritten by analyzermidas code.
+   virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) const { return aData; } // Must be overwritten by analyzer midas code.
    Bool_t         ConnectExperiment();
 
    ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
