@@ -55,7 +55,10 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 #else
 ,fByteSwap(kTRUE)
 #endif
-,fCurrentRawDataEvent(0)
+,fNumberOfRawDataEvent(0)
+,fCurrentRawDataEvent(-1)
+,fValidRawDataEvent(0)
+,fReadExistingRawData(kFALSE)
 ,fNumberOfEventRequests(0)
 ,fMidasOnlineBuffer(0)
 ,fMidasFileHandle(0)
@@ -70,16 +73,33 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fMaxDataEvent(0)
 ,fByteSwapFlagMightBeWrong(kFALSE)
 {
-   int i;
-   for (i = 0;i < kMaxMidasEventTypes; i++) {
+   Int_t i;
+   for (i = 0; i < kMaxMidasEventTypes; i++) {
       fEventRequestRate[i] = 2;
       fEventRequestMask[i] = -1;
+   }
+
+   if (gROME->isOffline()){
+      fNumberOfRawDataEvent = 2;
+   } else {
+      fNumberOfRawDataEvent = kRawDataEvents;
+   }
+   for (i = 0; i < kRawDataEvents; i++) {
+      if (i < fNumberOfRawDataEvent) {
+         fRawDataEvent[i] = new char[MAX_EVENT_SIZE];
+      } else {
+         fRawDataEvent[i] = 0;
+      }
    }
 }
 
 //______________________________________________________________________________
 ROMEMidasDAQ::~ROMEMidasDAQ()
 {
+   Int_t i;
+   for (i = 0; i< kRawDataEvents; i++) {
+      SafeDeleteArray(fRawDataEvent[i]);
+   }
    SafeDelete(fOdbOffline);
    SafeDelete(fEventFilePositions);
 }
@@ -237,7 +257,9 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
 Bool_t ROMEMidasDAQ::Event(Long64_t event)
 {
    // Switch Raw Data Buffer
-   this->SwitchRawDataBuffer();
+   if (!fReadExistingRawData) {
+      this->SwitchRawDataBuffer();
+   }
 
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
@@ -245,63 +267,80 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       void* mEvent;
       int status;
       int runNumber,trans; // use int instead of INT or Int_t
-      if (cm_query_transition(&trans, &runNumber, NULL)) {
-         if (trans == TR_START) {
-            gROME->SetCurrentRunNumber(runNumber);
-            this->SetBeginOfRun();
-            this->SetRunning();
-            return true;
-         }
-         if (trans == TR_STOP) {
-            if (fRequestAll) {
-               INT numberOfBytes;
-               bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
-               while (numberOfBytes <= 0) {
-                  size = this->GetRawDataEventSize();
-                  mEvent = this->GetRawDataEvent();
-                  status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
-                  if (status != BM_SUCCESS)
-                     break;
-                  bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
-               }
-            }
-            this->SetEndOfRun();
-            this->SetStopped();
-            return true;
-         }
-      }
-      status = cm_yield(100);
-      if (status == RPC_SHUTDOWN || status == SS_ABORT) {
-         this->SetTerminate();
-         return false;
-      }
-      if (this->isStopped()) {
-         this->SetContinue();
-         return true;
-      }
-      size = this->GetRawDataEventSize();
-      mEvent = this->GetRawDataEvent();
-      status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
-      if (status != BM_SUCCESS) {
-         this->SetContinue();
-         return true;
-      }
 
-      if (reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id!=1) {
-         gROME->SetFillEvent(false);
-      } else {
-         gROME->SetCurrentEventNumber(reinterpret_cast<EVENT_HEADER*>(mEvent)->serial_number);
-      }
-      gROME->SetEventID(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id);
-      fTimeStamp = reinterpret_cast<EVENT_HEADER*>(mEvent)->time_stamp;
-      if (fByteSwap) {
-         //byte swapping
-         if(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != EVENTID_BOR &&
-            reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != EVENTID_EOR &&
-            reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != EVENTID_MESSAGE)
-            if(IsActiveEventID(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id)) {
-               bk_swap(reinterpret_cast<EVENT_HEADER*>(mEvent) + 1, 0);
+      if (!fReadExistingRawData) {
+         if (fValidRawDataEvent != kRawDataEvents) {
+            fValidRawDataEvent = fCurrentRawDataEvent + 1;
+         }
+
+         if (cm_query_transition(&trans, &runNumber, NULL)) {
+            if (trans == TR_START) {
+               gROME->SetCurrentRunNumber(runNumber);
+               this->SetBeginOfRun();
+               this->SetRunning();
+               return true;
             }
+            if (trans == TR_STOP) {
+               if (fRequestAll) {
+                  INT numberOfBytes;
+                  bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+                  while (numberOfBytes <= 0) {
+                     size = this->GetRawDataEventSize();
+                     mEvent = this->GetRawDataEvent();
+                     status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
+                     if (status != BM_SUCCESS)
+                        break;
+                     bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+                  }
+               }
+               this->SetEndOfRun();
+               this->SetStopped();
+               return true;
+            }
+         }
+         status = cm_yield(100);
+         if (status == RPC_SHUTDOWN || status == SS_ABORT) {
+            this->SetTerminate();
+            return false;
+         }
+         if (this->isStopped()) {
+            this->SetContinue();
+            return true;
+         }
+         size = this->GetRawDataEventSize();
+         mEvent = this->GetRawDataEvent();
+         status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
+         if (status != BM_SUCCESS) {
+            this->SetContinue();
+            return true;
+         }
+
+         if (reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id!=1) {
+            gROME->SetFillEvent(false);
+         } else {
+            gROME->SetCurrentEventNumber(reinterpret_cast<EVENT_HEADER*>(mEvent)->serial_number);
+         }
+         gROME->SetEventID(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id);
+         fTimeStamp = reinterpret_cast<EVENT_HEADER*>(mEvent)->time_stamp;
+         if (fByteSwap) {
+            //byte swapping
+            if(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != EVENTID_BOR &&
+               reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != EVENTID_EOR &&
+               reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != EVENTID_MESSAGE)
+               if(IsActiveEventID(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id)) {
+                  bk_swap(reinterpret_cast<EVENT_HEADER*>(mEvent) + 1, 0);
+               }
+         }
+      } else {
+         mEvent = this->GetRawDataEvent();
+         if (reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id!=1) {
+            gROME->SetFillEvent(false);
+         } else {
+            gROME->SetCurrentEventNumber(reinterpret_cast<EVENT_HEADER*>(mEvent)->serial_number);
+         }
+         gROME->SetEventID(reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id);
+         fTimeStamp = reinterpret_cast<EVENT_HEADER*>(mEvent)->time_stamp;
+         fReadExistingRawData = kFALSE;
       }
       this->InitMidasBanks();
 #endif
@@ -422,6 +461,8 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
    // Move file pointer to specified event
    // Event number is not necessarily same with serial number when
    // there are multiple type of events in a Midas file.
+   // In online mode, Seek moves in ring buffer forward or backward,
+   // instead of jump to specified event number
 
    if (event < 0) {
       Warning("Seek", "Event number "R_LLD" was not found.", event);
@@ -432,7 +473,44 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
    }
 
    if (gROME->isOnline()) {
-      return -1;
+      Int_t i;
+      Bool_t found = kFALSE;
+      Int_t rawDataEventOld = fCurrentRawDataEvent;
+      Long64_t currentEventNumber = gROME->GetCurrentEventNumber();
+      Long64_t newEventNumber = currentEventNumber;
+      for (i = 0; i < fValidRawDataEvent; i++) {
+         if (event < currentEventNumber) {
+            fCurrentRawDataEvent = (fCurrentRawDataEvent - 1) % fValidRawDataEvent;
+            if (fCurrentRawDataEvent < 0) {
+               fCurrentRawDataEvent +=fValidRawDataEvent;
+            }
+            if (reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent())->event_id == 1) {
+               newEventNumber = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent())->serial_number;
+               if (newEventNumber < currentEventNumber) {
+                  found = kTRUE;
+                  break;
+               }
+            }
+         } else if (event > currentEventNumber) {
+            fCurrentRawDataEvent = (fCurrentRawDataEvent + 1) % fValidRawDataEvent;
+            if (reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent())->event_id == 1) {
+               newEventNumber = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent())->serial_number;
+               if (newEventNumber > currentEventNumber) {
+                  found = kTRUE;
+                  break;
+               }
+            }
+         } else {
+            found = kTRUE;
+            break;
+         }
+      }
+      if (!found) {
+         fCurrentRawDataEvent = rawDataEventOld;
+         newEventNumber = currentEventNumber;
+      }
+      fReadExistingRawData = kTRUE;
+      return newEventNumber;
    } else if (gROME->isOffline()) {
       if (event < fValidEventFilePositions) {
          // use stored position

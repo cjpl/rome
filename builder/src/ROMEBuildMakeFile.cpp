@@ -1082,6 +1082,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted(" /D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted(" /D%s_%s",shortCut.ToUpper(tmp),mainProgName.ToUpper(tmp2));
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("!IFDEF MIDAS_MAX_EVENT_SIZE\n");
+   buffer.AppendFormatted("Flags = $(Flags) /DMAX_EVENT_SIZE=$(MIDAS_MAX_EVENT_SIZE)\n");
+   buffer.AppendFormatted("!ENDIF\n");
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortCut.ToLower(tmp));
 #endif // R__VISUAL_CPLUSPLUS
@@ -1263,6 +1266,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    for (i = 0; i < daqFlags->GetEntriesFast(); i++) {
       buffer.AppendFormatted("daqcflags += %s\n",daqFlags->At(i).Data());
    }
+   buffer.AppendFormatted("ifdef MIDAS_MAX_EVENT_SIZE\n");
+   buffer.AppendFormatted("  daqcflags += -DMAX_EVENT_SIZE=$(MIDAS_MAX_EVENT_SIZE)\n");
+   buffer.AppendFormatted("endif\n");
    // DAQ Libraries
    for (i = 0; i < daqLibraries->GetEntriesFast(); i++) {
       buffer.AppendFormatted("daqlibs   += %s\n",daqLibraries->At(i).Data());
