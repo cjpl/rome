@@ -78,9 +78,16 @@ const UShort_t TID_KEY       = 15;      //< key in online database
 const UShort_t TID_LINK      = 16;      //< link in online database
 const UShort_t TID_LAST      = 17;      //< end of TID list indicator
 
-#ifndef MAX_EVENT_SIZE                       /* value can be set via Makefile */
-#   define MAX_EVENT_SIZE         0x400000   /**< maximum event size 4MB      */
+#ifndef MAX_EVENT_SIZE                      /* value can be set via Makefile      */
+#  define MAX_EVENT_SIZE         0x400000   /**< maximum event size 4MB           */
 #endif
+#endif
+
+#if defined( R__VISUAL_CPLUSPLUS )
+#  ifdef MAX_EVENT_SIZE
+#     undef  MAX_EVENT_SIZE
+#  endif
+#  define MAX_EVENT_SIZE         0xA00000   /**< maximum event size if fixed 10MB */
 #endif
 
 const Int_t kMaxMidasEventTypes = 5;
