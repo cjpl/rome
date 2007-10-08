@@ -311,8 +311,16 @@ void ROMEPrint::ReportSummary()
    Int_t i;
    Int_t n = fgReportMap.size();
 
-   if (!n) {
-      // probably, the user is not using 'Report'.
+   // count number of messages which was shown more than once
+   Bool_t found = kFALSE;
+   for (i = 0; i < n; i++) {
+      if (fgReportPrintCount.At(i) > 1) {
+         found = kTRUE;
+      }
+   }
+
+   if (!n || // probably, the user is not using 'Report'.
+       !found) {
       return;
    }
 
@@ -327,6 +335,9 @@ void ROMEPrint::ReportSummary()
    strArraySort.AddAtAndExpand("", 0); // dummy
 
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(i) == 1) {
+         continue;
+      }
       funcFileLineLength = strlen(gSystem->BaseName(fgReportFile.At(i).Data())) + 4 /* line number */ +
             fgReportFunction.At(i).Length() + 2/* : : */;
       if (maxFuncFileLineLength < funcFileLineLength) {
@@ -348,26 +359,44 @@ void ROMEPrint::ReportSummary()
 #if 0
    // error
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(i) == 1) {
+         continue;
+      }
       PrintSummary(kError, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // warning
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(i) == 1) {
+         continue;
+      }
       PrintSummary(kWarning, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // info
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(i) == 1) {
+         continue;
+      }
       PrintSummary(kNormal, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // verbose
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(i) == 1) {
+         continue;
+      }
       PrintSummary(kVerbose, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
    // debug
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(i) == 1) {
+         continue;
+      }
       PrintSummary(kDebug, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
 #else
    for (i = 1; i <= n; i++) {
+      if (fgReportPrintCount.At(sortIndex[i]) == 1) {
+         continue;
+      }
       PrintSummary(-1, sortIndex[i], maxFuncFileLineLength, maxCountLength);
    }
 #endif
