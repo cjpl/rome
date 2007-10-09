@@ -172,6 +172,7 @@ public:
    Bool_t         Event(Long64_t event);
    Bool_t         EndOfRun();
    Bool_t         Terminate();
+   Bool_t         RespondOnlineRequest();
 
    Bool_t         ReadODBOffline();
 

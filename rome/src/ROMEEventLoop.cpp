@@ -1197,6 +1197,11 @@ Bool_t ROMEEventLoop::UserInput()
          gROME->GetApplication()->DisableFPETrap();
          gSystem->ProcessEvents();
          gROME->GetApplication()->EnableFPETrap();
+         if (gROME->isOnline()) {
+            if (!gROME->GetActiveDAQ()->RespondOnlineRequest()) {
+               break;
+            }
+         }
          gSystem->Sleep(10);
       }
 

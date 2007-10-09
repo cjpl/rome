@@ -50,8 +50,8 @@ public:
    virtual Long64_t Seek(Long64_t /* event */) { AbstractMethod("Seek"); return -1; }
    virtual Bool_t   EndOfRun() = 0;
    virtual Bool_t   Terminate() = 0;
-   virtual Bool_t   GetAlwaysFillTrees() const { return kFALSE; };
-
+   virtual Bool_t   GetAlwaysFillTrees() const { return kFALSE; }
+   virtual Bool_t   RespondOnlineRequest() { return kTRUE; }
 public:
    // Run Status
    Bool_t           isRunning() const  { return (fRunStatus == kRunning); }
