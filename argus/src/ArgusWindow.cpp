@@ -15,12 +15,14 @@
 #pragma warning( disable : 4800 4244)
 #endif                          // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
-#include <TGTab.h>
-#include <TGStatusBar.h>
+#include <TGMenu.h>
+#include <TGFrame.h>
+#include <TGLabel.h>
 #include <TGProgressBar.h>
+#include <TGStatusBar.h>
+#include <TGTab.h>
 #include <TColor.h>
 #include <TObjArray.h>
-#include <TGMenu.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
@@ -54,6 +56,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, TObjArray *tabobj)
 ,fMenuBar(0)
 ,fMenuFile(0)
 ,fMenuNetFolder(0)
+,fRunEventNumber(0)
 ,fTab(0)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
@@ -87,6 +90,7 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, TObjArray *t
 ,fMenuBar(0)
 ,fMenuFile(0)
 ,fMenuNetFolder(0)
+,fRunEventNumber(0)
 ,fTab(0)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
@@ -140,6 +144,14 @@ Bool_t ArgusWindow::Start()
       this->AddFrame(fStatusBar, new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX, 0, 0, 2, 0));
    }
 
+   // Create info frame
+   fInfoFrame = new TGHorizontalFrame(this, 0, 0);
+   AddFrame(fInfoFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+
+   fRunEventNumber = new TGLabel(fInfoFrame, "Run # Event #");
+   fRunEventNumber->SetTextJustify(kTextCenterX | kTextRight);
+   fInfoFrame->AddFrame(fRunEventNumber, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 10, 0, 0));
+
    // Create menu
    fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
    fMenuFile = new TGPopupMenu (fClient->GetRoot());
@@ -157,15 +169,9 @@ Bool_t ArgusWindow::Start()
    }
 
    fMenuNetFolder->Associate(this);
-   fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);
+   fMenuBar = new TGMenuBar(fInfoFrame, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
-
-   // Create info frame
-   if (fTabWindow) {
-//   fInfoFrame = new ROMECompositeFrame(this, 100, 0, kRaisedFrame | kVerticalFrame | kHorizontalFrame);
-//   this->AddFrame(fInfoFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   }
+   fInfoFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
 
    // Create tab widget
    if (fTabWindow) {

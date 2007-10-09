@@ -6900,6 +6900,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TGLabel.h>\n");
    buffer.AppendFormatted("#include <TGTab.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
@@ -7322,8 +7323,18 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("void %sWindow::TriggerEventHandler()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   char str[128];\n");
    buffer.AppendFormatted("   SetStatus(0, \"\", 0);\n");
    buffer.AppendFormatted("   fWatchAll.Start(false);\n");
+
+#if defined(R__UNIX)
+   buffer.AppendFormatted("   sprintf(str, \"Run : %%6lld     Event : %%6lld\",\n");
+#else
+   buffer.AppendFormatted("   sprintf(str, \"Run : %%6I64d     Event : %%6I64d\",\n");
+#endif
+   buffer.AppendFormatted("           gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber());\n");
+   buffer.AppendFormatted("   fRunEventNumber->SetText(str);\n");
+   buffer.AppendFormatted("   fInfoFrame->Layout(); // call the parents frame's Layout() method to force updating of size of labels.\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
