@@ -34,6 +34,8 @@
 class TGTab;
 class TObjArray;
 class TGHProgressBar;
+class TGTextEntry;
+class TGVerticalFrame;
 class ROMECompositeFrame;
 class ROMEStrArray;
 
@@ -52,10 +54,11 @@ protected:
    TGStatusBar             *fStatusBar;            //! status bar
    Bool_t                   fStatusBarSwitch;      //! status bar switch
    TGHProgressBar          *fProgress;             //!
-   ROMECompositeFrame      *fInfoFrame;            //! info frame
+   TGHorizontalFrame       *fInfoFrame;            //! info frame
    TGMenuBar               *fMenuBar;              //! menu bar
    TGPopupMenu             *fMenuFile;             //! file menu
    TGPopupMenu             *fMenuNetFolder;        //! file menu, net folder
+   TGLabel                 *fRunEventNumber;       //! run number and event number
    TGTab                   *fTab;                  //! tabs
    ROMECompositeFrame      *fMainFrame;            //! main frame
    Int_t                    fCurrentTabID;         //! ID number of top tab
