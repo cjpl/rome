@@ -986,6 +986,6 @@ Bool_t ROMEMidasDAQ::RespondOnlineRequest()
       this->SetContinue();
       return true;
    }
-   return true;
 #endif
+   return true;
 }
