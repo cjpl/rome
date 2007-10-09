@@ -138,7 +138,12 @@ public:
 //   HNDLE         *GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }
 
    // Raw Data
-   void          *GetRawDataEvent() { return fRawDataEvent[fCurrentRawDataEvent]; }
+   void          *GetRawDataEvent() {
+      if (fCurrentRawDataEvent < 0) {
+         fCurrentRawDataEvent = 0;
+      }
+      return fRawDataEvent[fCurrentRawDataEvent];
+   }
    void          *GetLastRawDataEvent() {
       Int_t ev = (fCurrentRawDataEvent - 1) % fNumberOfRawDataEvent;
       if (ev < 0) { ev += fNumberOfRawDataEvent; }
