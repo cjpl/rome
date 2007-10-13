@@ -1468,18 +1468,18 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"true\";");
       subSubGroup->GetLastParameter()->AddAdditionalWriteLine("}");
       for (j = 0; j < numOfBank[i]; j++) {
-         subSubSubGroup = new ROMEConfigParameterGroup(bankName[i][j],"1","Bank");
+         subSubSubGroup = new ROMEConfigParameterGroup(bankAlias[i][j],"1","Bank");
          subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Bank");
          subSubSubGroup->SetWriteEmptyLine(kFALSE);
          subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
          subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Bank");
          subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sBankActive(## == \"true\");",
-                                                        bankName[i][j].Data());
+                                                        bankAlias[i][j].Data());
          subSubSubGroup->GetLastParameter()->AddSetLine("}");
          subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->is%sBankActive()?1:0];",
-                                                          bankName[i][j].Data());
+                                                          bankAlias[i][j].Data());
          subSubSubGroup->GetLastParameter()->AddWriteLine("}");
          subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
          subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");

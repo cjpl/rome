@@ -1256,6 +1256,11 @@
 					<xs:documentation>The name of the bank. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="BankAlias" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Bank name appears in the code. This can be different from midas bank name. This may be used when you have different banks with identical names in several event ids.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="BankType" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>The type of the bank. This is the  type of the values stored in the bank in the midas file. (required)</xs:documentation>

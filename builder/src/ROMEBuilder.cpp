@@ -340,6 +340,7 @@ ROMEBuilder::ROMEBuilder()
 ,eventTriggerMask(0)
 ,eventSamplingRate(0)
 ,bankName(0)
+,bankAlias(0)
 ,bankType(0)
 ,bankArraySize(0)
 ,bankArrayStart(0)
@@ -730,6 +731,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] eventTriggerMask;
    delete [] eventSamplingRate;
    delete [] bankName;
+   delete [] bankAlias;
    delete [] bankType;
    delete [] bankArraySize;
    delete [] bankArrayStart;

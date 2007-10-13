@@ -8993,14 +8993,14 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          // Bank Array
          if (bankArrayDigit[i][j]>0) {
          } else {   // Single Bank
-            buffer.AppendFormatted(",f%sBankPointer(0)\n",bankName[i][j].Data());
-            buffer.AppendFormatted(",fLast%sBankPointer(0)\n",bankName[i][j].Data());
-            buffer.AppendFormatted(",f%sBankLength(0)\n",bankName[i][j].Data());
-            buffer.AppendFormatted(",fLast%sBankLength(0)\n",bankName[i][j].Data());
-            buffer.AppendFormatted(",f%sBankExists(kFALSE)\n",bankName[i][j].Data());
-            buffer.AppendFormatted(",fLast%sBankExists(kFALSE)\n",bankName[i][j].Data());
+            buffer.AppendFormatted(",f%sBankPointer(0)\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted(",fLast%sBankPointer(0)\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted(",f%sBankLength(0)\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted(",fLast%sBankLength(0)\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted(",f%sBankExists(kFALSE)\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted(",fLast%sBankExists(kFALSE)\n",bankAlias[i][j].Data());
          }
-         buffer.AppendFormatted(",f%sBankActive(kTRUE)\n",bankName[i][j].Data());
+         buffer.AppendFormatted(",f%sBankActive(kTRUE)\n",bankAlias[i][j].Data());
       }
       buffer.AppendFormatted(",f%sEventActive(kTRUE)\n",eventName[i].Data());
    }
@@ -9193,9 +9193,9 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          if (bankArrayDigit[i][j]>0) {
             buffer.AppendFormatted("   for (i = %d; i < %d; i++)\n",bankArrayStart[i][j],
                                    bankArraySize[i][j]+bankArrayStart[i][j]);
-            buffer.AppendFormatted("      Init%sBank(i);\n",bankName[i][j].Data());
+            buffer.AppendFormatted("      Init%sBank(i);\n",bankAlias[i][j].Data());
          } else {  // Single Bank
-            buffer.AppendFormatted("   Init%sBank();\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   Init%sBank();\n",bankAlias[i][j].Data());
          }
       }
    }
@@ -9206,88 +9206,88 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("\n// Midas Bank Getters\n");
    for (i = 0; i < numOfEvent; i++) {
       for (j = 0; j < numOfBank[i]; j++) {
-         buffer.AppendFormatted("// %s bank\n",bankName[i][j].Data());
+         buffer.AppendFormatted("// %s bank\n",bankAlias[i][j].Data());
          // Bank Array
          if (bankArrayDigit[i][j]>0) {
             // Functions
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankAt(Int_t bankIndex,Int_t indx) const\n{\n",
-                                      bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return f%sBankPointer[bankIndex] + indx;\n",bankName[i][j].Data());
+                                      bankAlias[i][j].Data(),shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return f%sBankPointer[bankIndex] + indx;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer(Int_t bankIndex) const\n{\n",
-                                      bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankName[i][j].Data());
+                                      bankAlias[i][j].Data(),shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t bankIndex,Int_t indx) const\n{\n",
-                                      bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex] + indx;\n",bankName[i][j].Data());
+                                      bankAlias[i][j].Data(),shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex] + indx;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer(Int_t bankIndex) const\n{\n",
-                                      bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankName[i][j].Data());
+                                      bankAlias[i][j].Data(),shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s %sMidasDAQ::Get%sBankAt(Int_t bankIndex,Int_t indx) const\n{\n",
-                                      bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return *(f%sBankPointer[bankIndex] + indx);\n",bankName[i][j].Data());
+                                      bankType[i][j].Data(),shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return *(f%sBankPointer[bankIndex] + indx);\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return static_cast<%s>(exp(999.));\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s* %sMidasDAQ::Get%sBankPointer(Int_t bankIndex) const\n{\n",
-                                      bankType[i][j].Data(), shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankName[i][j].Data());
+                                      bankType[i][j].Data(), shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s %sMidasDAQ::GetLast%sBankAt(Int_t bankIndex,Int_t indx) const\n{\n",
-                                      bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return *(fLast%sBankPointer[bankIndex] + indx);\n",bankName[i][j].Data());
+                                      bankType[i][j].Data(),shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return *(fLast%sBankPointer[bankIndex] + indx);\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return static_cast<%s>(exp(999.));\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s* %sMidasDAQ::GetLast%sBankPointer(Int_t bankIndex) const\n{\n",
-                                      bankType[i][j].Data(), shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankName[i][j].Data());
+                                      bankType[i][j].Data(), shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             }
             buffer.Append(kMethodLine);
             buffer.AppendFormatted("void %sMidasDAQ::Init%sBank(Int_t bankIndex)\n{\n",shortCut.Data(),
-                                   bankName[i][j].Data());
+                                   bankAlias[i][j].Data());
             buffer.AppendFormatted("   if (f%sEventActive && f%sBankActive && gAnalyzer->GetEventID() == %s) {\n",
-                                   eventName[i].Data(),bankName[i][j].Data(),eventID[i].Data());
+                                   eventName[i].Data(),bankAlias[i][j].Data(),eventID[i].Data());
             buffer.AppendFormatted("      fLast%sBankExists[bankIndex] = f%sBankExists[bankIndex];\n",
-                                   bankName[i][j].Data(),bankName[i][j].Data());
+                                   bankAlias[i][j].Data(),bankAlias[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankPointer[bankIndex] = f%sBankPointer[bankIndex];\n",
-                                   bankName[i][j].Data(),bankName[i][j].Data());
+                                   bankAlias[i][j].Data(),bankAlias[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankLength[bankIndex] = f%sBankLength[bankIndex];\n",
-                                   bankName[i][j].Data(),bankName[i][j].Data());
+                                   bankAlias[i][j].Data(),bankAlias[i][j].Data());
             buffer.AppendFormatted("      DWORD bktype;\n");
             buffer.AppendFormatted("      EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(GetRawDataEvent());\n");
             buffer.AppendFormatted("      pevent++;\n");
@@ -9295,132 +9295,132 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             buffer.AppendFormatted("      bankname.SetFormatted(\"%s%%0%dd\",bankIndex);\n",bankName[i][j].Data(),
                                    bankArrayDigit[i][j]);
             buffer.AppendFormatted("      if (bk_find(reinterpret_cast<BANK_HEADER*>(pevent), bankname.Data(), &f%sBankLength[bankIndex], &bktype, reinterpret_cast<void**>(&f%sBankPointer[bankIndex]))) {\n",
-                                   bankName[i][j].Data(),bankName[i][j].Data());
-            buffer.AppendFormatted("         f%sBankExists[bankIndex] = true;\n",bankName[i][j].Data());
+                                   bankAlias[i][j].Data(),bankAlias[i][j].Data());
+            buffer.AppendFormatted("         f%sBankExists[bankIndex] = true;\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("         return;\n");
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   f%sBankExists[bankIndex] = false;\n",bankName[i][j].Data());
-            buffer.AppendFormatted("   f%sBankPointer[bankIndex] = 0;\n",bankName[i][j].Data());
-            buffer.AppendFormatted("   f%sBankLength[bankIndex] = 0;\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   f%sBankExists[bankIndex] = false;\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted("   f%sBankPointer[bankIndex] = 0;\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted("   f%sBankLength[bankIndex] = 0;\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("   return;\n");
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
 
             buffer.Append(kMethodLine);
             buffer.AppendFormatted("Int_t %sMidasDAQ::Get%sBankEntries(Int_t bankIndex) const\n{\n",shortCut.Data(),
-                                   bankName[i][j].Data());
-            buffer.AppendFormatted("   return f%sBankLength[bankIndex];\n",bankName[i][j].Data());
+                                   bankAlias[i][j].Data());
+            buffer.AppendFormatted("   return f%sBankLength[bankIndex];\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
             buffer.Append(kMethodLine);
             buffer.AppendFormatted("Int_t %sMidasDAQ::GetLast%sBankEntries(Int_t bankIndex) const\n{\n",shortCut.Data(),
-                                   bankName[i][j].Data());
-            buffer.AppendFormatted("   return fLast%sBankLength[bankIndex];\n",bankName[i][j].Data());
+                                   bankAlias[i][j].Data());
+            buffer.AppendFormatted("   return fLast%sBankLength[bankIndex];\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("}\n\n");
          } else {   // Single Bank
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
                buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankAt(Int_t indx) const\n{\n",bankName[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return f%sBankPointer + indx;\n",bankName[i][j].Data());
+               buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankAt(Int_t indx) const\n{\n",bankAlias[i][j].Data(),
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return f%sBankPointer + indx;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer() const\n{\n",bankName[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return f%sBankPointer;\n",bankName[i][j].Data());
+               buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer() const\n{\n",bankAlias[i][j].Data(),
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return f%sBankPointer;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t indx) const\n{\n",bankName[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return fLast%sBankPointer + indx;\n",bankName[i][j].Data());
+               buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t indx) const\n{\n",bankAlias[i][j].Data(),
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return fLast%sBankPointer + indx;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer() const\n{\n",bankName[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankName[i][j].Data());
+               buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer() const\n{\n",bankAlias[i][j].Data(),
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s %sMidasDAQ::Get%sBankAt(Int_t indx) const\n{\n",bankType[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return *(f%sBankPointer + indx);\n",bankName[i][j].Data());
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return *(f%sBankPointer + indx);\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return static_cast<%s>(exp(999.));\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s* %sMidasDAQ::Get%sBankPointer() const\n{\n",bankType[i][j].Data(),shortCut.Data(),
-                                      bankName[i][j].Data());
-               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return f%sBankPointer;\n",bankName[i][j].Data());
+                                      bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return f%sBankPointer;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s %sMidasDAQ::GetLast%sBankAt(Int_t indx) const\n{\n",bankType[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return *(fLast%sBankPointer + indx);\n",bankName[i][j].Data());
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return *(fLast%sBankPointer + indx);\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return static_cast<%s>(exp(999.));\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("%s* %sMidasDAQ::GetLast%sBankPointer() const\n{\n",bankType[i][j].Data(),
-                                      shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
-               buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankName[i][j].Data());
+                                      shortCut.Data(),bankAlias[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("   return 0;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             }
             buffer.Append(kMethodLine);
-            buffer.AppendFormatted("void %sMidasDAQ::Init%sBank()\n{\n",shortCut.Data(),bankName[i][j].Data());
+            buffer.AppendFormatted("void %sMidasDAQ::Init%sBank()\n{\n",shortCut.Data(),bankAlias[i][j].Data());
             buffer.AppendFormatted("   if (f%sEventActive && f%sBankActive && gAnalyzer->GetEventID() == %s) {\n",
-                                   eventName[i].Data(),bankName[i][j].Data(),eventID[i].Data());
-            buffer.AppendFormatted("      fLast%sBankExists = f%sBankExists;\n",bankName[i][j].Data(),
-                                   bankName[i][j].Data());
-            buffer.AppendFormatted("      fLast%sBankPointer = f%sBankPointer;\n",bankName[i][j].Data(),
-                                   bankName[i][j].Data());
-            buffer.AppendFormatted("      fLast%sBankLength = f%sBankLength;\n",bankName[i][j].Data(),
-                                   bankName[i][j].Data());
+                                   eventName[i].Data(),bankAlias[i][j].Data(),eventID[i].Data());
+            buffer.AppendFormatted("      fLast%sBankExists = f%sBankExists;\n",bankAlias[i][j].Data(),
+                                   bankAlias[i][j].Data());
+            buffer.AppendFormatted("      fLast%sBankPointer = f%sBankPointer;\n",bankAlias[i][j].Data(),
+                                   bankAlias[i][j].Data());
+            buffer.AppendFormatted("      fLast%sBankLength = f%sBankLength;\n",bankAlias[i][j].Data(),
+                                   bankAlias[i][j].Data());
             buffer.AppendFormatted("      DWORD bktype;\n");
             buffer.AppendFormatted("      EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(GetRawDataEvent());\n");
             buffer.AppendFormatted("      pevent++;\n");
             buffer.AppendFormatted("      if (bk_find(reinterpret_cast<BANK_HEADER*>(pevent), \"%s\", &f%sBankLength, &bktype, reinterpret_cast<void**>(&f%sBankPointer))) {\n",
-                                   bankName[i][j].Data(),bankName[i][j].Data(),bankName[i][j].Data());
-            buffer.AppendFormatted("         f%sBankExists = true;\n",bankName[i][j].Data());
+                                   bankName[i][j].Data(),bankAlias[i][j].Data(),bankAlias[i][j].Data());
+            buffer.AppendFormatted("         f%sBankExists = true;\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("         return;\n");
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   f%sBankExists = false;\n",bankName[i][j].Data());
-            buffer.AppendFormatted("   f%sBankPointer = 0;\n",bankName[i][j].Data());
-            buffer.AppendFormatted("   f%sBankLength = 0;\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   f%sBankExists = false;\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted("   f%sBankPointer = 0;\n",bankAlias[i][j].Data());
+            buffer.AppendFormatted("   f%sBankLength = 0;\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("   return;\n");
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
 
             buffer.Append(kMethodLine);
-            buffer.AppendFormatted("Int_t %sMidasDAQ::Get%sBankEntries() const\n{\n",shortCut.Data(),bankName[i][j].Data());
-            buffer.AppendFormatted("   return f%sBankLength;\n",bankName[i][j].Data());
+            buffer.AppendFormatted("Int_t %sMidasDAQ::Get%sBankEntries() const\n{\n",shortCut.Data(),bankAlias[i][j].Data());
+            buffer.AppendFormatted("   return f%sBankLength;\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
             buffer.Append(kMethodLine);
             buffer.AppendFormatted("Int_t %sMidasDAQ::GetLast%sBankEntries() const\n{\n",shortCut.Data(),
-                                   bankName[i][j].Data());
-            buffer.AppendFormatted("   return fLast%sBankLength;\n",bankName[i][j].Data());
+                                   bankAlias[i][j].Data());
+            buffer.AppendFormatted("   return fLast%sBankLength;\n",bankAlias[i][j].Data());
             buffer.AppendFormatted("}\n\n");
          }
       }
@@ -9455,10 +9455,10 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          {
             if ( !hasStructuredBank )
             {
-               buffer.AppendFormatted( "    if (strstr(aName, \"%s\"))\n", bankName[ iEvent ][ iBank ].Data() );
+               buffer.AppendFormatted( "    if (strstr(aName, \"%s\"))\n", bankAlias[ iEvent ][ iBank ].Data() );
                hasStructuredBank = true;
             } else {
-               buffer.AppendFormatted( "    else if (strstr(aName, \"%s\" ))\n", bankName[ iEvent ][ iBank ].Data() );
+               buffer.AppendFormatted( "    else if (strstr(aName, \"%s\" ))\n", bankAlias[ iEvent ][ iBank ].Data() );
             }
 
             buffer.AppendFormatted( "    {\n" );
@@ -9554,7 +9554,7 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
                   }
                }
             }
-            buffer.AppendFormatted("} %sStruct;\n",bankName[i][j].Data());
+            buffer.AppendFormatted("} %sStruct;\n",bankAlias[i][j].Data());
          }
       }
    }
@@ -9625,16 +9625,16 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
       if (numOfBank[i]>0) {
          for (j = 0; j < numOfBank[i]; j++) {
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
-               if (bankTypeLen < static_cast<int>(bankName[i][j].Length() + 6)) {
-                  bankTypeLen = bankName[i][j].Length() + 6;
+               if (bankTypeLen < static_cast<int>(bankAlias[i][j].Length() + 6)) {
+                  bankTypeLen = bankAlias[i][j].Length() + 6;
                }
             } else {
                if (bankTypeLen < static_cast<int>(bankType[i][j].Length())) {
                   bankTypeLen = bankType[i][j].Length();
                }
             }
-            if (bankNameLen < static_cast<int>(bankName[i][j].Length() + bankArrayDigit[i][j])) {
-               bankNameLen = bankName[i][j].Length()+bankArrayDigit[i][j];
+            if (bankNameLen < static_cast<int>(bankAlias[i][j].Length() + bankArrayDigit[i][j])) {
+               bankNameLen = bankAlias[i][j].Length()+bankArrayDigit[i][j];
             }
          }
       }
@@ -9646,70 +9646,70 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
          if (bankArrayDigit[i][j]>0) {
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
                buffer.AppendFormatted("   %sStruct*%*s f%sBankPointer[%d]; %*s //! Pointer to the %s Bank\n",
-                                      bankName[i][j].Data(), bankTypeLen - bankName[i][j].Length() - 6, "",
-                                      bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                      bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankTypeLen - bankAlias[i][j].Length() - 6, "",
+                                      bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                      bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
 
                buffer.AppendFormatted("   %sStruct*%*s fLast%sBankPointer[%d]; %*s //! Pointer to the %s Bank of the last event\n",
-                                      bankName[i][j].Data(), bankTypeLen-bankName[i][j].Length() - 6, "",
-                                      bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                      bankNameLen-bankName[i][j].Length(), "", bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankTypeLen-bankAlias[i][j].Length() - 6, "",
+                                      bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                      bankNameLen-bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
             } else {
                buffer.AppendFormatted("   %s*%*s f%sBankPointer[%d]; %*s //! Pointer to the %s Bank\n",
                                       bankType[i][j].Data(), bankTypeLen-bankType[i][j].Length(), "",
-                                      bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                      bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                      bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
                buffer.AppendFormatted("   %s*%*s fLast%sBankPointer[%d]; %*s //! Pointer to the %s Bank of the last event\n",
                                       bankType[i][j].Data(), bankTypeLen-bankType[i][j].Length(), "",
-                                      bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                      bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                      bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
             }
             buffer.AppendFormatted("   DWORD%*s f%sBankLength[%d];  %*s //! Length  of the %s Bank\n",
-                                   bankTypeLen - 5, "", bankName[i][j].Data(), bankArraySize[i][j]+bankArrayStart[i][j],
-                                   bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                   bankTypeLen - 5, "", bankAlias[i][j].Data(), bankArraySize[i][j]+bankArrayStart[i][j],
+                                   bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
             buffer.AppendFormatted("   DWORD%*s fLast%sBankLength[%d];  %*s //! Length  of the %s Bank of the last event\n",
-                                   bankTypeLen - 5, "", bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                   bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                   bankTypeLen - 5, "", bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                   bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
             buffer.AppendFormatted("   Bool_t%*s f%sBankExists[%d];  %*s //! Exist Flags of the %s Bank\n",
-                                   bankTypeLen - 6, "", bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                   bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                   bankTypeLen - 6, "", bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                   bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
             buffer.AppendFormatted("   Bool_t%*s fLast%sBankExists[%d];  %*s //! Exist Flags of the %s Bank of the last event\n",
-                                   bankTypeLen - 6, "", bankName[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
-                                   bankNameLen - bankName[i][j].Length(), "", bankName[i][j].Data());
+                                   bankTypeLen - 6, "", bankAlias[i][j].Data(), bankArraySize[i][j] + bankArrayStart[i][j],
+                                   bankNameLen - bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
          } else {  // Single Bank
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
                buffer.AppendFormatted("   %sStruct*%*s f%sBankPointer; %*s //! Pointer to the %s Bank\n",
-                                      bankName[i][j].Data(), bankTypeLen - bankName[i][j].Length() - 6, "",
-                                      bankName[i][j].Data(), bankNameLen-bankName[i][j].Length(), "", bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankTypeLen - bankAlias[i][j].Length() - 6, "",
+                                      bankAlias[i][j].Data(), bankNameLen-bankAlias[i][j].Length(), "", bankAlias[i][j].Data());
                buffer.AppendFormatted("   %sStruct*%*s fLast%sBankPointer; %*s //! Pointer to the %s Bank of the last event\n",
-                                      bankName[i][j].Data(), bankTypeLen - bankName[i][j].Length() - 6, "",
-                                      bankName[i][j].Data(), bankNameLen - bankName[i][j].Length(), "",
-                                      bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankTypeLen - bankAlias[i][j].Length() - 6, "",
+                                      bankAlias[i][j].Data(), bankNameLen - bankAlias[i][j].Length(), "",
+                                      bankAlias[i][j].Data());
             } else {
                buffer.AppendFormatted("   %s*%*s f%sBankPointer; %*s //! Pointer to the %s Bank\n",
                                       bankType[i][j].Data(), bankTypeLen - bankType[i][j].Length(), "",
-                                      bankName[i][j].Data(), bankNameLen - bankName[i][j].Length(), "",
-                                      bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankNameLen - bankAlias[i][j].Length(), "",
+                                      bankAlias[i][j].Data());
                buffer.AppendFormatted("   %s*%*s fLast%sBankPointer; %*s //! Pointer to the %s Bank of the last event\n",
                                       bankType[i][j].Data(), bankTypeLen - bankType[i][j].Length(), "",
-                                      bankName[i][j].Data(), bankNameLen - bankName[i][j].Length(), "",
-                                      bankName[i][j].Data());
+                                      bankAlias[i][j].Data(), bankNameLen - bankAlias[i][j].Length(), "",
+                                      bankAlias[i][j].Data());
             }
             buffer.AppendFormatted("   DWORD%*s f%sBankLength;  %*s //! Length  of the %s Bank\n",
-                                   bankTypeLen - 5, "", bankName[i][j].Data(), bankNameLen-bankName[i][j].Length(), "",
-                                   bankName[i][j].Data());
+                                   bankTypeLen - 5, "", bankAlias[i][j].Data(), bankNameLen-bankAlias[i][j].Length(), "",
+                                   bankAlias[i][j].Data());
             buffer.AppendFormatted("   DWORD%*s fLast%sBankLength;  %*s //! Length  of the %s Bank of the last event\n",
-                                   bankTypeLen - 5, "", bankName[i][j].Data(), bankNameLen - bankName[i][j].Length(), "",
-                                   bankName[i][j].Data());
+                                   bankTypeLen - 5, "", bankAlias[i][j].Data(), bankNameLen - bankAlias[i][j].Length(), "",
+                                   bankAlias[i][j].Data());
             buffer.AppendFormatted("   Bool_t%*s f%sBankExists;  %*s //! Exist Flags of the %s Bank\n",
-                                   bankTypeLen - 6, "", bankName[i][j].Data(), bankNameLen - bankName[i][j].Length(), "",
-                                   bankName[i][j].Data());
+                                   bankTypeLen - 6, "", bankAlias[i][j].Data(), bankNameLen - bankAlias[i][j].Length(), "",
+                                   bankAlias[i][j].Data());
             buffer.AppendFormatted("   Bool_t%*s fLast%sBankExists;  %*s //! Exist Flags of the %s Bank of the last event\n",
-                                   bankTypeLen - 6, "", bankName[i][j].Data(), bankNameLen - bankName[i][j].Length(), "",
-                                   bankName[i][j].Data());
+                                   bankTypeLen - 6, "", bankAlias[i][j].Data(), bankNameLen - bankAlias[i][j].Length(), "",
+                                   bankAlias[i][j].Data());
          }
          buffer.AppendFormatted("   Bool_t%*s f%sBankActive;  %*s //! Active Flags of the %s Bank\n",bankTypeLen-6,"",
-                                bankName[i][j].Data(),bankNameLen-bankName[i][j].Length(),"",bankName[i][j].Data());
+                                bankAlias[i][j].Data(),bankNameLen-bankAlias[i][j].Length(),"",bankAlias[i][j].Data());
       }
       buffer.AppendFormatted("   Bool_t%*s f%sEventActive;  %*s //! Active Flags of the %s Bank\n", bankTypeLen - 6, "",
                              eventName[i].Data(), bankNameLen-eventName[i].Length(), "", eventName[i].Data());
@@ -9761,53 +9761,53 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
             if (bankArrayDigit[i][j]>0) {
                if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
                   buffer.AppendFormatted("   %sStruct* Get%sBankAt(Int_t bankIndex,Int_t indx) const;\n",
-                                         bankName[i][j].Data(),bankName[i][j].Data());
-                  buffer.AppendFormatted("   %sStruct* Get%sBankPointer(Int_t bankIndex) const;\n",bankName[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data(),bankAlias[i][j].Data());
+                  buffer.AppendFormatted("   %sStruct* Get%sBankPointer(Int_t bankIndex) const;\n",bankAlias[i][j].Data(),
+                                         bankAlias[i][j].Data());
                   buffer.AppendFormatted("   %sStruct* GetLast%sBankAt(Int_t bankIndex,Int_t indx) const;\n",
-                                         bankName[i][j].Data(),bankName[i][j].Data());
-                  buffer.AppendFormatted("   %sStruct* GetLast%sBankPointer(Int_t bankIndex) const;\n",bankName[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data(),bankAlias[i][j].Data());
+                  buffer.AppendFormatted("   %sStruct* GetLast%sBankPointer(Int_t bankIndex) const;\n",bankAlias[i][j].Data(),
+                                         bankAlias[i][j].Data());
                } else {
                   buffer.AppendFormatted("   %s  Get%sBankAt(Int_t bankIndex,Int_t indx) const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
                   buffer.AppendFormatted("   %s* Get%sBankPointer(Int_t bankIndex) const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
                   buffer.AppendFormatted("   %s  GetLast%sBankAt(Int_t bankIndex,Int_t indx) const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
                   buffer.AppendFormatted("   %s* GetLast%sBankPointer(Int_t bankIndex) const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
                }
-               buffer.AppendFormatted("   Int_t Get%sBankEntries(Int_t bankIndex) const;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   Int_t GetLast%sBankEntries(Int_t bankIndex) const;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   void Init%sBank(Int_t bankIndex);\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   Int_t Get%sBankEntries(Int_t bankIndex) const;\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("   Int_t GetLast%sBankEntries(Int_t bankIndex) const;\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("   void Init%sBank(Int_t bankIndex);\n",bankAlias[i][j].Data());
             } else {         // Single Bank
                if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
-                  buffer.AppendFormatted("   %sStruct* Get%sBankAt(Int_t indx) const;\n",bankName[i][j].Data(),
-                                         bankName[i][j].Data());
-                  buffer.AppendFormatted("   %sStruct* Get%sBankPointer() const;\n",bankName[i][j].Data(),
-                                         bankName[i][j].Data());
-                  buffer.AppendFormatted("   %sStruct* GetLast%sBankAt(Int_t indx) const;\n",bankName[i][j].Data(),
-                                         bankName[i][j].Data());
-                  buffer.AppendFormatted("   %sStruct* GetLast%sBankPointer() const;\n",bankName[i][j].Data(),
-                                         bankName[i][j].Data());
+                  buffer.AppendFormatted("   %sStruct* Get%sBankAt(Int_t indx) const;\n",bankAlias[i][j].Data(),
+                                         bankAlias[i][j].Data());
+                  buffer.AppendFormatted("   %sStruct* Get%sBankPointer() const;\n",bankAlias[i][j].Data(),
+                                         bankAlias[i][j].Data());
+                  buffer.AppendFormatted("   %sStruct* GetLast%sBankAt(Int_t indx) const;\n",bankAlias[i][j].Data(),
+                                         bankAlias[i][j].Data());
+                  buffer.AppendFormatted("   %sStruct* GetLast%sBankPointer() const;\n",bankAlias[i][j].Data(),
+                                         bankAlias[i][j].Data());
                } else {
                   buffer.AppendFormatted("   %s  Get%sBankAt(Int_t indx) const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
-                  buffer.AppendFormatted("   %s* Get%sBankPointer() const;\n",bankType[i][j].Data(),bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
+                  buffer.AppendFormatted("   %s* Get%sBankPointer() const;\n",bankType[i][j].Data(),bankAlias[i][j].Data());
                   buffer.AppendFormatted("   %s  GetLast%sBankAt(Int_t indx) const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
                   buffer.AppendFormatted("   %s* GetLast%sBankPointer() const;\n",bankType[i][j].Data(),
-                                         bankName[i][j].Data());
+                                         bankAlias[i][j].Data());
                }
-               buffer.AppendFormatted("   Int_t Get%sBankEntries() const;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   Int_t GetLast%sBankEntries() const;\n",bankName[i][j].Data());
-               buffer.AppendFormatted("   void Init%sBank();\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   Int_t Get%sBankEntries() const;\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("   Int_t GetLast%sBankEntries() const;\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("   void Init%sBank();\n",bankAlias[i][j].Data());
             }
-            buffer.AppendFormatted("   bool is%sBankActive() const { return f%sBankActive; }\n",bankName[i][j].Data(),
-                                   bankName[i][j].Data());
+            buffer.AppendFormatted("   bool is%sBankActive() const { return f%sBankActive; }\n",bankAlias[i][j].Data(),
+                                   bankAlias[i][j].Data());
             buffer.AppendFormatted("   void Set%sBankActive(bool flag) { f%sBankActive = flag; }\n",
-                                   bankName[i][j].Data(),bankName[i][j].Data());
+                                   bankAlias[i][j].Data(),bankAlias[i][j].Data());
          }
       }
       buffer.AppendFormatted("   bool is%sEventActive() const { return f%sEventActive; }\n",eventName[i].Data(),
@@ -13158,7 +13158,7 @@ void ROMEBuilder::WriteHTMLDoku()
       for (i = 0; i < numOfEvent; i++) {
          for (j = 0; j < numOfBank[i]; j++) {
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
-               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
+               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("<ul>\n");
                for (k = 0; k < numOfStructFields[i][j]; k++) {
                   if (bankFieldArraySize[i][j][k] == "1") {
@@ -13170,7 +13170,7 @@ void ROMEBuilder::WriteHTMLDoku()
                }
                buffer.AppendFormatted("</ul>\n");
             } else {
-               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
+               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankAlias[i][j].Data());
             }
          }
       }
