@@ -432,6 +432,7 @@ protected:
    ROMEString   *eventTriggerMask;
    ROMEString   *eventSamplingRate;
    ROMEString  **bankName;
+   ROMEString  **bankAlias;
    ROMEString  **bankType;
    Int_t       **bankArraySize;
    Int_t       **bankArrayStart;

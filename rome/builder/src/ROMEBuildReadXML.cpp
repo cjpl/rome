@@ -445,6 +445,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    eventTriggerMask = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfEvents));
    eventSamplingRate = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfEvents));
    bankName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks));
+   bankAlias = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks));
    bankType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks));
    bankArraySize = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
    bankArrayStart = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
@@ -3703,6 +3704,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                      // bank initialisation
                      numOfStructFields[numOfEvent][numOfBank[numOfEvent]] = 0;
                      bankName[numOfEvent][numOfBank[numOfEvent]] = "";
+                     bankAlias[numOfEvent][numOfBank[numOfEvent]] = "";
                      bankType[numOfEvent][numOfBank[numOfEvent]] = "";
                      bankArraySize[numOfEvent][numOfBank[numOfEvent]] = 0;
                      bankArrayStart[numOfEvent][numOfBank[numOfEvent]] = 0;
@@ -3715,8 +3717,18 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                            xml->GetValue(bankName[numOfEvent][numOfBank[numOfEvent]],
                                          bankName[numOfEvent][numOfBank[numOfEvent]]);
                            FormatText(bankName[numOfEvent][numOfBank[numOfEvent]], kTRUE);
+                           if (bankAlias[numOfEvent][numOfBank[numOfEvent]] == "") {
+                              // default bank alias
+                              bankAlias[numOfEvent][numOfBank[numOfEvent]] =
+                                    bankName[numOfEvent][numOfBank[numOfEvent]];
+                           }
                            // output
                            if (makeOutput) cout<<"      "<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()<<endl;
+                        }
+                        if (type == 1 && !strcmp(name,"BankAlias")) {
+                           xml->GetValue(bankAlias[numOfEvent][numOfBank[numOfEvent]],
+                                         bankAlias[numOfEvent][numOfBank[numOfEvent]]);
+                           FormatText(bankAlias[numOfEvent][numOfBank[numOfEvent]], kTRUE);
                         }
                         // bank type
                         if (type == 1 && !strcmp(name,"BankType")) {
@@ -3777,6 +3789,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                      // structured bank initialisation
                      numOfStructFields[numOfEvent][numOfBank[numOfEvent]] = 0;
                      bankName[numOfEvent][numOfBank[numOfEvent]] = "";
+                     bankAlias[numOfEvent][numOfBank[numOfEvent]] = "";
                      bankType[numOfEvent][numOfBank[numOfEvent]] = "struct";
                      bankArraySize[numOfEvent][numOfBank[numOfEvent]] = 0;
                      bankArrayStart[numOfEvent][numOfBank[numOfEvent]] = 0;
@@ -3789,8 +3802,19 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                            xml->GetValue(bankName[numOfEvent][numOfBank[numOfEvent]],
                                          bankName[numOfEvent][numOfBank[numOfEvent]]);
                            FormatText(bankName[numOfEvent][numOfBank[numOfEvent]], kTRUE);
+                           if (bankAlias[numOfEvent][numOfBank[numOfEvent]] == "") {
+                              // default bank alias
+                              bankAlias[numOfEvent][numOfBank[numOfEvent]] =
+                                    bankName[numOfEvent][numOfBank[numOfEvent]];
+                           }
                            // output
                            if (makeOutput) cout<<"      "<<bankName[numOfEvent][numOfBank[numOfEvent]].Data()<<endl;
+                        }
+                        // structured bank name
+                        if (type == 1 && !strcmp(name,"BankAlias")) {
+                           xml->GetValue(bankAlias[numOfEvent][numOfBank[numOfEvent]],
+                                         bankAlias[numOfEvent][numOfBank[numOfEvent]]);
+                           FormatText(bankAlias[numOfEvent][numOfBank[numOfEvent]], kTRUE);
                         }
                         // structured bank field
                         if (type == 1 && !strcmp(name,"BankField")) {
@@ -3944,8 +3968,10 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
       for (j = 0; j < numOfBank[i]; j++) {
          for (k = 0; k < numOfEvent; k++) {
             for (kk = 0; kk< numOfBank[k]; kk++) {
-               if (bankName[i][j] == bankName[k][kk] && (i != k || j != kk)) {
+               if (bankName[i][j] == bankName[k][kk] && bankAlias[i][j] == bankAlias[k][kk] &&
+                   (i != k || j != kk)) {
                   cout<<"\nMidas bank '"<<bankName[i][j].Data()<<"' is defined twice !"<<endl;
+                  cout<<"Use <BankAlias> to give different name in the program."<<endl;
                   cout<<"Terminating program."<<endl;
                   return false;
                }
