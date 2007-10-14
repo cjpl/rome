@@ -93,6 +93,8 @@ const UShort_t TID_LAST      = 17;      //< end of TID list indicator
 const Int_t kMaxMidasEventTypes = 5;
 const Int_t kRawDataEvents      = 8;
 
+class TThread;
+
 class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
    Bool_t        fByteSwap;
@@ -124,6 +126,8 @@ protected:
    Long64_t      fMaxDataEvent;                            //! Maximum number of sequential number of data events in the run.
 
    Bool_t        fByteSwapFlagMightBeWrong;                //! Flag if <MidasByteSwap> might be wrongly specified.
+   TThread      *fOnlineHandlerThread;                     //! Thread to handle online connection
+   Bool_t        fOnlineConnection;                        //! Flag if onine connection should be alive
 
 private:
    ROMEMidasDAQ(const ROMEMidasDAQ &daq); // not implemented
@@ -177,7 +181,6 @@ public:
    Bool_t         Event(Long64_t event);
    Bool_t         EndOfRun();
    Bool_t         Terminate();
-   Bool_t         RespondOnlineRequest();
 
    Bool_t         ReadODBOffline();
 
@@ -195,7 +198,11 @@ public:
    static INT     bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
    virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) const { return aData; } // Must be overwritten by analyzer midas code.
-   Bool_t         ConnectExperiment();
+
+   // online connection
+   void              ConnectExperiment();
+   static Bool_t     RespondOnlineRequest(ROMEMidasDAQ *localThis);
+   static THREADTYPE OnlineConnectionLoop(void *arg);
 
    ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
 };
