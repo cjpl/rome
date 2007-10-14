@@ -909,7 +909,7 @@ Bool_t ROMEMidasDAQ::RespondOnlineRequest(ROMEMidasDAQ *localThis)
 #if defined( HAVE_MIDAS )
    ROME_LOCKGUARD(gOnlineRequestMutex);
 
-   while (!fOnlineConnection) {
+   while (!localThis->fOnlineConnection) {
       // wait until connection is established
       cout<<"connecting to the midas experiment..."<<endl;
       gSystem->Sleep(10);
