@@ -35,18 +35,23 @@ public:
 };
 
 //______________________________________________________________________________
+static void cleaning()
+{
+   // cleaning at exit the program
+   // all functions should be static
+   ROMEAnalyzer::Cleaning();
+}
+
+//______________________________________________________________________________
 Bool_t ROMEInterruptHandler::Notify()
 {
    static Int_t nNotified = 0;
    nNotified++;
-   gROME->Cleaning();
+   cleaning();
 
-   if (gROME->GetApplication()->isUseRintInterruptHandler())
+   if (gROME->GetApplication()->isUseRintInterruptHandler()) {
       return gROME->GetApplication()->GetRintInterruptHandler()->Notify();
-
-#if defined( HAVE_MIDAS )
-      cm_disconnect_experiment();
-#endif
+   }
    if (nNotified >= 2) {
       gSystem->Abort();
    } else {
@@ -56,12 +61,11 @@ Bool_t ROMEInterruptHandler::Notify()
 }
 
 //______________________________________________________________________________
-static void cleaning()
-{
-   // cleaning at exit the program
-   // all functions should be static
-   ROMEAnalyzer::Cleaning();
-}
+void ROMERint::Terminate(int status)
+ {
+    cleaning();
+    TRint::Terminate(status);
+ }
 
 //______________________________________________________________________________
 ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
@@ -82,8 +86,6 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    fROMEInterruptHandler->Add();
    SetSignalHandler(fROMEInterruptHandler);
    fUseRintInterruptHandler = kFALSE;
-
-   atexit((void (*)(void))cleaning);
 }
 
 //______________________________________________________________________________

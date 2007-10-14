@@ -233,6 +233,7 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDeleteArray(fDataBaseDir);
    SafeDeleteArray(fDataBaseHandle);
    gROME = 0;
+   Cleaning();
 }
 
 //______________________________________________________________________________
@@ -1219,6 +1220,9 @@ void ROMEAnalyzer::Cleaning()
    // all functions should be static
    ss_getchar(1);
    restoreOutput();
+#if defined( HAVE_MIDAS )
+   cm_disconnect_experiment();
+#endif
 }
 
 //______________________________________________________________________________

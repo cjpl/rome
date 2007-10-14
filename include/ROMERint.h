@@ -71,6 +71,8 @@ public:
    void            SetSocketClientConnection(const char* connection = "localhost:9090");
    Bool_t          ConnectSocketClient();
 
+   void            Terminate(int status);
+
    ClassDef(ROMERint, 0) // Customized TRint for ROME
 };
 
