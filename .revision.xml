@@ -88,7 +88,7 @@
   <User>meg</User>
   <Host>megon00</Host>
   <Directory>/home/meg/rome</Directory>
-  <LastCompile>Wed, 12 Sep 2007 19:13:19 +0000 (GMT) +841861000 nsec</LastCompile>
+  <LastCompile>Sun, 14 Oct 2007 02:19:18 +0000 (GMT) +101144000 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>sawada</User>
@@ -215,4 +215,10 @@
   <Host>lcmeg00</Host>
   <Directory>/data/disk3/users/sawada/rome-trunk</Directory>
   <LastCompile>Sun, 07 Oct 2007 13:20:44 +0000 (GMT) +297109000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>meg</User>
+  <Host>megon01</Host>
+  <Directory>/home/meg/rome</Directory>
+  <LastCompile>Tue, 09 Oct 2007 19:05:26 +0000 (GMT) +486543000 nsec</LastCompile>
 </Entry>

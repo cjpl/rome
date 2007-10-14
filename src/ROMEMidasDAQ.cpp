@@ -1032,6 +1032,8 @@ THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
       RespondOnlineRequest(localThis);
       gSystem->Sleep(1000);
    }
+
+   cm_disconnect_experiment();
 #endif
 
    return THREADRETURN;
