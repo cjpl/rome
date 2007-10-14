@@ -136,7 +136,7 @@ Bool_t ROMEMidasDAQ::Init()
       while (!fOnlineConnection) {
          // wait until connection is established
          cout<<"connecting to the midas experiment..."<<endl;
-         gSystem->Sleep(10);
+         gSystem->Sleep(100);
       }
 
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,const_cast<char*>("/Runinfo/State"),&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
@@ -912,7 +912,7 @@ Bool_t ROMEMidasDAQ::RespondOnlineRequest(ROMEMidasDAQ *localThis)
    while (!localThis->fOnlineConnection) {
       // wait until connection is established
       cout<<"connecting to the midas experiment..."<<endl;
-      gSystem->Sleep(10);
+      gSystem->Sleep(100);
    }
 
    INT size;
@@ -958,6 +958,8 @@ Bool_t ROMEMidasDAQ::RespondOnlineRequest(ROMEMidasDAQ *localThis)
       localThis->SetContinue();
       return kTRUE;
    }
+#else
+   WarningSuppression(localThis);
 #endif
    return kTRUE;
 }
@@ -1030,10 +1032,13 @@ THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
 
    while (localThis->fOnlineConnection) {
       RespondOnlineRequest(localThis);
-      gSystem->Sleep(1000);
+      gSystem->Sleep(100);
    }
 
    cm_disconnect_experiment();
+
+#else
+   WarningSuppression(arg);
 #endif
 
    return THREADRETURN;
