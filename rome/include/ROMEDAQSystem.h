@@ -51,7 +51,7 @@ public:
    virtual Bool_t   EndOfRun() = 0;
    virtual Bool_t   Terminate() = 0;
    virtual Bool_t   GetAlwaysFillTrees() const { return kFALSE; }
-   virtual Bool_t   RespondOnlineRequest() { return kTRUE; }
+
 public:
    // Run Status
    Bool_t           isRunning() const  { return (fRunStatus == kRunning); }

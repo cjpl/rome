@@ -158,15 +158,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          return;
       }
    } else {
-      if (gROME->IsActiveDAQ("midas") && gROME->isOnline()) {
+      if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
 #if defined( HAVE_MIDAS )
          // connect midas experiment
-         if(!static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->ConnectExperiment()) {
-            this->Terminate();
-            gROME->SetTerminationFlag();
-            ROMEPrint::Print("\n\nTerminating Program !\n");
-            return;
-         }
+         static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->ConnectExperiment();
 #endif
       }
    }
@@ -420,10 +415,10 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // User Input
-   if (!this->isContinue() && !gROME->IsROMEMonitor()) {
-      ROMEPrint::Debug("ROMEEventLoop::RunEvent() : UserInput\n");
+   if ((!this->isContinue() || gROME->isOnline()) && !gROME->IsROMEMonitor()) {
       if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
          if (!fFirstUserInput && fCurrentEvent > 0) {
+            ROMEPrint::Debug("ROMEEventLoop::RunEvent() : UserInput\n");
             if (!this->UserInput()) {
                gROME->SetTerminationFlag();
                if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
@@ -1197,11 +1192,6 @@ Bool_t ROMEEventLoop::UserInput()
          gROME->GetApplication()->DisableFPETrap();
          gSystem->ProcessEvents();
          gROME->GetApplication()->EnableFPETrap();
-         if (gROME->isOnline()) {
-            if (!gROME->GetActiveDAQ()->RespondOnlineRequest()) {
-               break;
-            }
-         }
          gSystem->Sleep(10);
       }
 
