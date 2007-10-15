@@ -62,10 +62,10 @@ Bool_t ROMEInterruptHandler::Notify()
 
 //______________________________________________________________________________
 void ROMERint::Terminate(int status)
- {
-    cleaning();
-    TRint::Terminate(status);
- }
+{
+   cleaning();
+   TRint::Terminate(status);
+}
 
 //______________________________________________________________________________
 ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
