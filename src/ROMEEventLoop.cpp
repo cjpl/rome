@@ -420,7 +420,7 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // User Input
-   if (!this->isContinue() && !gROME->IsROMEMonitor()) {
+   if ((!this->isContinue() || gROME->isOnline()) && !gROME->IsROMEMonitor()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : UserInput\n");
       if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
          if (!fFirstUserInput && fCurrentEvent > 0) {
