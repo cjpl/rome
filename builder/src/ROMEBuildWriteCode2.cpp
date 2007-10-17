@@ -3862,8 +3862,13 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("   if (IsROMEMonitor()) {\n");
          buffer.AppendFormatted("      Update%s();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx)\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sFolders->ExpandCreate(indx);\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx) {\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %%d th element of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",indx);\n",
+                                folderName[numFolder].Data(),folderArray[numFolder].Data());
+         buffer.AppendFormatted("      gSystem->StackTrace();\n");
+         buffer.AppendFormatted("      fApplication->Terminate(1);\n");
+         buffer.AppendFormatted("      return 0;\n");
+         buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),
                                 folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("}\n");
@@ -3898,13 +3903,13 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("      Update%s();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx) {\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("     ROMEPrint::Error(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",indx);\n",
+         buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %%d th element of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",indx);\n",
                                 folderName[numFolder].Data(),folderArray[numFolder].Data());
-         buffer.AppendFormatted("     gSystem->StackTrace();\n");
-         buffer.AppendFormatted("     fApplication->Terminate(1);\n");
-         buffer.AppendFormatted("     return 0;\n");
+         buffer.AppendFormatted("      gSystem->StackTrace();\n");
+         buffer.AppendFormatted("      fApplication->Terminate(1);\n");
+         buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("  return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),
+         buffer.AppendFormatted("   return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),
                                 folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
