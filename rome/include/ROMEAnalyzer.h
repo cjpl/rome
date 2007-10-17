@@ -210,8 +210,8 @@ protected:
    Int_t          fSocketClientPort;             //! Socket connection to ROME port
 
    // Statistics
-   Statistics     fTriggerStatistics;            //! Trigger Statistics
-   Statistics     fScalerStatistics;             //! Scaler Statistics
+   Statistics    *fStatistics;                   //! Event statistics for each event types
+   Int_t          fMaxEventID;                   //! Max EventID
 
    // Data base
    ROMEDataBase **fDataBaseHandle;               //! DataBase Handles
@@ -498,7 +498,8 @@ public:
    void            SetEventID(Int_t eventID) { fEventID = eventID; }
 
   // Processed Events
-   Double_t        GetProcessedEvents() const { return fTriggerStatistics.processedEvents; }
+   Double_t        GetProcessedEvents() const           { return fStatistics[0].processedEvents; }
+   Double_t        GetProcessedEventsAt(Int_t id) const { return id < fMaxEventID && id >= 0 ? fStatistics[id].processedEvents : 0; }
 
    // main objects
    TFolder        *GetMainFolder() const { return fMainFolder; }
@@ -555,8 +556,10 @@ public:
    virtual Bool_t  ShowConfigurationFile() = 0;
 
    // Statistics
-   Statistics     *GetTriggerStatistics() { return &fTriggerStatistics; }
-   Statistics     *GetScalerStatistics() { return &fScalerStatistics; }
+   Statistics     *GetStatisticsAt(Int_t id) const { return id < fMaxEventID && id >= 0 ? &fStatistics[id] : 0; }
+   Statistics     *GetTriggerStatistics() { return &fStatistics[0]; }
+   Statistics     *GetScalerStatistics() { return &fStatistics[1]; }
+   Int_t           GetMaxEventID() const { return fMaxEventID; }
 
    // Start Method
    Bool_t  Start(int argc = 0, char **argv = 0);

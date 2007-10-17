@@ -3965,6 +3965,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
       }
    }
    for (i = 0; i < numOfEvent; i++) {
+      maxEventID = TMath::Max(maxEventID, static_cast<Int_t>(strtol(eventID[i], &cstop, 10)));
       for (j = 0; j < numOfBank[i]; j++) {
          for (k = 0; k < numOfEvent; k++) {
             for (kk = 0; kk< numOfBank[k]; kk++) {

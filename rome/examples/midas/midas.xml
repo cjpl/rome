@@ -38,6 +38,15 @@
 			</Field>
 		</Folder>
 	</Folders>
+	<Trees>
+		<Tree>
+			<TreeName>run</TreeName>
+			<Branch>
+				<BranchName>Data</BranchName>
+				<RelatedFolder>Data</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
 	<Tasks>
 		<Task>
 			<TaskName>PrintValues</TaskName>
@@ -94,6 +103,18 @@
 				<Bank>
 					<BankName>SCLR</BankName>
 					<BankType>WORD</BankType>
+				</Bank>
+			</Banks>
+		</EventDefinition>
+		<EventDefinition>
+			<EventName>Environment</EventName>
+			<EventID>5</EventID>
+			<EventTriggerMask>-1</EventTriggerMask>
+			<EventSamplingRate>2</EventSamplingRate>
+			<Banks>
+				<Bank>
+					<BankName>INPT</BankName>
+					<BankType>Float_t</BankType>
 				</Bank>
 			</Banks>
 		</EventDefinition>

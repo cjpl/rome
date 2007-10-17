@@ -42,8 +42,8 @@ protected:
    Long64_t      fStopAtEvent;                     //! Stop execution at this event
 
    // Statistics update
-   ULong_t       fStatisticsTimeOfLastEvent;       //! Time of last Event
-   Double_t      fStatisticsLastEvent;             //! Last Event
+   ULong_t      *fStatisticsTimeOfLastEvent;       //! Time of last Event
+   Double_t     *fStatisticsLastEvent;             //! Last Event
 
    // Progress Display
    Int_t         fProgressDelta;                   //! Maximal time difference
@@ -183,6 +183,8 @@ protected:
 
    virtual void ReadRunHeaders() = 0;
    virtual void WriteRunHeaders() = 0;
+
+   virtual void ResetStatistics() = 0;
 
    ClassDef(ROMEEventLoop, 0) // Base event loop class
 };

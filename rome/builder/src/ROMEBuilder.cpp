@@ -339,6 +339,7 @@ ROMEBuilder::ROMEBuilder()
 ,eventID(0)
 ,eventTriggerMask(0)
 ,eventSamplingRate(0)
+,maxEventID(2) /* at least 2, for backward compatibility (assuming trigger and scaler) */
 ,bankName(0)
 ,bankAlias(0)
 ,bankType(0)
