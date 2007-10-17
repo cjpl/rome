@@ -5256,6 +5256,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    buffer.AppendFormatted(",fDBAccess(new %sDBAccess())\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fMaxEventID = %d;\n", maxEventID);
+   buffer.AppendFormatted("   fStatistics = new Statistics[fMaxEventID];\n");
+   buffer.AppendFormatted("   memset(fStatistics, 0, sizeof(Statistics) * fMaxEventID);\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
@@ -5362,10 +5366,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
       buffer.AppendFormatted("\n");
    }
-   buffer.AppendFormatted("   fMaxEventID = %d;\n", maxEventID);
-   buffer.AppendFormatted("   fStatistics = new Statistics[fMaxEventID];\n");
-   buffer.AppendFormatted("   memset(fStatistics, 0, sizeof(Statistics) * fMaxEventID);\n");
-   buffer.AppendFormatted("\n");
    // End of Constructor
    buffer.AppendFormatted("}\n\n");
 
@@ -11627,8 +11627,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("%sEventLoop::%sEventLoop(const char *name,const char *title):ROMEEventLoop(name,title)\n{\n",
                           shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("   fStatisticsTimeOfLastEvent = new ULong_t[gROME->GetMaxEventID()];\n");
-   buffer.AppendFormatted("   fStatisticsLastEvent = new Double_t[gROME->GetMaxEventID()];\n");
+   buffer.AppendFormatted("   fStatisticsTimeOfLastEvent = new ULong_t[gAnalyzer->GetMaxEventID()];\n");
+   buffer.AppendFormatted("   fStatisticsLastEvent = new Double_t[gAnalyzer->GetMaxEventID()];\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
