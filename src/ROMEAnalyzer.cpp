@@ -167,8 +167,8 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fSocketClientNetFolder(0)
 ,fSocketClientHost("localhost")
 ,fSocketClientPort(9090)
-,fTriggerStatistics()
-,fScalerStatistics()
+,fStatistics(0)
+,fMaxEventID(0)
 ,fDataBaseHandle(0)
 ,fDataBaseName(0)
 ,fDataBaseConnection(0)
@@ -232,6 +232,7 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDeleteArray(fDataBaseName);
    SafeDeleteArray(fDataBaseDir);
    SafeDeleteArray(fDataBaseHandle);
+   SafeDeleteArray(fStatistics);
    gROME = 0;
    Cleaning();
 }

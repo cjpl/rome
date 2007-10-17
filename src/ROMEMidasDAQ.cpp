@@ -140,30 +140,6 @@ Bool_t ROMEMidasDAQ::Init()
       // Initialize the online database
       HNDLE hKey;
       ROMEString str;
-      str = "//Trigger/Statistics";
-      str.Insert(1, gROME->GetOnlineAnalyzerName());
-      // Trigger Statistics
-      char *triggerStatisticsString = const_cast<char*>("Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n");
-      db_check_record(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()),
-                      triggerStatisticsString, TRUE);
-      db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()), &hKey);
-      if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(),
-                         sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         ROMEPrint::Warning("\nCan not open trigger statistics record, probably other analyzer is using it\n");
-      }
-
-      // Scaler Statistics
-      char *fScalerStatisticsString = const_cast<char*>("Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n");
-      str="//Scaler/Statistics";
-      str.Insert(1,gROME->GetOnlineAnalyzerName());
-      db_check_record(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()),
-                      fScalerStatisticsString, TRUE);
-      db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()), &hKey);
-      if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics),
-                         MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         ROMEPrint::Warning("\nCan not open scaler statistics record, probably other analyzer is using it\n");
-      }
-
       // Tree Switches
       const Int_t nTree = gROME->GetTreeObjectEntries();
       Int_t i;

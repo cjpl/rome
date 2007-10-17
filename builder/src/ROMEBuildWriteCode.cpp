@@ -5229,7 +5229,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                           shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(":ROMEAnalyzer(app,batch,daemon,nographics,mode");
    buffer.AppendFormatted(",\"%s%s\"",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted(",\"%s%s\"",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted(",\"Analyzer\"");
    buffer.AppendFormatted(",new %sConfig()",shortCut.Data());
    buffer.AppendFormatted(",%d", numOfNetFolder);
    buffer.AppendFormatted(")\n");
@@ -5362,6 +5362,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
       buffer.AppendFormatted("\n");
    }
+   buffer.AppendFormatted("   fMaxEventID = %d;\n", maxEventID);
+   buffer.AppendFormatted("   fStatistics = new Statistics[fMaxEventID];\n");
+   buffer.AppendFormatted("   memset(fStatistics, 0, sizeof(Statistics) * fMaxEventID);\n");
    buffer.AppendFormatted("\n");
    // End of Constructor
    buffer.AppendFormatted("}\n\n");
@@ -9170,6 +9173,26 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
       }
+
+      // Statistics
+      char *cstop = 0;
+      buffer.AppendFormatted("   char *triggerStatisticsString = const_cast<char*>(\"Events received = DOUBLE : 0\\n"
+                             "Events per sec. = DOUBLE : 0\\n"
+                             "Events written = DOUBLE : 0\\n\");\n");
+      for (i = 0; i < numOfEvent; i++) {
+         buffer.AppendFormatted("   str = \"//%s/Statistics\";\n", eventName[i].Data());
+         buffer.AppendFormatted("   str.Insert(1, gAnalyzer->GetOnlineAnalyzerName());\n");
+         buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()),\n");
+         buffer.AppendFormatted("                   triggerStatisticsString, TRUE);\n");
+         buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()), &hKey);\n");
+         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetStatisticsAt(%d),\n",
+                                static_cast<Int_t>(strtol(eventID[i], &cstop, 10) - 1));
+         buffer.AppendFormatted("                      sizeof(Statistics), MODE_WRITE, 0, 0) != DB_SUCCESS) {\n");
+         buffer.AppendFormatted("      ROMEPrint::Warning(\"\\nCan not open %s statistics record, probably other analyzer is using it\\n\");\n",
+                                eventName[i].Data());
+         buffer.AppendFormatted("   }\n");
+      }
+
       buffer.AppendFormatted("   return true;\n");
       buffer.AppendFormatted("}\n\n");
    }
@@ -10216,7 +10239,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
    buffer.AppendFormatted("   fTrees->RemoveAll();\n");
    for (i = 0; i < numOfRootTree; i++) {
       buffer.AppendFormatted("   tree = 0;\n");
-      buffer.AppendFormatted("   for (i = 0; i < gROME->GetNumberOfInputFileNames() && tree == 0; i++) {\n");
+      buffer.AppendFormatted("   for (i = 0; i < gAnalyzer->GetNumberOfInputFileNames() && tree == 0; i++) {\n");
       buffer.AppendFormatted("      tree = (TTree*)fRootFiles[i]->FindObjectAny(\"%s\");\n",rootTreeName[i].Data());
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   if (tree == 0) {\n");
@@ -11604,6 +11627,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("%sEventLoop::%sEventLoop(const char *name,const char *title):ROMEEventLoop(name,title)\n{\n",
                           shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("   fStatisticsTimeOfLastEvent = new ULong_t[gROME->GetMaxEventID()];\n");
+   buffer.AppendFormatted("   fStatisticsLastEvent = new Double_t[gROME->GetMaxEventID()];\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -11798,7 +11823,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("// Tree Filling\n");
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sEventLoop::FillTrees()\n{\n",shortCut.Data());
-   buffer.AppendFormatted("   Statistics *stat = gAnalyzer->GetTriggerStatistics();\n");
+   buffer.AppendFormatted("   Int_t eventID = gAnalyzer->GetEventID() == -1 ? 1 : gAnalyzer->GetEventID();\n");
+   buffer.AppendFormatted("   Statistics *stat = eventID > gAnalyzer->GetMaxEventID(gAnalyzer->GetMaxEventID() || eventID <= 0 ? 0 : gAnalyzer->GetStatisticsAt(eventID - 1);\n");
    if (numOfTree>0) {
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
    }
@@ -11859,7 +11885,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
-   buffer.AppendFormatted("   if (written) {\n");
+   buffer.AppendFormatted("   if (written && stat) {\n");
    buffer.AppendFormatted("      stat->writtenEvents++;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("}\n");
@@ -11899,7 +11925,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    if (numOfTree>0) {
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   gROME->ReplaceWithRunAndEventNumber(buffer);\n");
+      buffer.AppendFormatted("   gAnalyzer->ReplaceWithRunAndEventNumber(buffer);\n");
    }
    buffer.AppendFormatted("   return;\n");
    if (numOfTree <= 0) {
@@ -12093,7 +12119,23 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          buffer.AppendFormatted("   }\n");
       }
    }
+
    buffer.AppendFormatted("}\n\n");
+
+   // Reset statistics
+   buffer.Append(kMethodLine);
+   buffer.AppendFormatted("void %sEventLoop::ResetStatistics()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   memset(fStatisticsTimeOfLastEvent, 0, sizeof(ULong_t) * gAnalyzer->GetMaxEventID());\n");
+   buffer.AppendFormatted("   memset(fStatisticsLastEvent, 0, sizeof(Double_t) * gAnalyzer->GetMaxEventID());\n");
+   buffer.AppendFormatted("   Statistics *stat;\n");
+   buffer.AppendFormatted("   Int_t i;\n");
+   buffer.AppendFormatted("   for (i = 0; i < gAnalyzer->GetMaxEventID(); i++) {\n");
+   buffer.AppendFormatted("      stat = gAnalyzer->GetStatisticsAt(i);\n");
+   buffer.AppendFormatted("      stat->processedEvents = 0;\n");
+   buffer.AppendFormatted("      stat->eventsPerSecond = 0;\n");
+   buffer.AppendFormatted("      stat->writtenEvents = 0;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("}\n");
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -12175,6 +12217,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    }
 
    buffer.AppendFormatted("   void ReadHistograms();\n");
+   buffer.AppendFormatted("   void ResetStatistics();\n");
    buffer.AppendFormatted("\n");
 
    // Footer

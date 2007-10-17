@@ -36,7 +36,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <!-- The name of the online experiment. (required) -->
       <Experiment></Experiment>
       <!-- The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional) -->
-      <AnalyzerName>OtherMIDAnalyzer</AnalyzerName>
+      <AnalyzerName>Analyzer</AnalyzerName>
       <!-- The name of the memory buffer to be accessed. (optional) -->
       <MemoryBuffer>SYSTEM</MemoryBuffer>
     </Online>
@@ -105,6 +105,35 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <EventBased>false</EventBased>
         </DataBase>
       </DataBases>
+
+      <Trees>
+        <Accumulate>false</Accumulate>
+        <Tree>
+          <TreeName>run</TreeName>
+          <!-- Trees can be read into the framework to start the analysis from a previously saved state. Default is false. -->
+          <Read>false</Read>
+          <!-- Trees are written to disc. Default is false. -->
+          <Write>true</Write>
+          <!-- Trees are filled. It will be changed to true when 'Write' is true. Default is false. -->
+          <Fill>true</Fill>
+          <!-- Compression level for all branches of the tree. Default is 0. -->
+          <CompressionLevel>1</CompressionLevel>
+          <!-- If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0. -->
+          <MaxNumberOfEntries>0</MaxNumberOfEntries>
+          <!-- The name of the trees input file. This value overwrites the value specified in the definition file. (optional) -->
+          <TreeInputFileName></TreeInputFileName>
+          <!-- The name of the trees output file. This value overwrites the value specified in the definition file. (optional) -->
+          <TreeOutputFileName></TreeOutputFileName>
+          <!-- If this is true, content of configuration XML file will be saved in the output file. Default is false -->
+          <SaveConfiguration>false</SaveConfiguration>
+          <Branch>
+            <!-- Description of a branch. -->
+            <BranchName>Data</BranchName>
+            <!-- Inactive branches are not filled by the framework. (optional) -->
+            <Active>true</Active>
+          </Branch>
+        </Tree>
+      </Trees>
 
       <GlobalSteeringParameters>
         <SteeringParameterField>
@@ -197,6 +226,19 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Bank>
           <!-- Description of a midas bank. -->
           <BankName>SCLR</BankName>
+          <!-- If true, this bank will be analyzed. Default is false. -->
+          <Active>true</Active>
+        </Bank>
+      </Event>
+
+      <Event>
+        <!-- Description of a midas event. -->
+        <EventName>Environment</EventName>
+        <!-- If true, this event type will be analyzed. Default is false. -->
+        <Active>true</Active>
+        <Bank>
+          <!-- Description of a midas bank. -->
+          <BankName>INPT</BankName>
           <!-- If true, this bank will be analyzed. Default is false. -->
           <Active>true</Active>
         </Bank>

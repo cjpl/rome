@@ -108,6 +108,8 @@ ROMEEventLoop::~ROMEEventLoop()
       fNetFolderServerUpdateThread = 0;
    }
    SafeDelete(fHistoFile);
+   SafeDeleteArray(fStatisticsTimeOfLastEvent);
+   SafeDeleteArray(fStatisticsLastEvent);
 }
 
 //______________________________________________________________________________
@@ -669,14 +671,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    gROME->SetCurrentEventNumber(kEventNumberBeginOfRun);
 
    // Statistics
-   Statistics *stat = gROME->GetTriggerStatistics();
-   stat->processedEvents = 0;
-   stat->eventsPerSecond = 0;
-   stat->writtenEvents = 0;
-   fStatisticsTimeOfLastEvent = 0;
-   fProgressTimeOfLastEvent = 0;
-   fLastUpdateTime = 0;
-   fStatisticsLastEvent = 0;
+   ResetStatistics();
 
    if (gROME->isOffline() && (gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
       // run number based IO
@@ -814,16 +809,12 @@ Bool_t ROMEEventLoop::DAQEvent()
    // Reads an event. Called before the Event tasks.
    ROMEPrint::Debug("Executing DAQ Event\n");
 
-   Statistics *stat = gROME->GetTriggerStatistics();
-
    if (gROME->IsDontReadNextEvent()) {
       gROME->SetDontReadNextEvent(false);
       fCurrentEvent--;
       return true;
    }
-
    this->SetAnalyze();
-
 
    ROMEPrint::Debug("Reset folders\n");
    this->ResetFolders();
@@ -850,18 +841,31 @@ Bool_t ROMEEventLoop::DAQEvent()
    }
 
    // Update Statistics
-   stat->processedEvents++;
-   ULong_t time = static_cast<ULong_t>(gSystem->Now());
-   if (fStatisticsTimeOfLastEvent == 0) {
-      fStatisticsTimeOfLastEvent = time;
+   Int_t eventIndex = gROME->GetEventID();
+   Statistics *stat;
+   if (eventIndex == -1){
+      eventIndex = 0;
+      stat = gROME->GetStatisticsAt(eventIndex);
+   } else if(eventIndex < 0 || eventIndex >= gROME->GetMaxEventID()) {
+      stat = 0;
+   } else {
+      eventIndex = gROME->GetEventID() - 1;
+      stat = gROME->GetStatisticsAt(eventIndex);
    }
-   if (time - fStatisticsTimeOfLastEvent != 0) {
-      stat->eventsPerSecond = (stat->processedEvents-fStatisticsLastEvent)/(time-fStatisticsTimeOfLastEvent)*1000.0;
+   if (stat) {
+      stat->processedEvents++;
+      ULong_t time = static_cast<ULong_t>(gSystem->Now());
+      if (fStatisticsTimeOfLastEvent[eventIndex] == 0) {
+         fStatisticsTimeOfLastEvent[eventIndex] = time;
+      }
+      if (time - fStatisticsTimeOfLastEvent[eventIndex] != 0) {
+         stat->eventsPerSecond = (stat->processedEvents-fStatisticsLastEvent[eventIndex])/(time-fStatisticsTimeOfLastEvent[eventIndex])*1000.0;
+      }
+      fStatisticsTimeOfLastEvent[eventIndex] = time;
+      fStatisticsLastEvent[eventIndex] = stat->processedEvents;
    }
-   fStatisticsTimeOfLastEvent = time;
 
    fTreeInfo->SetTimeStamp(gROME->GetActiveDAQ()->GetTimeStamp());
-   fStatisticsLastEvent = stat->processedEvents;
 
    return true;
 }

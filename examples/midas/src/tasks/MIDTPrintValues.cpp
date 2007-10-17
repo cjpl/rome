@@ -13,6 +13,7 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
+//     Data                                                                   //
 //     ODB                                                                    //
 //                                                                            //
 //                                                                            //
@@ -58,10 +59,16 @@ void MIDTPrintValues::Event()
    cout << "TestValue : " << gAnalyzer->GetGSP()->GetTestValue() << endl;
    cout << "ADC0" << endl;
    for (i=0;i<gAnalyzer->GetMidasDAQ()->GetADC0BankEntries();i++) {
+      if (i < 8) {
+         gAnalyzer->GetData()->SetADCAt(i, gAnalyzer->GetMidasDAQ()->GetADC0BankAt(i));
+      }
       cout << gAnalyzer->GetMidasDAQ()->GetADC0BankAt(i) << endl;
    }
    cout << "TDC0" << endl;
    for (i=0;i<gAnalyzer->GetMidasDAQ()->GetTDC0BankEntries();i++) {
+      if (i < 8) {
+         gAnalyzer->GetData()->SetTDCAt(i, gAnalyzer->GetMidasDAQ()->GetTDC0BankAt(i));
+      }
       cout << gAnalyzer->GetMidasDAQ()->GetTDC0BankAt(i) << endl;
    }
    cout << endl;
@@ -70,7 +77,9 @@ void MIDTPrintValues::Event()
       cout << gAnalyzer->GetMidasDAQ()->GetSCLRBankAt(i) << endl;
    }
    cout << endl;
-   gSystem->Sleep(10);
+   if (gROME->isOffline()) {
+      gSystem->Sleep(10);
+   }
 }
 
 void MIDTPrintValues::EndOfRun()

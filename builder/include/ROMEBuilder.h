@@ -431,6 +431,7 @@ protected:
    ROMEString   *eventID;
    ROMEString   *eventTriggerMask;
    ROMEString   *eventSamplingRate;
+   Int_t         maxEventID;
    ROMEString  **bankName;
    ROMEString  **bankAlias;
    ROMEString  **bankType;
