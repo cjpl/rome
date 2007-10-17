@@ -11824,7 +11824,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sEventLoop::FillTrees()\n{\n",shortCut.Data());
    buffer.AppendFormatted("   Int_t eventID = gAnalyzer->GetEventID() == -1 ? 1 : gAnalyzer->GetEventID();\n");
-   buffer.AppendFormatted("   Statistics *stat = eventID > gAnalyzer->GetMaxEventID(gAnalyzer->GetMaxEventID() || eventID <= 0 ? 0 : gAnalyzer->GetStatisticsAt(eventID - 1);\n");
+   buffer.AppendFormatted("   Statistics *stat = (eventID > gAnalyzer->GetMaxEventID() || eventID <= 0) ?\n");
+   buffer.AppendFormatted("                      0 : gAnalyzer->GetStatisticsAt(eventID - 1);\n");
    if (numOfTree>0) {
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
    }
