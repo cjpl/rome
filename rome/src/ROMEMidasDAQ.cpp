@@ -904,7 +904,7 @@ Bool_t ROMEMidasDAQ::ConnectExperiment()
 #endif
 
    // Registers a callback function for run transitions.
-   if (!gROME->IsStandAloneARGUS() {
+   if (!gROME->IsStandAloneARGUS()) {
       if(cm_register_transition(TR_START, 0 ,500) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, 0, 500) != CM_SUCCESS) {
          ROMEPrint::Error("\nCan not connect to experiment\n");
