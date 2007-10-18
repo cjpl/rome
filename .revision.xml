@@ -234,3 +234,9 @@
   <Directory>/home/scratch/sawada/rome</Directory>
   <LastCompile>Wed, 17 Oct 2007 16:40:58 +0000 (GMT) +202839000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>yamada</User>
+  <Host>bahamoud</Host>
+  <Directory>/scratch1/yamada/rome/gcc411</Directory>
+  <LastCompile>Thu, 18 Oct 2007 08:26:10 +0000 (GMT) +889820000 nsec</LastCompile>
+</Entry>

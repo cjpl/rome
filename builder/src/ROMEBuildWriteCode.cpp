@@ -7330,14 +7330,16 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("   SetStatus(0, \"\", 0);\n");
    buffer.AppendFormatted("   fWatchAll.Start(false);\n");
 
+   buffer.AppendFormatted("   if (!gAnalyzer->IsStandAloneARGUS()){\n");
 #if defined(R__UNIX)
-   buffer.AppendFormatted("   sprintf(str, \"Run : %%6lld     Event : %%6lld\",\n");
+   buffer.AppendFormatted("      sprintf(str, \"Run : %%6lld     Event : %%6lld\",\n");
 #else
-   buffer.AppendFormatted("   sprintf(str, \"Run : %%6I64d     Event : %%6I64d\",\n");
+   buffer.AppendFormatted("      sprintf(str, \"Run : %%6I64d     Event : %%6I64d\",\n");
 #endif
-   buffer.AppendFormatted("           gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber());\n");
-   buffer.AppendFormatted("   fRunEventNumber->SetText(str);\n");
-   buffer.AppendFormatted("   fInfoFrame->Layout(); // call the parents frame's Layout() method to force updating of size of labels.\n");
+   buffer.AppendFormatted("              gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber());\n");
+   buffer.AppendFormatted("      fRunEventNumber->SetText(str);\n");
+   buffer.AppendFormatted("      fInfoFrame->Layout(); // call the parents frame's Layout() method to force updating of size of labels.\n");
+   buffer.AppendFormatted("   }\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
