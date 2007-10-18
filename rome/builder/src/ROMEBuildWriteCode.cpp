@@ -9178,9 +9178,11 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
 
       // Statistics
       char *cstop = 0;
-      buffer.AppendFormatted("   char *triggerStatisticsString = const_cast<char*>(\"Events received = DOUBLE : 0\\n"
-                             "Events per sec. = DOUBLE : 0\\n"
-                             "Events written = DOUBLE : 0\\n\");\n");
+      if (numOfEvent) {
+         buffer.AppendFormatted("   char *triggerStatisticsString = const_cast<char*>(\"Events received = DOUBLE : 0\\n"
+                                "Events per sec. = DOUBLE : 0\\n"
+                                "Events written = DOUBLE : 0\\n\");\n");
+      }
       for (i = 0; i < numOfEvent; i++) {
          buffer.AppendFormatted("   str = \"//%s/Statistics\";\n", eventName[i].Data());
          buffer.AppendFormatted("   str.Insert(1, gAnalyzer->GetOnlineAnalyzerName());\n");

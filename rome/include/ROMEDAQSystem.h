@@ -13,6 +13,13 @@
 
 class ROMEDAQSystem : public TObject
 {
+protected:
+   Int_t         fRunStatus;                       //! Run Status flag
+   Int_t         fEventStatus;                     //! Event Status flag
+   ROMEStopwatch fWatchEvent;                      //! Records time used by DAQ Events
+   ROMEStopwatch fWatchAll;                        //! Records time used by DAQ
+
+public:
    // Run Status
    enum {
       kRunning   = 0,
@@ -26,11 +33,6 @@ class ROMEDAQSystem : public TObject
       kEndOfRun    = 3,
       kTerminate   = 4
    };
-
-   Int_t         fRunStatus;                       //! Run Status flag
-   Int_t         fEventStatus;                     //! Event Status flag
-   ROMEStopwatch fWatchEvent;                      //! Records time used by DAQ Events
-   ROMEStopwatch fWatchAll;                        //! Records time used by DAQ
 
 public:
    ROMEDAQSystem():fRunStatus(0),fEventStatus(0),fWatchEvent(),fWatchAll() {}
@@ -51,7 +53,7 @@ public:
    virtual Bool_t   EndOfRun() = 0;
    virtual Bool_t   Terminate() = 0;
    virtual Bool_t   GetAlwaysFillTrees() const { return kFALSE; }
-   virtual Bool_t   RespondOnlineRequest() { return kTRUE; }
+
 public:
    // Run Status
    Bool_t           isRunning() const  { return (fRunStatus == kRunning); }
