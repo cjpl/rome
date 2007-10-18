@@ -14,8 +14,6 @@ class ROMEStr2DArray;
 class ROMEODBOnlineDataBase : public ROMEDataBase
 {
 protected:
-   Int_t  fODBBufferSize;
-   char  *fODBBuffer;
 
 private:
    ROMEODBOnlineDataBase(const ROMEODBOnlineDataBase &db); // not implemented
@@ -30,9 +28,6 @@ public:
    Bool_t      Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
    const char* GetType() const { return "odb"; }
    const char* GetDescription() const { return "Midas ODB database for online use"; }
-
-   Int_t       GetODBBufferSize() const { return fODBBufferSize; }
-   void        SetODBBufferSize(Int_t size);
 
    ClassDef(ROMEODBOnlineDataBase, 0) // Interface to ODB in online
 };

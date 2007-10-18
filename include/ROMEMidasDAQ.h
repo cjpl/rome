@@ -93,6 +93,10 @@ const UShort_t TID_LAST      = 17;      //< end of TID list indicator
 const Int_t kMaxMidasEventTypes = 5;
 const Int_t kRawDataEvents      = 8;
 
+class TThread;
+class TTimer;
+class ROMEStr2DArray;
+
 class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
    Bool_t        fByteSwap;
@@ -124,6 +128,13 @@ protected:
    Long64_t      fMaxDataEvent;                            //! Maximum number of sequential number of data events in the run.
 
    Bool_t        fByteSwapFlagMightBeWrong;                //! Flag if <MidasByteSwap> might be wrongly specified.
+   TThread      *fOnlineHandlerThread;                     //! Thread to handle online connection
+   TTimer       *fOnlineHandlerTimer;                      //! Timer to handle online connection
+   Bool_t        fOnlineConnection;                        //! Flag if onine connection should be alive in thread
+   Bool_t        fOnlineThread;                            //! Flag if using thread for online communication
+
+   Int_t         fODBBufferSize;                           //! Buffer size for ODB online database
+   char         *fODBBuffer;                               //! Buffer for ODB online database
 
 private:
    ROMEMidasDAQ(const ROMEMidasDAQ &daq); // not implemented
@@ -177,9 +188,17 @@ public:
    Bool_t         Event(Long64_t event);
    Bool_t         EndOfRun();
    Bool_t         Terminate();
-   Bool_t         RespondOnlineRequest();
 
    Bool_t         ReadODBOffline();
+   Bool_t         ReadODBOnline(ROMEStr2DArray *values, const char *dataBasePath,
+                                Long64_t runNumber, Long64_t eventNumber);
+   Bool_t         WriteODBOnline(ROMEStr2DArray *values, const char *dataBasePath,
+                                 Long64_t runNumber, Long64_t eventNumber);
+   Bool_t         ActualReadODBOnline(ROMEStr2DArray *values, const char *dataBasePath,
+                                      Long64_t runNumber, Long64_t eventNumber);
+   Bool_t         ActualWriteODBOnline(ROMEStr2DArray *values, const char *dataBasePath
+                                       , Long64_t runNumber, Long64_t eventNumber);
+
 
    virtual Bool_t IsActiveEventID(Int_t /*id*/) const { return true; }
 #if defined( HAVE_MIDAS )
@@ -195,7 +214,21 @@ public:
    static INT     bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
    virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) const { return aData; } // Must be overwritten by analyzer midas code.
-   Bool_t         ConnectExperiment();
+
+   // online connection
+   void              SetOnlineThread(Bool_t flag) { fOnlineThread = flag; }
+   Bool_t            IsOnlineThread() const { return fOnlineThread; }
+
+   static THREADTYPE OnlineConnectionLoop(void *arg);
+   static Bool_t     ConnectExperiment(ROMEMidasDAQ *localThis);
+   static Bool_t     CheckTransition();
+   static Bool_t     ReadOnlineEvent(ROMEMidasDAQ *localThis);
+   static void       StartOnlineCommunication(ROMEMidasDAQ *localThis);
+   static void       StopOnlineCommunication(ROMEMidasDAQ *localThis);
+   static Bool_t     InitOnlineCommunication(ROMEMidasDAQ *localThis);
+
+   Int_t             GetODBBufferSize() const { return fODBBufferSize; }
+   void              SetODBBufferSize(Int_t size);
 
    ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
 };

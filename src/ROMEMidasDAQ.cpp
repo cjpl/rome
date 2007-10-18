@@ -18,10 +18,21 @@
 #   include <unistd.h>
 #endif
 #include <fcntl.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TSystem.h>
+#include <TThread.h>
+#include <TTimer.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include "ROMEUtilities.h"
 #include "ROMEAnalyzer.h"
 #include "ROMEODBOfflineDataBase.h"
 #include "ROMEMidasDAQ.h"
+#include "ROMEPath.h"
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #   define O_RDONLY_BINARY O_RDONLY | O_BINARY
@@ -35,6 +46,29 @@
 
 const Int_t kEventFilePositionsResizeIncrement = 100000;
 const Int_t kTriggerEventID = 1;
+
+namespace {
+   enum EOnlineThreadRequest {
+      kNoRequest = 0,
+      kReadEvent,
+      kReadDB,
+      kWriteDB,
+      kCheckTransition
+   };
+   // inter thread communication
+   Int_t           fgOnlineThreadRequest      = 0;
+   Bool_t          fgReadEventReturn          = kFALSE;
+   Bool_t          fgDBReadReturn             = kFALSE;
+   Bool_t          fgDBWriteReturn            = kFALSE;
+   ROMEStr2DArray* fgDBValues                 = 0;
+   const char *    fgDBPath                   = 0;
+   Long64_t        fgDBRunNumber              = 0;
+   Long64_t        fgDBEventNumber            = 0;
+   TVirtualMutex  *fgMutex                    = 0;
+   Long64_t        fgCurrentRunNumber         = -1;
+   Int_t           fgEventStatus              = -1;
+   Int_t           fgRunStatus                = -1;
+}
 
 //#define MIDAS_DEBUG
 
@@ -73,6 +107,12 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fCurrentPosition(0)
 ,fMaxDataEvent(0)
 ,fByteSwapFlagMightBeWrong(kFALSE)
+,fOnlineHandlerThread(0)
+,fOnlineHandlerTimer(0)
+,fOnlineConnection(kFALSE)
+,fOnlineThread(kFALSE)
+,fODBBufferSize(5000)
+,fODBBuffer(new char[fODBBufferSize])
 {
    Int_t i;
    for (i = 0; i < kMaxMidasEventTypes; i++) {
@@ -103,6 +143,8 @@ ROMEMidasDAQ::~ROMEMidasDAQ()
    }
    SafeDelete(fOdbOffline);
    SafeDelete(fEventFilePositions);
+   StopOnlineCommunication(this);
+   SafeDeleteArray(fODBBuffer);
 }
 
 //______________________________________________________________________________
@@ -110,76 +152,33 @@ Bool_t ROMEMidasDAQ::Init()
 {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
-      // Connect to the Frontend
-      if (!ConnectExperiment()) {
-         return kFALSE;
-      }
-
       ROMEPrint::Print("Program is running online.\n");
 
-      // Check Run Status
-      int state = 0;
-      int statesize = sizeof(state);
-      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,const_cast<char*>("/Runinfo/State"), &state,
-                       &statesize,TID_INT, false) != CM_SUCCESS) {
-         ROMEPrint::Error("\nCan not read run status from the online database\n");
-         return false;
+      // Connect to the Frontend
+      StartOnlineCommunication(this);
+      while (fgCurrentRunNumber < 0) {
+         gSystem->Sleep(10);
       }
-      if (state != 3) {
-         this->SetBeginOfRun();
-         this->SetStopped();
+      if (fgCurrentRunNumber >= 0) {
+         gROME->SetCurrentRunNumber(fgCurrentRunNumber);
+         fgCurrentRunNumber = -1;
       }
-
-      // Get Runnumber
-      Int_t runNumber = 0;
-      Int_t size = sizeof(runNumber);
-      if (db_get_value(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>("/Runinfo/Run number"),
-                       &runNumber, &size, TID_INT, false) != CM_SUCCESS) {
-         ROMEPrint::Error("\nCan not read runnumber from the online database\n");
-         return false;
+      if (fgEventStatus >= 0) {
+         fEventStatus = fgEventStatus;
+         fgEventStatus = -1;
       }
-      gROME->SetCurrentRunNumber(runNumber);
-
-      // Initialize the online database
-      HNDLE hKey;
-      ROMEString str;
-      // Tree Switches
-      const Int_t nTree = gROME->GetTreeObjectEntries();
-      Int_t i;
-      for (i = 0;i <nTree; i++) {
-         str = "//Tree switches/";
-         str.Insert(1, gROME->GetOnlineAnalyzerName());
-         str.Append(gROME->GetTreeObjectAt(i)->GetTree()->GetName());
-         db_check_record(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()),
-                         const_cast<char*>(gROME->GetTreeObjectAt(i)->GetSwitchesString()), TRUE);
-         db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()), &hKey);
-         if (db_set_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(),
-                           gROME->GetTreeObjectAt(i)->GetSwitchesSize(), 0) != DB_SUCCESS) {
-            ROMEPrint::Warning("\nCan not write to tree switches record.\n");
-         }
-         if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(),
-                            gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, 0, 0) != DB_SUCCESS) {
-            ROMEPrint::Warning("\nCan not open tree switches record, probably other analyzer is using it\n");
-         }
+      if (fgRunStatus >= 0) {
+         fRunStatus = fgRunStatus;
+         fgRunStatus = -1;
       }
-
-      // Experiment dependent ODB initializations
-      this->InitODB();
-
-#else
-      ROMEPrint::Error("Need Midas support for Online Mode !!\n");
-      ROMEPrint::Error("Please link the midas library into this project.\n");
-      ROMEPrint::Error("--> Run the ROMEBuilder with the '-midas' option.\n");
-      return false;
-#endif
    } else if (gROME->isOffline()) {
       if (!gROME->IsRunNumberBasedIO()) {
          ROMEPrint::Print("The midas DAQ does not yet support InputFileNames.\n");
-         return false;
+         return kFALSE;
       }
       ROMEPrint::Print("Program is running offline.\n");
    }
-   return true;
+   return kTRUE;
 }
 
 //______________________________________________________________________________
@@ -197,7 +196,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
       // Open Midas File
       if (gROME->IsRunNumberBasedIO()) {
          gROME->GetCurrentRunNumberString(runNumberString);
-         fGZippedMidasFile = false;
+         fGZippedMidasFile = kFALSE;
          filename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), fileExtension.Data());
          gzfilename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), gzfileExtension.Data());
          fMidasFileHandle = open(filename.Data(), O_RDONLY_BINARY);
@@ -205,9 +204,9 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
             fMidasGzFileHandle = gzopen(gzfilename.Data(), "rb");
             if (fMidasGzFileHandle == 0) {
                ROMEPrint::Error("Failed to open input file '%s[.gz]'.\n", filename.Data());
-               return false;
+               return kFALSE;
             }
-            fGZippedMidasFile = true;
+            fGZippedMidasFile = kTRUE;
          }
       }
 
@@ -226,12 +225,12 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
 
       while (!isBeginOfRun() && !isEndOfRun() && !isTerminate()) {
          if (!ReadODBOffline()) {
-            return false;
+            return kFALSE;
          }
       }
       SetAnalyze();
    }
-   return true;
+   return kTRUE;
 }
 
 //______________________________________________________________________________
@@ -244,15 +243,42 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
 
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
-      INT size;
       void* mEvent;
-      int status;
 
-      if (!RespondOnlineRequest()) {
-         return false;
+      // check transition
+      if (fOnlineThread) {
+         if (!fOnlineHandlerThread) {
+            return kFALSE;
+         }
+         {
+            ROME_LOCKGUARD(fgMutex);
+            fgOnlineThreadRequest = kCheckTransition;
+         }
+         while (fgOnlineThreadRequest) {
+            // wait until thread finish process
+            gSystem->Sleep(10);
+         }
+      } else {
+         if (fOnlineHandlerTimer) {
+            // call CheckTransition
+            fOnlineHandlerTimer->Emit("Timeout()");
+         }
       }
+      if (fgCurrentRunNumber >= 0) {
+         gROME->SetCurrentRunNumber(fgCurrentRunNumber);
+         fgCurrentRunNumber = -1;
+      }
+      if (fgEventStatus >= 0) {
+         fEventStatus = fgEventStatus;
+         fgEventStatus = -1;
+      }
+      if (fgRunStatus >= 0) {
+         fRunStatus = fgRunStatus;
+         fgRunStatus = -1;
+      }
+
       if (isBeginOfRun() || isEndOfRun() || isContinue()) {
-         return true;
+         return kTRUE;
       }
 
       if (!fReadExistingRawData) {
@@ -260,16 +286,33 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
          if (fValidRawDataEvent != kRawDataEvents) {
             fValidRawDataEvent = fCurrentRawDataEvent + 1;
          }
-         size = this->GetRawDataEventSize();
-         mEvent = this->GetRawDataEvent();
-         status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
-         if (status != BM_SUCCESS) {
-            this->SetContinue();
-            return true;
+
+         if (fOnlineThread) {
+            if (!fOnlineHandlerThread) {
+               return kFALSE;
+            }
+            {
+               ROME_LOCKGUARD(fgMutex);
+               fgOnlineThreadRequest = kReadEvent;
+            }
+            while (fgOnlineThreadRequest) {
+               // wait until thread finish process
+               gSystem->Sleep(10);
+            }
+            if (!fgReadEventReturn) {
+               this->SetContinue();
+               return kTRUE;
+            }
+         } else {
+            if (!ReadOnlineEvent(this)) {
+               this->SetContinue();
+               return kTRUE;
+            }
          }
 
+         mEvent = this->GetRawDataEvent();
          if (reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != kTriggerEventID) {
-            gROME->SetFillEvent(false);
+            gROME->SetFillEvent(kFALSE);
          } else {
             gROME->SetCurrentEventNumber(reinterpret_cast<EVENT_HEADER*>(mEvent)->serial_number);
          }
@@ -287,7 +330,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       } else {
          mEvent = this->GetRawDataEvent();
          if (reinterpret_cast<EVENT_HEADER*>(mEvent)->event_id != kTriggerEventID) {
-            gROME->SetFillEvent(false);
+            gROME->SetFillEvent(kFALSE);
          } else {
             gROME->SetCurrentEventNumber(reinterpret_cast<EVENT_HEADER*>(mEvent)->serial_number);
          }
@@ -300,12 +343,12 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
    } else if (gROME->isOffline()) {
       if (event > fMaxDataEvent) {
          this->SetEndOfRun();
-         return true;
+         return kTRUE;
       }
 
       // read event header
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
-      bool readError = false;
+      bool readError = kFALSE;
       Long_t n;
 
       // seek position
@@ -321,7 +364,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       }
 
       if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
-         readError = true;
+         readError = kTRUE;
       } else {
          // read data
 #if !defined( R__BYTESWAP )
@@ -333,7 +376,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
 #endif
          n = 0;
          if (pevent->data_size <= 0) {
-            readError = true;
+            readError = kTRUE;
          } else {
             if(!fGZippedMidasFile) {
                n = read(fMidasFileHandle, pevent + 1, pevent->data_size);
@@ -341,11 +384,11 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
                n = gzread(fMidasGzFileHandle, pevent + 1, pevent->data_size);
             }
             if (n != static_cast<Long_t>(pevent->data_size)) {
-               readError = true;
+               readError = kTRUE;
             }
 #if 0
             if (static_cast<Int_t>(reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) <= 0) {
-               readError = true;
+               readError = kTRUE;
             }
 #endif
          }
@@ -358,7 +401,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
             ROMEPrint::Warning("Unexpected end of file\n");
          }
          this->SetEndOfRun();
-         return true;
+         return kTRUE;
       }
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
@@ -367,15 +410,15 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
                   SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }
          this->SetBeginOfRun();
-         return true;
+         return kTRUE;
       }
       if (pevent->event_id == EVENTID_EOR) {
          this->SetEndOfRun();
-         return true;
+         return kTRUE;
       }
       if (pevent->event_id < 0) {
          this->SetContinue();
-         return true;
+         return kTRUE;
       }
       if (fByteSwap) {
          //byte swapping
@@ -390,13 +433,13 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       if (pevent->data_size < reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) {
          this->SetContinue();
          fByteSwapFlagMightBeWrong = kTRUE;
-         return true;
+         return kTRUE;
       }
 
       // initalize event
       gROME->SetEventID(pevent->event_id);
       if (pevent->event_id != kTriggerEventID) {
-         gROME->SetFillEvent(false);
+         gROME->SetFillEvent(kFALSE);
       } else {
          gROME->SetCurrentEventNumber(pevent->serial_number);
       }
@@ -405,7 +448,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       this->InitMidasBanks();
    }
    this->InitHeader();
-   return true;
+   return kTRUE;
 }
 
 //______________________________________________________________________________
@@ -487,7 +530,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
 
       // seek event
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
-      bool readError = false;
+      bool readError = kFALSE;
       Long_t n;
       while (fCurrentPosition != event) {
          if (fEventFilePositions->GetSize() <= fCurrentPosition) {
@@ -506,7 +549,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
          }
 
          if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
-            readError = true;
+            readError = kTRUE;
          } else {
 #if !defined( R__BYTESWAP )
             ROMEUtilities::ByteSwap(&pevent->event_id);
@@ -517,7 +560,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
 #endif
             n = 0;
             if (pevent->data_size <= 0) {
-               readError = true;
+               readError = kTRUE;
             } else {
                if(!fGZippedMidasFile) {
                   n = read(fMidasFileHandle, pevent + 1, pevent->data_size);
@@ -525,11 +568,11 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
                   n = gzread(fMidasGzFileHandle, pevent + 1, pevent->data_size);
                }
                if (n != static_cast<Long_t>(pevent->data_size)) {
-                  readError = true;
+                  readError = kTRUE;
                }
 #if 0
                if (static_cast<Int_t>(reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) <= 0) {
-                  readError = true;
+                  readError = kTRUE;
                }
 #endif
             }
@@ -589,18 +632,230 @@ Bool_t ROMEMidasDAQ::EndOfRun()
          ROMEPrint::Warning("\nWarning : A flag <MidasByteSwap> in your config XML file might be wrong.\n\n");
       }
    }
-   return true;
+   return kTRUE;
 }
 
 //______________________________________________________________________________
 Bool_t ROMEMidasDAQ::Terminate()
 {
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::ActualReadODBOnline(ROMEStr2DArray *values, const char *dataBasePath,
+                                         Long64_t runNumber, Long64_t eventNumber)
+{
+#if defined ( HAVE_MIDAS )
    if (gROME->isOnline()) {
-#if defined( HAVE_MIDAS )
-      cm_disconnect_experiment();
-#endif
+      int i, iv;
+      HNDLE hKey;
+      char name[500];
+      int type, num_values, item_size;
+      int buffersize = fODBBufferSize;
+      char value[500];
+      ROMEString odbPath;
+      ROMEString errMsg;
+
+      ROMEPath *path = new ROMEPath();
+
+      try {
+         // decode path
+         if (!path->Decode(dataBasePath, runNumber, eventNumber)) {
+            errMsg.SetFormatted("Path decode error : %s", dataBasePath);
+            throw errMsg.Data();
+         }
+         for (i = 0; i < path->GetNumberOfTables(); i++) {
+            odbPath += "/";
+            odbPath += path->GetTableNameAt(i);
+         }
+         odbPath += "/";
+         odbPath += path->GetFieldName();
+         if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(odbPath.Data()), &hKey) != CM_SUCCESS) {
+            errMsg.SetFormatted("Cannot read online database\n");
+            throw errMsg.Data();
+         }
+         if (db_get_key_info(gROME->GetMidasOnlineDataBase(), hKey, name, sizeof(name), &type, &num_values, &item_size) !=
+             CM_SUCCESS) {
+            errMsg.SetFormatted("Cannot read online database");
+            throw errMsg.Data();
+         }
+         if (num_values * item_size > fODBBufferSize) {
+            SetODBBufferSize(num_values * item_size);
+         }
+         if (db_get_data(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, &buffersize, type) != CM_SUCCESS) {
+            errMsg.SetFormatted("Cannot read online database");
+            throw errMsg.Data();
+         }
+         if (path->GetFieldIndexAt(1) == -1) {
+            // single field
+            if (db_sprintf(value, fODBBuffer, buffersize, 0, type) != CM_SUCCESS) {
+               errMsg.SetFormatted("Cannot read online database");
+               throw errMsg.Data();
+            }
+            values->SetAt(value, 0, 0);
+         } else {
+            // array field
+            iv = 0;
+            for (i = path->GetFieldIndexAt(0); i < path->GetFieldIndexAt(1); i += path->GetFieldIndexAt(2)) {
+               if (db_sprintf(value, fODBBuffer, buffersize, i, type) != CM_SUCCESS) {
+                  errMsg.SetFormatted("Cannot read online database");
+                  throw errMsg.Data();
+               }
+               values->SetAt(value, iv, 0);
+               iv++;
+            }
+         }
+      }
+      catch(const char* err) {
+         if (err) {
+            ROMEPrint::Error("\n%s\n", err);
+         }
+         delete path;
+         return kFALSE;
+      }
+      delete path;
+      return kTRUE;
    }
-   return true;
+#endif // HAVE_MIDAS
+   WarningSuppression(values);
+   WarningSuppression(dataBasePath);
+   WarningSuppression(runNumber);
+   WarningSuppression(eventNumber);
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::WriteODBOnline(ROMEStr2DArray* values, const char * dataBasePath,
+                                    Long64_t runNumber, Long64_t eventNumber)
+{
+   if (fOnlineThread) {
+      if (!fOnlineHandlerThread) {
+         return kFALSE;
+      }
+      {
+         ROME_LOCKGUARD(fgMutex);
+         fgDBValues = values;
+         fgDBPath = dataBasePath;
+         fgDBRunNumber = runNumber;
+         fgDBEventNumber = eventNumber;
+         fgOnlineThreadRequest = kWriteDB;
+      }
+      while (fgOnlineThreadRequest) {
+         // wait until thread finish process
+         gSystem->Sleep(10);
+      }
+      return fgDBWriteReturn;
+   } else {
+      return ActualWriteODBOnline(values, dataBasePath, runNumber, eventNumber);
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::ReadODBOnline(ROMEStr2DArray* values, const char * dataBasePath,
+                                   Long64_t runNumber, Long64_t eventNumber)
+{
+   if (fOnlineThread) {
+      if (!fOnlineHandlerThread) {
+         return kFALSE;
+      }
+      {
+         ROME_LOCKGUARD(fgMutex);
+         fgDBValues = values;
+         fgDBPath = dataBasePath;
+         fgDBRunNumber = runNumber;
+         fgDBEventNumber = eventNumber;
+         fgOnlineThreadRequest = kReadDB;
+      }
+      while (fgOnlineThreadRequest) {
+         // wait until thread finish process
+         gSystem->Sleep(10);
+      }
+      return fgDBReadReturn;
+   } else {
+      return ActualReadODBOnline(values, dataBasePath, runNumber, eventNumber);
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::ActualWriteODBOnline(ROMEStr2DArray* values, const char * dataBasePath,
+                                          Long64_t runNumber, Long64_t eventNumber)
+{
+#if defined ( HAVE_MIDAS )
+   if (gROME->isOnline()) {
+      int i, iv;
+      HNDLE hKey;
+      char name[500];
+      int type, num_values, item_size;
+      int buffersize = fODBBufferSize;
+      ROMEString odbPath;
+      ROMEString errMsg;
+
+      ROMEPath *path = new ROMEPath();
+      try {
+         // decode path
+         if (!path->Decode(dataBasePath, runNumber, eventNumber)) {
+            errMsg.SetFormatted("\nPath decode error : %s\n", dataBasePath);
+            throw errMsg.Data();
+         }
+         for (i = 0;i < path->GetNumberOfTables(); i++) {
+            odbPath += "/";
+            odbPath += path->GetTableNameAt(i);
+         }
+         odbPath += "/";
+         odbPath += path->GetFieldName();
+
+         if (db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(odbPath.Data()), &hKey) != CM_SUCCESS) {
+            errMsg.SetFormatted("\nCannot write to online database\n");
+            throw errMsg.Data();
+         }
+         if (db_get_key_info(gROME->GetMidasOnlineDataBase(), hKey, name, sizeof(name), &type, &num_values, &item_size) != CM_SUCCESS) {
+            errMsg.SetFormatted("\nCannot write to online database\n");
+            throw errMsg.Data();
+         }
+         if (num_values * item_size > fODBBufferSize) {
+            SetODBBufferSize(num_values * item_size);
+         }
+         if (path->GetFieldIndexAt(1) == -1) {
+            // single field
+            if (db_sscanf(const_cast<char*>(values->At(0, 0).Data()), fODBBuffer, &buffersize, 0, type) != CM_SUCCESS) {
+               errMsg.SetFormatted("\nCannot write to online database\n");
+               throw errMsg.Data();
+            }
+            if (db_set_data(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, buffersize, 1, type) != CM_SUCCESS) {
+               errMsg.SetFormatted("\nCannot write to online database\n");
+               throw errMsg.Data();
+            }
+         } else {
+            // array field
+            iv = 0;
+            for (i = path->GetFieldIndexAt(0); i < path->GetFieldIndexAt(1); i += path->GetFieldIndexAt(2)) {
+               if (db_sscanf(const_cast<char*>(values->At(iv, 0).Data()), fODBBuffer, &buffersize, 0, type) != CM_SUCCESS) {
+                  errMsg.SetFormatted("\nCannot write to online database\n");
+                  throw errMsg.Data();
+               }
+               if (db_set_data_index(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, buffersize, i, type) != CM_SUCCESS) {
+                  errMsg.SetFormatted("\nCannot write to online database\n");
+                  throw errMsg.Data();
+               }
+               iv++;
+            }
+         }
+      }
+      catch(const char* err) {
+         if (err) {
+            ROMEPrint::Error("\n%s\n", err);
+         }
+         delete path;
+         return kFALSE;
+      }
+      delete path;
+   }
+#endif // HAVE_MIDAS
+   return kTRUE;
+   WarningSuppression(values);
+   WarningSuppression(dataBasePath);
+   WarningSuppression(runNumber);
+   WarningSuppression(eventNumber);
 }
 
 //______________________________________________________________________________
@@ -608,7 +863,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
 {
    if (gROME->isOffline()) {
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
-      bool readError = false;
+      bool readError = kFALSE;
       Long_t posOld = -1;
 
       // store current position
@@ -625,7 +880,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
          n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
       }
       if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
-         readError = true;
+         readError = kTRUE;
       } else {
 #if !defined( R__BYTESWAP )
          ROMEUtilities::ByteSwap(&pevent->event_id);
@@ -636,7 +891,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
 #endif
          n = 0;
          if (pevent->data_size <= 0) {
-            readError = true;
+            readError = kTRUE;
          } else {
             if(!fGZippedMidasFile) {
                n = read(fMidasFileHandle, pevent + 1, pevent->data_size);
@@ -644,9 +899,9 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
                n = gzread(fMidasGzFileHandle, pevent + 1, pevent->data_size);
             }
             if (n != static_cast<Long_t>(pevent->data_size)) {
-               readError = true;
+               readError = kTRUE;
             }
-            //            if (static_cast<int>(reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) <= 0) readError = true;
+            //            if (static_cast<int>(reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) <= 0) readError = kTRUE;
          }
       }
       // check input
@@ -655,7 +910,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
             ROMEPrint::Warning("Unexpected end of file\n");
          }
          this->SetEndOfRun();
-         return true;
+         return kTRUE;
       }
 
       // Get Handle to ODB header
@@ -687,7 +942,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
       }
       this->SetBeginOfRun();
    }
-   return true;
+   return kTRUE;
 }
 
 #if !defined( HAVE_MIDAS )
@@ -856,7 +1111,91 @@ INT ROMEMidasDAQ::bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWO
 #endif
 
 //______________________________________________________________________________
-Bool_t ROMEMidasDAQ::ConnectExperiment()
+void ROMEMidasDAQ::StartOnlineCommunication(ROMEMidasDAQ* localThis)
+{
+   if (localThis->fOnlineThread) {
+      if (!localThis->fOnlineHandlerThread) {
+         localThis->fOnlineConnection = kTRUE;
+         localThis->fOnlineHandlerThread = new TThread("ODBHandle", ROMEMidasDAQ::OnlineConnectionLoop, localThis);
+         localThis->fOnlineHandlerThread->Run();
+      }
+   } else {
+      if (!localThis->fOnlineHandlerTimer) {
+         ConnectExperiment(localThis);
+         InitOnlineCommunication(localThis);
+         localThis->fOnlineHandlerTimer = new TTimer(100);
+         localThis->fOnlineHandlerTimer->Connect("Timeout()", "ROMEMidasDAQ", localThis, "CheckTransition()");
+         localThis->fOnlineHandlerTimer->TurnOn();
+      }
+   }
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::StopOnlineCommunication(ROMEMidasDAQ* localThis)
+{
+   if (localThis->fOnlineHandlerThread) {
+      localThis->fOnlineConnection = kFALSE;
+      localThis->fOnlineHandlerThread->Join();
+      SafeDelete(localThis->fOnlineHandlerThread);
+   }
+   if (localThis->fOnlineHandlerTimer) {
+      SafeDelete(localThis->fOnlineHandlerTimer);
+      cm_disconnect_experiment();
+   }
+}
+
+//______________________________________________________________________________
+THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
+{
+   ROMEMidasDAQ *localThis = static_cast<ROMEMidasDAQ*>(arg);
+
+   ConnectExperiment(localThis);
+   InitOnlineCommunication(localThis);
+   Bool_t ret;
+
+   while (localThis->fOnlineConnection) {
+      CheckTransition();
+      switch (fgOnlineThreadRequest) {
+      case kCheckTransition:
+         CheckTransition();
+         break;
+      case kReadEvent:
+         ret = ReadOnlineEvent(localThis);
+         {
+            ROME_LOCKGUARD(fgMutex);
+            fgReadEventReturn = ret;
+         }
+      break;
+      case kReadDB:
+         ret = localThis->ActualReadODBOnline(fgDBValues, fgDBPath, fgDBRunNumber, fgDBEventNumber);
+         {
+            ROME_LOCKGUARD(fgMutex);
+            fgDBReadReturn = ret;
+         }
+         break;
+      case kWriteDB:
+         ret = localThis->ActualWriteODBOnline(fgDBValues, fgDBPath, fgDBRunNumber, fgDBEventNumber);
+         {
+            ROME_LOCKGUARD(fgMutex);
+            fgDBWriteReturn = ret;
+         }
+         break;
+      default:
+         break;
+      };
+      if (fgOnlineThreadRequest) {
+         ROME_LOCKGUARD(fgMutex);
+         fgOnlineThreadRequest = kNoRequest;
+      }
+   }
+
+   cm_disconnect_experiment();
+
+   return THREADRETURN;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::ConnectExperiment(ROMEMidasDAQ *localThis)
 {
    // Connect to the experiment
 #if defined( HAVE_MIDAS )
@@ -866,33 +1205,31 @@ Bool_t ROMEMidasDAQ::ConnectExperiment()
       ROMEPrint::Error("\nCan not connect to experiment\n");
       return kFALSE;
    }
-   // regesters a disconnection to be executed when the program terminates normally.
-   atexit(reinterpret_cast<void (*)(void)>(&cm_disconnect_experiment));
 
    INT requestId;
    Int_t i;
 
    // open the "system" buffer, 1M size
-   bm_open_buffer(const_cast<char*>(gROME->GetOnlineMemoryBuffer()), 2 * MAX_EVENT_SIZE, &fMidasOnlineBuffer);
+   bm_open_buffer(const_cast<char*>(gROME->GetOnlineMemoryBuffer()), 2 * MAX_EVENT_SIZE, &localThis->fMidasOnlineBuffer);
 
    // set the buffer cache size
-   bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);
+   bm_set_cache_size(localThis->fMidasOnlineBuffer, 100000, 0);
 
    // place a request for a specific event id
-   if (this->GetNumberOfEventRequests() <= 0) {
+   if (localThis->GetNumberOfEventRequests() <= 0) {
 #if 0 // Is no event request invalid ?
       ROMEPrint::Error("\nNo Events Requests for online mode!\n");
       ROMEPrint::Error("\nPlace Events Requests into the ROME configuration file.\n");
-      return false;
+      return kFALSE;
 #endif
    }
-   const int nRequest = this->GetNumberOfEventRequests();
+   const int nRequest = localThis->GetNumberOfEventRequests();
    for (i = 0; i < nRequest; i++) {
-      if (this->GetEventRequestRate(i) == 1) {
-         fRequestAll = true;
+      if (localThis->GetEventRequestRate(i) == 1) {
+         localThis->fRequestAll = kTRUE;
       }
-      bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
-                       this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,0);
+      bm_request_event(localThis->fMidasOnlineBuffer, localThis->GetEventRequestID(i),
+                       localThis->GetEventRequestMask(i), localThis->GetEventRequestRate(i), &requestId, 0);
    }
 
    // place a request for system messages
@@ -904,18 +1241,18 @@ Bool_t ROMEMidasDAQ::ConnectExperiment()
 #endif
 
    // Registers a callback function for run transitions.
-   if (!gROME->IsStandAloneARGUS()) {
+   if (!gROME->IsStandAloneARGUS() && !gROME->IsROMEMonitor()) {
       if(cm_register_transition(TR_START, 0 ,500) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, 0, 500) != CM_SUCCESS) {
          ROMEPrint::Error("\nCan not connect to experiment\n");
-         return false;
+         return kFALSE;
       }
    }
 
    // Connect to the online database
    if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), 0)!= CM_SUCCESS) {
       ROMEPrint::Error("\nCan not connect to the online database\n");
-      return false;
+      return kFALSE;
    }
 #endif
 
@@ -923,48 +1260,158 @@ Bool_t ROMEMidasDAQ::ConnectExperiment()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEMidasDAQ::RespondOnlineRequest()
+Bool_t ROMEMidasDAQ::InitOnlineCommunication(ROMEMidasDAQ *localThis)
+{
+      // Check Run Status
+      int state = 0;
+      int statesize = sizeof(state);
+
+      if (db_get_value(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>("/Runinfo/State"), &state,
+                       &statesize, TID_INT, kFALSE) != CM_SUCCESS) {
+         ROMEPrint::Error("\nCan not read run status from the online database\n");
+         return kFALSE;
+      }
+      if (state != 3) {
+         ROME_LOCKGUARD(fgMutex);
+         fgEventStatus = kBeginOfRun;
+         fgRunStatus = kStopped;
+      }
+
+      // Get Runnumber
+      Int_t runNumber = 0;
+      Int_t size = sizeof(runNumber);
+      if (db_get_value(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>("/Runinfo/Run number"),
+                       &runNumber, &size, TID_INT, kFALSE) != CM_SUCCESS) {
+         ROMEPrint::Error("\nCan not read runnumber from the online database\n");
+         return kFALSE;
+      }
+      {
+         ROME_LOCKGUARD(fgMutex);
+         fgCurrentRunNumber = runNumber;
+      }
+
+      // Initialize the online database
+      HNDLE hKey;
+      ROMEString str;
+      // Tree Switches
+      const Int_t nTree = gROME->GetTreeObjectEntries();
+      Int_t i;
+      for (i = 0; i <nTree; i++) {
+         str = "//Tree switches/";
+         str.Insert(1, gROME->GetOnlineAnalyzerName());
+         str.Append(gROME->GetTreeObjectAt(i)->GetTree()->GetName());
+         db_check_record(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()),
+                         const_cast<char*>(gROME->GetTreeObjectAt(i)->GetSwitchesString()), TRUE);
+         db_find_key(gROME->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()), &hKey);
+         if (db_set_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(),
+                           gROME->GetTreeObjectAt(i)->GetSwitchesSize(), 0) != DB_SUCCESS) {
+            ROMEPrint::Warning("\nCan not write to tree switches record.\n");
+         }
+         if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(),
+                            gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, 0, 0) != DB_SUCCESS) {
+            ROMEPrint::Warning("\nCan not open tree switches record, probably other analyzer is using it\n");
+         }
+      }
+
+      // Experiment dependent ODB initializations
+      localThis->InitODB();
+      return kTRUE;
+#else
+      ROMEPrint::Error("Need Midas support for Online Mode !!\n");
+      ROMEPrint::Error("Please link the midas library into this project.\n");
+      ROMEPrint::Error("--> Run the ROMEBuilder with the '-midas' option.\n");
+      return kFALSE;
+#endif
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::ReadOnlineEvent(ROMEMidasDAQ *localThis)
+{
+   INT size;
+   void* mEvent;
+   int status;
+
+   size = localThis->GetRawDataEventSize();
+   mEvent = localThis->GetRawDataEvent();
+   status = bm_receive_event(localThis->fMidasOnlineBuffer, mEvent, &size, ASYNC);
+   if (status != BM_SUCCESS) {
+      return kFALSE;
+   }
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasDAQ::CheckTransition()
 {
 #if defined( HAVE_MIDAS )
+   ROMEMidasDAQ *localThis = static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ());
+
    INT size;
    void* mEvent;
    int status;
    int runNumber,trans; // use int instead of INT or Int_t
 
+   static Long_t selfId = 0;
+   if (!selfId) {
+      // this is the first time to be called
+      selfId = TThread::SelfId();
+   }
+   if (selfId != TThread::SelfId()) {
+      // ODB communication must be done in a thread
+      return kFALSE;
+   }
+
+   // ODB update
+   db_send_changed_records();
+
    if (cm_query_transition(&trans, &runNumber, 0)) {
       if (trans == TR_START) {
-         gROME->SetCurrentRunNumber(runNumber);
-         this->SetBeginOfRun();
-         this->SetRunning();
-         return true;
+         ROME_LOCKGUARD(fgMutex);
+         fgCurrentRunNumber = runNumber;
+         fgEventStatus = kBeginOfRun;
+         fgRunStatus = kRunning;
+         return kTRUE;
       }
       if (trans == TR_STOP) {
-         if (fRequestAll) {
+         if (localThis->fRequestAll) {
             INT numberOfBytes;
-            bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+            bm_get_buffer_level(localThis->fMidasOnlineBuffer, &numberOfBytes);
             while (numberOfBytes <= 0) {
-               size = this->GetRawDataEventSize();
-               mEvent = this->GetRawDataEvent();
-               status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
-               if (status != BM_SUCCESS)
+               size = localThis->GetRawDataEventSize();
+               mEvent = localThis->GetRawDataEvent();
+               status = bm_receive_event(localThis->fMidasOnlineBuffer, mEvent, &size, ASYNC);
+               if (status != BM_SUCCESS) {
                   break;
-               bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+               }
+               bm_get_buffer_level(localThis->fMidasOnlineBuffer, &numberOfBytes);
             }
          }
-         this->SetEndOfRun();
-         this->SetStopped();
-         return true;
+         ROME_LOCKGUARD(fgMutex);
+         fgEventStatus = kEndOfRun;
+         fgRunStatus = kStopped;
+         return kTRUE;
       }
    }
    status = cm_yield(100);
    if (status == RPC_SHUTDOWN || status == SS_ABORT) {
-      this->SetTerminate();
-      return false;
+      cm_disconnect_experiment(); // this is needed because calling thead can not cancel itself in ROMERint::Terminate => ROMEAnalyzer::Cleaning
+      gROME->GetApplication()->Terminate(1);
    }
-   if (this->isStopped()) {
-      this->SetContinue();
-      return true;
+   if (localThis->isStopped()) {
+      ROME_LOCKGUARD(fgMutex);
+      fgEventStatus = kContinue;
+      return kTRUE;
    }
 #endif
-   return true;
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::SetODBBufferSize(Int_t size)
+{
+   if (size > 0) {
+      fODBBufferSize = size;
+      SafeDeleteArray(fODBBuffer);
+      fODBBuffer = new char[fODBBufferSize];
+   }
 }

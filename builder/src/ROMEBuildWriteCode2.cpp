@@ -1431,6 +1431,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup = new ROMEConfigParameterGroup("Midas");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Midas","/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:annotation/xs:documentation");
       mainParGroup->AddSubGroup(subGroup);
+
+      // byte swap
       subGroup->AddParameter(new ROMEConfigParameter("MidasByteSwap","1","CheckButton"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName(),
                                                 "/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:complexType/xs:sequence/xs:element[@name=MidasByteSwap]/xs:annotation/xs:documentation");
@@ -1439,6 +1441,23 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("}");
       subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->GetByteSwap()?1:0];");
+      subGroup->GetLastParameter()->AddWriteLine("}");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = ##;");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"false\";");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("}");
+
+      // online communication thread
+      subGroup->AddParameter(new ROMEConfigParameter("MidasOnlineCommunicationThread","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName(),
+                                                "/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:complexType/xs:sequence/xs:element[@name=MidasOnlineCommunicationThread]/xs:annotation/xs:documentation");
+      subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->SetOnlineThread(## == \"true\");");
+      subGroup->GetLastParameter()->AddSetLine("}");
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
+      subGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->IsOnlineThread()?1:0];");
       subGroup->GetLastParameter()->AddWriteLine("}");
       subGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
       subGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");

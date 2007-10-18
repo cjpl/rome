@@ -78,6 +78,9 @@
 #include "ROMEUtilities.h"
 #include "ArgusWindow.h"
 #include "ROMEiostream.h"
+#if defined( HAVE_MIDAS )
+#   include "ROMEMidasDAQ.h"
+#endif
 
 #include "ROMENetFolder.h"
 #include "ROMERint.h"
@@ -1222,7 +1225,10 @@ void ROMEAnalyzer::Cleaning()
    ss_getchar(1);
    restoreOutput();
 #if defined( HAVE_MIDAS )
-   cm_disconnect_experiment();
+   if (gROME && gROME->GetActiveDAQ() && gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
+      static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->
+            StopOnlineCommunication(static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ()));
+   }
 #endif
 }
 
