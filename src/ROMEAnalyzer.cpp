@@ -60,6 +60,7 @@
 #include <TFolder.h>
 #include <TList.h>
 #include <TObjString.h>
+#include <TPRegexp.h>
 #include <TROOT.h>
 #include <TBrowser.h>
 #include <THtml.h>
@@ -277,7 +278,9 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       }
    }
 
-   gSystem->MakeDirectory(this->GetOutputDir());
+   // Commented out by shuei, because this makes directories with nice
+   // name if #(or ##, ###) substitution is used in <OutputFilePath>
+//   gSystem->MakeDirectory(this->GetOutputDir());
 
    static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();
 
@@ -1540,14 +1543,14 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
 ROMEString& ROMEAnalyzer::ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename)
 {
    ROMEString basetmp = base;
-   ROMEString dirtmp = dir;
-   ReplaceWithRunAndEventNumber(dirtmp);
    ReplaceWithRunAndEventNumber(basetmp);
    gSystem->ExpandPathName(basetmp);
    if (basetmp.BeginsWith("/") || basetmp.BeginsWith("./") || basetmp.BeginsWith("../")) {
       // Ignore InputDir.
       filename = basetmp;
    } else {
+      ROMEString dirtmp = dir;
+      ReplaceWithRunAndEventNumber(dirtmp);
       filename = dirtmp;
       if (filename.Length() && !filename.EndsWith("/")) {
          filename += "/";
@@ -1555,83 +1558,170 @@ ROMEString& ROMEAnalyzer::ConstructFilePath(const ROMEString &dir, const ROMEStr
       filename += basetmp;
    }
    filename.StripSpaces();
+   ReplaceWithRunAndEventNumber(filename);
    gSystem->ExpandPathName(filename);
    return filename;
 }
 
 //______________________________________________________________________________
+static Long64_t getNumber(const char op, const Long64_t a, const Long64_t b)
+{
+   // a helper function for ReplaceWithRunAndEventNumber
+   switch(op) {
+   case '+':
+      return a + b;
+      break;
+   case '-':
+      return a - b;
+      break;
+   case '*':
+      return a * b;
+      break;
+   case '/':
+      return a / b;
+      break;
+   case '%':
+      return a % b;
+      break;
+   default:
+      return 0;
+      break;
+   }
+}
+
+//______________________________________________________________________________
 void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 {
-// replace ### with PID.
-// replace ## with event number.
-// replace # with run number
-// format can be specified like "file#(%05d).root"
+// Conversion from #, ##, ### to run number, event number, process
+// id, respectively, with integer operaton and printf-style format.
+//
+// {# op number}(format) will be substituted to result of integer
+// operaton according to format, where 'op' is one of following c/c++
+// operators, namely '*', '/', '%', '+', '-'. Number shall be integer
+// value.
+//
+// Example : filename "run{#/100}(%03d)abc/file{#}(%06d).root" becomes
+// "run012abc/file001234.root" if the run number is 1234.
+//
+// If (format) is omitted, default format will be used, which is %d
+// for process id and %05lld(Un*x)/%05I64d(windows) for run number and
+// event number.
 
-   Int_t startStr = 0;
-   Int_t endStr = 0;
-   Int_t startForm = 0;
-   Int_t endForm = 0;
-   ROMEString format;
+   Ssiz_t   numberLength = 0;
+   Int_t    nMatch;
+   Long64_t number, val1, val2;
+   char     op = '\0';
+   ROMEString valStr;
+   ROMEString format;;
    ROMEString insertStr;
+   TArrayI pos;
 
-   // PID
-   while((startStr = buffer.Index("###", strlen("###"), endStr, TString::kExact)) != -1) {
-      endStr = startStr + strlen("###");
-      buffer.Remove(startStr, endStr - startStr);
-      insertStr.SetFormatted("%d", gSystem->GetPid());
-      buffer.Insert(startStr, insertStr);
-      endStr = startStr + insertStr.Length();
-   }
+   static TPRegexp pattern1(
+         //     2      3    4       5    6    7            8   9         10     11   12      13   14   15
+         "\\{\\s*(#{1,3})\\s*([*/%+-])\\s*(\\d+)\\s*\\}\\s*\\((.+?)\\)|\\{\\s*(#{1,3})\\s*([*/%+-])\\s*(\\d+)\\s*\\}"
+         ); // pattern for full expression
 
-   // event number
-   while((startStr = buffer.Index("##", strlen("##"), endStr, TString::kExact)) != -1) {
-      endStr = startStr + strlen("##");
-      if (buffer[endStr] == '(' && (endForm = buffer.Index(")", 1, endStr + 1, TString::kExact)) != -1) {
-         startForm = endStr + 1;
-         format = buffer(startForm, endForm - startForm);
-         buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
-         endStr = startStr + strlen("##");
-      } else {
-#if defined( R__VISUAL_CPLUSPLUS )
-         format = "%05I64d";
-#else
-         format = "%05lld";
-#endif
+   static TPRegexp pattern2("\\{\\s*#{1,3}\\s*\\}");
+   static TPRegexp pattern3("#{1,3}");
+
+//   cout << "ReplaceWithRunAndEventNumber" << endl;
+   while (1) {
+//      cout << buffer << endl;
+
+      // with operation
+      nMatch = pattern1.Match(buffer, "o", 0, 30, &pos);
+      if (nMatch==8) { // with operation, without format
+         // operand#1
+         pos[2] = pos[10];
+         pos[3] = pos[11];
+         // operator
+         pos[4] = pos[12];
+         pos[5] = pos[13];
+         // operand#2
+         pos[6] = pos[14];
+         pos[7] = pos[15];
+
+         // reduce to "with operation, with format" case
+         nMatch = 5;
       }
-      buffer.Remove(startStr, endStr - startStr);
-      insertStr.SetFormatted(format.Data(), GetCurrentEventNumber());
-      buffer.Insert(startStr, insertStr);
-      endStr = startStr + insertStr.Length();
-   }
 
-   // run number
-   startStr = 0;
-   endStr = 0;
-   startForm = 0;
-   endForm = 0;
-   while((startStr = buffer.Index("#", strlen("#"), endStr, TString::kExact)) != -1) {
-      endStr = startStr + strlen("#");
-      if (buffer[endStr] == '(' && (endForm = buffer.Index(")", 1, endStr + 1, TString::kExact)) != -1) {
-         startForm = endStr + 1;
-         format = buffer(startForm, endForm - startForm);
-         buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
-         endStr = startStr + strlen("#");
-      } else {
-         if (gROME->isTreeAccumulation()) {
-            format = gROME->GetRunNumberStringOriginal();
+      if (nMatch==5){ // with operation, with format
+//         cout << nMatch << " : " << pos[0] << " " << pos[1] << endl;
+         // operand#1 (pos[2],pos[3])
+         numberLength = pos[3] - pos[2];
+         if (numberLength==1) {       // Run#
+            val1 = GetCurrentRunNumber();
+         } else if (numberLength==2) { // Event#
+            val1 = GetCurrentEventNumber();
+         } else if (numberLength==3) { // PID
+            val1 = gSystem->GetPid();
          } else {
-#if defined( R__VISUAL_CPLUSPLUS )
-            format = "%05I64d";
-#else
-            format = "%05lld";
-#endif
+            val1 = 0;
          }
+
+         // operator (pos[4],pos[5])
+         op = buffer[pos[4]];
+
+         // operand#2 (pos[6],pos[7])
+         valStr = buffer(pos[6], pos[7]-pos[6]);
+         val2   = valStr.Atoll();
+
+         // format (pos[8],pos[9])
+         if (pos[8]>0) {
+            format = buffer(pos[8], pos[9]-pos[8]);
+         } else {
+            if (numberLength==3) { // PID
+               format = "%d";
+            } else { // Run# or Event#
+#if defined(R__UNIX)
+               format = "%05lld";
+#else
+               format = "%05I64d";
+#endif
+            
+            }
+         }
+
+         // Remove the pattern
+         buffer.Remove(pos[0], pos[1]-pos[0]);
+
+         // Insert the number
+         number = getNumber(op, val1, val2);
+         insertStr.SetFormatted(format, number);
+         buffer.Insert(pos[0], insertStr);
+
+         continue;
       }
-      buffer.Remove(startStr, endStr - startStr);
-      insertStr.SetFormatted(format.Data(), GetCurrentRunNumber());
-      buffer.Insert(startStr, insertStr);
-      endStr = startStr + insertStr.Length();
+
+      // witout operation, with {}
+      nMatch = pattern2.Match(buffer, "o", 0, 30, &pos);
+      if (nMatch == 1) {
+//         cout << nMatch << " : " << pos[0] << " " << pos[1] << endl;
+//         cout << "adding +0" << endl;
+         // reduce to {#+0} type
+         insertStr = "+0";
+         buffer.Insert(pos[1]-1, insertStr);
+         continue;
+      }
+
+      // without operation, without {}
+      nMatch = pattern3.Match(buffer, "o", 0, 30, &pos);
+      if (nMatch == 1) {
+//         cout << nMatch << " : " << pos[0] << " " << pos[1] << endl;
+//         cout << "adding { and +0}" << endl;
+         // reduce to {#+0} type
+         insertStr = "+0}";
+         buffer.Insert(pos[1], insertStr);
+         insertStr = "{";
+         buffer.Insert(pos[0], insertStr);
+         continue;
+      }
+
+      break;
    }
+//   cout << "end" << endl;
+
+   return;
 }
 
 //______________________________________________________________________________

@@ -197,7 +197,9 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
          gROME->GetCurrentRunNumberString(runNumberString);
          fGZippedMidasFile = kFALSE;
          filename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), fileExtension.Data());
+         gROME->ReplaceWithRunAndEventNumber(filename);
          gzfilename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), gzfileExtension.Data());
+         gROME->ReplaceWithRunAndEventNumber(gzfilename);
          fMidasFileHandle = open(filename.Data(), O_RDONLY_BINARY);
          if (fMidasFileHandle == -1) {
             fMidasGzFileHandle = gzopen(gzfilename.Data(), "rb");

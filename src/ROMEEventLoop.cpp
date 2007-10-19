@@ -621,7 +621,6 @@ Bool_t ROMEEventLoop::DAQInit()
    Bool_t identicalFileNameFound;
    TFile *identicalFilePointer;
    TFile* file;
-
    for (j = 0; j < nTree; j++) {
       identicalFileNameFound = kFALSE;
       identicalFilePointer = 0;
@@ -639,6 +638,7 @@ Bool_t ROMEEventLoop::DAQInit()
                }
             }
             if (!identicalFileNameFound) { // file is not open yet
+               // perhaps it's better to mkdir() in case the directory for output file is absence
                file = new TFile(filename.Data(), "RECREATE");
                if (!file || file->IsZombie()) {
                   return false;
@@ -766,6 +766,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
                   }
                }
                if (!identicalFileNameFound) { // file is not open yet
+                  // perhaps it's better to mkdir() in case the directory for output file is absence
                   file = new TFile(filename.Data(), "RECREATE");
                   if (!file || file->IsZombie()) {
                      return false;
@@ -1222,6 +1223,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    gROME->GetCurrentRunNumberString(runNumberString);
 
    filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
+   gROME->ReplaceWithRunAndEventNumber(filename);
    fHistoFile = new TFile(filename.Data(), "RECREATE");
    if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
