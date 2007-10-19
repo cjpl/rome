@@ -11927,7 +11927,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("   } else {\n");
       buffer.AppendFormatted("      gAnalyzer->ConstructFilePath(gAnalyzer->GetOutputDirString(), base, buffer);\n");
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   gAnalyzer->ReplaceWithRunAndEventNumber(buffer);\n");
    } else {
       buffer.AppendFormatted("   return;\n");
       buffer.AppendFormatted("   WarningSuppression(buffer);\n");
@@ -12030,6 +12029,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    buffer.AppendFormatted("   ROMEString filename;\n");
    buffer.AppendFormatted("   filename.SetFormatted(\"%%s%%s%%05d.root\",gAnalyzer->GetInputDir(),\"histos\",gAnalyzer->GetHistosRun());\n");
+   buffer.AppendFormatted("   gAnalyzer->ReplaceWithRunAndEventNumber(filename);\n");
    buffer.AppendFormatted("   TFile *file = new TFile(filename.Data(),\"READ\");\n");
    buffer.AppendFormatted("   if (file->IsZombie()) {\n");
    buffer.AppendFormatted("       ROMEPrint::Warning(\"Histograms of run %%d not available.\\n\", gAnalyzer->GetHistosRun());\n");
