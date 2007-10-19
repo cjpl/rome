@@ -12564,10 +12564,10 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("            delete gAnalyzer;\n");
    buffer.AppendFormatted("            return 1;\n");
    buffer.AppendFormatted("         }\n");
-#if 0
    buffer.AppendFormatted("      } CATCH(excode) {\n");
-   buffer.AppendFormatted("         // do somthing with excode\n");
-#endif
+   buffer.AppendFormatted("         WarningSuppression(excode);\n");
+   buffer.AppendFormatted("         ROMEAnalyzer::Cleaning();\n");
+   buffer.AppendFormatted("         return 1;\n");
    buffer.AppendFormatted("      } ENDTRY;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      delete gAnalyzer;\n");
