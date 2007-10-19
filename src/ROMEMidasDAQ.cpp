@@ -70,10 +70,8 @@ namespace {
    Int_t           fgRunStatus                = -1;
 }
 
-//#define MIDAS_DEBUG
-
 #if defined( HAVE_MIDAS )
-#   define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
+#   undef MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 void ProcessMessage(Int_t /*hBuf*/, Int_t /*id*/, EVENT_HEADER * /*pheader*/, void * /*message*/)
 {
 // This method is called, when a system message from the online system occurs
@@ -150,8 +148,8 @@ ROMEMidasDAQ::~ROMEMidasDAQ()
 //______________________________________________________________________________
 Bool_t ROMEMidasDAQ::Init()
 {
-   if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
+   if (gROME->isOnline()) {
       ROMEPrint::Print("Program is running online.\n");
 
       // Connect to the Frontend
@@ -178,6 +176,7 @@ Bool_t ROMEMidasDAQ::Init()
       }
       ROMEPrint::Print("Program is running offline.\n");
    }
+#endif
    return kTRUE;
 }
 
@@ -716,11 +715,12 @@ Bool_t ROMEMidasDAQ::ActualReadODBOnline(ROMEStr2DArray *values, const char *dat
       delete path;
       return kTRUE;
    }
-#endif // HAVE_MIDAS
+#else
    WarningSuppression(values);
    WarningSuppression(dataBasePath);
    WarningSuppression(runNumber);
    WarningSuppression(eventNumber);
+#endif // HAVE_MIDAS
    return kTRUE;
 }
 
@@ -850,12 +850,13 @@ Bool_t ROMEMidasDAQ::ActualWriteODBOnline(ROMEStr2DArray* values, const char * d
       }
       delete path;
    }
-#endif // HAVE_MIDAS
-   return kTRUE;
+#else
    WarningSuppression(values);
    WarningSuppression(dataBasePath);
    WarningSuppression(runNumber);
    WarningSuppression(eventNumber);
+#endif // HAVE_MIDAS
+   return kTRUE;
 }
 
 //______________________________________________________________________________
@@ -1133,6 +1134,7 @@ void ROMEMidasDAQ::StartOnlineCommunication(ROMEMidasDAQ* localThis)
 //______________________________________________________________________________
 void ROMEMidasDAQ::StopOnlineCommunication(ROMEMidasDAQ* localThis)
 {
+#if defined( HAVE_MIDAS )
    if (localThis->fOnlineHandlerThread) {
       localThis->fOnlineConnection = kFALSE;
       localThis->fOnlineHandlerThread->Join();
@@ -1142,11 +1144,15 @@ void ROMEMidasDAQ::StopOnlineCommunication(ROMEMidasDAQ* localThis)
       SafeDelete(localThis->fOnlineHandlerTimer);
       cm_disconnect_experiment();
    }
+#else
+   WarningSuppression(localThis);
+#endif
 }
 
 //______________________________________________________________________________
 THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
 {
+#if defined( HAVE_MIDAS )
    ROMEMidasDAQ *localThis = static_cast<ROMEMidasDAQ*>(arg);
 
    ConnectExperiment(localThis);
@@ -1190,6 +1196,9 @@ THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
    }
 
    cm_disconnect_experiment();
+#else
+   WarningSuppression(arg)
+#endif
 
    return THREADRETURN;
 }
@@ -1254,6 +1263,8 @@ Bool_t ROMEMidasDAQ::ConnectExperiment(ROMEMidasDAQ *localThis)
       ROMEPrint::Error("\nCan not connect to the online database\n");
       return kFALSE;
    }
+#else
+   WarningSuppression(localThis);
 #endif
 
    return kTRUE;
@@ -1262,6 +1273,7 @@ Bool_t ROMEMidasDAQ::ConnectExperiment(ROMEMidasDAQ *localThis)
 //______________________________________________________________________________
 Bool_t ROMEMidasDAQ::InitOnlineCommunication(ROMEMidasDAQ *localThis)
 {
+#if defined( HAVE_MIDAS )
       // Check Run Status
       int state = 0;
       int statesize = sizeof(state);
@@ -1320,6 +1332,7 @@ Bool_t ROMEMidasDAQ::InitOnlineCommunication(ROMEMidasDAQ *localThis)
       ROMEPrint::Error("Need Midas support for Online Mode !!\n");
       ROMEPrint::Error("Please link the midas library into this project.\n");
       ROMEPrint::Error("--> Run the ROMEBuilder with the '-midas' option.\n");
+      WarningSuppression(localThis)
       return kFALSE;
 #endif
 }
@@ -1327,6 +1340,7 @@ Bool_t ROMEMidasDAQ::InitOnlineCommunication(ROMEMidasDAQ *localThis)
 //______________________________________________________________________________
 Bool_t ROMEMidasDAQ::ReadOnlineEvent(ROMEMidasDAQ *localThis)
 {
+#if defined( HAVE_MIDAS )
    INT size;
    void* mEvent;
    int status;
@@ -1337,6 +1351,9 @@ Bool_t ROMEMidasDAQ::ReadOnlineEvent(ROMEMidasDAQ *localThis)
    if (status != BM_SUCCESS) {
       return kFALSE;
    }
+#else
+   WarningSuppression(localThis)
+#endif
    return kTRUE;
 }
 
