@@ -60,8 +60,8 @@ namespace {
    Bool_t          fgReadEventReturn          = kFALSE;
    Bool_t          fgDBReadReturn             = kFALSE;
    Bool_t          fgDBWriteReturn            = kFALSE;
-   ROMEStr2DArray* fgDBValues                 = 0;
-   const char *    fgDBPath                   = 0;
+   ROMEStr2DArray *fgDBValues                 = 0;
+   const char     *fgDBPath                   = 0;
    Long64_t        fgDBRunNumber              = 0;
    Long64_t        fgDBEventNumber            = 0;
    TVirtualMutex  *fgMutex                    = 0;
