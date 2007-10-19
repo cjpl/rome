@@ -12255,6 +12255,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TGClient.h>\n");
    buffer.AppendFormatted("#include <TSystem.h>\n");
+   buffer.AppendFormatted("#include <TException.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -12558,10 +12559,16 @@ Bool_t ROMEBuilder::WriteMain()
                           shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("      app->ProcessLine(gAnalyzer->GetCintInitialisation());\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("      if (!gAnalyzer->Start(argc, argv)) {\n");
-   buffer.AppendFormatted("         delete gAnalyzer;\n");
-   buffer.AppendFormatted("         return 1;\n");
-   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      TRY {\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->Start(argc, argv)) {\n");
+   buffer.AppendFormatted("            delete gAnalyzer;\n");
+   buffer.AppendFormatted("            return 1;\n");
+   buffer.AppendFormatted("         }\n");
+#if 0
+   buffer.AppendFormatted("      } CATCH(excode) {\n");
+   buffer.AppendFormatted("         // do somthing with excode\n");
+#endif
+   buffer.AppendFormatted("      } ENDTRY;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      delete gAnalyzer;\n");
    buffer.AppendFormatted("   }\n");
