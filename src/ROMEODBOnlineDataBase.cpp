@@ -46,7 +46,7 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values, const char *dataBaseP
       return static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->
             ReadODBOnline(values, dataBasePath, runNumber, eventNumber);
    } else {
-      ROMEPrint::Error("Please select MIDA DAQ system in the ROME configuration\n");
+      ROMEPrint::Error("Please select MIDAS DAQ system in the ROME configuration\n");
       return kFALSE;
    }
 #else
@@ -66,7 +66,7 @@ Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values, const char * dataBas
       return static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->
             WriteODBOnline(values, dataBasePath, runNumber, eventNumber);
    } else {
-      ROMEPrint::Error("Please select MIDA DAQ system in the ROME configuration\n");
+      ROMEPrint::Error("Please select MIDAS DAQ system in the ROME configuration\n");
       return kFALSE;
    }
 #else
