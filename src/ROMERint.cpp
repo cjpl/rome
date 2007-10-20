@@ -16,6 +16,10 @@
 #   pragma warning( disable : 4800 )
 #endif
 #include <TSystem.h>
+#if defined( R__UNIX )
+#   include <TUnixSystem.h>
+#   include <signal.h>
+#endif
 #include <TSysEvtHandler.h>
 #include <TSocket.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -41,6 +45,99 @@ static void cleaning()
    // all functions should be static
    ROMEAnalyzer::Cleaning();
 }
+
+#if defined( R__UNIX )
+static struct Signalmap_t {
+   int               fCode;
+   SigHandler_t      fHandler;
+   struct sigaction *fOldHandler;
+   const char       *fSigName;
+} gSignalMap[kMAXSIGNALS] = {       // the order of the signals should be identical
+   { SIGBUS,   0, 0, "bus error" }, // to the one in SysEvtHandler.h
+   { SIGSEGV,  0, 0, "segmentation violation" },
+   { SIGSYS,   0, 0, "bad argument to system call" },
+   { SIGPIPE,  0, 0, "write on a pipe with no one to read it" },
+   { SIGILL,   0, 0, "illegal instruction" },
+   { SIGQUIT,  0, 0, "quit" },
+   { SIGINT,   0, 0, "interrupt" },
+   { SIGWINCH, 0, 0, "window size change" },
+   { SIGALRM,  0, 0, "alarm clock" },
+   { SIGCHLD,  0, 0, "death of a child" },
+   { SIGURG,   0, 0, "urgent data arrived on an I/O channel" },
+   { SIGFPE,   0, 0, "floating point exception" },
+   { SIGTERM,  0, 0, "termination signal" },
+   { SIGUSR1,  0, 0, "user-defined signal 1" },
+   { SIGUSR2,  0, 0, "user-defined signal 2" }
+};
+
+//______________________________________________________________________________
+static void sighandler(int sig)
+{
+   // Call the signal handler associated with the signal.
+
+   for (int i= 0; i < kMAXSIGNALS; i++) {
+      if (gSignalMap[i].fCode == sig) {
+         (*gSignalMap[i].fHandler)((ESignals)i);
+         return;
+      }
+   }
+}
+
+#if defined(R__KCC)
+   extern "C" {
+      typedef void (*sighandlerFunc_t)(int);
+   }
+#endif
+
+//______________________________________________________________________________
+void UnixSignal(ESignals sig, SigHandler_t handler)
+{
+   // Set a signal handler for a signal.
+
+   if (gSignalMap[sig].fHandler != handler) {
+      struct sigaction sigact;
+
+      gSignalMap[sig].fHandler    = handler;
+      gSignalMap[sig].fOldHandler = new struct sigaction();
+
+#if defined(R__SUN)
+      sigact.sa_handler = (void (*)())sighandler;
+#elif defined(R__SOLARIS)
+      sigact.sa_handler = sighandler;
+#elif defined(R__KCC)
+      sigact.sa_handler = (sighandlerFunc_t)sighandler;
+#elif (defined(R__SGI) && !defined(R__KCC)) || defined(R__LYNXOS)
+#  if defined(R__SGI64) || (__GNUG__>=3)
+      sigact.sa_handler = sighandler;
+#  else
+      sigact.sa_handler = (void (*)(...))sighandler;
+#  endif
+#else
+      sigact.sa_handler = sighandler;
+#endif
+      sigemptyset(&sigact.sa_mask);
+      sigact.sa_flags = 0;
+#if defined(SA_RESTART)
+      sigact.sa_flags |= SA_RESTART;
+#endif
+      if (sigaction(gSignalMap[sig].fCode, &sigact,
+                    gSignalMap[sig].fOldHandler) < 0)
+         gSystem->SysError("ROMERint::UnixSignal", "sigaction");
+   }
+}
+
+//______________________________________________________________________________
+static void SigHandler(ESignals sig)
+{
+   // Unix signal handler.
+
+   cleaning();
+   if (gSystem)
+      ((TUnixSystem*)gSystem)->DispatchSignals(sig);
+}
+#endif
+
+ClassImp(ROMERint)
 
 //______________________________________________________________________________
 Bool_t ROMEInterruptHandler::Notify()
@@ -86,6 +183,20 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    fROMEInterruptHandler->Add();
    SetSignalHandler(fROMEInterruptHandler);
    fUseRintInterruptHandler = kFALSE;
+
+#if defined( R__UNIX )
+   //--- install default handlers
+//   UnixSignal(kSigChild,                 SigHandler);
+   UnixSignal(kSigBus,                   SigHandler);
+   UnixSignal(kSigSegmentationViolation, SigHandler);
+   UnixSignal(kSigIllegalInstruction,    SigHandler);
+   UnixSignal(kSigSystem,                SigHandler);
+   UnixSignal(kSigPipe,                  SigHandler);
+   UnixSignal(kSigAlarm,                 SigHandler);
+//   UnixSignal(kSigUrgent,                SigHandler);
+   UnixSignal(kSigFloatingException,     SigHandler);
+//   UnixSignal(kSigWindowChanged,         SigHandler);
+#endif
 }
 
 //______________________________________________________________________________
