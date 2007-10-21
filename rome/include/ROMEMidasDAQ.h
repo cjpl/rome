@@ -122,10 +122,13 @@ protected:
 
    Int_t         fTimeStamp;                               //! Current time stamp
 
-   TArrayL*      fEventFilePositions;                      //! File pointer to event
-   Long64_t      fValidEventFilePositions;                 //! Max number of valid index of fEventFilePositions
-   Long64_t      fCurrentPosition;                         //! Current position in file [event]
-   Long64_t      fMaxDataEvent;                            //! Maximum number of sequential number of data events in the run.
+   TArrayL*      fSeqNumToFilePos;                         //! Sequential number => file position
+   TArrayL*      fSeqNumToEventNum;                        //! Sequential number => trigger event number
+   TArrayL*      fEventNumToSeqNum;                        //! Trigger event number => sequential number
+   Long64_t      fValidSeqNumber;                          //! Max number of valid index of fSeqNumToXXX
+   Long64_t      fValidEventNumber;                        //! Max number of valid index of fEventNumToSeqNum
+   Long64_t      fCurrentSeqNumber;                        //! Current position in file
+   Long64_t      fMaxDataSeqNumber;                        //! Maximum number of sequential number of data events in the run.
 
    Bool_t        fByteSwapFlagMightBeWrong;                //! Flag if <MidasByteSwap> might be wrongly specified.
    TThread      *fOnlineHandlerThread;                     //! Thread to handle online connection
@@ -185,6 +188,7 @@ public:
    Bool_t         Init();
    Bool_t         BeginOfRun();
    Long64_t       Seek(Long64_t event);
+   Long64_t       StepEvent(Bool_t forward = kTRUE);
    Bool_t         Event(Long64_t event);
    Bool_t         EndOfRun();
    Bool_t         Terminate();

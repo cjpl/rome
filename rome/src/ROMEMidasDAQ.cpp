@@ -44,7 +44,7 @@
 #   endif
 #endif
 
-const Int_t kEventFilePositionsResizeIncrement = 100000;
+const Int_t kFilePositionsResizeIncrement = 100000;
 const Int_t kTriggerEventID = 1;
 
 namespace {
@@ -100,10 +100,13 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fRequestAll(kFALSE)
 ,fOdbOffline(0)
 ,fTimeStamp(0)
-,fEventFilePositions(new TArrayL(kEventFilePositionsResizeIncrement))
-,fValidEventFilePositions(0)
-,fCurrentPosition(0)
-,fMaxDataEvent(0)
+,fSeqNumToFilePos(new TArrayL(kFilePositionsResizeIncrement))
+,fSeqNumToEventNum(new TArrayL(kFilePositionsResizeIncrement))
+,fEventNumToSeqNum(new TArrayL(kFilePositionsResizeIncrement))
+,fValidSeqNumber(0)
+,fValidEventNumber(0)
+,fCurrentSeqNumber(0)
+,fMaxDataSeqNumber(0)
 ,fByteSwapFlagMightBeWrong(kFALSE)
 ,fOnlineHandlerThread(0)
 ,fOnlineHandlerTimer(0)
@@ -140,7 +143,9 @@ ROMEMidasDAQ::~ROMEMidasDAQ()
       SafeDeleteArray(fRawDataEvent[i]);
    }
    SafeDelete(fOdbOffline);
-   SafeDelete(fEventFilePositions);
+   SafeDelete(fSeqNumToFilePos);
+   SafeDelete(fSeqNumToEventNum);
+   SafeDelete(fEventNumToSeqNum);
    StopOnlineCommunication(this);
    SafeDeleteArray(fODBBuffer);
 }
@@ -218,11 +223,14 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
          ROMEPrint::Print("%s\n", gzfilename.Data());
       }
 
-      fMaxDataEvent = kMaxLong64;
+      fMaxDataSeqNumber = kMaxLong64;
 
-      fCurrentPosition = 0;
-      fValidEventFilePositions = 0;
-      fEventFilePositions->Set(0);
+      fCurrentSeqNumber = 0;
+      fValidSeqNumber = 0;
+      fValidEventNumber = 0;
+      fSeqNumToFilePos->Set(0);
+      fSeqNumToEventNum->Set(0);
+      fEventNumToSeqNum->Set(0);
 
       while (!isBeginOfRun() && !isEndOfRun() && !isTerminate()) {
          if (!ReadODBOffline()) {
@@ -235,7 +243,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEMidasDAQ::Event(Long64_t event)
+Bool_t ROMEMidasDAQ::Event(Long64_t /* event */)
 {
    // Switch Raw Data Buffer
    if (!fReadExistingRawData) {
@@ -342,68 +350,12 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       this->InitMidasBanks();
 #endif
    } else if (gROME->isOffline()) {
-      if (event > fMaxDataEvent) {
-         this->SetEndOfRun();
-         return kTRUE;
+      if (StepEvent() < 0) {
+         return kFALSE;
       }
 
-      // read event header
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
-      bool readError = kFALSE;
-      Long_t n;
 
-      // seek position
-      if (Seek(event) < 0) {
-         return kTRUE;
-      }
-
-      // read event header
-      if(!fGZippedMidasFile) {
-         n = read(fMidasFileHandle, pevent, sizeof(EVENT_HEADER));
-      } else {
-         n = gzread(fMidasGzFileHandle, pevent, sizeof(EVENT_HEADER));
-      }
-
-      if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
-         readError = kTRUE;
-      } else {
-         // read data
-#if !defined( R__BYTESWAP )
-         ROMEUtilities::ByteSwap(&pevent->event_id);
-         ROMEUtilities::ByteSwap(&pevent->trigger_mask);
-         ROMEUtilities::ByteSwap(&pevent->serial_number);
-         ROMEUtilities::ByteSwap(&pevent->time_stamp);
-         ROMEUtilities::ByteSwap(&pevent->data_size);
-#endif
-         n = 0;
-         if (pevent->data_size <= 0) {
-            readError = kTRUE;
-         } else {
-            if(!fGZippedMidasFile) {
-               n = read(fMidasFileHandle, pevent + 1, pevent->data_size);
-            } else {
-               n = gzread(fMidasGzFileHandle, pevent + 1, pevent->data_size);
-            }
-            if (n != static_cast<Long_t>(pevent->data_size)) {
-               readError = kTRUE;
-            }
-#if 0
-            if (static_cast<Int_t>(reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) <= 0) {
-               readError = kTRUE;
-            }
-#endif
-         }
-         fCurrentPosition++;
-      }
-
-      // check input
-      if (readError) {
-         if (n > 0) {
-            ROMEPrint::Warning("Unexpected end of file\n");
-         }
-         this->SetEndOfRun();
-         return kTRUE;
-      }
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
          if (gROME->isDataBaseActive("ODB")) {
@@ -426,7 +378,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
          if(pevent->event_id != EVENTID_BOR &&
             pevent->event_id != EVENTID_EOR &&
             pevent->event_id != EVENTID_MESSAGE) {
-            if(IsActiveEventID( pevent->event_id )) {
+            if(IsActiveEventID(pevent->event_id)) {
                bk_swap(pevent + 1, 0);
             }
          }
@@ -453,22 +405,15 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
 }
 
 //______________________________________________________________________________
-Long64_t ROMEMidasDAQ::Seek(Long64_t event)
+Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
 {
-   // Move file pointer to specified event
-   // Event number is not necessarily same with serial number when
-   // there are multiple type of events in a Midas file.
-   // In online mode, Seek moves in ring buffer forward or backward,
-   // instead of jump to specified event number
-
-   if (event < 0) {
-      Warning("Seek", "Event number "R_LLD" was not found.", event);
-      event = gROME->GetCurrentEventNumber();
-      gROME->SetDontReadNextEvent();
-      SetContinue();
-      return -1;
-   }
-
+   // In online mode,
+   // Move file pointer to the next or previous event
+   // returns trigger event number.
+   //
+   // In offline mode, 'forwar' does not make sense.
+   // This function reads one event from current position, and increment current
+   // position.
    if (gROME->isOnline()) {
       Int_t i;
       Bool_t found = kFALSE;
@@ -476,12 +421,8 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       Long64_t currentEventNumber = gROME->GetCurrentEventNumber();
       Long64_t newEventNumber = currentEventNumber;
 
-      if (event == currentEventNumber) {
-         fReadExistingRawData = kTRUE;
-         return event;
-      }
       for (i = 0; i < fValidRawDataEvent; i++) {
-         if (event < currentEventNumber) {
+         if (!forward) {
             fCurrentRawDataEvent = (fCurrentRawDataEvent - 1) % fValidRawDataEvent;
             if (fCurrentRawDataEvent < 0) {
                fCurrentRawDataEvent += fValidRawDataEvent;
@@ -507,46 +448,39 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       if (!found) {
          fCurrentRawDataEvent = rawDataEventOld;
          newEventNumber = currentEventNumber;
-         if (event > currentEventNumber) {
-            return newEventNumber;
+         if (forward) {
+            return currentEventNumber;
          }
       }
       fReadExistingRawData = kTRUE;
       return newEventNumber;
    } else if (gROME->isOffline()) {
-      if (event < fValidEventFilePositions) {
-         // use stored position
-         if(fEventFilePositions->At(static_cast<Int_t>(event)) != -1) {
-            if(!fGZippedMidasFile) {
-               lseek(fMidasFileHandle, fEventFilePositions->At(static_cast<Int_t>(event)), SEEK_SET);
-            } else {
-               gzseek(fMidasGzFileHandle, fEventFilePositions->At(static_cast<Int_t>(event)), SEEK_SET);
-            }
-            fCurrentPosition = event;
-            return event;
-         } else {
-            return -1;
-         }
-      }
-
-      // seek event
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
       bool readError = kFALSE;
       Long_t n;
-      while (fCurrentPosition != event) {
-         if (fEventFilePositions->GetSize() <= fCurrentPosition) {
-            fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
+
+      while (1) {
+         if (fSeqNumToFilePos->GetSize() <= fCurrentSeqNumber) {
+            fSeqNumToFilePos->Set(fSeqNumToFilePos->GetSize() + kFilePositionsResizeIncrement);
+            fSeqNumToEventNum->Set(fSeqNumToEventNum->GetSize() + kFilePositionsResizeIncrement);
+            fEventNumToSeqNum->Set(fEventNumToSeqNum->GetSize() + kFilePositionsResizeIncrement);
          }
          if(!fGZippedMidasFile) {
-            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
+            fSeqNumToFilePos->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
          } else {
-            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
+            fSeqNumToFilePos->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
          }
-         fValidEventFilePositions = fCurrentPosition + 1;
+         // default event number, this will be overwritten later, if this event is trigger event.
+         fSeqNumToEventNum->AddAt(fCurrentSeqNumber == 0 ? 0 :
+                                  fSeqNumToEventNum->At(fCurrentSeqNumber - 1),
+                                  static_cast<Int_t>(fCurrentSeqNumber));
+         if (fValidSeqNumber < fCurrentSeqNumber + 1) {
+            fValidSeqNumber = fCurrentSeqNumber + 1;
+         }
          if(!fGZippedMidasFile) {
-            n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
+            n = read(fMidasFileHandle, pevent, sizeof(EVENT_HEADER));
          } else {
-            n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
+            n = gzread(fMidasGzFileHandle, pevent, sizeof(EVENT_HEADER));
          }
 
          if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
@@ -559,6 +493,14 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
             ROMEUtilities::ByteSwap(&pevent->time_stamp);
             ROMEUtilities::ByteSwap(&pevent->data_size);
 #endif
+            if (pevent->event_id == kTriggerEventID) {
+               fSeqNumToEventNum->AddAt(pevent->serial_number, static_cast<Int_t>(fCurrentSeqNumber));
+               fEventNumToSeqNum->AddAt(fCurrentSeqNumber, pevent->serial_number);
+               if (fValidEventNumber < pevent->serial_number + 1) {
+                  fValidEventNumber = pevent->serial_number + 1;
+               }
+               gROME->SetCurrentEventNumber(pevent->serial_number);
+            }
             n = 0;
             if (pevent->data_size <= 0) {
                readError = kTRUE;
@@ -577,7 +519,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
                }
 #endif
             }
-            fCurrentPosition++;
+            fCurrentSeqNumber++;
          }
          if (pevent->event_id == EVENTID_EOR) {
             this->SetEndOfRun();
@@ -587,34 +529,109 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
          if (readError) {
             if (readError && n > 0) {
                ROMEPrint::Warning("Unexpected end of file\n");
-               fMaxDataEvent = fCurrentPosition - 2;
+               fMaxDataSeqNumber = fCurrentSeqNumber - 2;
                SetEndOfRun();
             } else {
-               Warning("Seek", "Event number "R_LLD" was not found.", event);
+               Warning("StepEvent", "Read error");
                SetContinue();
             }
-            fEventFilePositions->AddAt(-1, static_cast<Int_t>(fCurrentPosition - 1));
+            fSeqNumToFilePos->AddAt(-1, static_cast<Int_t>(fCurrentSeqNumber - 1));
+            fSeqNumToEventNum->AddAt(-1, static_cast<Int_t>(fCurrentSeqNumber - 1));
             gROME->SetDontReadNextEvent();
             return -1;
          }
          if (pevent->data_size < reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) {
             continue;
          }
+         break;
       }
 
-      // we are now at the correct position.
-      if (fCurrentPosition >= fValidEventFilePositions) {
-         if (fEventFilePositions->GetSize() <= fCurrentPosition) {
-            fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
-         }
-         if(!fGZippedMidasFile) {
-            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
-         } else {
-            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
-         }
-         fValidEventFilePositions = fCurrentPosition + 1;
+      return fSeqNumToEventNum->At(fCurrentSeqNumber - 1);
+   }
+   return -1;
+}
+
+//______________________________________________________________________________
+Long64_t ROMEMidasDAQ::Seek(Long64_t event)
+{
+   // Move file pointer to specified event
+   //
+   // In offline mode, it jumps to the next of previous trigger event spcified by argument
+   // For example,
+   //
+   // Sequencial number : 1000 1001 1002 1003 1004 1005 1006 1007 1008 1009
+   // Serial number     :  621  622   23    5  623  624   24  625  626  627
+   // Event ID          :    1    1    2   10    1    1    2    1    1    1
+   //
+   // If 'event' is 622, it jumps to serial number 1001, return 622
+   // If 'event' is 623, it jumps to serial number 1002, return 622
+   //
+   // In online mode, Seek moves in ring buffer forward or backward,
+   // instead of jump to specified event number
+
+   if (event < 0) {
+      Warning("Seek", "Event number "R_LLD" was not found.", event);
+      event = gROME->GetCurrentEventNumber();
+      gROME->SetDontReadNextEvent();
+      SetContinue();
+      return -1;
+   }
+
+   if (gROME->isOnline()) {
+      Long64_t currentEventNumber = gROME->GetCurrentEventNumber();
+
+      if (event == currentEventNumber) {
+         fReadExistingRawData = kTRUE;
+         return event;
+      } else if (event < currentEventNumber) {
+         return StepEvent(kFALSE);
+      } else {
+         return StepEvent(kTRUE);
       }
-      return event;
+      return -1;
+   } else if (gROME->isOffline()) {
+      Int_t readSeqNumber;
+      Int_t readPosition;
+      if (event < fValidEventNumber) {
+         readSeqNumber = (event == 0) ? fEventNumToSeqNum->At(static_cast<Int_t>(event)) :
+               fEventNumToSeqNum->At(static_cast<Int_t>(event - 1)) + 1;
+         readPosition = fSeqNumToFilePos->At(readSeqNumber);
+         // use stored position
+         if(readPosition != -1) {
+            if(!fGZippedMidasFile) {
+               lseek(fMidasFileHandle, readPosition, SEEK_SET);
+            } else {
+               gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
+            }
+            fCurrentSeqNumber = readSeqNumber;
+            gAnalyzer->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
+            return fSeqNumToEventNum->At(readSeqNumber);
+         } else {
+            return -1;
+         }
+      }
+
+      // seek event
+      while (event >= fValidEventNumber) {
+         if (StepEvent() < 0) {
+            return -1;
+         }
+      }
+      readSeqNumber = (event == 0) ? fEventNumToSeqNum->At(static_cast<Int_t>(event)) :
+            fEventNumToSeqNum->At(static_cast<Int_t>(event - 1)) + 1;
+      readPosition = fSeqNumToFilePos->At(readSeqNumber);
+      // use stored position
+      if(readPosition != -1) {
+         if(!fGZippedMidasFile) {
+            lseek(fMidasFileHandle, readPosition, SEEK_SET);
+         } else {
+            gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
+         }
+         fCurrentSeqNumber = readSeqNumber;
+         return fSeqNumToEventNum->At(readSeqNumber);
+      } else {
+         return -1;
+      }
    }
    return -1;
 }
@@ -917,9 +934,11 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
       }
 
       // Get Handle to ODB header
-      fCurrentPosition = 0;
-      if (fEventFilePositions->GetSize() < 1) {
-         fEventFilePositions->Set(kEventFilePositionsResizeIncrement);
+      fCurrentSeqNumber = 0;
+      if (fSeqNumToFilePos->GetSize() < 1) {
+         fSeqNumToFilePos->Set(kFilePositionsResizeIncrement);
+         fSeqNumToEventNum->Set(kFilePositionsResizeIncrement);
+         fEventNumToSeqNum->Set(kFilePositionsResizeIncrement);
       }
       if (pevent->event_id == EVENTID_BOR) {
          if (gROME->isDataBaseActive("ODB")) {
@@ -927,11 +946,11 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
                   SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }
          if(!fGZippedMidasFile) {
-            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
+            fSeqNumToFilePos->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
          } else {
-            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentPosition));
+            fSeqNumToFilePos->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
          }
-         fValidEventFilePositions = 1;
+         fValidSeqNumber = 1;
       } else {
          if(posOld != -1) {
             if(!fGZippedMidasFile) {
@@ -940,8 +959,8 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
                gzseek(fMidasGzFileHandle, posOld, SEEK_SET);
             }
          }
-         fEventFilePositions->AddAt(posOld, static_cast<Int_t>(fCurrentPosition));
-         fValidEventFilePositions = 1;
+         fSeqNumToFilePos->AddAt(posOld, static_cast<Int_t>(fCurrentSeqNumber));
+         fValidSeqNumber = 1;
       }
       this->SetBeginOfRun();
    }
@@ -1054,9 +1073,7 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force) const
    }
    return CM_SUCCESS;
 }
-#endif
 
-#if !defined( HAVE_MIDAS )
 //______________________________________________________________________________
 BOOL ROMEMidasDAQ::bk_is32(void *event)
 {

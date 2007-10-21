@@ -7329,7 +7329,11 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("   char str[128];\n");
    buffer.AppendFormatted("   SetStatus(0, \"\", 0);\n");
    buffer.AppendFormatted("   fWatchAll.Start(false);\n");
-
+   buffer.AppendFormatted("   if (fControllerActive) {\n");
+   buffer.AppendFormatted("      if (fController) {\n");
+   buffer.AppendFormatted("         fController->Update();\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (!gAnalyzer->IsStandAloneARGUS()) {\n");
 #if defined(R__UNIX)
    buffer.AppendFormatted("      sprintf(str, \"Run : %%6lld     Event : %%6lld\",\n");
