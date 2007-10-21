@@ -101,6 +101,7 @@ class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
    Bool_t        fByteSwap;
    char         *fRawDataEvent[kRawDataEvents];            //! Midas Inputdata Stack
+   char         *fRawDataDummy;                            //! Buffer for dummy read
    Int_t         fNumberOfRawDataEvent;                    //! Number of Midas Inputdata Stack
    Int_t         fCurrentRawDataEvent;                     //! Index of the current event buffer
    Int_t         fValidRawDataEvent;                       //! Buffer which is filled already
@@ -192,6 +193,7 @@ public:
    Bool_t         Event(Long64_t event);
    Bool_t         EndOfRun();
    Bool_t         Terminate();
+   void           DummyRead();
 
    Bool_t         ReadODBOffline();
    Bool_t         ReadODBOnline(ROMEStr2DArray *values, const char *dataBasePath,
@@ -227,6 +229,7 @@ public:
    static Bool_t     ConnectExperiment(ROMEMidasDAQ *localThis);
    static Bool_t     CheckTransition();
    static Bool_t     ReadOnlineEvent(ROMEMidasDAQ *localThis);
+   static void       ReadOnlineEventDummy(ROMEMidasDAQ *localThis);
    static void       StartOnlineCommunication(ROMEMidasDAQ *localThis);
    static void       StopOnlineCommunication(ROMEMidasDAQ *localThis);
    static Bool_t     InitOnlineCommunication(ROMEMidasDAQ *localThis);

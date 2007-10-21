@@ -1189,6 +1189,10 @@ Bool_t ROMEEventLoop::UserInput()
          gSystem->ProcessEvents();
          gROME->GetApplication()->EnableFPETrap();
          gSystem->Sleep(10);
+         if (gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
+            // not to stop midas server
+            static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->DummyRead();
+         }
       }
 
       if (gROME->IsWindowClosed()) {

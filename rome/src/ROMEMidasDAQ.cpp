@@ -51,6 +51,7 @@ namespace {
    enum EOnlineThreadRequest {
       kNoRequest = 0,
       kReadEvent,
+      kReadEventDummy,
       kReadDB,
       kWriteDB,
       kCheckTransition
@@ -88,6 +89,7 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 #else
 ,fByteSwap(kTRUE)
 #endif
+,fRawDataDummy(0)
 ,fNumberOfRawDataEvent(0)
 ,fCurrentRawDataEvent(-1)
 ,fValidRawDataEvent(0)
@@ -125,6 +127,7 @@ ROMEMidasDAQ::ROMEMidasDAQ()
       fNumberOfRawDataEvent = 2;
    } else {
       fNumberOfRawDataEvent = kRawDataEvents;
+      fRawDataDummy = new char[MAX_EVENT_SIZE];
    }
    for (i = 0; i < kRawDataEvents; i++) {
       if (i < fNumberOfRawDataEvent) {
@@ -142,6 +145,7 @@ ROMEMidasDAQ::~ROMEMidasDAQ()
    for (i = 0; i< kRawDataEvents; i++) {
       SafeDeleteArray(fRawDataEvent[i]);
    }
+   SafeDeleteArray(fRawDataDummy);
    SafeDelete(fOdbOffline);
    SafeDelete(fSeqNumToFilePos);
    SafeDelete(fSeqNumToEventNum);
@@ -1190,7 +1194,10 @@ THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
             ROME_LOCKGUARD(fgMutex);
             fgReadEventReturn = ret;
          }
-      break;
+         break;
+      case kReadEventDummy:
+         ReadOnlineEventDummy(localThis);
+         break;
       case kReadDB:
          ret = localThis->ActualReadODBOnline(fgDBValues, fgDBPath, fgDBRunNumber, fgDBEventNumber);
          {
@@ -1374,6 +1381,37 @@ Bool_t ROMEMidasDAQ::ReadOnlineEvent(ROMEMidasDAQ *localThis)
    WarningSuppression(localThis)
 #endif
    return kTRUE;
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::DummyRead()
+{
+   if (fOnlineThread) {
+      if (!fOnlineHandlerThread) {
+         return;
+      }
+      {
+         ROME_LOCKGUARD(fgMutex);
+         fgOnlineThreadRequest = kReadEventDummy;
+      }
+      while (fgOnlineThreadRequest) {
+         // wait until thread finish process
+         gSystem->Sleep(10);
+      }
+   } else {
+      ReadOnlineEventDummy(this);
+   }
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::ReadOnlineEventDummy(ROMEMidasDAQ *localThis)
+{
+#if defined( HAVE_MIDAS )
+   INT size = localThis->GetRawDataEventSize();
+   bm_receive_event(localThis->fMidasOnlineBuffer, localThis->fRawDataDummy, &size, ASYNC);
+#else
+   WarningSuppression(localThis)
+#endif
 }
 
 //______________________________________________________________________________
