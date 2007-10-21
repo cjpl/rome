@@ -555,7 +555,11 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
             gROME->SetDontReadNextEvent();
             return -1;
          }
-         if (pevent->data_size < reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) {
+         UInt_t dsize = reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size;
+         if (fByteSwap) {
+            ROMEUtilities::ByteSwap(&dsize);
+         }
+         if (pevent->data_size < dsize) {
             continue;
          }
          break;
