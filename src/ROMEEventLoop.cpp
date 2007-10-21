@@ -1359,19 +1359,19 @@ void ROMEEventLoop::NextEvent()
 void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 {
    fCurrentEvent = gROME->GetActiveDAQ()->Seek(eventNumber);
+
+   fStop = true;
+   fContinuous = false;
+
    if (fCurrentEvent != -1) {
+      if (fCurrentEvent < eventNumber) {
+         fStop = false;
+         fContinuous = true;
+         fStopAtEvent = eventNumber;
+         fStopAtRun = gROME->GetCurrentRunNumber();
+      }
       ROMEPrint::Print("Stepped to Event "R_LLD"                                                    \n", fCurrentEvent);
    } else {
       ROMEPrint::Print("Failed to step                                                           \n");
-   }
-
-   if (fCurrentEvent < eventNumber) {
-      fStop = false;
-      fContinuous = true;
-      fStopAtEvent = eventNumber;
-      fStopAtRun = gROME->GetCurrentRunNumber();
-   } else {
-      fStop = true;
-      fContinuous = false;
    }
 }
