@@ -69,6 +69,17 @@ namespace {
    Long64_t        fgCurrentRunNumber         = -1;
    Int_t           fgEventStatus              = -1;
    Int_t           fgRunStatus                = -1;
+
+   // function to execut at CTRL-C. This is called in MIDAS online mode.
+   void CTRLCHandler(Int_t i)
+   {
+      WarningSuppression(i);
+      if (gROME) {
+         gROME->GetApplication()->Terminate(1);
+      } else {
+         gSystem->Abort(1);
+      }
+   }
 }
 
 #if defined( HAVE_MIDAS )
@@ -1240,6 +1251,8 @@ Bool_t ROMEMidasDAQ::ConnectExperiment(ROMEMidasDAQ *localThis)
       ROMEPrint::Error("\nCan not connect to experiment\n");
       return kFALSE;
    }
+
+   ss_ctrlc_handler(CTRLCHandler);
 
    INT requestId;
    Int_t i;
