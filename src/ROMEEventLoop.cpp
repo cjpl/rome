@@ -925,20 +925,17 @@ Bool_t ROMEEventLoop::Update()
    }
 
    // Condition of following 'if' statements can be a problem when 'event type !=1' comes frequently.(EventHandler can be called too frequently.)
-   if (!gROME->isBatchMode() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+   if (!gROME->isBatchMode() &&
+       (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
       newUpdateWindowEvent =  gROME->GetCurrentEventNumber();
-      if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID() != 1) {
+      if (fUpdateWindowLastEvent != newUpdateWindowEvent ||
+          gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID() != 1) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
          if ((fUpdateWindow &&
               static_cast<ULong_t>(gSystem->Now()) >
               static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdateFrequency())) ||
              gROME->GetWindow()->IsEventHandlingRequested() ||
              (gROME->GetEventID() != 1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
-            if (gROME->GetWindow()->IsControllerActive()) {
-               if(gROME->GetWindow()->GetAnalyzerController()) {
-                  gROME->GetWindow()->GetAnalyzerController()->Update();
-               }
-            }
             if (!this->isStopped()) {
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
@@ -982,8 +979,12 @@ Bool_t ROMEEventLoop::UserInput()
          fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
          gROME->GetWindow()->TriggerEventHandler();
       }
-   } else if ((fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) ||
-              (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
+   } else if ((fStopAtRun == gROME->GetCurrentRunNumber() && fStopAtEvent == gROME->GetCurrentEventNumber()) ||
+              (gROME->GetCurrentEventNumber() == 0 && !fContinuous)) {
+      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+         gROME->GetWindow()->TriggerEventHandler();
+      }
       ROMEPrint::Print("Stopped after event "R_LLD"                   \r", gROME->GetCurrentEventNumber());
       wait = true;
    } else if (!gROME->HasUserEvent() && fContinuous &&
@@ -1083,8 +1084,6 @@ Bool_t ROMEEventLoop::UserInput()
          if (ch == 'j' || ch == 'J' || gROME->IsUserEventJ()) {
             if (gROME->IsUserEventJ()) {
                GotoEvent(gROME->GetUserEventJEventNumber());
-               fStop = true;
-               fContinuous = false;
                wait = false;
             } else {
                char *cstop;
@@ -1106,8 +1105,6 @@ Bool_t ROMEEventLoop::UserInput()
                ROMEPrint::Print("\r                                                                      \r");
                inumber = strtol(number.Data(), &cstop, 10);
                GotoEvent(inumber);
-               fStop = true;
-               fContinuous = false;
                wait = false;
             }
             ch = 'j';
@@ -1362,5 +1359,15 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
       ROMEPrint::Print("Stepped to Event "R_LLD"                                                    \n", fCurrentEvent);
    } else {
       ROMEPrint::Print("Failed to step                                                           \n");
+   }
+
+   if (fCurrentEvent < eventNumber) {
+      fStop = false;
+      fContinuous = true;
+      fStopAtEvent = eventNumber;
+      fStopAtRun = gROME->GetCurrentRunNumber();
+   } else {
+      fStop = true;
+      fContinuous = false;
    }
 }
