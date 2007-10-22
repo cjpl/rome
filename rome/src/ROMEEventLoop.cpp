@@ -379,7 +379,7 @@ Int_t ROMEEventLoop::RunEvent()
    // Update
    if (!this->isContinue() || this->isStopped() || gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : Update\n");
-      if (fCurrentEvent>0) {
+      if (fCurrentEvent > 0) {
          if (!this->Update()) {
             this->Terminate();
             gROME->SetTerminationFlag();
@@ -407,9 +407,9 @@ Int_t ROMEEventLoop::RunEvent()
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : CheckEventNumber\n");
    if (gROME->isOffline() && !gROME->IsROMEMonitor()) {
       int status = gROME->CheckEventNumber(fCurrentEvent);
-      if (status==0) {
+      if (status == 0) {
          return kContinue;
-      } else if (status==-1) {
+      } else if (status == -1) {
          this->SetStopped();
          this->SetEndOfRun();
          return kBreak;
@@ -463,8 +463,9 @@ Int_t ROMEEventLoop::RunEvent()
          ROMEPrint::Print("\n\nTerminating Program !\n");
          return kReturn;
       }
-      if (fHaveBeginOfEventMacro)
+      if (fHaveBeginOfEventMacro) {
          gROME->GetApplication()->ProcessFile(fBeginOfEventMacro.Data());
+      }
       if (this->isEndOfRun()) {
          this->SetStopped();
          return kBreak;
@@ -1360,6 +1361,7 @@ void ROMEEventLoop::NextEvent()
 //______________________________________________________________________________
 void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 {
+   Long64_t oldEventNumber = gROME->GetCurrentEventNumber();
    fCurrentEvent = gROME->GetActiveDAQ()->Seek(eventNumber);
 
    fStop = true;
@@ -1374,6 +1376,7 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
       }
       ROMEPrint::Print("Stepped to Event "R_LLD"                                                    \n", fCurrentEvent);
    } else {
+      fCurrentEvent = oldEventNumber;
       ROMEPrint::Print("Failed to step                                                           \n");
    }
 }
