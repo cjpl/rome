@@ -17,6 +17,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
+#include "ROME.h"
 #include "ROMEUtilities.h"
 
 class TNetFolder;
