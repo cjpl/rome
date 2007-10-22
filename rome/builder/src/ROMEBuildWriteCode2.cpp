@@ -2513,16 +2513,17 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
       return true;
    }
    for (i = 0; i < parGroup->GetNumberOfParameters(); i++) {
-      buffer.AppendFormatted("%s// %s%s\n",sTab.Data(),groupName.Data(),parGroup->GetParameterAt(i)->GetName());
+      buffer.AppendFormatted("\n%s// %s%s\n",sTab.Data(),groupName.Data(),parGroup->GetParameterAt(i)->GetName());
       if (indexes.Length() == 0) {
-         buffer.AppendFormatted("%sxml->GetPathValue(path+\"/%s%s\",%sf%s,\"\");\n",sTab.Data(),groupName.Data(),
-                                parGroup->GetParameterAt(i)->GetName(),pointer.Data(),
-                                parGroup->GetParameterAt(i)->GetName());
+         buffer.AppendFormatted("%sxml->GetPathValue(path+\"/%s%s\",\n",
+                                sTab.Data(), groupName.Data(), parGroup->GetParameterAt(i)->GetName());
+         buffer.AppendFormatted("%s                  %sf%s, \"\");\n",
+                                sTab.Data(), pointer.Data(), parGroup->GetParameterAt(i)->GetName());
       } else {
          buffer.AppendFormatted("%stempPath.SetFormatted(\"/%s%s\"%s);\n",sTab.Data(),groupName.Data(),
                                 parGroup->GetParameterAt(i)->GetName(),indexes.Data());
-         buffer.AppendFormatted("%sxml->GetPathValue(path+tempPath,%sf%s,\"\");\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetParameterAt(i)->GetName());
+         buffer.AppendFormatted("%sxml->GetPathValue(path+tempPath, %sf%s, \"\");\n",
+                                sTab.Data(), pointer.Data(), parGroup->GetParameterAt(i)->GetName());
       }
       buffer.AppendFormatted("%s%sf%sModified = (%sf%s != \"\");\n",sTab.Data(),pointer.Data(),
                              parGroup->GetParameterAt(i)->GetName(),pointer.Data(),
@@ -2608,22 +2609,18 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
                                     parGroup->GetSubGroupAt(i)->GetMultiplicity());
          }
          if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram") {
-            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d;\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d = %sf%s;\n", sTab.Data(),
+                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
+                                   pointer.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          } else if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph") {
-            buffer.AppendFormatted("%sROMEConfigGraph* tmp%s%d;\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   *iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sROMEConfigGraph* tmp%s%d = %sf%s;\n", sTab.Data(),
+                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
+                                   pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          } else {
             temp = classNameT(0, classNameT.Length()-2);
-            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n",sTab.Data(),temp.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   *iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d = %sf%s;\n", sTab.Data(),
+                                   temp.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
+                                   pointer.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          pointerT.SetFormatted("tmp%s%d->",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
          (*iSub)++;
