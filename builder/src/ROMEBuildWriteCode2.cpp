@@ -3818,8 +3818,6 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
                                 folderName[numFolder].Data(),folderName[numFolder].Data());
       }
       buffer.AppendFormatted("   void   Update%s();\n", folderName[numFolder].Data());
-      buffer.AppendFormatted("   Bool_t Register%s();\n",folderName[numFolder].Data());
-      buffer.AppendFormatted("   Bool_t UnRegister%s();\n",folderName[numFolder].Data());
    }
 }
 
@@ -3875,16 +3873,10 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.Append(kMethodLine);
          buffer.AppendFormatted("%s%s* %sAnalyzer::Get%sAt(Int_t indx)\n{\n",shortCut.Data(),
                                 folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("   if (IsROMEMonitor()) {\n");
+         buffer.AppendFormatted("   if (IsROMEMonitor())\n");
          buffer.AppendFormatted("      Update%s();\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx) {\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %%d th element of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",indx);\n",
-                                folderName[numFolder].Data(),folderArray[numFolder].Data());
-         buffer.AppendFormatted("      gSystem->StackTrace();\n");
-         buffer.AppendFormatted("      fApplication->Terminate(1);\n");
-         buffer.AppendFormatted("      return 0;\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      FolderArrayOutOfBouds(indx,\"%s\",\"%s\");\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
          buffer.AppendFormatted("   return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),
                                 folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("}\n");
@@ -3915,16 +3907,10 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.Append(kMethodLine);
          buffer.AppendFormatted("%s%s* %sAnalyzer::Get%sAt(Int_t indx)\n{\n",shortCut.Data(),
                                 folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("   if (IsROMEMonitor()) {\n");
+         buffer.AppendFormatted("   if (IsROMEMonitor())\n");
          buffer.AppendFormatted("      Update%s();\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx) {\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %%d th element of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",indx);\n",
-                                folderName[numFolder].Data(),folderArray[numFolder].Data());
-         buffer.AppendFormatted("      gSystem->StackTrace();\n");
-         buffer.AppendFormatted("      fApplication->Terminate(1);\n");
-         buffer.AppendFormatted("      return 0;\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast() <= indx)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      FolderArrayOutOfBouds(indx,\"%s\",\"%s\");\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
          buffer.AppendFormatted("   return static_cast<%s%s*>(f%sFolders->At(indx));\n",shortCut.Data(),
                                 folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("}\n");
@@ -3952,22 +3938,6 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
-      buffer.Append(kMethodLine);
-      buffer.AppendFormatted("Bool_t %sAnalyzer::Register%s()\n{\n",shortCut.Data(),folderName[numFolder].Data());
-      buffer.AppendFormatted("   if (IsROMEMonitor())\n");
-      buffer.AppendFormatted("      return GetSocketClientNetFolder()->RegisterObject(\"%s%s\");\n",
-                             shortCut.Data(),folderName[numFolder].Data());
-      buffer.AppendFormatted("   return false;\n");
-      buffer.AppendFormatted("}\n");
-      buffer.AppendFormatted("\n");
-      buffer.Append(kMethodLine);
-      buffer.AppendFormatted("Bool_t %sAnalyzer::UnRegister%s()\n{\n",shortCut.Data(),folderName[numFolder].Data());
-      buffer.AppendFormatted("   if (IsROMEMonitor())\n");
-      buffer.AppendFormatted("      GetSocketClientNetFolder()->UnRegisterObject(\"%s%s\");\n",shortCut.Data(),
-                             folderName[numFolder].Data());
-      buffer.AppendFormatted("   return false;\n");
-      buffer.AppendFormatted("}\n");
-      buffer.AppendFormatted("\n");
    }
 }
 
