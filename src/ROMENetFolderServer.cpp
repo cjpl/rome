@@ -131,6 +131,60 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
       socket->Send(message);
       return 1;
    }
+   if (strncmp(str, "IsTaskActive ", 13) == 0) {
+      //check if a task is active
+      ROMEString string = str;
+      ROMEString taskNumber = string(13,string.Length()-13);
+      Int_t iTask = taskNumber.ToInteger();
+
+      Bool_t ret;
+      ret = kFALSE;
+      if (gROME->GetTaskObjectAt(iTask)->IsActive())
+         ret = kTRUE;
+
+      TMessage message(kMESS_ANY);
+      message<<ret;
+      socket->Send(message);
+      return 1;
+   }
+   if (strncmp(str, "IsHistoActive ", 14) == 0) {
+      //check if a histo is active
+      ROMEString string = str;
+      ROMEString taskNumber = string(14,string.Length()-14);
+      Int_t iTask = taskNumber.ToInteger();
+      Int_t blank = taskNumber.Index(" ");
+      ROMEString histoNumber = taskNumber(blank+1,taskNumber.Length()-blank-1);
+      Int_t iHisto = histoNumber.ToInteger();
+
+      Bool_t ret;
+      ret = kFALSE;
+      if (gROME->GetTaskObjectAt(iTask)->GetHistoParameterAt(iHisto)->IsActive())
+         ret = kTRUE;
+
+      TMessage message(kMESS_ANY);
+      message<<ret;
+      socket->Send(message);
+      return 1;
+   }
+   if (strncmp(str, "IsGraphActive ", 14) == 0) {
+      //check if a graph is active
+      ROMEString string = str;
+      ROMEString taskNumber = string(14,string.Length()-14);
+      Int_t iTask = taskNumber.ToInteger();
+      Int_t blank = taskNumber.Index(" ");
+      ROMEString graphNumber = taskNumber(blank+1,taskNumber.Length()-blank-1);
+      Int_t iGraph = graphNumber.ToInteger();
+
+      Bool_t ret;
+      ret = kFALSE;
+      if (gROME->GetTaskObjectAt(iTask)->GetGraphParameterAt(iGraph)->IsActive())
+         ret = kTRUE;
+
+      TMessage message(kMESS_ANY);
+      message<<ret;
+      socket->Send(message);
+      return 1;
+   }
    return TNetFolderServer::CheckCommand(socket,str);
 }
 

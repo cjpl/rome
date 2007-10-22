@@ -145,6 +145,8 @@ public:
    // Event Handler
    virtual void    TriggerEventHandler() = 0;
 
+   void CheckActiveFlags();
+
 protected:
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window

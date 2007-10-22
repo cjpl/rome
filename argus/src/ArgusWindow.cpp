@@ -184,6 +184,7 @@ Bool_t ArgusWindow::Start()
    }
 
    ROMEPrint::Debug("Creating Tabs\n");
+   CheckActiveFlags();
    if (!CreateTabs()) {
       fWatchAll.Stop();
       return kFALSE;
@@ -225,7 +226,39 @@ void ArgusWindow::CloseWindow()
 {
    gROME->WindowClosed();
 }
-
+//______________________________________________________________________________
+void ArgusWindow::CheckActiveFlags()
+{
+   if (gROME->IsROMEMonitor()) {
+      int i,j;
+      for (i = 0; i < gROME->GetTaskObjectEntries(); i++) {
+         if (gROME->IsTaskActive(i)) {
+            gROME->GetTaskObjectAt(i)->SetActive(true);
+            for (j = 0; j < gROME->GetTaskObjectAt(i)->GetNumberOfHistos(); j++) {
+               if (gROME->IsHistoActive(i,j))
+                  gROME->GetTaskObjectAt(i)->GetHistoParameterAt(j)->SetActive(true);
+               else
+                  gROME->GetTaskObjectAt(i)->GetHistoParameterAt(j)->SetActive(false);
+            }
+            for (j = 0; j < gROME->GetTaskObjectAt(i)->GetNumberOfGraphs(); j++) {
+               if (gROME->IsGraphActive(i,j))
+                  gROME->GetTaskObjectAt(i)->GetGraphParameterAt(j)->SetActive(true);
+               else
+                  gROME->GetTaskObjectAt(i)->GetGraphParameterAt(j)->SetActive(false);
+            }
+         }
+         else {
+            gROME->GetTaskObjectAt(i)->SetActive(false);
+            for (j = 0; j < gROME->GetTaskObjectAt(i)->GetNumberOfHistos(); j++) {
+               gROME->GetTaskObjectAt(i)->GetHistoParameterAt(j)->SetActive(false);
+            }
+            for (j = 0; j < gROME->GetTaskObjectAt(i)->GetNumberOfGraphs(); j++) {
+               gROME->GetTaskObjectAt(i)->GetGraphParameterAt(j)->SetActive(false);
+            }
+         }
+      }
+   }
+}
 //______________________________________________________________________________
 ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
 {

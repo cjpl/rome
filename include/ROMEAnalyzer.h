@@ -372,6 +372,7 @@ public:
    void            AddTask(TTask *task) { fTaskObjects->AddLast(task); }
    ROMETask       *GetTaskObjectAt(Int_t index) const { return static_cast<ROMETask*>(fTaskObjects->At(index)); }
    Int_t           GetTaskObjectEntries() const { return fTaskObjects->GetEntries(); }
+   Bool_t          IsTaskActive(Int_t taskIndex);
 
    // Trees
    void            AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree)); }
@@ -389,6 +390,8 @@ public:
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
    ROMEString&     ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);
+   Bool_t          IsHistoActive(Int_t taskIndex,Int_t histoIndex);
+   Bool_t          IsGraphActive(Int_t taskIndex,Int_t graphIndex);
 
    // Run Number
    void            GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format = 0) const;

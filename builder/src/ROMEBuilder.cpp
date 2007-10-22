@@ -1444,6 +1444,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, const char *argv[])
          minRebuild = true;
          outDir = "C:/rome/examples/rootDAQ/";
          xmlFile = "C:/rome/examples/rootDAQ/rootDAQ.xml";
+      } else if (!strcmp(argv[i],"-romeargus")) {
+         noLink = true;
+         minRebuild = true;
+         outDir = "C:/rome/examples/rome_argus/";
+         xmlFile = "C:/rome/examples/rome_argus/rome_argus.xml";
       } else if (!strcmp(argv[i],"-cutg")) {
          noLink = true;
          minRebuild = true;

@@ -145,3 +145,72 @@ Bool_t ROMENetFolder::IsProgramTerminated()
    delete mr;
    return retValue;
 }
+
+Bool_t ROMENetFolder::IsTaskActive(Int_t i)
+{
+   ROMEString str = "IsTaskActive ";
+   str.SetFormatted("IsTaskActive %d",i);
+   if (!Send(str.Data()))
+      return false;
+
+   TMessage *mr = 0;
+   if (!Recv(mr))
+      return false;
+
+   if (mr == NULL) {
+      delete mr;
+      return false;
+   }
+
+   Bool_t retValue;
+   *mr >> retValue;
+
+   delete mr;
+   return retValue;
+}
+
+Bool_t ROMENetFolder::IsHistoActive(Int_t iTask,Int_t iHisto)
+{
+   ROMEString str = "IsHistoActive ";
+   str.SetFormatted("IsHistoActive %d %d",iTask,iHisto);
+   if (!Send(str.Data()))
+      return false;
+
+   TMessage *mr = 0;
+   if (!Recv(mr))
+      return false;
+
+   if (mr == NULL) {
+      delete mr;
+      return false;
+   }
+
+   Bool_t retValue;
+   *mr >> retValue;
+
+   delete mr;
+   return retValue;
+}
+
+Bool_t ROMENetFolder::IsGraphActive(Int_t iTask,Int_t iGraph)
+{
+   ROMEString str = "IsGraphActive ";
+   str.SetFormatted("IsGraphActive %d %d",iTask,iGraph);
+   if (!Send(str.Data()))
+      return false;
+
+   TMessage *mr = 0;
+   if (!Recv(mr))
+      return false;
+
+   if (mr == NULL) {
+      delete mr;
+      return false;
+   }
+
+   Bool_t retValue;
+   *mr >> retValue;
+
+   delete mr;
+   return retValue;
+}

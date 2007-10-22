@@ -50,6 +50,9 @@ ROMETask::ROMETask()
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
+
+   fNumberOfHistos = 0;
+   fNumberOfGraphs = 0;
 }
 
 //______________________________________________________________________________
@@ -73,6 +76,9 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version,
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
+
+   fNumberOfHistos = 0;
+   fNumberOfGraphs = 0;
 }
 
 //______________________________________________________________________________

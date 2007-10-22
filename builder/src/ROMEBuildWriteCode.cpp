@@ -1958,14 +1958,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          buffer.AppendFormatted(",fSteering(new Steering())\n");
       }
       if (numOfHistos[iTask] > 0) {
-         buffer.AppendFormatted(",fHisto(new TObjArray())\n");
-         buffer.AppendFormatted(",fHistoParameter(new TObjArray())\n");
          buffer.AppendFormatted(",fHistoSuffix(histoSuffix)\n");
       }
       if (numOfGraphs[iTask] > 0) {
-         buffer.AppendFormatted(",fGraph(new TObjArray())\n");
          buffer.AppendFormatted(",fGraphStorage(new TObjArray())\n");
-         buffer.AppendFormatted(",fGraphParameter(new TObjArray())\n");
          buffer.AppendFormatted(",fGraphSuffix(histoSuffix)\n");
       }
       if (numOfHistos[iTask] > 0 || numOfGraphs[iTask] > 0) {
@@ -1974,6 +1970,16 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("{\n");
       if (numOfHistos[iTask] > 0 || numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("   int j;\n");
+      }
+      if (numOfHistos[iTask] > 0) {
+         buffer.AppendFormatted("   fNumberOfHistos = %d;\n",numOfHistos[iTask]);
+         buffer.AppendFormatted("   fHisto = new TObjArray(%d);\n",numOfHistos[iTask]);
+         buffer.AppendFormatted("   fHistoParameter = new TObjArray();\n");
+      }
+      if (numOfGraphs[iTask] > 0) {
+         buffer.AppendFormatted("   fNumberOfGraphs = %d;\n",numOfGraphs[iTask]);
+         buffer.AppendFormatted("   fGraph = new TObjArray();\n");
+         buffer.AppendFormatted("   fGraphParameter = new TObjArray();\n");
       }
       if (numOfHistos[iTask] > 0) {
          buffer.AppendFormatted("   for (j=0;j<%d;j++)\n",numOfHistos[iTask]);
@@ -2355,15 +2361,22 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             // create graphs
             buffer.AppendFormatted("   if (((ROMEGraph*)fGraphParameter->At(%d))->IsActive()) {\n",i);
             if (graphArraySize[iTask][i] == "1") {
-               if (graphType[iTask][i]=="TCutG")
+               if (graphType[iTask][i]=="TCutG") {
                   buffer.AppendFormatted("      fGraph->AddAtAndExpand(new %s(\"%s_cutg\",1),%d);\n",
                                          graphType[iTask][i].Data(),graphName[iTask][i].Data(),i);
-               else
+                  buffer.AppendFormatted("      fGraphStorage->AddAtAndExpand(new %s(\"%s_cutg\",1),%d);\n",
+                                         graphType[iTask][i].Data(),graphName[iTask][i].Data(),i);
+               }
+               else {
                   buffer.AppendFormatted("      fGraph->AddAtAndExpand(new %s(1),%d);\n",
                                          graphType[iTask][i].Data(),i);
+                  buffer.AppendFormatted("      fGraphStorage->AddAtAndExpand(new %s(1),%d);\n",
+                                         graphType[iTask][i].Data(),i);
+               }
                buffer.AppendFormatted("      ((TNamed*)fGraph->At(%d))->SetNameTitle(fGraphName[%d].Data(),graphTitle[%d].Data());\n",i,i,i);
             } else {
                buffer.AppendFormatted("      fGraph->AddAtAndExpand(new TObjArray(arraySize[%d]),%d);\n",i,i);
+               buffer.AppendFormatted("      fGraphStorage->AddAtAndExpand(new TObjArray(arraySize[%d]),%d);\n",i,i);
                buffer.AppendFormatted("      for (j = 0; j < arraySize[%d]; j++) {\n",i);
                if (graphType[iTask][i]=="TCutG")
                   buffer.AppendFormatted("         ((TObjArray*)fGraph->At(%d))->AddAtAndExpand(new %s(\"%s_cutg\",1),j);\n",i,graphType[iTask][i].Data(),
@@ -3056,12 +3069,6 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-      if (numOfHistos[iTask] > 0) {
-         buffer.AppendFormatted("#include \"ROMEHisto.h\"\n");
-      }
-      if (numOfGraphs[iTask] > 0) {
-         buffer.AppendFormatted("#include \"ROMEGraph.h\"\n");
-      }
       buffer.AppendFormatted("#include \"ROMETask.h\"\n");
       buffer.AppendFormatted("#include \"ROMEAnalyzer.h\"\n");
 
@@ -3089,17 +3096,13 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       }
 
       if (numOfHistos[iTask]>0) {
-         buffer.AppendFormatted("   TObjArray* fHisto; // Handle to histograms\n");
-         buffer.AppendFormatted("   TObjArray* fHistoParameter; // Handle to histogram parameters class\n");
          buffer.AppendFormatted("   ROMEString fHistoSuffix; //!\n");
          buffer.AppendFormatted("   Bool_t fHistoArray[%d]; //!\n",numOfHistos[iTask]);
          buffer.AppendFormatted("   ROMEString fHistoName[%d]; //!\n",numOfHistos[iTask]);
          buffer.AppendFormatted("   Int_t fHistoDimension[%d]; //!\n",numOfHistos[iTask]);
       }
       if (numOfGraphs[iTask] > 0) {
-         buffer.AppendFormatted("   TObjArray* fGraph; // Handle to graphs\n");
          buffer.AppendFormatted("   TObjArray* fGraphStorage; // Handle to graph storages\n");
-         buffer.AppendFormatted("   TObjArray* fGraphParameter; // Handle to graph parameters class\n");
          buffer.AppendFormatted("   ROMEString fGraphSuffix; //!\n");
          buffer.AppendFormatted("   Bool_t fGraphArray[%d]; //!\n",numOfGraphs[iTask]);
          buffer.AppendFormatted("   ROMEString fGraphName[%d]; //!\n",numOfGraphs[iTask]);
@@ -3146,16 +3149,10 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       }
       // Access Methods
       if (numOfHistos[iTask]>0) {
-         buffer.AppendFormatted("   Int_t GetNumberOfHistos() { return %d; };\n",numOfHistos[iTask]);
-         buffer.AppendFormatted("   TObject* GetHistoAt(Int_t i) { return fHisto->At(i); };\n");
-         buffer.AppendFormatted("   ROMEHisto* GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };\n");
          buffer.AppendFormatted("   ROMEString* GetHistoNameAt(Int_t i) { return &fHistoName[i]; };\n");
          buffer.AppendFormatted("   Int_t GetHistoDimensionAt(Int_t i) { return fHistoDimension[i]; };\n");
       }
       if (numOfGraphs[iTask]>0) {
-         buffer.AppendFormatted("   Int_t GetNumberOfGraphs() { return %d; };\n",numOfGraphs[iTask]);
-         buffer.AppendFormatted("   TObject* GetGraphAt(Int_t i) { return fGraph->At(i); };\n");
-         buffer.AppendFormatted("   ROMEGraph* GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); };\n");
          buffer.AppendFormatted("   ROMEString* GetGraphNameAt(Int_t i) { return &fGraphName[i]; };\n");
          buffer.AppendFormatted("   Int_t GetGraphDimensionAt(Int_t i) { return fGraphDimension[i]; };\n");
       }
