@@ -623,7 +623,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
                gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
             }
             fCurrentSeqNumber = readSeqNumber;
-            gAnalyzer->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
+            gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
             return fSeqNumToEventNum->At(readSeqNumber);
          } else {
             return -1;
