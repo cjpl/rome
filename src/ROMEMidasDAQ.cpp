@@ -527,7 +527,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
          }
          if (pevent->event_id == EVENTID_EOR) {
             this->SetEndOfRun();
-            return -1;
+            return fSeqNumToEventNum->At(fCurrentSeqNumber - 1);
          }
          // check input
          if (readError) {
@@ -542,7 +542,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
             fSeqNumToFilePos->AddAt(-1, static_cast<Int_t>(fCurrentSeqNumber - 1));
             fSeqNumToEventNum->AddAt(-1, static_cast<Int_t>(fCurrentSeqNumber - 1));
             gROME->SetDontReadNextEvent();
-            return -1;
+            return fSeqNumToEventNum->At(fCurrentSeqNumber - 1);
          }
          UInt_t dsize = reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size;
          if (fByteSwap) {
@@ -600,6 +600,8 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
    } else if (gROME->isOffline()) {
       Int_t readSeqNumber;
       Int_t readPosition;
+      Long64_t oldEventNumber = gROME->GetCurrentEventNumber();
+
       if (event < fValidEventNumber) {
          readSeqNumber = (event == 0) ? fEventNumToSeqNum->At(static_cast<Int_t>(event)) :
                fEventNumToSeqNum->At(static_cast<Int_t>(event - 1)) + 1;
@@ -622,6 +624,11 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       // seek event
       while (event >= fValidEventNumber) {
          if (StepEvent() < 0) {
+            Seek(oldEventNumber);
+            return -1;
+         }
+         if (isEndOfRun()) {
+            Seek(oldEventNumber);
             return -1;
          }
       }
