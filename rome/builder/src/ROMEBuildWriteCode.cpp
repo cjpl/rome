@@ -4530,7 +4530,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor() && fRegisteringActive) {\n");
       for (j = 0; j < numOfFolder; j++) {
          if (accessFolder(tabFile.Data(),j) || accessFolderBuffer(buffer,j,tabFileBuffer.Data())) {
-            buffer.AppendFormatted("      gAnalyzer->Register%s();\n",folderName[j].Data());
+            buffer.AppendFormatted("      gAnalyzer->RegisterFolder(\"%s%s\");\n",shortCut.Data(),folderName[j].Data());
          }
       }
       for (j = 0; j < numOfTaskHierarchy; j++) {
@@ -4556,7 +4556,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       tabFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       for (j = 0; j < numOfFolder; j++) {
          if (accessFolder(tabFile.Data(),j) || accessFolderBuffer(buffer,j,tabFileBuffer.Data())) {
-            buffer.AppendFormatted("      gAnalyzer->UnRegister%s();\n",folderName[j].Data());
+            buffer.AppendFormatted("      gAnalyzer->UnRegisterFolder(\"%s%s\");\n",shortCut.Data(),folderName[j].Data());
          }
       }
       for (j = 0; j < numOfTaskHierarchy; j++) {
@@ -5420,6 +5420,27 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       WriteFolderGetterSource(buffer,i);
       WriteFolderSetterSource(buffer,i);
    }
+   buffer.Append(kMethodLine);
+   buffer.AppendFormatted("void %sAnalyzer::FolderArrayOutOfBouds(Int_t index,const char* folder,const char* arraySize) const\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMEPrint::Error(\"\\nYou have tried to access the %%d th element of the array folder %%s\\nwhich was defined with array size %%s.\\n\\nShutting down the program.\\n\",index,folder,arraySize);\n");
+   buffer.AppendFormatted("   gSystem->StackTrace();\n");
+   buffer.AppendFormatted("   fApplication->Terminate(1);\n");
+   buffer.AppendFormatted("   return;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.Append(kMethodLine);
+   buffer.AppendFormatted("Bool_t %sAnalyzer::RegisterFolder(const char* object)\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   if (IsROMEMonitor())\n");
+   buffer.AppendFormatted("      return GetSocketClientNetFolder()->RegisterObject(object);\n");
+   buffer.AppendFormatted("   return false;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.Append(kMethodLine);
+   buffer.AppendFormatted("Bool_t %sAnalyzer::UnRegisterFolder(const char* object)\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   if (IsROMEMonitor())\n");
+   buffer.AppendFormatted("      GetSocketClientNetFolder()->UnRegisterObject(object);\n");
+   buffer.AppendFormatted("   return false;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
    // Set size
@@ -6677,6 +6698,10 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       WriteFolderGetterInclude(buffer,i);
       WriteFolderSetterInclude(buffer,i);
    }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   void FolderArrayOutOfBouds(Int_t index,const char* folder,const char* arraySize) const;\n");
+   buffer.AppendFormatted("   Bool_t RegisterFolder(const char* object);\n");
+   buffer.AppendFormatted("   Bool_t UnRegisterFolder(const char* object);\n");
    buffer.AppendFormatted("\n");
 
    // Config Parameters folder
