@@ -28,6 +28,9 @@
 #include <ROMERint.h>
 #include "ROMEiostream.h"
 
+#include "TH1.h"
+#include "TGraph.h"
+
 ClassImp(ROMETask)
 
 //______________________________________________________________________________
@@ -40,13 +43,13 @@ ROMETask::ROMETask()
 ,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fVersion(0)
-,fHasHistograms(kFALSE)
-,fHasGraphs(kFALSE)
 ,fEventID(-1)
 ,fCurrentEventMethod("")
 ,fHistoFolder(0)
 ,fSkippedEvents(0)
 ,fMemoryAccumulated(0)
+,fHasHistograms(kFALSE)
+,fHasGraphs(kFALSE)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
@@ -66,13 +69,13 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version,
 ,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fVersion(version)
-,fHasHistograms(hasHisto)
-,fHasGraphs(hasGraph)
 ,fEventID(eventID)
 ,fCurrentEventMethod("")
 ,fHistoFolder(histoFolder)
 ,fSkippedEvents(0)
 ,fMemoryAccumulated(0)
+,fHasHistograms(hasHisto)
+,fHasGraphs(hasGraph)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
@@ -273,3 +276,60 @@ const char* ROMETask::GetTimeOfUserEvents()
    fWatchUserEvent.GetCpuTimeString(fTimeUserEventString);
    return fTimeUserEventString.Data();
 }
+
+// Histo methods
+//______________________________________________________________________________
+void ROMETask::ResetHisto()
+{
+   int i,j;
+   for (i=0; i<GetNumberOfHistos(); i++) {
+      if (((ROMEHisto*)fHistoParameter->At(i))->IsActive() && !((ROMEHisto*)fHistoParameter->At(i))->isAccumulation()) {
+         if (!fHistoArray[i]) {
+            ((TH1*)fHisto->At(i))->Reset();
+         } else {
+            for (j = 0; j < ((TObjArray*)fHisto->At(i))->GetEntries(); j++) {
+               ((TH1*)(((TObjArray*)fHisto->At(i))->At(j)))->Reset();
+            }
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMETask::CheckHistoActive(Int_t histoIndex) {
+   if (!((ROMEHisto*)fHistoParameter->At(histoIndex))->IsActive()) {
+      ROMEPrint::Error("histogram %s is deactivated. Please check the state with Is%sActive() in your code.",
+                       fHistoName[histoIndex].Data(),fHistoName[histoIndex].Data());
+      return false;
+   }
+   return true;
+}
+
+// Graph methods
+//______________________________________________________________________________
+void ROMETask::ResetGraph()
+{
+   int i,j;
+   for (i=0; i<GetNumberOfGraphs(); i++) {
+      if (((ROMEGraph*)fGraphParameter->At(i))->IsActive()) {
+         if (!fGraphArray[i]) {
+            ((TGraph*)fGraph->At(i))->Set(0);
+         } else {
+            for (j = 0; j < ((TObjArray*)fGraph->At(i))->GetEntries(); j++) {
+               ((TGraph*)(((TObjArray*)fGraph->At(i))->At(j)))->Set(0);
+            }
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMETask::CheckGraphActive(Int_t graphIndex) {
+   if (!((ROMEGraph*)fGraphParameter->At(graphIndex))->IsActive()) {
+      ROMEPrint::Error("graph %s is deactivated. Please check the state with Is%sActive() in your code.",
+                       fGraphName[graphIndex].Data(),fGraphName[graphIndex].Data());
+      return false;
+   }
+   return true;
+}
+
