@@ -9,6 +9,9 @@
 
 #include <TTask.h>
 #include <TFolder.h>
+#include <TObjArray.h>
+#include "ROMEHisto.h"
+#include "ROMEGraph.h"
 #include "ROMEString.h"
 #include "ROMEStopwatch.h"
 
@@ -30,6 +33,12 @@ protected:
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
    Long64_t       fSkippedEvents;      //! Number of events skipped filling tree by this task
    Int_t          fMemoryAccumulated;  //! Accumulated used memory difference between BOE and EOE.
+   TObjArray     *fHisto;              //! Handle to histograms
+   TObjArray     *fHistoParameter;     //! Handle to histogram parameters class
+   Int_t          fNumberOfHistos;     //! Number of histograms in this task
+   TObjArray     *fGraph;              //! Handle to graphs
+   TObjArray     *fGraphParameter;     //! Handle to graph parameters class
+   Int_t          fNumberOfGraphs;     //! Number of graphs in this task
 
 private:
    ROMETask(const ROMETask &task); // not implemented
@@ -46,6 +55,12 @@ public:
    Bool_t       hasGraphs() const { return fHasGraphs; }
    Int_t        GetVersion() const { return fVersion; }
    TFolder     *GetHistoFolder() const { return fHistoFolder; }
+   TObject     *GetHistoAt(Int_t i) { return fHisto->At(i); };
+   ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };
+   Int_t        GetNumberOfHistos() { return fNumberOfHistos; };
+   TObject     *GetGraphAt(Int_t i) { return fGraph->At(i); };
+   ROMEGraph   *GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); };
+   Int_t        GetNumberOfGraphs() { return fNumberOfGraphs; };
 
 protected:
    void         StartRootInterpreter(const char* message = NULL);

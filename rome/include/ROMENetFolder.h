@@ -24,6 +24,9 @@ public:
    Bool_t RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber);
    Bool_t RequestEvent();
    Bool_t IsProgramTerminated();
+   Bool_t IsTaskActive(Int_t i);
+   Bool_t IsHistoActive(Int_t iTask,Int_t iHisto);
+   Bool_t IsGraphActive(Int_t iTask,Int_t iGraph);
 
    ClassDef(ROMENetFolder, 0) // Customized TNetFolder for ROME
 };

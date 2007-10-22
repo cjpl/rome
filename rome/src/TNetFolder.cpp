@@ -43,7 +43,7 @@ TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Boo
 ,fSocket(socket)
 ,fFolder(0)
 ,fReconnect(reconnect)
-,fHost(socket->GetUrl())
+,fHost(socket->GetName())
 ,fPort(socket->GetPort())
 {
    fFolder = GetPointer();

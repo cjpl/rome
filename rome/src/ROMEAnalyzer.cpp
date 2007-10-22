@@ -1923,3 +1923,25 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile) const
 
    return kTRUE;
 }
+//______________________________________________________________________________
+Bool_t ROMEAnalyzer::IsTaskActive(Int_t taskIndex)
+{
+   if (IsROMEMonitor())
+      return GetSocketClientNetFolder()->IsTaskActive(taskIndex);
+   return GetTaskObjectAt(taskIndex)->IsActive();
+}
+//______________________________________________________________________________
+Bool_t ROMEAnalyzer::IsHistoActive(Int_t taskIndex,Int_t histoIndex)
+{
+   if (IsROMEMonitor())
+      return GetSocketClientNetFolder()->IsHistoActive(taskIndex,histoIndex);
+   return GetTaskObjectAt(taskIndex)->GetHistoParameterAt(histoIndex)->IsActive();
+}
+//______________________________________________________________________________
+Bool_t ROMEAnalyzer::IsGraphActive(Int_t taskIndex,Int_t graphIndex)
+{
+   if (IsROMEMonitor())
+      return GetSocketClientNetFolder()->IsGraphActive(taskIndex,graphIndex);
+   return GetTaskObjectAt(taskIndex)->GetGraphParameterAt(graphIndex)->IsActive();
+}
+
