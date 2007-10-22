@@ -142,6 +142,12 @@ ClassImp(ROMERint)
 //______________________________________________________________________________
 Bool_t ROMEInterruptHandler::Notify()
 {
+   return ROMERint::InterruptHandler();
+}
+
+//______________________________________________________________________________
+Bool_t ROMERint::InterruptHandler()
+{
    static Int_t nNotified = 0;
    nNotified++;
    cleaning();
@@ -152,7 +158,7 @@ Bool_t ROMEInterruptHandler::Notify()
    if (nNotified >= 2) {
       gSystem->Abort();
    } else {
-      gROME->GetApplication()->Terminate(0);
+      gROME->GetApplication()->Terminate(kSigInterrupt);
    }
    return kTRUE;
 }

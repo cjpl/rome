@@ -73,6 +73,9 @@ public:
 
    void            Terminate(int status);
 
+   static Bool_t   InterruptHandler();
+   static void     InterruptHandlerInt(Int_t i) { WarningSuppression(i); InterruptHandler(); }
+
    ClassDef(ROMERint, 0) // Customized TRint for ROME
 };
 
