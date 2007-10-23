@@ -28,20 +28,24 @@ protected:
    Int_t          fVersion;            // Version of Task
    int            fEventID;            // TriggerID for event method
    ROMEString     fCurrentEventMethod; // Current event method name
+   TObjArray     *fRootFolder;         // Handle to histogram/graph root folder
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
    Long64_t       fSkippedEvents;      //! Number of events skipped filling tree by this task
    Int_t          fMemoryAccumulated;  //! Accumulated used memory difference between BOE and EOE.
-   Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
    Int_t          fNumberOfHistos;     //! Number of histograms in this task
    TObjArray     *fHisto;              //! Handle to histograms
    TObjArray     *fHistoParameter;     //! Handle to histogram parameters class
    ROMEString    *fHistoName;          //!
+   ROMEString    *fHistoType;          //!
+   Int_t         *fHistoDimension;     //!
    Bool_t        *fHistoArray;         //!
    Int_t          fNumberOfGraphs;     //! Number of graphs in this task
-   Bool_t         fHasGraphs;          // Flags Tasks containing Histograms
    TObjArray     *fGraph;              //! Handle to graphs
+   TObjArray     *fGraphStorage;       //! Handle to graph storages
    TObjArray     *fGraphParameter;     //! Handle to graph parameters class
    ROMEString    *fGraphName;          //!
+   ROMEString    *fGraphType;          //!
+   Int_t         *fGraphDimension;     //!
    Bool_t        *fGraphArray;         //!
    ROMEString     fTaskSuffix;         //!
 
@@ -51,16 +55,25 @@ private:
 
 public:
    ROMETask();
-   ROMETask(const char *name,const char *title,int level,int version,int eventID,
-            bool hasHisto,bool hasGraph,TFolder* histoFolder);
+   ROMETask(const char *name, const char *title, int level, int version, int eventID,
+            TFolder* histoFolder, const char* histoSuffix,
+            int numberOfHistos, int numberOfGraphs);
 
-   virtual ~ROMETask() { SafeDelete(fHistoFolder); }
+   virtual ~ROMETask() {
+      SafeDelete(fRootFolder);
+      SafeDelete(fHistoFolder);
+      SafeDelete(fHisto);
+      SafeDelete(fHistoParameter);
+      SafeDelete(fGraph);
+      SafeDelete(fGraphStorage);
+      SafeDelete(fGraphParameter);
+   }
    void         Exec(Option_t *option="");
    Int_t        GetVersion() const { return fVersion; }
 
    // Histo methods
 public:
-   Bool_t       hasHistograms() const { return fHasHistograms; }
+//   Bool_t       hasHistograms() const { return fNumberOfHistos>0; }
    TFolder     *GetHistoFolder() const { return fHistoFolder; }
    TObject     *GetHistoAt(Int_t i) { return fHisto->At(i); };
    ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };
@@ -69,24 +82,33 @@ public:
    ROMEString*  GetGraphNameAt(Int_t i) { return &fGraphName[i]; };
    ROMEString*  GetTaskSuffix() { return &fTaskSuffix; };
    void         ResetHisto();
-   Bool_t       CheckHistoActive(Int_t histoIndex);
 protected:
-   virtual void BookHisto() = 0;
-   virtual void ReBookHisto() = 0;
+   void         BookHisto();
+   void         ReBookHisto();
+   Bool_t       CheckHistoActive(Int_t histoIndex);
 
    // Graph mothods
 public:
-   Bool_t       hasGraphs() const { return fHasGraphs; }
+//   Bool_t       hasGraphs() const { return fNumberOfGraphs>0; }
    TObject     *GetGraphAt(Int_t i) { return fGraph->At(i); };
    ROMEGraph   *GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); };
    Int_t        GetNumberOfGraphs() { return fNumberOfGraphs; };
    void         ResetGraph();
-   Bool_t       CheckGraphActive(Int_t histoIndex);
 protected:
-   virtual void BookGraph() = 0;
-   virtual void ReBookGraph() = 0;
+   void         BookGraph();
+   void         ReBookGraph();
+   Bool_t       CheckGraphActive(Int_t histoIndex);
 
 protected:
+
+   // Utility methods
+   virtual void        SetOriginalHistoParameters() = 0;
+   virtual void        SetOriginalGraphParameters() = 0;
+   virtual Int_t       GetObjectInterpreterCode       (const char* objectPath) const = 0;
+   virtual Int_t       GetObjectInterpreterIntValue   (Int_t code, Int_t defaultValue) const = 0;
+   virtual Double_t    GetObjectInterpreterDoubleValue(Int_t code, Double_t defaultValue) const = 0;
+   virtual ROMEString& GetObjectInterpreterCharValue  (Int_t code, ROMEString& defaultValue,ROMEString& buffer) const = 0;
+
    void         StartRootInterpreter(const char* message = NULL);
 
    // Time Methods

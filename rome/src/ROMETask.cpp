@@ -29,7 +29,12 @@
 #include "ROMEiostream.h"
 
 #include "TH1.h"
-#include "TGraph.h"
+#include "TH1K.h"
+#include "TH2.h"
+#include "TH3.h"
+
+#include "TCutG.h"
+#include "ROMETCutG.h"
 
 ClassImp(ROMETask)
 
@@ -48,19 +53,22 @@ ROMETask::ROMETask()
 ,fHistoFolder(0)
 ,fSkippedEvents(0)
 ,fMemoryAccumulated(0)
-,fHasHistograms(kFALSE)
-,fHasGraphs(kFALSE)
+,fNumberOfHistos(0)
+,fHisto(0)
+,fHistoParameter(0)
+,fNumberOfGraphs(0)
+,fGraph(0)
+,fGraphStorage(0)
+,fGraphParameter(0)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
-
-   fNumberOfHistos = 0;
-   fNumberOfGraphs = 0;
 }
 
 //______________________________________________________________________________
-ROMETask::ROMETask(const char *name, const char *title, int level, int version,
-                   int eventID, bool hasHisto, bool hasGraph, TFolder* histoFolder)
+ROMETask::ROMETask(const char *name, const char *title, int level, int version, int eventID,
+                   TFolder* histoFolder, const char* taskSuffix,
+                   int numberOfHistos, int numberOfGraphs)
 :TTask(name, title)
 ,fLevel(level)
 ,fWatchAll()
@@ -71,17 +79,21 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version,
 ,fVersion(version)
 ,fEventID(eventID)
 ,fCurrentEventMethod("")
+,fRootFolder(new TObjArray(numberOfHistos+numberOfGraphs))
 ,fHistoFolder(histoFolder)
 ,fSkippedEvents(0)
 ,fMemoryAccumulated(0)
-,fHasHistograms(hasHisto)
-,fHasGraphs(hasGraph)
+,fNumberOfHistos(numberOfHistos)
+,fHisto(new TObjArray(numberOfHistos))
+,fHistoParameter(new TObjArray(numberOfHistos))
+,fNumberOfGraphs(numberOfGraphs)
+,fGraph(new TObjArray(numberOfGraphs))
+,fGraphStorage(new TObjArray(numberOfGraphs))
+,fGraphParameter(new TObjArray(numberOfGraphs))
+,fTaskSuffix(taskSuffix)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
-
-   fNumberOfHistos = 0;
-   fNumberOfGraphs = 0;
 }
 
 //______________________________________________________________________________
@@ -281,7 +293,7 @@ const char* ROMETask::GetTimeOfUserEvents()
 //______________________________________________________________________________
 void ROMETask::ResetHisto()
 {
-   int i,j;
+   int i, j;
    for (i=0; i<GetNumberOfHistos(); i++) {
       if (((ROMEHisto*)fHistoParameter->At(i))->IsActive() && !((ROMEHisto*)fHistoParameter->At(i))->isAccumulation()) {
          if (!fHistoArray[i]) {
@@ -296,10 +308,388 @@ void ROMETask::ResetHisto()
 }
 
 //______________________________________________________________________________
-Bool_t ROMETask::CheckHistoActive(Int_t histoIndex) {
+void ROMETask::BookHisto(void)
+{
+   if (fNumberOfHistos<=0) {
+      return;
+   }
+
+   SetOriginalHistoParameters();
+   Int_t       i, j;
+   ROMEHisto  *histoHandle = 0;
+   ROMEString  histoArrayName;
+   ROMEString  histoArrayTitle;
+   ROMEString  histoTitle;
+   ROMEString  folderTitle;
+   ROMEString  xLabel;
+   ROMEString  yLabel;
+   ROMEString  zLabel;
+   Int_t       arraySize;
+   ROMEString  arraySizeStr;
+   Int_t       arrayStartIndex;
+   ROMEString  arrayStartIndexStr;
+   Int_t       xNbins;
+   ROMEString  xNbinsStr;
+   Double_t    xmin;
+   ROMEString  xminStr;
+   Double_t    xmax;
+   ROMEString  xmaxStr;
+   Int_t       yNbins;
+   ROMEString  yNbinsStr;
+   Double_t    ymin;
+   ROMEString  yminStr;
+   Double_t    ymax;
+   ROMEString  ymaxStr;
+   Int_t       zNbins;
+   ROMEString  zNbinsStr;
+   Double_t    zmin;
+   ROMEString  zminStr;
+   Double_t    zmax;
+   ROMEString  zmaxStr;
+   TH1        *histoPtr = 0;
+
+   for (i=0; i<fNumberOfHistos; i++) {
+      histoHandle = (ROMEHisto*)fHistoParameter->At(i);
+
+      if (histoHandle->IsActive()) {
+         histoTitle         = histoHandle->GetTitle();
+         folderTitle        = histoHandle->GetFolderTitle();
+         xLabel             = histoHandle->GetXLabel();
+         yLabel             = histoHandle->GetYLabel();
+         zLabel             = histoHandle->GetZLabel();
+         arraySize          = histoHandle->GetArraySize();
+         arraySizeStr       = histoHandle->GetArraySizeString(arraySizeStr);
+         arrayStartIndex    = histoHandle->GetArrayStartIndex();
+         arrayStartIndexStr = histoHandle->GetArrayStartIndexString(arrayStartIndexStr);
+         xNbins             = histoHandle->GetXNbins();
+         xNbinsStr          = histoHandle->GetXNbinsString(xNbinsStr);
+         xmin               = histoHandle->GetXmin();
+         xminStr            = histoHandle->GetXminString(xminStr);
+         xmax               = histoHandle->GetXmax();
+         xmaxStr            = histoHandle->GetXmaxString(xmaxStr);
+         yNbins             = histoHandle->GetYNbins();
+         yNbinsStr          = histoHandle->GetYNbinsString(yNbinsStr);
+         ymin               = histoHandle->GetYmin();
+         yminStr            = histoHandle->GetYminString(yminStr);
+         ymax               = histoHandle->GetYmax();
+         ymaxStr            = histoHandle->GetYmaxString(ymaxStr);
+         zNbins             = histoHandle->GetZNbins();
+         zNbinsStr          = histoHandle->GetZNbinsString(zNbinsStr);
+         zmin               = histoHandle->GetZmin();
+         zminStr            = histoHandle->GetZminString(zminStr);
+         zmax               = histoHandle->GetZmax();
+         zmaxStr            = histoHandle->GetZmaxString(zmaxStr);
+
+         histoTitle         = GetObjectInterpreterCharValue(GetObjectInterpreterCode(histoTitle.Data()), histoTitle, histoTitle);
+         folderTitle        = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle), folderTitle, folderTitle);
+         xLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel.Data()), xLabel, xLabel);
+         yLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel.Data()), yLabel, yLabel);
+         zLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel.Data()), zLabel, zLabel);
+         arraySize          = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr), arraySize);
+         arrayStartIndex    = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr), arrayStartIndex);
+         xNbins             = GetObjectInterpreterIntValue(GetObjectInterpreterCode(xNbinsStr), xNbins);
+         xmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr), xmin);
+         xmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr), xmax);
+         yNbins             = GetObjectInterpreterIntValue(GetObjectInterpreterCode(yNbinsStr), yNbins);
+         ymin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr), ymin);
+         ymax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr), ymax);
+         zNbins             = GetObjectInterpreterIntValue(GetObjectInterpreterCode(zNbinsStr), zNbins);
+         zmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr), zmin);
+         zmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr), zmax);
+
+         // create histos
+         if (!fHistoArray[i]) {
+            if (false) {
+               //} else if (fHistoType[i] == "TH1") {
+               //fHisto->AddAt(new TH1(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax));
+            } else if (fHistoType[i] == "TH1S") {
+               fHisto->AddAt(new TH1S(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+            } else if (fHistoType[i] == "TH1K") {
+               fHisto->AddAt(new TH1K(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+            } else if (fHistoType[i] == "TH1I") {
+               fHisto->AddAt(new TH1I(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+            } else if (fHistoType[i] == "TH1F") {
+               fHisto->AddAt(new TH1F(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+            } else if (fHistoType[i] == "TH1D") {
+               fHisto->AddAt(new TH1D(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+            } else if (fHistoType[i] == "TH1C") {
+               fHisto->AddAt(new TH1C(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+            } else if (fHistoType[i] == "TH2") {
+               fHisto->AddAt(new TH2(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+            } else if (fHistoType[i] == "TH2S") {
+               fHisto->AddAt(new TH2S(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+            } else if (fHistoType[i] == "TH2I") {
+               fHisto->AddAt(new TH2I(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+            } else if (fHistoType[i] == "TH2F") {
+               fHisto->AddAt(new TH2F(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+            } else if (fHistoType[i] == "TH2D") {
+               fHisto->AddAt(new TH2D(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+            } else if (fHistoType[i] == "TH2C") {
+               fHisto->AddAt(new TH2C(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+            } else if (fHistoType[i] == "TH3") {
+               fHisto->AddAt(new TH3(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TH3S") {
+               fHisto->AddAt(new TH3S(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TH3S") {
+               fHisto->AddAt(new TH3S(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TH3I") {
+               fHisto->AddAt(new TH3I(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TH3F") {
+               fHisto->AddAt(new TH3F(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TH3D") {
+               fHisto->AddAt(new TH3D(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TH3C") {
+               fHisto->AddAt(new TH3C(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), i);
+            } else if (fHistoType[i] == "TProfile") {
+               fHisto->AddAt(new TProfile(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, ymin, ymax), i);
+            } else if (fHistoType[i] == "TProfile2D") {
+               fHisto->AddAt(new TProfile2D(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax), i);
+            } else {
+               ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n", 
+                                fHistoType[i].Data());
+               gSystem->StackTrace();
+               gROME->GetApplication()->Terminate(1);
+            }
+            histoPtr = (TH1*)fHisto->At(i);
+            ((TFolder*)fRootFolder->At(i))->Add(histoPtr);
+            histoPtr->GetXaxis()->SetTitle(xLabel.Data());
+            histoPtr->GetYaxis()->SetTitle(yLabel.Data());
+            histoPtr->GetZaxis()->SetTitle(zLabel.Data());
+
+         } else {
+            fHisto->AddAt(new TObjArray(arraySize), i);
+
+            for (j=0; j<arraySize; j++) {
+               histoArrayName = fHistoName[i];
+               histoArrayName.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+               histoArrayName += fTaskSuffix;
+               histoArrayTitle = fHistoName[i];
+               histoArrayTitle.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+
+               if (false) {
+                  //} else if (fHistoType[i] == "TH1") {
+                  //((TObjArray*)fHisto->At(i))->AddAt(new TH1(histoArrayName.Data(), histoArrayTitle[j].Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1S") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1S(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1K") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1K(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1I") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1I(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1F") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1F(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1D") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1D(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1C") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1C(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH2") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2S") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2S(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2I") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2I(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2F") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2F(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2D") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2D(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2C") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2C(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH3") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3S") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3S(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3I") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3I(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3F") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3F(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3D") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3D(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3C") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3C(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else {
+                  ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n", 
+                                   fHistoType[i].Data());
+                  gSystem->StackTrace();
+                  gROME->GetApplication()->Terminate(1);
+               }
+               histoPtr = (TH1*)((TObjArray*)fHisto->At(i))->At(j);
+               ((TFolder*)fRootFolder->At(i))->Add(histoPtr);
+               histoPtr->GetXaxis()->SetTitle(xLabel.Data());
+               histoPtr->GetYaxis()->SetTitle(yLabel.Data());
+               histoPtr->GetZaxis()->SetTitle(zLabel.Data());
+            }
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+void ROMETask::ReBookHisto(void)
+{
+   if (fNumberOfHistos<0) {
+      return;
+   }
+
+   SetOriginalHistoParameters();
+   Int_t       i, j;
+   ROMEHisto  *histoHandle = 0;
+   ROMEString  histoArrayName;
+   ROMEString  histoArrayTitle;
+   ROMEString  histoTitle;
+   ROMEString  folderTitle;
+   ROMEString  xLabel;
+   ROMEString  yLabel;
+   ROMEString  zLabel;
+   Int_t       arraySize;
+   ROMEString  arraySizeStr;
+   Int_t       arrayStartIndex;
+   ROMEString  arrayStartIndexStr;
+   Int_t       xNbins;
+   ROMEString  xNbinsStr;
+   Double_t    xmin;
+   ROMEString  xminStr;
+   Double_t    xmax;
+   ROMEString  xmaxStr;
+   Int_t       yNbins;
+   ROMEString  yNbinsStr;
+   Double_t    ymin;
+   ROMEString  yminStr;
+   Double_t    ymax;
+   ROMEString  ymaxStr;
+   Int_t       zNbins;
+   ROMEString  zNbinsStr;
+   Double_t    zmin;
+   ROMEString  zminStr;
+   Double_t    zmax;
+   ROMEString  zmaxStr;
+   TH1        *histoPtr = 0;
+
+   for (i=0; i<fNumberOfHistos; i++) {
+      histoHandle = (ROMEHisto*)fHistoParameter->At(i);
+
+      if (histoHandle->IsActive()) {
+         histoTitle         = histoHandle->GetTitle();
+         folderTitle        = histoHandle->GetFolderTitle();
+         xLabel             = histoHandle->GetXLabel();
+         yLabel             = histoHandle->GetYLabel();
+         zLabel             = histoHandle->GetZLabel();
+         arraySize          = histoHandle->GetArraySize();
+         arraySizeStr       = histoHandle->GetArraySizeString(arraySizeStr);
+         arrayStartIndex    = histoHandle->GetArrayStartIndex();
+         arrayStartIndexStr = histoHandle->GetArrayStartIndexString(arrayStartIndexStr);
+         xNbins             = histoHandle->GetXNbins();
+         xNbinsStr          = histoHandle->GetXNbinsString(xNbinsStr);
+         xmin               = histoHandle->GetXmin();
+         xminStr            = histoHandle->GetXminString(xminStr);
+         xmax               = histoHandle->GetXmax();
+         xmaxStr            = histoHandle->GetXmaxString(xmaxStr);
+         yNbins             = histoHandle->GetYNbins();
+         yNbinsStr          = histoHandle->GetYNbinsString(yNbinsStr);
+         ymin               = histoHandle->GetYmin();
+         yminStr            = histoHandle->GetYminString(yminStr);
+         ymax               = histoHandle->GetYmax();
+         ymaxStr            = histoHandle->GetYmaxString(ymaxStr);
+         zNbins             = histoHandle->GetZNbins();
+         zNbinsStr          = histoHandle->GetZNbinsString(zNbinsStr);
+         zmin               = histoHandle->GetZmin();
+         zminStr            = histoHandle->GetZminString(zminStr);
+         zmax               = histoHandle->GetZmax();
+         zmaxStr            = histoHandle->GetZmaxString(zmaxStr);
+
+         histoTitle         = GetObjectInterpreterCharValue(GetObjectInterpreterCode(histoTitle), histoTitle, histoTitle);
+         folderTitle        = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle), folderTitle, folderTitle);
+         xLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel), xLabel, xLabel);
+         yLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel), yLabel, yLabel);
+         zLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel), zLabel, zLabel);
+         arraySize          = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr), arraySize);
+         arrayStartIndex    = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr), arrayStartIndex);
+         xNbins             = GetObjectInterpreterIntValue(GetObjectInterpreterCode(xNbinsStr), xNbins);
+         xmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr), xmin);
+         xmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr), xmax);
+         yNbins             = GetObjectInterpreterIntValue(GetObjectInterpreterCode(yNbinsStr), yNbins);
+         ymin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr), ymin);
+         ymax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr), ymax);
+         zNbins             = GetObjectInterpreterIntValue(GetObjectInterpreterCode(zNbinsStr), zNbins);
+         zmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr), zmin);
+         zmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr), zmax);
+
+         // expand histos
+         if (!fHistoArray[i]) {
+            // do nothing for non-array histograms
+         } else {
+            int arraySizeOld = ((TObjArray*)fHisto->At(i))->GetEntries();
+            if (arraySize > arraySizeOld) {
+               ((TObjArray*)fHisto->At(i))->Expand(arraySize);
+            }
+
+            for (j=arraySizeOld; j<arraySize; j++) {
+               histoArrayName = fHistoName[i];
+               histoArrayName.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+               histoArrayName += fTaskSuffix;
+               histoArrayTitle = fHistoName[i];
+               histoArrayTitle.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+
+               if (false) {
+                  //} else if (fHistoType[i] == "TH1") {
+                  //((TObjArray*)fHisto->At(i))->AddAt(new TH1(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1S") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1S(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1K") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1K(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1I") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1I(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1F") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1F(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1D") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1D(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH1C") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1C(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TH2") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2S") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2S(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2I") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2I(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2F") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2F(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2D") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2D(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH2C") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH2C(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+               } else if (fHistoType[i] == "TH3") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3S") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3S(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3I") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3I(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3F") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3F(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3D") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3D(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TH3C") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH3C(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax, zNbins, zmin, zmax), j);
+               } else {
+                  ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n", 
+                                   fHistoType[i].Data());
+                  gSystem->StackTrace();
+                  gROME->GetApplication()->Terminate(1);
+               }
+               histoPtr = (TH1*)(((TObjArray*)fHisto->At(i))->At(j));
+               ((TFolder*)fRootFolder->At(i))->Add(histoPtr);
+               histoPtr->GetXaxis()->SetTitle(xLabel.Data());
+               histoPtr->GetYaxis()->SetTitle(yLabel.Data());
+               histoPtr->GetZaxis()->SetTitle(zLabel.Data());
+            }
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMETask::CheckHistoActive(Int_t histoIndex)
+{
    if (!((ROMEHisto*)fHistoParameter->At(histoIndex))->IsActive()) {
-      ROMEPrint::Error("histogram %s is deactivated. Please check the state with Is%sActive() in your code.",
-                       fHistoName[histoIndex].Data(),fHistoName[histoIndex].Data());
+      ROMEPrint::Error("histogram %s is deactivated. Please check the state with Is%sActive() in your code.", 
+                       fHistoName[histoIndex].Data(), fHistoName[histoIndex].Data());
       return false;
    }
    return true;
@@ -309,7 +699,7 @@ Bool_t ROMETask::CheckHistoActive(Int_t histoIndex) {
 //______________________________________________________________________________
 void ROMETask::ResetGraph()
 {
-   int i,j;
+   int i, j;
    for (i=0; i<GetNumberOfGraphs(); i++) {
       if (((ROMEGraph*)fGraphParameter->At(i))->IsActive()) {
          if (!fGraphArray[i]) {
@@ -324,10 +714,267 @@ void ROMETask::ResetGraph()
 }
 
 //______________________________________________________________________________
-Bool_t ROMETask::CheckGraphActive(Int_t graphIndex) {
+void ROMETask::BookGraph()
+{
+   if (fNumberOfGraphs<=0) {
+      return;
+   }
+
+   SetOriginalGraphParameters();
+   Int_t       i, j;
+   ROMEGraph  *graphHandle = 0;
+   ROMEString  graphArrayName;
+   ROMEString  graphArrayTitle;
+   ROMEString  graphTitle;
+   ROMEString  folderTitle;
+   ROMEString  xLabel;
+   ROMEString  yLabel;
+   ROMEString  zLabel;
+   Int_t       arraySize;
+   ROMEString  arraySizeStr;
+   Int_t       arrayStartIndex;
+   ROMEString  arrayStartIndexStr;
+   Double_t    xmin;
+   ROMEString  xminStr;
+   Double_t    xmax;
+   ROMEString  xmaxStr;
+   Double_t    ymin;
+   ROMEString  yminStr;
+   Double_t    ymax;
+   ROMEString  ymaxStr;
+   Double_t    zmin;
+   ROMEString  zminStr;
+   Double_t    zmax;
+   ROMEString  zmaxStr;
+   TGraph     *graphPtr = 0;
+
+   for (i=0; i<fNumberOfGraphs; i++) {
+      graphHandle = (ROMEGraph*)fGraphParameter->At(i);
+
+      if (graphHandle->IsActive()) {
+         graphTitle         = graphHandle->GetTitle();
+         folderTitle        = graphHandle->GetFolderTitle();
+         xLabel             = graphHandle->GetXLabel();
+         yLabel             = graphHandle->GetYLabel();
+         zLabel             = graphHandle->GetZLabel();
+         arraySize          = graphHandle->GetArraySize();
+         arraySizeStr       = graphHandle->GetArraySizeString(arraySizeStr);
+         arrayStartIndex    = graphHandle->GetArrayStartIndex();
+         arrayStartIndexStr = graphHandle->GetArrayStartIndexString(arrayStartIndexStr);
+         xmin               = graphHandle->GetXmin();
+         xminStr            = graphHandle->GetXminString(xminStr);
+         xmax               = graphHandle->GetXmax();
+         xmaxStr            = graphHandle->GetXmaxString(xmaxStr);
+         ymin               = graphHandle->GetYmin();
+         yminStr            = graphHandle->GetYminString(yminStr);
+         ymax               = graphHandle->GetYmax();
+         ymaxStr            = graphHandle->GetYmaxString(ymaxStr);
+         zmin               = graphHandle->GetZmin();
+         zminStr            = graphHandle->GetZminString(zminStr);
+         zmax               = graphHandle->GetZmax();
+         zmaxStr            = graphHandle->GetZmaxString(zmaxStr);
+
+         graphTitle         = GetObjectInterpreterCharValue(GetObjectInterpreterCode(graphTitle), graphTitle, graphTitle);
+         folderTitle        = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle), folderTitle, folderTitle);
+         xLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel), xLabel, xLabel);
+         yLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel), yLabel, yLabel);
+         zLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel), zLabel, zLabel);
+         arraySize          = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr), arraySize);
+         arrayStartIndex    = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr), arrayStartIndex);
+         xmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr), xmin);
+         xmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr), xmax);
+         ymin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr), ymin);
+         ymax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr), ymax);
+         zmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr), zmin);
+         zmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr), zmax);
+         
+         // create graphs
+         if (!fGraphArray[i]) {
+            if (false) {
+            } else if (fGraphType[i] == "TCutG") {
+               fGraph       ->AddAt(new TCutG(fGraphName[i]+"_cutg", 1), i);
+               fGraphStorage->AddAt(new TCutG(fGraphName[i]+"Storage_cutg", 1), i);
+            } else if (fGraphType[i] == "ROMETGraph") {
+               fGraph       ->AddAt(new ROMETGraph(), i);
+               fGraphStorage->AddAt(new ROMETGraph(), i);
+            } else if (fGraphType[i] == "ROMETCutG") {
+               fGraph       ->AddAt(new ROMETCutG(), i);
+               fGraphStorage->AddAt(new ROMETCutG(), i);
+            } else {
+               ROMEPrint::Error("\nYou have tried to use unimplemented graph %s.\n\nShutting down the program.\n", 
+                                fGraphType[i].Data());
+               gSystem->StackTrace();
+               gROME->GetApplication()->Terminate(1);
+            }
+            graphPtr = (TGraph*)fGraph->At(i);
+            ((TFolder*)fRootFolder->At(i+fNumberOfHistos))->Add(graphPtr);
+            graphPtr->SetNameTitle(fGraphName[i]+fTaskSuffix, graphTitle.Data());
+            graphPtr->GetXaxis()->SetTitle(xLabel.Data());
+            graphPtr->GetYaxis()->SetTitle(yLabel.Data());
+
+         } else {
+            fGraph       ->AddAt(new TObjArray(arraySize), i);
+            fGraphStorage->AddAt(new TObjArray(arraySize), i);
+
+            for (j=0; j<arraySize; j++) {
+               graphArrayName = fGraphName[i];
+               graphArrayName.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+               graphArrayName += fTaskSuffix;
+               graphArrayTitle = fGraphName[i];
+               graphArrayTitle.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+
+               if (false) {
+               } else if (fGraphType[i] == "TCutG") {
+                  ((TObjArray*)fGraph       ->At(i))->AddAt(new TCutG(fGraphName[i]+"_cutg", 1), j);
+                  ((TObjArray*)fGraphStorage->At(i))->AddAt(new TCutG(fGraphName[i]+"Storage_cutg", 1), j);
+               } else if (fGraphType[i] == "ROMETGraph") {
+                  ((TObjArray*)fGraph       ->At(i))->AddAt(new ROMETGraph(), j);
+                  ((TObjArray*)fGraphStorage->At(i))->AddAt(new ROMETGraph(), j);
+               } else if (fGraphType[i] == "ROMETCutG") {
+                  ((TObjArray*)fGraph       ->At(i))->AddAt(new ROMETCutG(), j);
+                  ((TObjArray*)fGraphStorage->At(i))->AddAt(new ROMETCutG(), j);
+               } else {
+                  ROMEPrint::Error("\nYou have tried to use unimplemented graph %s.\n\nShutting down the program.\n", 
+                                   fGraphType[i].Data());
+                  gSystem->StackTrace();
+                  gROME->GetApplication()->Terminate(1);
+               }
+               graphPtr = (TGraph*)((TObjArray*)fGraph->At(i))->At(j);
+               ((TFolder*)fRootFolder->At(i+fNumberOfHistos))->Add(graphPtr);
+               graphPtr->SetNameTitle(graphArrayName.Data(), graphArrayTitle.Data());
+               graphPtr->GetXaxis()->SetTitle(xLabel);
+               graphPtr->GetYaxis()->SetTitle(yLabel);
+            }
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+void ROMETask::ReBookGraph()
+{
+   if (fNumberOfGraphs<=0) {
+      return;
+   }
+
+   SetOriginalGraphParameters();
+   Int_t       i, j;
+   ROMEGraph  *graphHandle = 0;
+   ROMEString  graphArrayName;
+   ROMEString  graphArrayTitle;
+   ROMEString  graphTitle;
+   ROMEString  folderTitle;
+   ROMEString  xLabel;
+   ROMEString  yLabel;
+   ROMEString  zLabel;
+   Int_t       arraySize;
+   ROMEString  arraySizeStr;
+   Int_t       arrayStartIndex;
+   ROMEString  arrayStartIndexStr;
+   Double_t    xmin;
+   ROMEString  xminStr;
+   Double_t    xmax;
+   ROMEString  xmaxStr;
+   Double_t    ymin;
+   ROMEString  yminStr;
+   Double_t    ymax;
+   ROMEString  ymaxStr;
+   Double_t    zmin;
+   ROMEString  zminStr;
+   Double_t    zmax;
+   ROMEString  zmaxStr;
+   TGraph     *graphPtr;
+
+   for (i=0; i<fNumberOfGraphs; i++) {
+      graphHandle = (ROMEGraph*)fGraphParameter->At(i);
+
+      if (graphHandle->IsActive()) {
+         graphTitle         = graphHandle->GetTitle();
+         folderTitle        = graphHandle->GetFolderTitle();
+         xLabel             = graphHandle->GetXLabel();
+         yLabel             = graphHandle->GetYLabel();
+         zLabel             = graphHandle->GetZLabel();
+         arraySize          = graphHandle->GetArraySize();
+         arraySizeStr       = graphHandle->GetArraySizeString(arraySizeStr);
+         arrayStartIndex    = graphHandle->GetArrayStartIndex();
+         arrayStartIndexStr = graphHandle->GetArrayStartIndexString(arrayStartIndexStr);
+         xmin               = graphHandle->GetXmin();
+         xminStr            = graphHandle->GetXminString(xminStr);
+         xmax               = graphHandle->GetXmax();
+         xmaxStr            = graphHandle->GetXmaxString(xmaxStr);
+         ymin               = graphHandle->GetYmin();
+         yminStr            = graphHandle->GetYminString(yminStr);
+         ymax               = graphHandle->GetYmax();
+         ymaxStr            = graphHandle->GetYmaxString(ymaxStr);
+         zmin               = graphHandle->GetZmin();
+         zminStr            = graphHandle->GetZminString(zminStr);
+         zmax               = graphHandle->GetZmax();
+         zmaxStr            = graphHandle->GetZmaxString(zmaxStr);
+
+         graphTitle         = GetObjectInterpreterCharValue(GetObjectInterpreterCode(graphTitle), graphTitle, graphTitle);
+         folderTitle        = GetObjectInterpreterCharValue(GetObjectInterpreterCode(folderTitle), folderTitle, folderTitle);
+         xLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(xLabel), xLabel, xLabel);
+         yLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(yLabel), yLabel, yLabel);
+         zLabel             = GetObjectInterpreterCharValue(GetObjectInterpreterCode(zLabel), zLabel, zLabel);
+         arraySize          = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arraySizeStr), arraySize);
+         arrayStartIndex    = GetObjectInterpreterIntValue(GetObjectInterpreterCode(arrayStartIndexStr), arrayStartIndex);
+         xmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xminStr), xmin);
+         xmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(xmaxStr), xmax);
+         ymin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(yminStr), ymin);
+         ymax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(ymaxStr), ymax);
+         zmin               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr), zmin);
+         zmax               = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr), zmax);
+
+         // expand graphs
+         if (!fGraphArray[i]) {
+            // do nothing for non-array graphs
+         } else {
+            int arraySizeOld = ((TObjArray*)fGraph->At(i))->GetEntries();
+            if (arraySize > arraySizeOld) {
+               ((TObjArray*)fGraph       ->At(i))->Expand(arraySize);
+               ((TObjArray*)fGraphStorage->At(i))->Expand(arraySize);
+            }
+
+            for (j=arraySizeOld; j<arraySize; j++) {
+               graphArrayName = fGraphName[i];
+               graphArrayName.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+               graphArrayName += fTaskSuffix;
+               graphArrayTitle = fGraphName[i];
+               graphArrayTitle.AppendFormatted("_%0*d", 3, j+arrayStartIndex);
+
+               if (false) {
+               } else if (fGraphType[i] == "TCutG") {
+                  ((TObjArray*)fGraph       ->At(i))->AddAt(new TCutG(fGraphName[i]+"_cutg", 1), j);
+                  ((TObjArray*)fGraphStorage->At(i))->AddAt(new TCutG(fGraphName[i]+"Storage_cutg", 1), j);
+               } else if (fGraphType[i] == "ROMETGraph") {
+                  ((TObjArray*)fGraph       ->At(i))->AddAt(new ROMETGraph(), j);
+                  ((TObjArray*)fGraphStorage->At(i))->AddAt(new ROMETGraph(), j);
+               } else if (fGraphType[i] == "ROMETCutG") {
+                  ((TObjArray*)fGraph       ->At(i))->AddAt(new ROMETCutG(), j);
+                  ((TObjArray*)fGraphStorage->At(i))->AddAt(new ROMETCutG(), j);
+               } else {
+                  ROMEPrint::Error("\nYou have tried to use unimplemented graph %s.\n\nShutting down the program.\n", 
+                                   fGraphType[i].Data());
+                  gSystem->StackTrace();
+                  gROME->GetApplication()->Terminate(1);
+               }
+               graphPtr = (TGraph*)((TObjArray*)fGraph->At(i))->At(j);
+               ((TFolder*)fRootFolder->At(i+fNumberOfHistos))->Add(graphPtr);
+               graphPtr->SetNameTitle(graphArrayName.Data(), graphArrayTitle.Data());
+               graphPtr->GetXaxis()->SetTitle(xLabel);
+               graphPtr->GetYaxis()->SetTitle(yLabel);
+            }
+         }
+      }
+   }
+}
+
+//______________________________________________________________________________
+Bool_t ROMETask::CheckGraphActive(Int_t graphIndex)
+{
    if (!((ROMEGraph*)fGraphParameter->At(graphIndex))->IsActive()) {
-      ROMEPrint::Error("graph %s is deactivated. Please check the state with Is%sActive() in your code.",
-                       fGraphName[graphIndex].Data(),fGraphName[graphIndex].Data());
+      ROMEPrint::Error("graph %s is deactivated. Please check the state with Is%sActive() in your code.", 
+                       fGraphName[graphIndex].Data(), fGraphName[graphIndex].Data());
       return false;
    }
    return true;

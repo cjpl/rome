@@ -101,12 +101,12 @@ public:
    virtual ~ROMEEventLoop();
 
    void         ExecuteTask(Option_t *option="");
-   void         BookHisto() {}
-   void         ReBookHisto() {}
-   void         ResetHisto() {}
-   void         BookGraph() {}
-   void         ReBookGraph() {}
-   void         ResetGraph() {}
+   Int_t        GetObjectInterpreterCode       (const char* /*objectPath*/) const { return 0; }
+   Int_t        GetObjectInterpreterIntValue   (Int_t /*code*/, Int_t defaultValue) const { return defaultValue; }
+   Double_t     GetObjectInterpreterDoubleValue(Int_t /*code*/, Double_t defaultValue) const { return defaultValue; }
+   ROMEString&  GetObjectInterpreterCharValue  (Int_t /*code*/, ROMEString& defaultValue, ROMEString& /*buffer*/) const { return defaultValue; }
+   void         SetOriginalHistoParameters() {}
+   void         SetOriginalGraphParameters() {}
    void         Init() {}
    void         BeginOfRun() {}
    void         Event() {}

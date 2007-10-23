@@ -64,7 +64,7 @@ extern TVirtualMutex *gObjectStorageMutex; // declared in ROMEAnalyzer.cpp
 
 //______________________________________________________________________________
 ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
-:ROMETask(name, title, 0, 0, 0, kFALSE, kFALSE, 0)
+:ROMETask(name, title, 0, 0, 0, 0, 0, 0, 0)
 ,fCurrentEvent(0)
 ,fFirstUserInput(kFALSE)
 ,fStop(kFALSE)
