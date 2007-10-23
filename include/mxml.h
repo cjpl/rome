@@ -11,6 +11,9 @@
 
 /*------------------------------------------------------------------*/
 
+#ifndef _MXML_H_
+#define _MXML_H_
+
 #define MXML_NAME_LENGTH 64
 
 #define ELEMENT_NODE                  1
@@ -89,7 +92,7 @@ char *mxml_close_buffer(MXML_WRITER *writer);
 int mxml_close_file(MXML_WRITER *writer);
 
 int mxml_get_number_of_children(PMXML_NODE pnode);
-PMXML_NODE mxml_subnode(PMXML_NODE pnode, int index);
+PMXML_NODE mxml_subnode(PMXML_NODE pnode, int idx);
 PMXML_NODE mxml_find_node(PMXML_NODE tree, const char *xml_path);
 int mxml_find_nodes(PMXML_NODE tree, const char *xml_path, PMXML_NODE **nodelist);
 char *mxml_get_name(PMXML_NODE pnode);
@@ -98,13 +101,13 @@ char *mxml_get_attribute(PMXML_NODE pnode, const char *name);
 
 int mxml_add_attribute(PMXML_NODE pnode, const char *attrib_name, const char *attrib_value);
 PMXML_NODE mxml_add_special_node(PMXML_NODE parent, int node_type, const char *node_name, const char *value);
-PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char *node_name, const char *value, int index);
+PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, const char *node_name, const char *value, int idx);
 PMXML_NODE mxml_add_node(PMXML_NODE parent, const char *node_name, const char *value);
-PMXML_NODE mxml_add_node_at(PMXML_NODE parent, const char *node_name, const char *value, int index);
+PMXML_NODE mxml_add_node_at(PMXML_NODE parent, const char *node_name, const char *value, int idx);
 
 PMXML_NODE mxml_clone_tree(PMXML_NODE tree);
 int mxml_add_tree(PMXML_NODE parent, PMXML_NODE tree);
-int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index);
+int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int idx);
 
 int mxml_replace_node_name(PMXML_NODE pnode, const char *new_name);
 int mxml_replace_node_value(PMXML_NODE pnode, const char *value);
@@ -130,4 +133,5 @@ void mxml_basename(char *path);
 }
 #endif
 
+#endif /* _MXML_H_ */
 /*------------------------------------------------------------------*/
