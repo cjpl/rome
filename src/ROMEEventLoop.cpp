@@ -1380,3 +1380,47 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
       ROMEPrint::Print("Failed to step                                                           \n");
    }
 }
+
+void ROMEEventLoop::ReadHistograms()
+{
+   int i,j,k;
+   ROMEString filename;
+   ROMEString name;
+   ROMETask *task;
+   ROMEHisto *histoPar;
+
+   filename.SetFormatted("%s%s%05d.root",gROME->GetHistosPath(),"histos",gROME->GetHistosRun());
+   gROME->ReplaceWithRunAndEventNumber(filename);
+   TFile *file = new TFile(filename.Data(),"READ");
+   if (file->IsZombie()) {
+       ROMEPrint::Warning("Histograms of run %d not available.\n", gROME->GetHistosRun());
+       ROMEPrint::Warning("Please check the run number and the input path.\n\n");
+       ROMEPrint::Warning("No Histogram loaded!\n\n");
+       return;
+   }
+   file->FindObjectAny("histos");
+   for (i=0;i<gROME->GetTaskObjectEntries();i++) {
+      task = gROME->GetTaskObjectAt(i);
+      if (task->IsActive()) {
+         for (j=0;j<task->GetNumberOfHistos();j++) {
+            histoPar = task->GetHistoParameterAt(j);
+            if (histoPar->IsActive()) {
+               for (k=0;k<histoPar->GetArraySize();k++) {
+                  name.SetFormatted("%s%s",task->GetHistoNameAt(j)->Data(),task->GetTaskSuffix()->Data());
+                  if (histoPar->GetArraySize()>1)
+                     name.AppendFormatted("_%0*d",3,k+histoPar->GetArrayStartIndex());
+                  TObject* tempHisto = static_cast<TObject*>(file->FindObjectAny(name.Data()));
+                  if (tempHisto == 0)
+                     ROMEPrint::Warning("Histogram '%s' not available in run %d!\n",task->GetHistoNameAt(j)->Data(), gROME->GetHistosRun());
+                  else {
+                     if (!strcmp(task->GetHistoAt(j)->ClassName(),"TObjArray"))
+                        tempHisto->Copy(*((TObjArray*)task->GetHistoAt(j))->At(0));
+                     else
+                        tempHisto->Copy(*task->GetHistoAt(j));
+                  }
+               }
+            }
+         }
+      }
+   }
+}

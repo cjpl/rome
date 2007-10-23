@@ -189,6 +189,7 @@ protected:
    TObjArray     *fHistoFolders;                 //! Handle to Histogram Folder Objects
    Bool_t         fHistoRead;                    //! Histogram read flag
    Int_t          fHistoRun;                     //! Read Histograms of this Run
+   ROMEString     fHistoPath;                    //! Path to the Histograms of this Run
 
    // Program name
    ROMEString     fProgramName;                  //! Name of this Program
@@ -384,9 +385,11 @@ public:
    TFolder        *GetHistoFolderAt(int index) const { return static_cast<TFolder*>(fHistoFolders->At(index)); }
    Bool_t          IsHistosRead() const { return fHistoRead; }
    Int_t           GetHistosRun() const { return fHistoRun; }
+   const char*     GetHistosPath() const { return fHistoPath.Data(); }
 
    void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
    void            SetHistosRun(Int_t runNumber) { fHistoRun = runNumber; }
+   void            SetHistosPath(const char* path) { fHistoPath = path; }
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
    ROMEString&     ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);

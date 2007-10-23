@@ -1280,6 +1280,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
          subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.ToInteger());");
          subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetHistosRun());");
+         // Path
+         subsubGroup->AddParameter(new ROMEConfigParameter("Path"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosPath(##.Data());");
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosPath();");
       }
       // Macros
       {
