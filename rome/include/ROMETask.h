@@ -43,6 +43,7 @@ protected:
    TObjArray     *fGraphParameter;     //! Handle to graph parameters class
    ROMEString    *fGraphName;          //!
    Bool_t        *fGraphArray;         //!
+   ROMEString     fTaskSuffix;         //!
 
 private:
    ROMETask(const ROMETask &task); // not implemented
@@ -64,6 +65,9 @@ public:
    TObject     *GetHistoAt(Int_t i) { return fHisto->At(i); };
    ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };
    Int_t        GetNumberOfHistos() { return fNumberOfHistos; };
+   ROMEString*  GetHistoNameAt(Int_t i) { return &fHistoName[i]; };
+   ROMEString*  GetGraphNameAt(Int_t i) { return &fGraphName[i]; };
+   ROMEString*  GetTaskSuffix() { return &fTaskSuffix; };
    void         ResetHisto();
    Bool_t       CheckHistoActive(Int_t histoIndex);
 protected:

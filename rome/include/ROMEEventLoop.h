@@ -133,6 +133,9 @@ public:
 
    virtual void AddTreeBranches() = 0;
 
+   // Histos
+   void ReadHistograms();
+
 protected:
    // Run Status
    Bool_t        isRunning() const { return gROME->GetActiveDAQ()->isRunning(); }
@@ -178,8 +181,6 @@ protected:
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;
    virtual void GetTreeFileName(ROMEString& buffer,Int_t treeIndex, Bool_t inputFile) const = 0;
-
-   virtual void ReadHistograms() = 0;
 
    virtual void ReadRunHeaders() = 0;
    virtual void WriteRunHeaders() = 0;
