@@ -64,8 +64,8 @@ void ROMEBuilder::AddPrecompiledHeaders()
    precompiledHeaders->RemoveAll();
    precompiledHeaders->AddFormatted("generated/%sPrecompile.h", shortCut.Data());
    precompiledIncludeHeaders->RemoveAll();
-   precompiledIncludeHeaders->AddFormatted("generated/%sAnalyzer.h",shortCut.Data());
-   precompiledIncludeHeaders->AddFormatted("generated/%sWindow.h",shortCut.Data());
+   precompiledIncludeHeaders->AddFormatted("ROMEAnalyzer.h");
+   precompiledIncludeHeaders->AddFormatted("ArgusWindow.h");
    precompiledIncludeHeaders->AddFormatted("TClonesArray.h");
    precompiledIncludeHeaders->AddFormatted("TH1F.h");
    precompiledIncludeHeaders->AddFormatted("TH2F.h");
