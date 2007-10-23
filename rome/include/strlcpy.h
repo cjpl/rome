@@ -9,6 +9,9 @@
 
 \********************************************************************/
 
+#ifndef _STRLCPY_H_
+#define _STRLCPY_H_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,3 +30,5 @@ size_t EXPRT strlcat(char *dst, const char *src, size_t size);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /*_STRLCPY_H_ */
