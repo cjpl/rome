@@ -20,6 +20,8 @@ private:
    Int_t          fLevel;              // Level in Task tree
 
 protected:
+   Int_t          fTaskIndex;          //!
+   ROMEString     fTaskSuffix;         //!
    ROMEStopwatch  fWatchAll;           //! Records time used by Task
    ROMEStopwatch  fWatchUserEvent;     //! Records time used by the user part of the task's event methods
    ROMEString     fCpuTimeAllString;   //! Elapsed CPU Time in a readable format
@@ -39,6 +41,7 @@ protected:
    ROMEString    *fHistoType;          //!
    Int_t         *fHistoDimension;     //!
    Bool_t        *fHistoArray;         //!
+   Bool_t        *fHistoUpToDate;      //!
    Int_t          fNumberOfGraphs;     //! Number of graphs in this task
    TObjArray     *fGraph;              //! Handle to graphs
    TObjArray     *fGraphStorage;       //! Handle to graph storages
@@ -47,7 +50,6 @@ protected:
    ROMEString    *fGraphType;          //!
    Int_t         *fGraphDimension;     //!
    Bool_t        *fGraphArray;         //!
-   ROMEString     fTaskSuffix;         //!
 
 private:
    ROMETask(const ROMETask &task); // not implemented
@@ -71,16 +73,20 @@ public:
    void         Exec(Option_t *option="");
    Int_t        GetVersion() const { return fVersion; }
 
+   // Task methods
+   ROMEString*   GetTaskSuffix() { return &fTaskSuffix; };
+   Int_t         GetTaskIndex() { return fTaskIndex; };
+
    // Histo methods
 public:
 //   Bool_t       hasHistograms() const { return fNumberOfHistos>0; }
    TFolder     *GetHistoFolder() const { return fHistoFolder; }
-   TObject     *GetHistoAt(Int_t i) { return fHisto->At(i); };
+   TObject     *GetHistoAt(Int_t i);
    ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };
    Int_t        GetNumberOfHistos() { return fNumberOfHistos; };
    ROMEString*  GetHistoNameAt(Int_t i) { return &fHistoName[i]; };
-
-   ROMEString*  GetTaskSuffix() { return &fTaskSuffix; };
+   Bool_t       IsHistoUpToDateAt(Int_t i) { return fHistoUpToDate[i]; };
+   void         SetHistoUpToDateAt(Int_t i,Bool_t flag) { fHistoUpToDate[i] = flag; };
    void         ResetHisto();
 protected:
    void         BookHisto();

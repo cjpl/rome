@@ -1947,6 +1947,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       if (numOfHistos[iTask] > 0 || numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("   int j;\n");
       }
+      buffer.AppendFormatted("   fTaskIndex = %d;\n",iTask);
 
       // Create Root Folders
       for (i = 0; i < numOfHistos[iTask]; i++) {
@@ -2013,6 +2014,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
          buffer.AppendFormatted("   fHistoType      = new ROMEString [fNumberOfHistos];\n");
          buffer.AppendFormatted("   fHistoDimension = new Int_t      [fNumberOfHistos];\n");
          buffer.AppendFormatted("   fHistoArray     = new Bool_t     [fNumberOfHistos];\n");
+         buffer.AppendFormatted("   fHistoUpToDate  = new Bool_t     [fNumberOfHistos];\n");
+         buffer.AppendFormatted("   for (j=0;j<fNumberOfHistos;j++) fHistoUpToDate[j] = false;\n");
          buffer.AppendFormatted("\n");
          for (i = 0; i < numOfHistos[iTask]; i++) {
             buffer.AppendFormatted("   fHistoName[%d] = \"%s\";\n", i, histoName[iTask][i].Data());
@@ -2100,55 +2103,6 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
-      // Histo Getters
-      if (numOfHistos[iTask] > 0) {
-         buffer.AppendFormatted("// Histo Getters\n");
-         for (i = 0; i < numOfHistos[iTask]; i++) {
-            if (histoArraySize[iTask][i] == "1") {
-               buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%s* %sT%s_Base::Get%s()\n",histoType[iTask][i].Data(),shortCut.Data(),
-                                      taskName[iTask].Data(),histoName[iTask][i].Data());
-               buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (!CheckHistoActive(%d)) return 0;\n",i);
-               buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
-               buffer.AppendFormatted("      fHisto->AddAt(static_cast<%s*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%s\")),%d);\n",
-                                      histoType[iTask][i].Data(),shortCut.Data(),
-                                      taskName[iTask].Data(),histoName[iTask][i].Data(),i);
-               buffer.AppendFormatted("   return ((%s*)fHisto->At(%d));\n",histoType[iTask][i].Data(),i);
-               buffer.AppendFormatted("}\n");
-               buffer.AppendFormatted("\n");
-            } else {
-               buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%s* %sT%s_Base::Get%sAt(Int_t indx)\n",histoType[iTask][i].Data(),
-                                      shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
-               buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (!CheckHistoActive(%d)) return 0;\n",i);
-               buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
-               buffer.AppendFormatted("      ROMEString str;\n");
-               buffer.AppendFormatted("      str.SetFormatted(\"%sT%s:%s_%%d\",indx);\n",shortCut.Data(),
-                                      taskName[iTask].Data(),histoName[iTask][i].Data());
-               buffer.AppendFormatted("      return static_cast<%s*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(str.Data()));\n",
-                                      histoType[iTask][i].Data());
-               buffer.AppendFormatted("   }\n");
-               buffer.AppendFormatted("   return static_cast<%s*>(((TObjArray*)fHisto->At(%d))->At(indx));\n",histoType[iTask][i].Data(),i);
-               buffer.AppendFormatted("}\n");
-               buffer.AppendFormatted("\n");
-               buffer.Append(kMethodLine);
-               buffer.AppendFormatted("TObjArray* %sT%s_Base::Get%s()\n",shortCut.Data(),taskName[iTask].Data(),
-                                      histoName[iTask][i].Data());
-               buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (!CheckHistoActive(%d)) return 0;\n",i);
-               buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
-               buffer.AppendFormatted("      fHisto->AddAt(static_cast<TObjArray*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%ss\")),%d);\n",
-                                      shortCut.Data(),taskName[iTask].Data(),
-                                      histoName[iTask][i].Data(),i);
-               buffer.AppendFormatted("   return ((TObjArray*)fHisto->At(%d));\n",i);
-               buffer.AppendFormatted("}\n");
-               buffer.AppendFormatted("\n");
-            }
-         }
-      }
-
       // Graph Getters
       if (numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("// Graph Getters\n");
@@ -2160,9 +2114,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!CheckGraphActive(%d)) return 0;\n",i);
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
-               buffer.AppendFormatted("      return static_cast<%s*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%s\"));\n",
-                                      graphType[iTask][i].Data(),shortCut.Data(),
-                                      taskName[iTask].Data(), graphName[iTask][i].Data());
+               buffer.AppendFormatted("      return static_cast<%s*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"Task_%d:Graph_%d\"));\n",
+                                      graphType[iTask][i].Data(),iTask,i);
                buffer.AppendFormatted("   return ((%s*)fGraph->At(%d));\n",graphType[iTask][i].Data(),i);
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
@@ -2174,8 +2127,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("   if (!CheckGraphActive(%d)) return 0;\n",i);
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
                buffer.AppendFormatted("      ROMEString str;\n");
-               buffer.AppendFormatted("      str.SetFormatted(\"%sT%s:%s_%%d\",indx);\n",shortCut.Data(),
-                                      taskName[iTask].Data(),graphName[iTask][i].Data());
+               buffer.AppendFormatted("      str.SetFormatted(\"Task_%d:Graph_%d_%%d\",indx);\n",iTask,i);
                buffer.AppendFormatted("      return static_cast<%s*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(str.Data()));\n",
                                       graphType[iTask][i].Data());
                buffer.AppendFormatted("   }\n");
@@ -2188,8 +2140,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (!CheckGraphActive(%d)) return 0;\n",i);
                buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
-               buffer.AppendFormatted("      return static_cast<TObjArray*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"%sT%s:%ss\"));\n",
-                                      shortCut.Data(), taskName[iTask].Data(), graphName[iTask][i].Data());
+               buffer.AppendFormatted("      return static_cast<TObjArray*>(gAnalyzer->GetSocketClientNetFolder()->FindObjectAny(\"Task_%d:Graphs_%d\"));\n",
+                                      iTask,i);
                buffer.AppendFormatted("   return ((TObjArray*)fGraph->At(%d));\n",i);
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
@@ -2199,8 +2151,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                                    graphName[iTask][i].Data());
             buffer.AppendFormatted("   if (((ROMEGraph*)fGraphParameter->At(%d))->IsActive()) {\n",i);
             buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
-            buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"%sT%s:%s\");\n",
-                                   shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+            buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"Task_%d:Graph_%d\");\n",iTask,i);
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   return false;\n");
             buffer.AppendFormatted("}\n");
@@ -2210,8 +2161,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                                    graphName[iTask][i].Data());
             buffer.AppendFormatted("   if (((ROMEGraph*)fGraphParameter->At(%d))->IsActive()) {\n",i);
             buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
-            buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"%sT%s:%s\");\n",
-                                   shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+            buffer.AppendFormatted("         return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"Task_%d:Graph_%d\");\n",iTask,i);
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   return false;\n");
             buffer.AppendFormatted("}\n");
@@ -2478,11 +2428,11 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       }
       for (i = 0; i < numOfHistos[iTask]; i++) {
          if (histoArraySize[iTask][i] == "1") {
-            buffer.AppendFormatted("   %s* Get%s();\n",histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   %s* Get%s() { return ((%s*)GetHistoAt(%d)); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),i);
          } else {
-            buffer.AppendFormatted("   %s* Get%sAt(Int_t indx);\n",histoType[iTask][i].Data(),
-                                   histoName[iTask][i].Data());
-            buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("   %s* Get%sAt(Int_t indx) { return ((%s*)((TObjArray*)GetHistoAt(%d))->At(indx)); };\n",histoType[iTask][i].Data(),
+                                   histoName[iTask][i].Data(),histoType[iTask][i].Data(),i);
+            buffer.AppendFormatted("   TObjArray* Get%s() { return ((TObjArray*)GetHistoAt(%d)); };\n",histoName[iTask][i].Data(),i);
          }
          buffer.AppendFormatted("   ROMEHisto* Get%sHisto() const { return (ROMEHisto*)(fHistoParameter->At(%d)); }\n",
                                 histoName[iTask][i].Data(),i);
@@ -5409,6 +5359,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("#include <direct.h>\n");
 #endif
    buffer.AppendFormatted("#include <RConfig.h>\n");
+   buffer.AppendFormatted("#include <TGClient.h>\n");
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
@@ -10088,6 +10039,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
+   ROMEString temp;
 
    int i,j;
 
@@ -10118,12 +10070,6 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   for (i = 0; i < numOfTask; i++) {
-      if (!taskUsed[i])
-         continue;
-      if (numOfHistos[i]>0 || numOfGraphs[i]>0)
-         buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
-   }
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sNetFolderServer.h\"\n",shortCut.Data());
@@ -10231,6 +10177,10 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                           shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   TMessage message(kMESS_OBJECT);\n");
    buffer.AppendFormatted("   // Check Command\n");
+   buffer.AppendFormatted("   Int_t i,j,k;\n");
+   buffer.AppendFormatted("   ROMEString command;\n");
+   buffer.AppendFormatted("   ROMETask *task;\n");
+   buffer.AppendFormatted("   ROMEHisto *histoPar;\n");
    buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n");
    buffer.AppendFormatted("   if (id >= 0) {\n");
    buffer.AppendFormatted("      while (gAnalyzer && gNetFolderServerRunning && !localThis->IsSocketClientRead(id))\n");
@@ -10283,62 +10233,72 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          }
       }
    }
+
+   buffer.AppendFormatted("      for (i=0;i<%d;i++) {\n",numOfTaskHierarchy);
+   buffer.AppendFormatted("         task = gAnalyzer->GetTaskObjectAt(i);\n");
+   buffer.AppendFormatted("         if (task->IsActive()) {\n");
+   buffer.AppendFormatted("            for (j=0;j<task->GetNumberOfHistos();j++) {\n");
+   buffer.AppendFormatted("               histoPar = task->GetHistoParameterAt(j);\n");
+   buffer.AppendFormatted("               if (histoPar->IsActive()) {\n");
+   buffer.AppendFormatted("                  if (histoPar->GetArraySize()>1) {\n");
+   buffer.AppendFormatted("                     for (k=0;k<histoPar->GetArraySize();k++) {\n");
+   buffer.AppendFormatted("                        command.SetFormatted(\"FindObjectAny Task_%%d:Histo_%%d_%%d\",i,j,k);\n");
+   buffer.AppendFormatted("                        if (strncmp(str, command, command.Length()) == 0) {\n");
+   buffer.AppendFormatted("                           ReadFolderPointer(socket);\n");
+   buffer.AppendFormatted("                           message<< ((TObjArray*)task->GetHistoAt(j))->At(k);\n");
+   buffer.AppendFormatted("                           socket->Send(message);\n");
+   buffer.AppendFormatted("                           return 1;\n");
+   buffer.AppendFormatted("                        }\n");
+   buffer.AppendFormatted("                     }\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("                  command.SetFormatted(\"FindObjectAny Task_%%d:Histo_%%d\",i,j);\n");
+   buffer.AppendFormatted("                  if (strncmp(str, command, command.Length()) == 0) {\n");
+   buffer.AppendFormatted("                     ReadFolderPointer(socket);\n");
+   buffer.AppendFormatted("                     message<< task->GetHistoAt(j);\n");
+   buffer.AppendFormatted("                     socket->Send(message);\n");
+   buffer.AppendFormatted("                     return 1;\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("            }\n");
+   // TODO graphs -> replace f%s%s_%sGraph by TObjArray
+/*   buffer.AppendFormatted("            for (j=0;j<task->GetNumberOfGraphs();j++) {\n");
+   buffer.AppendFormatted("               graphPar = task->GetGraphParameterAt(j);\n");
+   buffer.AppendFormatted("               if (graphPar->IsActive()) {\n");
+   buffer.AppendFormatted("                  command.SetFormatted(\"FindObjectAny Task_%%d:Graph_%%d\",i,j);\n");
+   buffer.AppendFormatted("                  if (strncmp(str, command, command.Length()) == 0) {\n");
+   buffer.AppendFormatted("                     ReadFolderPointer(socket);\n");
+   buffer.AppendFormatted("                     {\n");
+   buffer.AppendFormatted("                        ROME_LOCKGUARD(fgSocketServerMutex);\n");
+   buffer.AppendFormatted("                        message<< localThis->f%s%s_%sGraph[id];\n");
+   buffer.AppendFormatted("                     }\n");
+   buffer.AppendFormatted("                     socket->Send(message);\n");
+   buffer.AppendFormatted("                     return 1;\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("                  if (graphPar->GetArraySize()>1) {\n");
+   buffer.AppendFormatted("                     for (k=0;k<graphPar->GetArraySize();k++) {\n");
+   buffer.AppendFormatted("                        command.SetFormatted(\"FindObjectAny Task_%%d:Graph_%%d_%%d\",i,j,k);\n");
+   buffer.AppendFormatted("                        if (strncmp(str, command, command.Length()) == 0) {\n");
+   buffer.AppendFormatted("                           ReadFolderPointer(socket);\n");
+   buffer.AppendFormatted("                           {\n");
+   buffer.AppendFormatted("                              ROME_LOCKGUARD(fgSocketServerMutex);\n");
+   buffer.AppendFormatted("                              message<< ((TObjArray*)task->GetGraphAt(j))->At(k);\n");
+   buffer.AppendFormatted("                           }\n");
+   buffer.AppendFormatted("                           socket->Send(message);\n");
+   buffer.AppendFormatted("                           return 1;\n");
+   buffer.AppendFormatted("                        }\n");
+   buffer.AppendFormatted("                     }\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("            }\n");*/
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("      }\n");
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      for (j = 0; j < numOfHistos[taskHierarchyClassIndex[i]]; j++) {
-         if (histoArraySize[taskHierarchyClassIndex[i]][j] == "1") {
-            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
-                                   taskHierarchyName[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
-            buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%s();\n",
-                                   taskHierarchyName[i].Data(),
-                                   taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("         socket->Send(message);\n");
-            buffer.AppendFormatted("         return 1;\n");
-            buffer.AppendFormatted("      }\n");
-         } else {
-            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",
-                                   shortCut.Data(),taskHierarchyName[i].Data(),
-                                   histoName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length()
-                                                    +taskHierarchyName[i].Length() +
-                                                    histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("         char* cstop;\n");
-            buffer.AppendFormatted("         int indx = strtol(&str[%d],&cstop, 10);\n",
-                                   static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
-            buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%sAt(indx);\n",
-                                   taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),
-                                   histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("         socket->Send(message);\n");
-            buffer.AppendFormatted("         return 1;\n");
-            buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",shortCut.Data(),
-                                   taskHierarchyName[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:s") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    histoName[taskHierarchyClassIndex[i]][j].Length()));
-            buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
-            buffer.AppendFormatted("         message<< gAnalyzer->Get%s%sTask()->Get%s();\n",taskHierarchyName[i].Data(),
-                                   taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("         socket->Send(message);\n");
-            buffer.AppendFormatted("         return 1;\n");
-            buffer.AppendFormatted("      }\n");
-         }
-      }
       for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]]; j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j] == "1") {
-            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
-                                   taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("      command.SetFormatted(\"FindObjectAny Task_%d:Graph_%d\");\n",i,j);
+            buffer.AppendFormatted("      if (strncmp(str, command, command.Length()) == 0) {\n");
             buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
@@ -10349,16 +10309,10 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
             buffer.AppendFormatted("         return 1;\n");
             buffer.AppendFormatted("      }\n");
          } else {
-            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%s_\", %d) == 0) {\n",shortCut.Data(),
-                                   taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("      command.SetFormatted(\"FindObjectAny Task_%d:Graph_%d_\");\n",i,j);
+            buffer.AppendFormatted("      if (strncmp(str, command, command.Length()) == 0) {\n");
             buffer.AppendFormatted("         char* cstop;\n");
-            buffer.AppendFormatted("         int indx = strtol(&str[%d],&cstop, 10);\n",
-                                   static_cast<int>(strlen("FindObjectAny T:_") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("         int indx = strtol(&str[command.Length()],&cstop, 10);\n");
             buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
@@ -10369,12 +10323,8 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
             buffer.AppendFormatted("         socket->Send(message);\n");
             buffer.AppendFormatted("         return 1;\n");
             buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("      if (strncmp(str, \"FindObjectAny %sT%s:%ss\", %d) == 0) {\n",
-                                   shortCut.Data(),taskHierarchyName[i].Data(),
-                                   graphName[taskHierarchyClassIndex[i]][j].Data(),
-                                   static_cast<int>(strlen("FindObjectAny T:s") + shortCut.Length() +
-                                                    taskHierarchyName[i].Length() +
-                                                    graphName[taskHierarchyClassIndex[i]][j].Length()));
+            buffer.AppendFormatted("      command.SetFormatted(\"FindObjectAny Task_%d:Graphs_%d\");\n",i,j);
+            buffer.AppendFormatted("      if (strncmp(str, command, command.Length()) == 0) {\n");
             buffer.AppendFormatted("         ReadFolderPointer(socket);\n");
             buffer.AppendFormatted("         {\n");
             buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
@@ -10385,22 +10335,16 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
             buffer.AppendFormatted("         return 1;\n");
             buffer.AppendFormatted("      }\n");
          }
-         buffer.AppendFormatted("      if (strncmp(str, \"RegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
-                                taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
-                                static_cast<int>(strlen("RegisterObject ") + shortCut.Length() +
-                                                 taskHierarchyName[i].Length() +
-                                                 graphName[taskHierarchyClassIndex[i]][j].Length()));
+         buffer.AppendFormatted("      command.SetFormatted(\"RegisterObject Task_%d:Graph_%d\");\n",i,j);
+         buffer.AppendFormatted("      if (strncmp(str, command, command.Length()) == 0) {\n");
          buffer.AppendFormatted("         {\n");
          buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
          buffer.AppendFormatted("            localThis->f%s%s_%sGraphActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      if (strncmp(str, \"UnRegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),
-                                taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),
-                                static_cast<int>(strlen("UnRegisterObject ") + shortCut.Length() +
-                                                 taskHierarchyName[i].Length() +
-                                                 graphName[taskHierarchyClassIndex[i]][j].Length()));
+         buffer.AppendFormatted("      command.SetFormatted(\"UnRegisterObject Task_%d:Graph_%d\");\n",i,j);
+         buffer.AppendFormatted("      if (strncmp(str, command, command.Length()) == 0) {\n");
          buffer.AppendFormatted("         {\n");
          buffer.AppendFormatted("            ROME_LOCKGUARD(fgSocketServerMutex);\n");
          buffer.AppendFormatted("            localThis->f%s%s_%sGraphActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),
