@@ -695,6 +695,19 @@ Bool_t ROMETask::CheckHistoActive(Int_t histoIndex)
    return true;
 }
 
+//______________________________________________________________________________
+TObject *ROMETask::GetHistoAt(Int_t i) 
+{ 
+   if (!CheckHistoActive(i)) return 0;
+   if (gROME->IsROMEMonitor() && !fHistoUpToDate[i]) {
+      ROMEString command;
+      command.SetFormatted("Task_%d:Histo_%d",fTaskIndex,i);
+      fHisto->AddAt(gROME->GetSocketClientNetFolder()->FindObjectAny(command.Data()),i);
+      fHistoUpToDate[i] = true;
+   }
+   return fHisto->At(i); 
+};
+
 // Graph methods
 //______________________________________________________________________________
 void ROMETask::ResetGraph()
