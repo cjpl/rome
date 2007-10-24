@@ -2492,14 +2492,10 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       for (i = 0; i < numOfGraphs[iTask]; i++) {
          if (graphArraySize[iTask][i] == "1") {
             buffer.AppendFormatted("   %s* Get%s();\n",graphType[iTask][i].Data(),graphName[iTask][i].Data());
-            buffer.AppendFormatted("   %s* Get%sGraphStorage() const { return ((%s*)fGraphStorage->At(%d)); } \n",
-                                   graphType[iTask][i].Data(),graphName[iTask][i].Data(),graphType[iTask][i].Data(),i);
          } else {
             buffer.AppendFormatted("   %s* Get%sAt(Int_t indx);\n",graphType[iTask][i].Data(),
                                    graphName[iTask][i].Data());
             buffer.AppendFormatted("   TObjArray* Get%s();\n",graphName[iTask][i].Data());
-            buffer.AppendFormatted("   TObjArray* Get%sGraphsStorage() const { return ((TObjArray*)fGraphStorage->At(%d)); } \n",
-                                   graphName[iTask][i].Data(),i);
          }
          buffer.AppendFormatted("   ROMEGraph* Get%sGraph() const { return ((ROMEGraph*)fGraphParameter->At(%d)); }\n",
                                 graphName[iTask][i].Data(),i);
@@ -2843,17 +2839,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       for (i = 0; i < numOfTask; i++) {
          taskListed[i] = false;
       }
-      for (i = 0; i < numOfTabObjectDisplays[iTab]; i++) {
-         if (tabObjectDisplayTaskIndex[iTab][i] > -1 && !taskUsed[tabObjectDisplayTaskIndex[iTab][i]])
-            continue;
-         indx = tabObjectDisplayTaskHierarchyIndex[iTab][i];
-         while (indx != -1 && !taskListed[taskHierarchyClassIndex[indx]]) {
-            taskListed[taskHierarchyClassIndex[indx]] = true;
-            buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),
-                                   taskHierarchyName[indx].Data());
-            indx = taskHierarchyParentIndex[indx];
-         }
-      }
       for (i = 0; i < tabSingleObjectIndexMax[iTab]; i++) {
          for (j = 0; j < numOfTabSingleObjects[iTab]; j++) {
             if (tabSingleObjectIndex[iTab][j] == i) {
@@ -2867,7 +2852,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             }
          }
       }
-
       tabFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       tabFileBuffer.SetFormatted("%sBuffer", tabFile.Data());
       for (j = 0; j < numOfTaskHierarchy; j++) {
@@ -2882,6 +2866,21 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             }
          }
       }
+      for (i = 0; i < numOfTabObjectDisplays[iTab]; i++) {
+         if (tabObjectDisplayTaskIndex[iTab][i] > -1 && !taskUsed[tabObjectDisplayTaskIndex[iTab][i]])
+            continue;
+         indx = tabObjectDisplayTaskHierarchyIndex[iTab][i];
+         if (indx != -1 && !taskListed[taskHierarchyClassIndex[indx]]) {
+            for (j = 0; j < numOfTaskInclude[taskHierarchyClassIndex[indx]]; j++) {
+               if (taskLocalFlag[taskHierarchyClassIndex[indx]][j]) {
+                  buffer.AppendFormatted("#include \"%s\"\n",taskInclude[taskHierarchyClassIndex[indx]][j].Data());
+               } else {
+                  buffer.AppendFormatted("#include <%s>\n",taskInclude[taskHierarchyClassIndex[indx]][j].Data());
+               }
+            }
+         }
+      }
+
       delete [] taskListed;
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
@@ -3357,39 +3356,36 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted("   if (fDisplayObjIndex == %d",i);
                   indx = tabObjectDisplayTaskHierarchyIndex[iTab][i];
                   while (indx != -1) {
-                     buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[indx].Data(),
-                                            taskHierarchySuffix[indx].Data());
+                     buffer.AppendFormatted(" && gAnalyzer->GetTaskObjectAt(%d)->IsActive()",indx);
                      indx = taskHierarchyParentIndex[indx];
                   }
                   if (tabObjectDisplayType[iTab][i][j].BeginsWith("ROMETG") || tabObjectDisplayType[iTab][i][j].BeginsWith("ROMETC")) {
-                     buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->IsActive()",
-                                            taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                            taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                            graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
+                     buffer.AppendFormatted(" && gAnalyzer->GetTaskObjectAt(%d)->GetGraphParameterAt(%d)->IsActive()",
+                                            tabObjectDisplayTaskHierarchyIndex[iTab][i],
+                                            tabObjectDisplayObjectIndex[iTab][i][j]);
                   } else {
-                     buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->Get%sHisto()->IsActive()",
-                                            taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                            taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                            histoName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
+                     buffer.AppendFormatted(" && gAnalyzer->GetTaskObjectAt(%d)->GetHistoParameterAt(%d)->IsActive()",
+                                            tabObjectDisplayTaskHierarchyIndex[iTab][i],
+                                            tabObjectDisplayObjectIndex[iTab][i][j]);
                   }
                   buffer.AppendFormatted(") {\n");
                   if (tabObjectDisplayType[iTab][i][j].BeginsWith("ROMETG") || tabObjectDisplayType[iTab][i][j].BeginsWith("ROMETC")) {
                      buffer.AppendFormatted("      for (i = 0; i < %s; i++) {\n",
                                             graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
                      if (graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]] == "1") {
-                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",
+                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *static_cast<%s*>(gAnalyzer->GetTaskObjectAt(%d)->GetGraphAt(%d));\n",
                                                tabObjectDisplayType[iTab][i][j].Data(),
                                                tabObjectDisplayObjectTypeIndex[iTab][i][j],
-                                               taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
+                                               tabObjectDisplayType[iTab][i][j].Data(),
+                                               tabObjectDisplayTaskHierarchyIndex[iTab][i],
+                                               tabObjectDisplayObjectIndex[iTab][i][j]);
                      } else {
-                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",
+                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *static_cast<%s*>(((TObjArray*)gAnalyzer->GetTaskObjectAt(%d)->GetGraphAt(%d))->At(i));\n",
                                                tabObjectDisplayType[iTab][i][j].Data(),
                                                tabObjectDisplayObjectTypeIndex[iTab][i][j],
-                                               taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
+                                               tabObjectDisplayType[iTab][i][j].Data(),
+                                               tabObjectDisplayTaskHierarchyIndex[iTab][i],
+                                               tabObjectDisplayObjectIndex[iTab][i][j]);
                      }
                      buffer.AppendFormatted("         if (static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i))->GetN() == 0)\n",
                                             tabObjectDisplayType[iTab][i][j].Data(),tabObjectDisplayObjectTypeIndex[iTab][i][j]);
@@ -3405,19 +3401,19 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                      buffer.AppendFormatted("      for (i = 0; i < %s; i++) {\n",
                                             histoArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
                      if (histoArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]] == "1") {
-                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",
+                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *static_cast<%s*>(gAnalyzer->GetTaskObjectAt(%d)->GetHistoAt(%d));\n",
                                                tabObjectDisplayType[iTab][i][j].Data(),
                                                tabObjectDisplayObjectTypeIndex[iTab][i][j],
-                                               taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               histoName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
+                                               tabObjectDisplayType[iTab][i][j].Data(),
+                                               tabObjectDisplayTaskHierarchyIndex[iTab][i],
+                                               tabObjectDisplayObjectIndex[iTab][i][j]);
                      } else {
-                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",
+                        buffer.AppendFormatted("         *static_cast<%s*>(static_cast<TObjArray*>(fUserObjects->At(%d))->At(i)) = *static_cast<%s*>(((TObjArray*)gAnalyzer->GetTaskObjectAt(%d)->GetHistoAt(%d))->At(i));\n",
                                                tabObjectDisplayType[iTab][i][j].Data(),
                                                tabObjectDisplayObjectTypeIndex[iTab][i][j],
-                                               taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),
-                                               histoName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
+                                               tabObjectDisplayType[iTab][i][j].Data(),
+                                               tabObjectDisplayTaskHierarchyIndex[iTab][i],
+                                               tabObjectDisplayObjectIndex[iTab][i][j]);
                      }
                      buffer.AppendFormatted("      }\n");
                      buffer.AppendFormatted("      for (i = %s; i < fNumberOfObjects; i++) {\n",
@@ -4428,19 +4424,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
-   }
-   for (i = 0; i < numOfTask; i++) {
-      if (!taskUsed[i])
-         continue;
-      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
-   }
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
@@ -4450,14 +4435,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"ROMERint.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    buffer.AppendFormatted("#include \"ROMEStr2DArray.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
-   buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
-   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    for (i = 0; i < daqNameArray->GetEntriesFast(); i++) {
@@ -5263,34 +5240,20 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       if (numOfGraphs[taskHierarchyClassIndex[i]] > 0) {
-         buffer.AppendFormatted("   if (Get%s%sTaskBase()->IsActive()",taskHierarchyName[i].Data(),
-                                taskHierarchySuffix[i].Data());
+         buffer.AppendFormatted("   if (GetTaskObjectAt(%d)->IsActive()",i);
          idx = taskHierarchyParentIndex[i];
          while (idx != -1) {
-            buffer.AppendFormatted(" && Get%s%sTaskBase()->IsActive()",taskHierarchyName[idx].Data(),
-                                   taskHierarchySuffix[idx].Data());
+            buffer.AppendFormatted(" && GetTaskObjectAt(%d)->IsActive()",i);
             idx = taskHierarchyParentIndex[idx];
          }
          buffer.AppendFormatted(") {\n");
       }
       for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]]; j++) {
-         if (graphArraySize[taskHierarchyClassIndex[i]][j] == "1") {
-            WriteFillObjectStorageObject(buffer,"Get" + taskHierarchyName[i] + taskHierarchySuffix[i] +
-                                         "TaskBase()->Get" + graphName[taskHierarchyClassIndex[i]][j] + "()",
-                                         "Get" + taskHierarchyName[i] + taskHierarchySuffix[i] + "TaskBase()->Get" +
-                                         graphName[taskHierarchyClassIndex[i]][j] + "GraphStorage()",
-                                         "static_cast<" + shortCut + "NetFolderServer*>(fNetFolderServer)->Get" +
-                                         taskHierarchyName[i] + taskHierarchySuffix[i] + "_" +
-                                         graphName[taskHierarchyClassIndex[i]][j] + "GraphActive(i)", false);
-         } else {
-            WriteFillObjectStorageObject(buffer, "Get" + taskHierarchyName[i] + taskHierarchySuffix[i] +
-                                         "TaskBase()->Get" + graphName[taskHierarchyClassIndex[i]][j] + "()",
-                                         "Get" + taskHierarchyName[i] + taskHierarchySuffix[i] + "TaskBase()->Get" +
-                                         graphName[taskHierarchyClassIndex[i]][j] + "GraphsStorage()",
-                                         "static_cast<" + shortCut + "NetFolderServer*>(fNetFolderServer)->Get" +
-                                         taskHierarchyName[i] + taskHierarchySuffix[i] + "_" +
-                                         graphName[taskHierarchyClassIndex[i]][j] + "GraphActive(i)", false);
-         }
+         ROMEString temp1,temp2,temp3;
+         temp1.SetFormatted("GetTaskObjectAt(%d)->GetGraphAt(%d)",i,j); 
+         temp2.SetFormatted("GetTaskObjectAt(%d)->GetGraphStorageAt(%d)",i,j); 
+         temp3.SetFormatted("static_cast<%sNetFolderServer*>(fNetFolderServer)->Get%s%s_%sGraphActive(i)",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data()); 
+         WriteFillObjectStorageObject(buffer,temp1.Data(),temp2.Data(),temp3.Data(), false);
       }
       if (numOfGraphs[taskHierarchyClassIndex[i]] > 0)
          buffer.AppendFormatted("   }\n");
@@ -5342,11 +5305,8 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#include <Windows4Root.h>\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TROOT.h>\n");
-   buffer.AppendFormatted("#include <TH1.h>\n");
-   buffer.AppendFormatted("#include <TObjArray.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -5449,44 +5409,11 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("#include <direct.h>\n");
 #endif
    buffer.AppendFormatted("#include <RConfig.h>\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("#pragma warning( push )\n");
-   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#include <Windows4Root.h>\n");
-#endif // R__VISUAL_CPLUSPLUS
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("#pragma warning( pop )\n");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
-   for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
-   }
-   for (i = 0; i < numOfTask; i++) {
-      if (!taskUsed[i])
-         continue;
-      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
-   }
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-   for (i = 0; i < daqNameArray->GetEntriesFast(); i++) {
-      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),
-                             daqNameArray->At(i).Data());
-   }
-   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
-   buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
-   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -10658,25 +10585,24 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       if (numOfGraphs[taskHierarchyClassIndex[i]]>0)
-         buffer.AppendFormatted("      if (gAnalyzer->Get%s%sTaskBase()->IsActive()) {\n",taskHierarchyName[i].Data(),
-                                taskHierarchySuffix[i].Data());
+         buffer.AppendFormatted("      if (gAnalyzer->GetTaskObjectAt(%d)->IsActive()) {\n",i);
       for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]]; j++) {
          buffer.AppendFormatted("      buffer->Reset();\n");
          buffer.AppendFormatted("      buffer->SetWriteMode();\n");
          buffer.AppendFormatted("      if (f%s%s_%sGraphActive[iClient] || fCopyAll) {\n",taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          if (graphArraySize[taskHierarchyClassIndex[i]][j] == "1") {
-            buffer.AppendFormatted("         %s *%sOrg = gAnalyzer->Get%s%sTaskBase()->Get%sGraphStorage();\n",
+            buffer.AppendFormatted("         %s *%sOrg = ((%s*)gAnalyzer->GetTaskObjectAt(%d)->GetGraphStorageAt(%d));\n",
                                    graphType[taskHierarchyClassIndex[i]][j].Data(),
-                                   graphName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),
-                                   taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+                                   graphName[taskHierarchyClassIndex[i]][j].Data(),
+                                   graphType[taskHierarchyClassIndex[i]][j].Data(),
+                                   i,j);
             WriteUpdateObjectsObject(buffer,"f" + taskHierarchyName[i] + taskHierarchySuffix[i] + "_" +
                                      graphName[taskHierarchyClassIndex[i]][j] + "Graph[iClient]",
                                      graphName[taskHierarchyClassIndex[i]][j]+"Org",false);
          } else {
-            buffer.AppendFormatted("         TObjArray *%ssOrg = gAnalyzer->Get%s%sTaskBase()->Get%sGraphsStorage();\n",
-                                   graphName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),
-                                   taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         TObjArray *%ssOrg = ((TObjArray*)gAnalyzer->GetTaskObjectAt(%d)->GetGraphStorageAt(%d));\n",
+                                   graphName[taskHierarchyClassIndex[i]][j].Data(),i,j);
             WriteUpdateObjectsObject(buffer,"f" + taskHierarchyName[i] + taskHierarchySuffix[i] + "_" +
                                      graphName[taskHierarchyClassIndex[i]][j] + "Graphs[iClient]",
                                      graphName[taskHierarchyClassIndex[i]][j]+"sOrg",false);

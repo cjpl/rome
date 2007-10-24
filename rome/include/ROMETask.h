@@ -79,7 +79,7 @@ public:
    ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };
    Int_t        GetNumberOfHistos() { return fNumberOfHistos; };
    ROMEString*  GetHistoNameAt(Int_t i) { return &fHistoName[i]; };
-   ROMEString*  GetGraphNameAt(Int_t i) { return &fGraphName[i]; };
+
    ROMEString*  GetTaskSuffix() { return &fTaskSuffix; };
    void         ResetHisto();
 protected:
@@ -91,8 +91,10 @@ protected:
 public:
 //   Bool_t       hasGraphs() const { return fNumberOfGraphs>0; }
    TObject     *GetGraphAt(Int_t i) { return fGraph->At(i); };
+   TObject     *GetGraphStorageAt(Int_t i) { return fGraphStorage->At(i); };
    ROMEGraph   *GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); };
    Int_t        GetNumberOfGraphs() { return fNumberOfGraphs; };
+   ROMEString*  GetGraphNameAt(Int_t i) { return &fGraphName[i]; };
    void         ResetGraph();
 protected:
    void         BookGraph();

@@ -476,7 +476,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
          }
          // default event number, this will be overwritten later, if this event is trigger event.
          fSeqNumToEventNum->AddAt(fCurrentSeqNumber == 0 ? 0 :
-                                  fSeqNumToEventNum->At(fCurrentSeqNumber - 1),
+                                  static_cast<Int_t>(fSeqNumToEventNum->At(static_cast<Int_t>(fCurrentSeqNumber - 1))),
                                   static_cast<Int_t>(fCurrentSeqNumber));
          if (fValidSeqNumber < fCurrentSeqNumber + 1) {
             fValidSeqNumber = fCurrentSeqNumber + 1;
@@ -499,7 +499,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
 #endif
             if (pevent->event_id == kTriggerEventID) {
                fSeqNumToEventNum->AddAt(pevent->serial_number, static_cast<Int_t>(fCurrentSeqNumber));
-               fEventNumToSeqNum->AddAt(fCurrentSeqNumber, pevent->serial_number);
+               fEventNumToSeqNum->AddAt(static_cast<Long_t>(fCurrentSeqNumber), pevent->serial_number);
                if (fValidEventNumber < pevent->serial_number + 1) {
                   fValidEventNumber = pevent->serial_number + 1;
                }
@@ -527,7 +527,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
          }
          if (pevent->event_id == EVENTID_EOR) {
             this->SetEndOfRun();
-            return fSeqNumToEventNum->At(fCurrentSeqNumber - 1);
+            return fSeqNumToEventNum->At(static_cast<Int_t>(fCurrentSeqNumber - 1));
          }
          // check input
          if (readError) {
@@ -542,7 +542,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
             fSeqNumToFilePos->AddAt(-1, static_cast<Int_t>(fCurrentSeqNumber - 1));
             fSeqNumToEventNum->AddAt(-1, static_cast<Int_t>(fCurrentSeqNumber - 1));
             gROME->SetDontReadNextEvent();
-            return fSeqNumToEventNum->At(fCurrentSeqNumber - 1);
+            return fSeqNumToEventNum->At(static_cast<Int_t>(fCurrentSeqNumber - 1));
          }
          UInt_t dsize = reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size;
          if (fByteSwap) {
@@ -554,7 +554,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
          break;
       }
 
-      return fSeqNumToEventNum->At(fCurrentSeqNumber - 1);
+      return fSeqNumToEventNum->At(static_cast<Int_t>(fCurrentSeqNumber - 1));
    }
    return -1;
 }

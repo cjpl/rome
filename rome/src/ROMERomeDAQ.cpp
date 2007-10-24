@@ -100,7 +100,7 @@ Bool_t ROMERomeDAQ::Init() {
 Bool_t ROMERomeDAQ::BeginOfRun() {
    const Int_t nTree = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
-   const Int_t run = gROME->GetCurrentRunNumber();
+   const Int_t run = static_cast<Int_t>(gROME->GetCurrentRunNumber());
 
    int i,j,k;
    for (j=0;j<nTree;j++) {
@@ -307,7 +307,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
          romeTree = fROMETrees[j];
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
-            treePosition = fTreePositionLookup[j][event];
+            treePosition = static_cast<Int_t>(fTreePositionLookup[j][event]);
             if (treePosition >= 0 &&
                 treePosition < fTreeNEntries[j]) {
                found = true;
