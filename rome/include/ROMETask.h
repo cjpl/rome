@@ -63,7 +63,9 @@ public:
 
    virtual ~ROMETask() {
       SafeDelete(fRootFolder);
+#if 0 // This is not owned by this class.
       SafeDelete(fHistoFolder);
+#endif
       SafeDelete(fHisto);
       SafeDelete(fHistoParameter);
       SafeDelete(fGraph);
