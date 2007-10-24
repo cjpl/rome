@@ -532,6 +532,7 @@ void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
 {
    Int_t i,ind;
    ROMEString str;
+   TString    tmp;
    if (substitutes==NULL) {
       fSubstitutes = NULL;
       fPlaceHolders = NULL;
@@ -540,16 +541,17 @@ void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
    fSubstitutes = new ROMEStrArray(substitutes->GetEntriesFast());
    fPlaceHolders = new ROMEStrArray(substitutes->GetEntriesFast());
    for (i=0;i<substitutes->GetEntriesFast();i++) {
-      ind = substitutes->At(i).Index("=");
+      tmp = substitutes->At(i);
+      ind = tmp.Index("=");
       if (ind==-1) {
          str.SetFormatted("%d",i);
          fPlaceHolders->Add(str);
-         fSubstitutes->Add(substitutes->At(i));
+         fSubstitutes->Add(tmp);
       }
       else {
-         str = substitutes->At(i)(0,ind);
+         str = tmp(0,ind);
          fPlaceHolders->Add(str);
-         str = substitutes->At(i)(ind+1,substitutes->At(i).Length()-ind-1);
+         str = tmp(ind+1,tmp.Length()-ind-1);
          fSubstitutes->Add(str);
       }
    }
@@ -583,14 +585,16 @@ Bool_t XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute)
 void XMLToForm::FillClass(XMLToFormFrame *frame)
 {
    Int_t i;
+   XMLToFormFrame *subframe;
 
    // read xml
    XMLToClass(frame);
 
    // read subframes
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
-      if (frame->GetSubFrameAt(i)->IsFrameVisible()) {
-         FillClass(frame->GetSubFrameAt(i));
+      subframe = frame->GetSubFrameAt(i);
+      if (subframe->IsFrameVisible()) {
+         FillClass(subframe);
       }
    }
 }
@@ -615,13 +619,15 @@ Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
 void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab) const
 {
    Int_t i;
+   XMLToFormElement *element;
    ROMEString tabChar;
    for (i=0;i<tab;i++) {
       tabChar += "   ";
    }
    ROMEPrint::Print("%sFrame : %s\n", tabChar.Data(), frame->GetFrameTitle().Data());
    for (i=0;i<frame->GetNumberOfElements();i++) {
-      ROMEPrint::Print("%s   %s : %s\n", tabChar.Data(), frame->GetElementAt(i)->GetType().Data(), frame->GetElementAt(i)->GetTitle());
+      element = frame->GetElementAt(i);
+      ROMEPrint::Print("%s   %s : %s\n", tabChar.Data(), element->GetType().Data(), element->GetTitle());
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
       PrintFrame(frame->GetSubFrameAt(i),tab+1);

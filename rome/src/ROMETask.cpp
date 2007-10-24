@@ -71,6 +71,7 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version, 
                    int numberOfHistos, int numberOfGraphs)
 :TTask(name, title)
 ,fLevel(level)
+,fTaskSuffix(taskSuffix)
 ,fWatchAll()
 ,fWatchUserEvent()
 ,fCpuTimeAllString("")
@@ -90,7 +91,6 @@ ROMETask::ROMETask(const char *name, const char *title, int level, int version, 
 ,fGraph(new TObjArray(numberOfGraphs))
 ,fGraphStorage(new TObjArray(numberOfGraphs))
 ,fGraphParameter(new TObjArray(numberOfGraphs))
-,fTaskSuffix(taskSuffix)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
