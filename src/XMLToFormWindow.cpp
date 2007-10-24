@@ -1347,7 +1347,7 @@ Bool_t XMLToFormWindow::ReloadValues(XMLToFormFrame *frame)
    ROMEString value;
 
    for (i=0;i<frame->GetNumberOfElements();i++) {
-      element = element;
+      element = frame->GetElementAt(i);
       if (element->GetType()=="EditBox") {
          fXML->GetPathValue(element->GetPath()+"/Value",value);
          element->SetValue(value.Data());
