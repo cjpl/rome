@@ -89,20 +89,20 @@ public:
    Bool_t          Start();
    virtual Bool_t  CreateTabs() = 0;
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
-   const char* GetTimeStatisticsString(ROMEString& string);
+   const char*     GetTimeStatisticsString(ROMEString& string);
 
    // Sub Windows
-   int  GetWindowId() { return fWindowId; };
-   void SetWindowId(int id) { fWindowId = id; };
+   int             GetWindowId() { return fWindowId; };
+   void            SetWindowId(int id) { fWindowId = id; };
 
-   Bool_t IsSubWindowRunningAt(Int_t i);
-   void   SetSubWindowRunningAt(Int_t i,Bool_t running);
+   Bool_t          IsSubWindowRunningAt(Int_t i);
+   void            SetSubWindowRunningAt(Int_t i,Bool_t running);
 
-   const char* GetSubWindowTimeStringAt(Int_t i);
-   void        SetSubWindowTimeStringAt(Int_t i,const char* timeString);
+   const char*     GetSubWindowTimeStringAt(Int_t i);
+   void            SetSubWindowTimeStringAt(Int_t i,const char* timeString);
 
    // Analyzer Controller
-   ArgusAnalyzerController   *GetAnalyzerController() { return fController; }
+   ArgusAnalyzerController  *GetAnalyzerController() { return fController; }
    Bool_t          IsControllerActive() { return fControllerActive; }
    void            SetControllerActive(bool flag) { fControllerActive = flag; }
    ROMENetFolder  *GetControllerNetFolder() { return fControllerNetFolder; }
@@ -117,7 +117,7 @@ public:
    // Status bar
    void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
    Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; }
-   TGStatusBar*    GetStatusBar() { return fStatusBar; }
+   TGStatusBar    *GetStatusBar() { return fStatusBar; }
    void            ClearStatusBar();
    void            SetStatus(Int_t mode,const char *text,double progress=0.,Int_t sleepingTime=10);
 
@@ -138,6 +138,7 @@ public:
    ArgusTab       *GetTabObjectAt(Int_t index) { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
    ArgusTab       *GetTabObject(const char* tabName);
    Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
+
    // Active. This might be dangerouse because it overload TGFrame::IsActive
    Bool_t          IsActive() const { return fArgusActive; }
    Int_t           GetActiveTabObjectIndex();
