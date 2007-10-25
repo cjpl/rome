@@ -58,9 +58,10 @@
 ClassImp(ArgusHistoDisplay)
 
 //______________________________________________________________________________
-ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TArrayI *logY, TArrayI *logZ,
+ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt,
+                                     TArrayI *logX, TArrayI *logY, TArrayI *logZ,
                                      const char* inheritName, Int_t nDisplayType)
-:ArgusTab(window, drawOpt, logX, logY, logZ)
+:ArgusTab(window, title, drawOpt, logX, logY, logZ)
 ,fStyle(new TStyle())
 ,fMenuBar(0)
 ,fMenuDisplay(0)

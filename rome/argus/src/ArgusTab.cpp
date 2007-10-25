@@ -26,10 +26,11 @@
 ClassImp(ArgusTab)
 
 //______________________________________________________________________________
-ArgusTab::ArgusTab(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TArrayI *logY, TArrayI *logZ)
+ArgusTab::ArgusTab(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt,
+                   TArrayI *logX, TArrayI *logY, TArrayI *logZ)
 :TGCompositeFrame(NULL,1,1)
 ,fWindow(window)
-,fTitle("")
+,fTitle(title)
 ,fTabActive(kFALSE)
 ,fBusy(kFALSE)
 ,fForeground(kFALSE)
@@ -41,6 +42,7 @@ ArgusTab::ArgusTab(ArgusWindow* window, ROMEStrArray *drawOpt, TArrayI *logX, TA
 ,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fRegisteringActive(kTRUE)
+,fID(-1)
 ,fDrawOption(drawOpt)
 ,fLogScaleX(logX)
 ,fLogScaleY(logY)
