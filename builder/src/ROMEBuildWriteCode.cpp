@@ -6216,7 +6216,9 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sWindow::CreateTabs()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   TGCompositeFrame *tabFrame = 0;\n");
+   if (numOfTab) {
+      buffer.AppendFormatted("   TGCompositeFrame *tabFrame = 0;\n");
+   }
    for (i = 0; i < numOfTab; i++) {
       if (!AddTab(buffer, i)) {
          return kFALSE;
