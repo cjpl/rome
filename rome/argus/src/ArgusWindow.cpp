@@ -38,7 +38,7 @@
 ClassImp(ArgusWindow)
 
 //______________________________________________________________________________
-ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, TObjArray *tabobj)
+ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 :TGMainFrame()
 ,fWindowId(-1)
 ,fSubWindows(new TObjArray(0))
@@ -60,7 +60,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, TObjArray *tabobj)
 ,fTab(0)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
-,fTabObjects(tabobj)
+,fTabObjects(new TObjArray(numberOfTabs))
 ,fControllerActive(kFALSE)
 ,fController(0)
 ,fControllerNetFolder(0)
@@ -72,7 +72,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, TObjArray *tabobj)
 }
 
 //______________________________________________________________________________
-ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, TObjArray *tabobj, Bool_t tabWindow)
+ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t numberOfTabs, Bool_t tabWindow)
 :TGMainFrame(p, 1, 1)
 ,fWindowId(-1)
 ,fSubWindows(new TObjArray(0))
@@ -94,7 +94,7 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, TObjArray *t
 ,fTab(0)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
-,fTabObjects(tabobj)
+,fTabObjects(new TObjArray(numberOfTabs))
 ,fControllerActive(kFALSE)
 ,fController(0)
 ,fControllerNetFolder(0)
@@ -265,30 +265,66 @@ void ArgusWindow::CheckActiveFlags()
 }
 
 //______________________________________________________________________________
-ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
+ArgusTab* ArgusWindow::GetTabObject(const char* tabTitle)
 {
+   // This method might return wrong tab if there are two tabs with same title
+   Int_t iTab;
+   const Int_t nTabs = fTabObjects->GetEntriesFast();
    ArgusTab* ptr;
-   for (int i = 0; i < fTabObjects->GetEntries(); i++) {
-      ptr = static_cast<ArgusTab*>(fTabObjects->At(i));
-      if (!strcmp(tabName, ptr->GetTitle())) {
+   for (iTab = 0; iTab < nTabs; iTab++) {
+      ptr = static_cast<ArgusTab*>(fTabObjects->At(iTab));
+      if (!strcmp(tabTitle, ptr->GetTitle())) {
          return ptr;
       }
    }
-   Error("GetTabObject", "%s was not found.", tabName);
+   Error("GetTabObject", "title %s was not found.", tabTitle);
    return 0;
 }
 
 //______________________________________________________________________________
-Int_t ArgusWindow::GetActiveTabObjectIndex()
+ArgusTab* ArgusWindow::GetTabObject(const int id)
 {
-   for (int i = 0; i < fTabObjects->GetEntries(); i++) {
-      if (static_cast<ArgusTab*>(fTabObjects->At(i))->IsTabActive()) {
-         return i;
+   Int_t iTab;
+   const Int_t nTabs = fTabObjects->GetEntriesFast();
+   ArgusTab* ptr;
+   for (iTab = 0; iTab < nTabs; iTab++) {
+      ptr = static_cast<ArgusTab*>(fTabObjects->At(iTab));
+      if (ptr->GetID() == id) {
+         return ptr;
       }
    }
-   Error("GetActiveTabObjectIndex", "no tab active.");
+   Error("GetTabObject", "id %d was not found.", id);
+   return 0;
+}
+
+//______________________________________________________________________________
+Int_t ArgusWindow::GetCurrentTabObjectIndex()
+{
+   Int_t iTab;
+   const Int_t nTabs = fTabObjects->GetEntriesFast();
+   ArgusTab *ptr;
+   for (iTab = 0; iTab < nTabs; iTab++) {
+      ptr = static_cast<ArgusTab*>(fTabObjects->At(iTab));
+      if (ptr->IsCurrentTab()) {
+         return iTab;
+      }
+   }
+//   Don't print the error, because there is no active tab at the very beginning
+//   Error("GetCurrentTabObjectIndex", "no tab active.");
    return -1;
 }
+
+//______________________________________________________________________________
+//Int_t ArgusWindow::GetActiveTabObjectIndex()
+//{
+//   for (int i = 0; i < fTabObjects->GetEntriesFast(); i++) {
+//      if (static_cast<ArgusTab*>(fTabObjects->At(i))->IsTabActive()) {
+//         return i;
+//      }
+//   }
+//   Error("GetActiveTabObjectIndex", "no tab active.");
+//   return -1;
+//}
 
 //______________________________________________________________________________
 void ArgusWindow::SetControllerNetFolder(const char* folderName)
@@ -302,7 +338,8 @@ void ArgusWindow::SetControllerNetFolder(const char* folderName)
 //______________________________________________________________________________
 const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
 {
-   int i;
+   Int_t iTab;
+   const Int_t nTabs = fTabObjects->GetEntriesFast();
    ROMEString str;
    if (fTabWindow) {
       string.SetFormatted("main window........................ : %s  %s\n",
@@ -311,15 +348,15 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
       string.SetFormatted("sub window %3d..................... : %s  %s\n", fWindowId,
                           fWatchAll.GetRealTimeString(str), fWatchAll.GetCpuTimeString(str));
    }
-   for (i = 0; i < fTabObjects->GetEntriesFast(); i++) {
-      static_cast<ArgusTab*>(fTabObjects->At(i))->GetTimeStatisticsString(str);
+   for (iTab = 0; iTab < nTabs; iTab++) {
+      static_cast<ArgusTab*>(fTabObjects->At(iTab))->GetTimeStatisticsString(str);
       string.AppendFormatted(str.Data());
    }
-   for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {
-      if (IsSubWindowRunningAt(i)) {
-         string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(i))->GetTimeStatisticsString(str));
+   for (iTab = 0; iTab < nTabs; iTab++) {
+      if (IsSubWindowRunningAt(iTab)) {
+         string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iTab))->GetTimeStatisticsString(str));
       } else {
-         string.AppendFormatted(GetSubWindowTimeStringAt(i));
+         string.AppendFormatted(GetSubWindowTimeStringAt(iTab));
       }
    }
    return string.Data();
@@ -365,7 +402,12 @@ void ArgusWindow::SetStatus(Int_t mode, const char *text, Double_t progress, Int
 //______________________________________________________________________________
 Bool_t ArgusWindow::IsSubWindowRunningAt(Int_t i)
 {
-   return fSubWindowRunning->At(i) != 0;
+   const Int_t n = fSubWindowRunning->GetSize();
+   if (i<n) {
+      return fSubWindowRunning->At(i) != 0;
+   } else {
+      return kFALSE;
+   }
 }
 
 //______________________________________________________________________________
@@ -384,7 +426,12 @@ void ArgusWindow::SetSubWindowRunningAt(Int_t i, Bool_t running)
 //______________________________________________________________________________
 const char* ArgusWindow::GetSubWindowTimeStringAt(Int_t i)
 {
-   return fSubWindowTimeString->At(i).Data();
+   const Int_t n = fSubWindowTimeString->GetEntriesFast();
+   if (i<n) {
+      return fSubWindowTimeString->At(i).Data();
+   } else {
+      return "";
+   }
 }
 
 //______________________________________________________________________________
