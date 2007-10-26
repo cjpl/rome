@@ -27,7 +27,7 @@ ClassImp(ArgusTab)
 
 //______________________________________________________________________________
 ArgusTab::ArgusTab(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt,
-                   TArrayI *logX, TArrayI *logY, TArrayI *logZ)
+                   TArrayI *logX, TArrayI *logY, TArrayI *logZ, Int_t nUserMenus)
 :TGCompositeFrame(NULL,1,1)
 ,fWindow(window)
 ,fTitle(title)
@@ -42,14 +42,25 @@ ArgusTab::ArgusTab(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt
 ,fRealTimeAllString("")
 ,fTimeUserEventString("")
 ,fRegisteringActive(kTRUE)
+,fSwitch(kFALSE)
 ,fID(-1)
+,fCurrentTab(kFALSE)
+,fUserPopupMenus(new TObjArray(nUserMenus))
 ,fDrawOption(drawOpt)
 ,fLogScaleX(logX)
 ,fLogScaleY(logY)
 ,fLogScaleZ(logZ)
 {
+   // Reset stopwatches
    fWatchAll.Reset();
    fWatchUserEvent.Reset();  
+
+   // Create menus
+   Int_t iMenu;
+   for (iMenu = 0; iMenu < nUserMenus; iMenu++) {
+      fUserPopupMenus->AddAt(new TGPopupMenu(fClient->GetRoot()), iMenu);
+      GetUserPopupMenuAt(iMenu)->Associate(fWindow);
+   }
 }
 
 //______________________________________________________________________________
@@ -72,8 +83,10 @@ ArgusTab::~ArgusTab() {
 
 //______________________________________________________________________________
 void ArgusTab::ArgusEventHandler() {
-   while (fBusy)
+   while (fBusy) {
       gSystem->Sleep(10);
+   }
+
    fWatchAll.Start(false);
    fWatchUserEvent.Start(false);
    fBusy = true;
@@ -88,7 +101,7 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber)
 
    Bool_t forced = kFALSE;
    Int_t i,j;
-   if(gROME->GetWindow()->IsEventHandlingForced()) {
+   if (gROME->GetWindow()->IsEventHandlingForced()) {
       forced = kTRUE;
       gROME->GetWindow()->ClearEventHandlingForced();
    }
@@ -97,8 +110,7 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber)
       fCurrentRun   = gROME->GetCurrentRunNumber();
       fCurrentEvent = gROME->GetCurrentEventNumber();
       return gROME->GetSocketClientNetFolder()->RequestNewEvent(oldRunNumber,oldEventNumber);
-   }
-   else {
+   } else {
       if (oldRunNumber!=gROME->GetCurrentRunNumber()
           || oldEventNumber!=gROME->GetCurrentEventNumber()
           || forced ) {

@@ -57,7 +57,6 @@ protected:
 
 protected:
    TStyle              *fStyle;         //!
-   TGMenuBar           *fMenuBar;       //! menu bar
    TGPopupMenu         *fMenuDisplay;   //!
    TGPopupMenu         *fMenuView;      //!
    TGPopupMenu         *fMenuViewDivide;//!
@@ -107,47 +106,48 @@ private:
 
 public:
    ArgusHistoDisplay(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt,
-                     TArrayI *logX, TArrayI *logY, TArrayI *logZ, const char* inheritName, Int_t nDisplayType);
-   virtual ~ArgusHistoDisplay();
-   void      InitHistoDisplay();
+                     TArrayI *logX, TArrayI *logY, TArrayI *logZ, Int_t nUserMenus,
+                     const char* inheritName, Int_t nDisplayType);
+   virtual       ~ArgusHistoDisplay();
+   void           InitHistoDisplay();
 
-   void        SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
-   ROMETGraph *GetUserTGraphAt(Int_t index);
-   TH1        *GetUserHistoAt(Int_t index,const char* type);
-   TObject    *GetCurrentObjectAt(Int_t index,Int_t typeIndex=0);
-   void        SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
-   Int_t       GetNumberOfUserLines() { return fNumberOfUserLines; };
-   TLine      *GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
+   void           SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
+   ROMETGraph    *GetUserTGraphAt(Int_t index);
+   TH1           *GetUserHistoAt(Int_t index,const char* type);
+   TObject       *GetCurrentObjectAt(Int_t index,Int_t typeIndex=0);
+   void           SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
+   Int_t          GetNumberOfUserLines() { return fNumberOfUserLines; };
+   TLine         *GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
 
-   void      SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
-   int       GetNumberOfPadsX() { return fNumberOfPadsX; };
-   void      SetNumberOfPadsY(int n) { fNumberOfPadsY = n; };
-   int       GetNumberOfPadsY() { return fNumberOfPadsY; };
-   void      SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
-   Bool_t    IsPadConfigActive() { return fPadConfigActive; };
+   void           SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
+   int            GetNumberOfPadsX() { return fNumberOfPadsX; };
+   void           SetNumberOfPadsY(int n) { fNumberOfPadsY = n; };
+   int            GetNumberOfPadsY() { return fNumberOfPadsY; };
+   void           SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
+   Bool_t         IsPadConfigActive() { return fPadConfigActive; };
 
-   virtual void RegisterObjects() = 0;
-   virtual void UnRegisterObjects() = 0;
+   virtual void   RegisterObjects() = 0;
+   virtual void   UnRegisterObjects() = 0;
 
 protected:
-   void BaseInit();
-   void BaseMenuClicked(TGPopupMenu *menu,Long_t param);
-   void BaseTabSelected();
-   void BaseTabUnSelected();
-   void BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw);
-   void SetStatisticBox(Bool_t flag);
-   void Modified(Bool_t processEvents=true);
-   void SetLimits(ROMETGraph *g);
+   void           BaseInit();
+   void           BaseMenuClicked(TGPopupMenu *menu,Long_t param);
+   void           BaseTabSelected();
+   void           BaseTabUnSelected();
+   void           BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw);
+   void           SetStatisticBox(Bool_t flag);
+   void           Modified(Bool_t processEvents=true);
+   void           SetLimits(ROMETGraph *g);
 
-   virtual void Init() = 0;
-   virtual void EndInit() = 0;
-   virtual void MenuClicked(TGPopupMenu *menu,Long_t param) = 0;
-   virtual void TabSelected() = 0;
-   virtual void TabUnSelected() = 0;
-   virtual void BaseEventHandler() = 0;
-   virtual void EventHandler() = 0;
-   virtual void Display(Bool_t processEvents=true) = 0;
-   virtual void SetupPads(Int_t nx, Int_t ny, Bool_t redraw) = 0;
+   virtual void   Init() = 0;
+   virtual void   EndInit() = 0;
+   virtual void   MenuClicked(TGPopupMenu *menu,Long_t param) = 0;
+   virtual void   TabSelected() = 0;
+   virtual void   TabUnSelected() = 0;
+   virtual void   BaseEventHandler() = 0;
+   virtual void   EventHandler() = 0;
+   virtual void   Display(Bool_t processEvents=true) = 0;
+   virtual void   SetupPads(Int_t nx, Int_t ny, Bool_t redraw) = 0;
 
    ClassDef(ArgusHistoDisplay,0) // Base class of ARGUS histogram display
 };

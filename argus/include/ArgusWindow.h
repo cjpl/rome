@@ -82,8 +82,8 @@ private:
    ArgusWindow &operator=(const ArgusWindow &rhs); // not implemented
 
 public:
-   ArgusWindow(Bool_t statusBarSwitch = kTRUE, TObjArray *tabobj = 0);
-   ArgusWindow(const TGWindow* p,Bool_t statusBarSwitch = kTRUE, TObjArray *tabobj = 0,Bool_t tabWindow=kTRUE);
+   ArgusWindow(Bool_t statusBarSwitch = kTRUE, Int_t numberOfTabs = 0);
+   ArgusWindow(const TGWindow* p,Bool_t statusBarSwitch = kTRUE, Int_t numberOfTabs = 0, Bool_t tabWindow = kTRUE);
    virtual ~ArgusWindow();
 
    Bool_t          Start();
@@ -136,12 +136,15 @@ public:
    // Tabs
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
    ArgusTab       *GetTabObjectAt(Int_t index) { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
-   ArgusTab       *GetTabObject(const char* tabName);
+   ArgusTab       *GetTabObject(const char* tabTitle);
+   ArgusTab       *GetTabObject(const int id);
    Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
+   Int_t           GetTabObjectEntriesFast() { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
+   Int_t           GetCurrentTabObjectIndex();
 
    // Active. This might be dangerouse because it overload TGFrame::IsActive
    Bool_t          IsActive() const { return fArgusActive; }
-   Int_t           GetActiveTabObjectIndex();
+//   Int_t           GetActiveTabObjectIndex();
 
    // Event Handler
    virtual void    TriggerEventHandler() = 0;
