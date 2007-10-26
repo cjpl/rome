@@ -1212,8 +1212,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
          // RunNumber
          subsubGroup->AddParameter(new ROMEConfigParameter("RunNumber"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.ToInteger());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetHistosRun());");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.Data());");
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosRun();");
          // Path
          subsubGroup->AddParameter(new ROMEConfigParameter("Path"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());

@@ -15,12 +15,14 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
+#include <TH1.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TThread.h>
 #include <TFolder.h>
 #include <TTime.h>
 #include <TVirtualMutex.h>
+#include <TArrayL64.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -1383,40 +1385,56 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 
 void ROMEEventLoop::ReadHistograms()
 {
-   int i,j,k;
+   int ii,i,j,k;
    ROMEString filename;
    ROMEString name;
    ROMETask *task;
    ROMEHisto *histoPar;
+   ROMEString histoRuns;
+   TArrayL64 runNumbers;
+   TFile *file;
+   TObject* tempHisto;
 
-   filename.SetFormatted("%s%s%05d.root",gROME->GetHistosPath(),"histos",gROME->GetHistosRun());
-   gROME->ReplaceWithRunAndEventNumber(filename);
-   TFile *file = new TFile(filename.Data(),"READ");
-   if (file->IsZombie()) {
-       ROMEPrint::Warning("Histograms of run %d not available.\n", gROME->GetHistosRun());
-       ROMEPrint::Warning("Please check the run number and the input path.\n\n");
-       ROMEPrint::Warning("No Histogram loaded!\n\n");
-       return;
-   }
-   file->FindObjectAny("histos");
-   for (i=0;i<gROME->GetTaskObjectEntries();i++) {
-      task = gROME->GetTaskObjectAt(i);
-      if (task->IsActive()) {
-         for (j=0;j<task->GetNumberOfHistos();j++) {
-            histoPar = task->GetHistoParameterAt(j);
-            if (histoPar->IsActive()) {
-               for (k=0;k<histoPar->GetArraySize();k++) {
-                  name.SetFormatted("%s%s",task->GetHistoNameAt(j)->Data(),task->GetTaskSuffix()->Data());
-                  if (histoPar->GetArraySize()>1)
-                     name.AppendFormatted("_%0*d",3,k+histoPar->GetArrayStartIndex());
-                  TObject* tempHisto = static_cast<TObject*>(file->FindObjectAny(name.Data()));
-                  if (tempHisto == 0)
-                     ROMEPrint::Warning("Histogram '%s' not available in run %d!\n",task->GetHistoNameAt(j)->Data(), gROME->GetHistosRun());
-                  else {
-                     if (!strcmp(task->GetHistoAt(j)->ClassName(),"TObjArray"))
-                        tempHisto->Copy(*((TObjArray*)task->GetHistoAt(j))->At(0));
-                     else
-                        tempHisto->Copy(*task->GetHistoAt(j));
+   histoRuns = gROME->GetHistosRun();
+   gROME->DecodeNumbers(histoRuns,runNumbers);
+   for (ii=0;ii<runNumbers.GetSize();ii++) {
+      filename.SetFormatted("%s%s%05d.root",gROME->GetHistosPath(),"histos",runNumbers.At(ii));
+      gROME->ReplaceWithRunAndEventNumber(filename);
+      file = new TFile(filename.Data(),"READ");
+      if (file->IsZombie()) {
+          ROMEPrint::Warning("Histograms of run %d not available.\n", gROME->GetHistosRun());
+          ROMEPrint::Warning("Please check the run number and the input path.\n\n");
+          ROMEPrint::Warning("No Histogram loaded!\n\n");
+          return;
+      }
+      file->FindObjectAny("histos");
+      for (i=0;i<gROME->GetTaskObjectEntries();i++) {
+         task = gROME->GetTaskObjectAt(i);
+         if (task->IsActive()) {
+            for (j=0;j<task->GetNumberOfHistos();j++) {
+               histoPar = task->GetHistoParameterAt(j);
+               if (histoPar->IsActive() && histoPar->isAccumulation()) {
+                  for (k=0;k<histoPar->GetArraySize();k++) {
+                     name.SetFormatted("%s%s",task->GetHistoNameAt(j)->Data(),task->GetTaskSuffix()->Data());
+                     if (histoPar->GetArraySize()>1)
+                        name.AppendFormatted("_%0*d",3,k+histoPar->GetArrayStartIndex());
+                     tempHisto = static_cast<TObject*>(file->FindObjectAny(name.Data()));
+                     if (tempHisto == 0)
+                        ROMEPrint::Warning("Histogram '%s' not available in run %d!\n",task->GetHistoNameAt(j)->Data(), gROME->GetHistosRun());
+                     else {
+                        if (ii==0) {
+                           if (histoPar->GetArraySize()>1)
+                              tempHisto->Copy(*((TObjArray*)task->GetHistoAt(j))->At(k));
+                           else
+                              tempHisto->Copy(*task->GetHistoAt(j));
+                        }
+                        else {
+                           if (histoPar->GetArraySize()>1)
+                              ((TH1*)((TObjArray*)task->GetHistoAt(j))->At(k))->Add(((TH1*)tempHisto));
+                           else
+                              ((TH1*)task->GetHistoAt(j))->Add(((TH1*)tempHisto));
+                        }
+                     }
                   }
                }
             }
