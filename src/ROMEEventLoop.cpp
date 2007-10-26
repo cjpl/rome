@@ -1398,11 +1398,11 @@ void ROMEEventLoop::ReadHistograms()
    histoRuns = gROME->GetHistosRun();
    gROME->DecodeNumbers(histoRuns,runNumbers);
    for (ii=0;ii<runNumbers.GetSize();ii++) {
-      filename.SetFormatted("%s%s%05d.root",gROME->GetHistosPath(),"histos",runNumbers.At(ii));
+      filename.SetFormatted("%s%s%05d.root",gROME->GetHistosPath(),"histos",(int)(runNumbers.At(ii)));
       gROME->ReplaceWithRunAndEventNumber(filename);
       file = new TFile(filename.Data(),"READ");
       if (file->IsZombie()) {
-          ROMEPrint::Warning("Histograms of run %d not available.\n", gROME->GetHistosRun());
+          ROMEPrint::Warning("Histograms of run %d not available.\n", (int)(runNumbers.At(ii)));
           ROMEPrint::Warning("Please check the run number and the input path.\n\n");
           ROMEPrint::Warning("No Histogram loaded!\n\n");
           return;
@@ -1420,7 +1420,7 @@ void ROMEEventLoop::ReadHistograms()
                         name.AppendFormatted("_%0*d",3,k+histoPar->GetArrayStartIndex());
                      tempHisto = static_cast<TObject*>(file->FindObjectAny(name.Data()));
                      if (tempHisto == 0)
-                        ROMEPrint::Warning("Histogram '%s' not available in run %d!\n",task->GetHistoNameAt(j)->Data(), gROME->GetHistosRun());
+                        ROMEPrint::Warning("Histogram '%s' not available in run %d!\n",task->GetHistoNameAt(j)->Data(), (int)(runNumbers.At(ii)));
                      else {
                         if (ii==0) {
                            if (histoPar->GetArraySize()>1)
