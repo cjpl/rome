@@ -1064,9 +1064,9 @@ Bool_t ROMETask::CheckGraphActive(Int_t graphIndex)
 }
 
 //______________________________________________________________________________
-void ROMETask::CopyHistosAndGraphs(TFolder *f) const
+void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
 {
-   TFolder *folder;
+   TDirectory *directory;
    ROMEString folderName;
    ROMEString folderTitle;
    Int_t i, j;
@@ -1078,19 +1078,21 @@ void ROMETask::CopyHistosAndGraphs(TFolder *f) const
          folderName = fRootFolder->At(i)->GetName();
          folderTitle = fRootFolder->At(i)->GetTitle();
          if (folderName != fHistoFolder->GetName()) {
-            if (!(folder = static_cast<TFolder*>(f->FindObject(folderName)))) {
-               folder = f->AddFolder(folderName, folderTitle);
+            if (!(directory = static_cast<TDirectory*>(d->FindObject(folderName)))) {
+               d->cd();
+               directory = new TDirectory(folderName, folderTitle);
             }
          } else {
-            folder = f;
+            directory = d;
          }
+         directory->cd();
          if (!fHistoArray[i]) {
             ROMEPrint::Debug("Writing histo %s:%s\n", GetName(), fHisto->At(i)->GetName());
-            folder->Add(fHisto->At(i)->Clone());
+            fHisto->At(i)->Clone();
          } else {
             for (j = 0; j < static_cast<TObjArray*>(fHisto->At(i))->GetEntries(); j++) {
                ROMEPrint::Debug("Writing histo %s:%s\n", GetName(), static_cast<TObjArray*>(fHisto->At(i))->At(j)->GetName());
-               folder->Add(static_cast<TObjArray*>(fHisto->At(i))->At(j)->Clone());
+               static_cast<TObjArray*>(fHisto->At(i))->At(j)->Clone();
             }
          }
       }
@@ -1103,19 +1105,21 @@ void ROMETask::CopyHistosAndGraphs(TFolder *f) const
          folderName = fRootFolder->At(i + fNumberOfHistos)->GetName();
          folderTitle = fRootFolder->At(i + fNumberOfHistos)->GetTitle();
          if (folderName != fHistoFolder->GetName()) {
-            if (!(folder = static_cast<TFolder*>(f->FindObject(folderName)))) {
-               folder = f->AddFolder(folderName, folderTitle);
+            if (!(directory = static_cast<TDirectory*>(d->FindObject(folderName)))) {
+               d->cd();
+               directory = new TDirectory(folderName, folderTitle);
             }
          } else {
-            folder = f;
+            directory = d;
          }
+         directory->cd();
          if (!fGraphArray[i]) {
             ROMEPrint::Debug("Writing graph %s:%s\n", GetName(), fGraph->At(i)->GetName());
-            folder->Add(fGraph->At(i)->Clone());
+            fGraph->At(i)->Clone();
          } else {
             for (j = 0; j < static_cast<TObjArray*>(fGraph->At(i))->GetEntries(); j++) {
                ROMEPrint::Debug("Writing graph %s:%s\n", GetName(), static_cast<TObjArray*>(fGraph->At(i))->At(j)->GetName());
-               folder->Add(static_cast<TObjArray*>(fGraph->At(i))->At(j)->Clone());
+               static_cast<TObjArray*>(fGraph->At(i))->At(j)->Clone();
             }
          }
       }
