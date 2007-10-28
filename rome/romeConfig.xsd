@@ -573,6 +573,16 @@
 					<xs:documentation>The name of the histogram. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+ 			<xs:element name="HistActive" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is false the histograms is not allocated. You can check if the histogram is active in code by IsHistnameActive() function. Default is true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistWrite" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is false the histograms is not written to disk. Default is true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="HistTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The title of the histogram. Displayed in the ROOT browser. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
@@ -668,6 +678,16 @@
 			<xs:element name="GraphName" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>The name of the graph. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+ 			<xs:element name="GraphActive" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is false the graph is not allocated. You can check if the graph is active in code by IsGraphnameActive() function. Default is true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphWrite" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is false the graph is not written to disk. Default is true.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="GraphTitle" type="xs:string" minOccurs="0">

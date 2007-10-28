@@ -90,6 +90,8 @@ public:
    Bool_t       IsHistoUpToDateAt(Int_t i) { return fHistoUpToDate[i]; };
    void         SetHistoUpToDateAt(Int_t i,Bool_t flag) { fHistoUpToDate[i] = flag; };
    void         ResetHisto();
+   void         CopyHistosAndGraphs(TFolder *f) const;
+
 protected:
    void         BookHisto();
    void         ReBookHisto();

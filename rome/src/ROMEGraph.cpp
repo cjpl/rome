@@ -19,6 +19,7 @@ static char* fgCstop = 0;
 ROMEGraph::ROMEGraph()
 :TNamed("", "")
 ,fActive(kTRUE)
+,fWrite(kTRUE)
 ,fTitleOrig("")
 ,fFolderTitle("")
 ,fFolderTitleOrig("")

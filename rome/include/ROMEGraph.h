@@ -13,6 +13,7 @@
 class ROMEGraph : public TNamed {
 protected:
    Bool_t     fActive;                  // Active flag
+   Bool_t     fWrite;                   // Write flag
    ROMEString fTitleOrig;               // Title Original
    ROMEString fFolderTitle;             // Title of the Folder
    ROMEString fFolderTitleOrig;         // Title of the Folder Original
@@ -48,6 +49,7 @@ public:
    virtual ~ROMEGraph() {};
 
    void        SetActive(bool value) { fActive = value; };
+   void        SetWrite(bool value) { fWrite = value; };
    void        SetTitle(const char* value) { fTitle = value; };
    void        SetFolderTitle(const char* value) { fFolderTitle = value; };
    void        SetArraySize(const char* value) { fArraySize = value; };
@@ -78,6 +80,7 @@ public:
    void        SetZminOriginal(Double_t value) { fZminOrig = value; };
    void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
    bool        IsActive() const { return fActive; }
+   bool        IsWrite() const { return fWrite; }
    const char *GetTitle() const;
    const char *GetFolderTitle() const;
    const char *GetXLabel() const;

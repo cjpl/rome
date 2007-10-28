@@ -1226,14 +1226,27 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    // Write Histos
    ROMEString filename;
    ROMEString runNumberString;
-   gROME->GetCurrentRunNumberString(runNumberString);
+   Int_t iTask;
+   ROMETask *task;
+   TFolder *taskHistoFolder;
 
+   gROME->GetCurrentRunNumberString(runNumberString);
    filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
    gROME->ReplaceWithRunAndEventNumber(filename);
    fHistoFile = new TFile(filename.Data(), "RECREATE");
+   ROMEString histoFolderName;
+
    if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
-      TFolder *folder = static_cast<TFolder*>(gROOT->FindObjectAny("histos"));
+      TFolder *folder = new TFolder("histos", "Histogram Folder");
+      gROME->CreateHistoFolders(folder, kFALSE);
+      for (iTask = 0; iTask < gROME->GetTaskObjectEntries(); iTask++) {
+         task = gROME->GetTaskObjectAt(iTask);
+         taskHistoFolder = static_cast<TFolder*>(folder->FindObjectAny(task->GetHistoFolder()->GetName()));
+         if (task->IsActive() && taskHistoFolder && !strcmp(taskHistoFolder->ClassName(), "TFolder")) {
+            task->CopyHistosAndGraphs(taskHistoFolder);
+         }
+      }
       folder->Write();
       fHistoFile->Write();
       fHistoFile->Close();
@@ -1385,54 +1398,57 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 
 void ROMEEventLoop::ReadHistograms()
 {
-   int ii,i,j,k;
-   ROMEString filename;
-   ROMEString name;
-   ROMETask *task;
-   ROMEHisto *histoPar;
-   ROMEString histoRuns;
-   TArrayL64 runNumbers;
-   TFile *file;
-   TObject* tempHisto;
+   Int_t       ii,i,j,k;
+   ROMEString  filename;
+   ROMEString  name;
+   ROMETask   *task;
+   ROMEHisto  *histoPar;
+   ROMEString  histoRuns;
+   TArrayL64   runNumbers;
+   TFile      *file;
+   TObject    *tempHisto;
 
    histoRuns = gROME->GetHistosRun();
-   gROME->DecodeNumbers(histoRuns,runNumbers);
-   for (ii=0;ii<runNumbers.GetSize();ii++) {
-      filename.SetFormatted("%s%s%05d.root",gROME->GetHistosPath(),"histos",(int)(runNumbers.At(ii)));
+   gROME->DecodeNumbers(histoRuns, runNumbers);
+   for (ii = 0; ii < runNumbers.GetSize(); ii++) {
+      filename.SetFormatted("%s%s%05d.root", gROME->GetHistosPath(), "histos", static_cast<Int_t>(runNumbers.At(ii)));
       gROME->ReplaceWithRunAndEventNumber(filename);
-      file = new TFile(filename.Data(),"READ");
+      file = new TFile(filename.Data(), "READ");
       if (file->IsZombie()) {
-          ROMEPrint::Warning("Histograms of run %d not available.\n", (int)(runNumbers.At(ii)));
+          ROMEPrint::Warning("Histograms of run "R_LLD" not available.\n", runNumbers.At(ii));
           ROMEPrint::Warning("Please check the run number and the input path.\n\n");
           ROMEPrint::Warning("No Histogram loaded!\n\n");
           return;
       }
       file->FindObjectAny("histos");
-      for (i=0;i<gROME->GetTaskObjectEntries();i++) {
+      for (i = 0; i < gROME->GetTaskObjectEntries(); i++) {
          task = gROME->GetTaskObjectAt(i);
          if (task->IsActive()) {
-            for (j=0;j<task->GetNumberOfHistos();j++) {
+            for (j = 0; j < task->GetNumberOfHistos(); j++) {
                histoPar = task->GetHistoParameterAt(j);
-               if (histoPar->IsActive() && histoPar->isAccumulation()) {
-                  for (k=0;k<histoPar->GetArraySize();k++) {
-                     name.SetFormatted("%s%s",task->GetHistoNameAt(j)->Data(),task->GetTaskSuffix()->Data());
-                     if (histoPar->GetArraySize()>1)
-                        name.AppendFormatted("_%0*d",3,k+histoPar->GetArrayStartIndex());
+               if (histoPar->IsActive() && histoPar->IsAccumulate()) {
+                  for (k = 0; k < histoPar->GetArraySize(); k++) {
+                     name.SetFormatted("%s%s", task->GetHistoNameAt(j)->Data(), task->GetTaskSuffix()->Data());
+                     if (histoPar->GetArraySize() > 1) {
+                        name.AppendFormatted("_%0*d", 3, k + histoPar->GetArrayStartIndex());
+                     }
                      tempHisto = static_cast<TObject*>(file->FindObjectAny(name.Data()));
-                     if (tempHisto == 0)
-                        ROMEPrint::Warning("Histogram '%s' not available in run %d!\n",task->GetHistoNameAt(j)->Data(), (int)(runNumbers.At(ii)));
-                     else {
-                        if (ii==0) {
-                           if (histoPar->GetArraySize()>1)
-                              tempHisto->Copy(*((TObjArray*)task->GetHistoAt(j))->At(k));
-                           else
+                     if (tempHisto == 0) {
+                        ROMEPrint::Warning("Histogram '%s' not available in run "R_LLD"!\n", task->GetHistoNameAt(j)->Data(),
+                                           runNumbers.At(ii));
+                     } else {
+                        if (ii == 0) {
+                           if (histoPar->GetArraySize() > 1) {
+                              tempHisto->Copy(*static_cast<TObjArray*>(task->GetHistoAt(j))->At(k));
+                           } else {
                               tempHisto->Copy(*task->GetHistoAt(j));
-                        }
-                        else {
-                           if (histoPar->GetArraySize()>1)
-                              ((TH1*)((TObjArray*)task->GetHistoAt(j))->At(k))->Add(((TH1*)tempHisto));
-                           else
-                              ((TH1*)task->GetHistoAt(j))->Add(((TH1*)tempHisto));
+                           }
+                        } else {
+                           if (histoPar->GetArraySize() > 1) {
+                              static_cast<TH1*>(static_cast<TObjArray*>(task->GetHistoAt(j))->At(k))->Add(static_cast<TH1*>(tempHisto));
+                           } else {
+                              static_cast<TH1*>(task->GetHistoAt(j))->Add(static_cast<TH1*>(tempHisto));
+                           }
                         }
                      }
                   }
