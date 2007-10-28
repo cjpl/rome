@@ -13,6 +13,7 @@
 class ROMEHisto : public TObject {
 protected:
    Bool_t     fActive;                  // Active flag
+   Bool_t     fWrite;                   // Write flag
    ROMEString fTitle;                   // Title
    ROMEString fTitleOrig;               // Title Original
    ROMEString fFolderTitle;             // Title of the Folder
@@ -45,7 +46,7 @@ protected:
    Double_t   fZminOrig;                // Minimum value on the Z axis Original
    ROMEString fZmax;                    // Maximum value on the Z axis
    Double_t   fZmaxOrig;                // Maximum value on the Z axis Original
-   Bool_t     fAccumulation;            // Accumulation Flag
+   Bool_t     fAccumulate;              // Accumulation Flag
 
 private:
    ROMEHisto(const ROMEHisto &histo); // not implemented
@@ -56,6 +57,7 @@ public:
    virtual ~ROMEHisto() {};
 
    void        SetActive(bool value) { fActive = value; };
+   void        SetWrite(bool value) { fWrite = value; };
    void        SetTitle(const char* value) { fTitle = value; };
    void        SetFolderTitle(const char* value) { fFolderTitle = value; };
    void        SetArraySize(const char* value) { fArraySize = value; };
@@ -93,6 +95,7 @@ public:
    void        SetZminOriginal(Double_t value) { fZminOrig = value; };
    void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
    bool        IsActive() const { return fActive; };
+   bool        IsWrite() const { return fWrite; };
    const char *GetTitle() const;
    const char *GetFolderTitle() const;
    const char *GetXLabel() const;
@@ -121,8 +124,8 @@ public:
    double      GetZmax() const;
    const char *GetZmaxString(ROMEString &string) const;
 
-   Bool_t      isAccumulation() const { return fAccumulation; };
-   void        SetAccumulation(Bool_t flag) { fAccumulation = flag; };
+   Bool_t      IsAccumulate() const { return fAccumulate; };
+   void        SetAccumulate(Bool_t flag) { fAccumulate = flag; };
 
    ClassDef(ROMEHisto,0) // ROMEHisto
 };

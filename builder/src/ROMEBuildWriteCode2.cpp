@@ -533,10 +533,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
       indx[i] = -1;
    maxConfigParameterHierarchyLevel = 0;
 
-   histoParameters = new ROMEStrArray(16);
-   histoParameterTypes = new ROMEStrArray(16);
-   histoParameterWidgetTypes = new ROMEStrArray(16);
+   histoParameters = new ROMEStrArray(19);
+   histoParameterTypes = new ROMEStrArray(19);
+   histoParameterWidgetTypes = new ROMEStrArray(19);
    histoParameters->AddLast("Active");
+   histoParameterTypes->AddLast("bool");
+   histoParameterWidgetTypes->AddLast("CheckButton");
+   histoParameters->AddLast("Write");
    histoParameterTypes->AddLast("bool");
    histoParameterWidgetTypes->AddLast("CheckButton");
    histoParameters->AddLast("Title");
@@ -587,11 +590,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
    histoParameters->AddLast("Zmax");
    histoParameterTypes->AddLast("%g");
    histoParameterWidgetTypes->AddLast("EditBox");
+   histoParameters->AddLast("Accumulate");
+   histoParameterTypes->AddLast("bool");
+   histoParameterWidgetTypes->AddLast("CheckButton");
 
-   graphParameters = new ROMEStrArray(16);
-   graphParameterTypes = new ROMEStrArray(16);
-   graphParameterWidgetTypes = new ROMEStrArray(16);
+   graphParameters = new ROMEStrArray(9);
+   graphParameterTypes = new ROMEStrArray(9);
+   graphParameterWidgetTypes = new ROMEStrArray(9);
    graphParameters->AddLast("Active");
+   graphParameterTypes->AddLast("bool");
+   graphParameterWidgetTypes->AddLast("CheckButton");
+   graphParameters->AddLast("Write");
    graphParameterTypes->AddLast("bool");
    graphParameterWidgetTypes->AddLast("CheckButton");
    graphParameters->AddLast("Title");
@@ -615,6 +624,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    graphParameters->AddLast("ZLabel");
    graphParameterTypes->AddLast("%s");
    graphParameterWidgetTypes->AddLast("EditBox");
+#if 0
    graphParameters->AddLast("Xmin");
    graphParameterTypes->AddLast("%g");
    graphParameterWidgetTypes->AddLast("EditBox");
@@ -633,6 +643,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    graphParameters->AddLast("Zmax");
    graphParameterTypes->AddLast("%g");
    graphParameterWidgetTypes->AddLast("EditBox");
+#endif
 
    mainParGroup = new ROMEConfigParameterGroup("ConfigData");
 
@@ -1492,6 +1503,17 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
                                                        shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
                                                        taskHierarchyObjectIndex[i],
                                                        histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->AddParameter(new ROMEConfigParameter("HistWrite"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetWrite(## == \"true\");",
+                                                     shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
+                                                     taskHierarchyObjectIndex[i],
+                                                     histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->IsWrite()?1:0];",
+                                                       shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
+                                                       taskHierarchyObjectIndex[i],
+                                                       histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistTitle"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetTitle(##.Data());",
@@ -1670,13 +1692,13 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
                                                        histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistAccumulate","1","CheckButton"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
-         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetAccumulation(## != \"false\");",
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->SetAccumulate(## != \"false\");",
                                                      shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
                                                      taskHierarchyObjectIndex[i],
                                                      histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->AddSetLine(" ");
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
-         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->isAccumulation()?1:0];",
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sHisto()->IsAccumulate()?1:0];",
                                                        shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
                                                        taskHierarchyObjectIndex[i],
                                                        histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -1692,6 +1714,15 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
                                                      taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->IsActive()?1:0];",
+                                                       shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
+                                                       taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->AddParameter(new ROMEConfigParameter("GraphWrite"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Graph");
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->SetWrite(## == \"true\");",
+                                                     shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
+                                                     taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d))->Get%sGraph()->IsWrite()?1:0];",
                                                        shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),
                                                        taskHierarchyObjectIndex[i],graphName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("GraphTitle"));
@@ -2547,9 +2578,11 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
                                    parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
                                    pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          } else {
-            temp = classNameT(0, classNameT.Length()-2);
-            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d = %sf%s;\n", sTab.Data(),
-                                   temp.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
+            temp = classNameT(0, classNameT.Length() - 2);
+            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n", sTab.Data(), // for suppresion compiler warning
+                                   temp.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n", sTab.Data(),
+                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
                                    pointer.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          pointerT.SetFormatted("tmp%s%d->",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);

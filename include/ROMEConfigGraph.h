@@ -15,6 +15,8 @@ class ROMEConfigGraph : public TObject
 public:
    ROMEString   fGraphActive;
    Bool_t       fGraphActiveModified;
+   ROMEString   fGraphWrite;
+   Bool_t       fGraphWriteModified;
    ROMEString   fGraphTitle;
    Bool_t       fGraphTitleModified;
    ROMEString   fGraphFolderTitle;
@@ -46,6 +48,8 @@ public:
    :TObject()
    ,fGraphActive("false")
    ,fGraphActiveModified(kFALSE)
+   ,fGraphWrite("false")
+   ,fGraphWriteModified(kFALSE)
    ,fGraphTitle("")
    ,fGraphTitleModified(kFALSE)
    ,fGraphFolderTitle("")

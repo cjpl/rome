@@ -19,6 +19,7 @@ static char* fgCstop = 0;
 ROMEHisto::ROMEHisto()
 :TObject()
 ,fActive(kTRUE)
+,fWrite(kTRUE)
 ,fTitle("")
 ,fTitleOrig("")
 ,fFolderTitle("")
@@ -51,7 +52,7 @@ ROMEHisto::ROMEHisto()
 ,fZminOrig(0)
 ,fZmax("")
 ,fZmaxOrig(0)
-,fAccumulation(kFALSE)
+,fAccumulate(kFALSE)
 {
 }
 

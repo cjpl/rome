@@ -31,6 +31,14 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
    else {
       configHisto->fHistActiveModified = true;
    }
+   // fHistWrite
+   fullPath.SetFormatted("%sHistWrite",path);
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistWrite,"");
+   if (configHisto->fHistWrite=="")
+      configHisto->fHistWriteModified = false;
+   else {
+      configHisto->fHistWriteModified = true;
+   }
    // fHistTitle
    fullPath.SetFormatted("%sHistTitle",path);
    xml->GetPathValue(fullPath.Data(),configHisto->fHistTitle,"");
@@ -174,6 +182,7 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
 Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto) const
 {
     if (configHisto->fHistActiveModified ||
+        configHisto->fHistWriteModified ||
         configHisto->fHistTitleModified ||
         configHisto->fHistFolderTitleModified ||
         configHisto->fHistArraySizeModified ||
@@ -205,6 +214,13 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
          histo->SetActive(true);
       else
          histo->SetActive(false);
+   }
+   // fHistWrite
+   if (configHisto->fHistWriteModified) {
+      if (configHisto->fHistWrite=="true")
+         histo->SetWrite(true);
+      else
+         histo->SetWrite(false);
    }
    // fHistTitle
    if (configHisto->fHistTitleModified) {
@@ -273,9 +289,9 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
    // fHistAccumulate
    if (configHisto->fHistAccumulateModified) {
       if (configHisto->fHistAccumulate=="true")
-         histo->SetAccumulation(true);
+         histo->SetAccumulate(true);
       else
-         histo->SetAccumulation(false);
+         histo->SetAccumulate(false);
    }
    return true;
 }
@@ -284,111 +300,136 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
 Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,
                                            Int_t commentLevel,ROMEStrArray& comment) const
 {
+   Int_t iComment = 0;
    // fHistActive
-   if (commentLevel >= 3 && configHisto->fHistActiveModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistActiveModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistActiveModified) {
       xml->WriteElement("HistActive",configHisto->fHistActive.Data());
    }
+   iComment++;
+   // fHistWrite
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistWriteModified)
+      xml->WriteComment(comment.At(iComment).Data());
+   if (configHisto->fHistWriteModified) {
+      xml->WriteElement("HistWrite",configHisto->fHistWrite.Data());
+   }
+   iComment++;
    // fHistTitle
-   if (commentLevel >= 3 && configHisto->fHistTitleModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistTitleModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistTitleModified) {
       xml->WriteElement("HistTitle",configHisto->fHistTitle.Data());
    }
+   iComment++;
    // fHistFolderTitle
-   if (commentLevel >= 3 && configHisto->fHistFolderTitleModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistFolderTitleModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistFolderTitleModified) {
       xml->WriteElement("HistFolderTitle",configHisto->fHistFolderTitle.Data());
    }
+   iComment++;
    // fHistArraySize
-   if (commentLevel >= 3 && configHisto->fHistArraySizeModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistArraySizeModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistArraySizeModified) {
       xml->WriteElement("HistArraySize",configHisto->fHistArraySize.Data());
    }
+   iComment++;
    // fHistArrayStartIndex
-   if (commentLevel >= 3 && configHisto->fHistArrayStartIndexModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistArrayStartIndexModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistArrayStartIndexModified) {
       xml->WriteElement("HistArrayStartIndex",configHisto->fHistArrayStartIndex.Data());
    }
+   iComment++;
    // fHistXLabel
-   if (commentLevel >= 3 && configHisto->fHistXLabelModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistXLabelModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistXLabelModified) {
       xml->WriteElement("HistXLabel",configHisto->fHistXLabel.Data());
    }
+   iComment++;
    // fHistYLabel
-   if (commentLevel >= 3 && configHisto->fHistYLabelModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistYLabelModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistYLabelModified) {
       xml->WriteElement("HistYLabel",configHisto->fHistYLabel.Data());
    }
+   iComment++;
    // fHistZLabel
-   if (commentLevel >= 3 && configHisto->fHistZLabelModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistZLabelModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistZLabelModified) {
       xml->WriteElement("HistZLabel",configHisto->fHistZLabel.Data());
    }
+   iComment++;
    // fHistXNbins
-   if (commentLevel >= 3 && configHisto->fHistXNbinsModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistXNbinsModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistXNbinsModified) {
       xml->WriteElement("HistXNbins",configHisto->fHistXNbins.Data());
    }
+   iComment++;
    // fHistXmin
-   if (commentLevel >= 3 && configHisto->fHistXminModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistXminModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistXminModified) {
       xml->WriteElement("HistXmin",configHisto->fHistXmin.Data());
    }
+   iComment++;
    // fHistXmax
-   if (commentLevel >= 3 && configHisto->fHistXmaxModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistXmaxModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistXmaxModified) {
       xml->WriteElement("HistXmax",configHisto->fHistXmax.Data());
    }
+   iComment++;
    // fHistYNbins
-   if (commentLevel >= 3 && configHisto->fHistYNbinsModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistYNbinsModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistYNbinsModified) {
       xml->WriteElement("HistYNbins",configHisto->fHistYNbins.Data());
    }
+   iComment++;
    // fHistYmin
-   if (commentLevel >= 3 && configHisto->fHistYminModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistYminModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistYminModified) {
       xml->WriteElement("HistYmin",configHisto->fHistYmin.Data());
    }
+   iComment++;
    // fHistYmax
-   if (commentLevel >= 3 && configHisto->fHistYmaxModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistYmaxModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistYmaxModified) {
       xml->WriteElement("HistYmax",configHisto->fHistYmax.Data());
    }
+   iComment++;
    // fHistZNbins
-   if (commentLevel >= 3 && configHisto->fHistZNbinsModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistZNbinsModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistZNbinsModified) {
       xml->WriteElement("HistZNbins",configHisto->fHistZNbins.Data());
    }
+   iComment++;
    // fHistZmin
-   if (commentLevel >= 3 && configHisto->fHistZminModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistZminModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistZminModified) {
       xml->WriteElement("HistZmin",configHisto->fHistZmin.Data());
    }
+   iComment++;
    // fHistZmax
-   if (commentLevel >= 3 && configHisto->fHistZmaxModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistZmaxModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistZmaxModified) {
       xml->WriteElement("HistZmax",configHisto->fHistZmax.Data());
    }
+   iComment++;
    // fHistAccumulate
-   if (commentLevel >= 3 && configHisto->fHistAccumulateModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistAccumulateModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configHisto->fHistAccumulateModified) {
       xml->WriteElement("HistAccumulate",configHisto->fHistAccumulate.Data());
    }
@@ -406,6 +447,14 @@ Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConf
       configGraph->fGraphActiveModified = false;
    else {
       configGraph->fGraphActiveModified = true;
+   }
+   // fGraphWrite
+   fullPath.SetFormatted("%sGraphWrite",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphWrite,"");
+   if (configGraph->fGraphWrite=="")
+      configGraph->fGraphWriteModified = false;
+   else {
+      configGraph->fGraphWriteModified = true;
    }
    // fGraphTitle
    fullPath.SetFormatted("%sGraphTitle",path);
@@ -470,6 +519,7 @@ Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConf
 Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph) const
 {
     if (configGraph->fGraphActiveModified ||
+        configGraph->fGraphWriteModified ||
         configGraph->fGraphTitleModified ||
         configGraph->fGraphFolderTitleModified ||
         configGraph->fGraphArraySizeModified ||
@@ -491,6 +541,13 @@ Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* confi
          graph->SetActive(true);
       else
          graph->SetActive(false);
+   }
+   // fGraphWrite
+   if (configGraph->fGraphWriteModified) {
+      if (configGraph->fGraphWrite=="true")
+         graph->SetWrite(true);
+      else
+         graph->SetWrite(false);
    }
    // fGraphTitle
    if (configGraph->fGraphTitleModified) {
@@ -527,51 +584,66 @@ Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* confi
 Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,
                                            Int_t commentLevel,ROMEStrArray& comment) const
 {
+   Int_t iComment = 0;
    // fGraphActive
-   if (commentLevel >= 3 && configGraph->fGraphActiveModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphActiveModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphActiveModified) {
       xml->WriteElement("GraphActive",configGraph->fGraphActive.Data());
    }
+   iComment++;
+   // fGraphWrite
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphWriteModified)
+      xml->WriteComment(comment.At(iComment).Data());
+   if (configGraph->fGraphWriteModified) {
+      xml->WriteElement("GraphWrite",configGraph->fGraphWrite.Data());
+   }
+   iComment++;
    // fGraphTitle
-   if (commentLevel >= 3 && configGraph->fGraphTitleModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphTitleModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphTitleModified) {
       xml->WriteElement("GraphTitle",configGraph->fGraphTitle.Data());
    }
+   iComment++;
    // fGraphFolderTitle
-   if (commentLevel >= 3 && configGraph->fGraphFolderTitleModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphFolderTitleModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphFolderTitleModified) {
       xml->WriteElement("GraphFolderTitle",configGraph->fGraphFolderTitle.Data());
    }
+   iComment++;
    // fGraphArraySize
-   if (commentLevel >= 3 && configGraph->fGraphArraySizeModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphArraySizeModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphArraySizeModified) {
       xml->WriteElement("GraphArraySize",configGraph->fGraphArraySize.Data());
    }
+   iComment++;
    // fGraphArrayStartIndex
-   if (commentLevel >= 3 && configGraph->fGraphArrayStartIndexModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphArrayStartIndexModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphArrayStartIndexModified) {
       xml->WriteElement("GraphArrayStartIndex",configGraph->fGraphArrayStartIndex.Data());
    }
+   iComment++;
    // fGraphXLabel
-   if (commentLevel >= 3 && configGraph->fGraphXLabelModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphXLabelModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphXLabelModified) {
       xml->WriteElement("GraphXLabel",configGraph->fGraphXLabel.Data());
    }
+   iComment++;
    // fGraphYLabel
-   if (commentLevel >= 3 && configGraph->fGraphYLabelModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphYLabelModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphYLabelModified) {
       xml->WriteElement("GraphYLabel",configGraph->fGraphYLabel.Data());
    }
+   iComment++;
    // fGraphZLabel
-   if (commentLevel >= 3 && configGraph->fGraphZLabelModified)
-      xml->WriteComment(comment.At(0).Data());
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphZLabelModified)
+      xml->WriteComment(comment.At(iComment).Data());
    if (configGraph->fGraphZLabelModified) {
       xml->WriteElement("GraphZLabel",configGraph->fGraphZLabel.Data());
    }

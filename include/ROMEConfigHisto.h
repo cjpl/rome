@@ -15,6 +15,8 @@ class ROMEConfigHisto : public TObject
 public:
    ROMEString   fHistActive;
    Bool_t       fHistActiveModified;
+   ROMEString   fHistWrite;
+   Bool_t       fHistWriteModified;
    ROMEString   fHistTitle;
    Bool_t       fHistTitleModified;
    ROMEString   fHistFolderTitle;
@@ -54,6 +56,8 @@ public:
    :TObject()
    ,fHistActive("false")
    ,fHistActiveModified(kFALSE)
+   ,fHistWrite("false")
+   ,fHistWriteModified(kFALSE)
    ,fHistTitle("")
    ,fHistTitleModified(kFALSE)
    ,fHistFolderTitle("")
