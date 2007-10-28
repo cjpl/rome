@@ -1228,26 +1228,26 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    ROMEString runNumberString;
    Int_t iTask;
    ROMETask *task;
-   TFolder *taskHistoFolder;
+   TDirectory *taskHistoDirectory;
 
    gROME->GetCurrentRunNumberString(runNumberString);
    filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
    gROME->ReplaceWithRunAndEventNumber(filename);
    fHistoFile = new TFile(filename.Data(), "RECREATE");
-   ROMEString histoFolderName;
+   ROMEString histoDirectoryName;
 
    if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
-      TFolder *folder = new TFolder("histos", "Histogram Folder");
-      gROME->CreateHistoFolders(folder, kFALSE);
+      TDirectory *directory = new TDirectory("histos", "Histogram Directory");
+      gROME->ConstructHistoDirectories(directory);
       for (iTask = 0; iTask < gROME->GetTaskObjectEntries(); iTask++) {
          task = gROME->GetTaskObjectAt(iTask);
-         taskHistoFolder = static_cast<TFolder*>(folder->FindObjectAny(task->GetHistoFolder()->GetName()));
-         if (task->IsActive() && taskHistoFolder && !strcmp(taskHistoFolder->ClassName(), "TFolder")) {
-            task->CopyHistosAndGraphs(taskHistoFolder);
+         taskHistoDirectory = static_cast<TDirectory*>(directory->FindObjectAny(task->GetHistoFolder()->GetName()));
+         if (task->IsActive() && taskHistoDirectory && !strcmp(taskHistoDirectory->ClassName(), "TDirectory")) {
+            task->CopyHistosAndGraphs(taskHistoDirectory);
          }
       }
-      folder->Write(0, TObject::kOverwrite);
+      directory->Write(0, TObject::kOverwrite);
       fHistoFile->Write();
       fHistoFile->Close();
       SafeDelete(fHistoFile);

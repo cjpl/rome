@@ -653,7 +653,8 @@ public:
    virtual Bool_t  CheckDependences() const { return kTRUE; }
    virtual void    UpdateConfigParameters() {}
    Bool_t          ConnectSocketClient(const char* hostname = 0, Int_t port = 0);
-   virtual void    CreateHistoFolders(TFolder *f, Bool_t addToArray) = 0;
+   virtual void    ConstructHistoFolders(TFolder *f, Bool_t addToArray) = 0;
+   virtual void    ConstructHistoDirectories(TDirectory *d) = 0;
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *) const;
