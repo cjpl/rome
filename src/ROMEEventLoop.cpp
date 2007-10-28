@@ -1247,7 +1247,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
             task->CopyHistosAndGraphs(taskHistoFolder);
          }
       }
-      folder->Write();
+      folder->Write(0, TObject::kOverwrite);
       fHistoFile->Write();
       fHistoFile->Close();
       SafeDelete(fHistoFile);
