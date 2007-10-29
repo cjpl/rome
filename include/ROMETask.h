@@ -7,6 +7,7 @@
 #ifndef ROMETask_H
 #define ROMETask_H
 
+#include <TDirectory.h>
 #include <TTask.h>
 #include <TFolder.h>
 #include <TObjArray.h>
