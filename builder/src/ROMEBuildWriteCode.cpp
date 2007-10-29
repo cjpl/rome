@@ -6493,6 +6493,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   WarningSuppression(iMenu);\n");
    buffer.AppendFormatted("   WarningSuppression(menu);\n");
+   buffer.AppendFormatted("   return kFALSE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
