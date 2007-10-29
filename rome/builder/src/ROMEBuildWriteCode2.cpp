@@ -66,7 +66,8 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t iTab)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // f%s%sTab\n", tabName[iTab].Data(),tabSuffix[iTab].Data());
    buffer.AppendFormatted("   tab = GetTabObjectAt(iTab);\n");
-   buffer.AppendFormatted("   if (tab->IsSwitch()) {\n");
+   buffer.AppendFormatted("   if (%s && tab->IsSwitch()) {\n", parentt.Data());
+
    buffer.AppendFormatted("      if (fTabWindow) {\n");
    if (!tabNumOfChildren[iTab]) {
       buffer.AppendFormatted("         tabFrame = %s->AddTab(tab->GetTitle());\n", parentt.Data());
