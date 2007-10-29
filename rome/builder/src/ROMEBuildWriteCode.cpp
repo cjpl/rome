@@ -5428,17 +5428,18 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
       buffer.AppendFormatted("      fHistoFolders->AddAtAndExpand(folder[%d], %d);\n", i, i);
       buffer.AppendFormatted("   }\n");
    }
+   if (numOfTaskHierarchy > 0) {
+      buffer.AppendFormatted("   delete [] folder;\n");
+   }
    buffer.AppendFormatted("}\n\n");
 
    buffer.Append(kMethodLine);
-   if (numOfTaskHierarchy>0) {
-      buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory *d)\n",shortCut.Data());
-   } else {
-      buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory */*d*/)\n",shortCut.Data());
-   }
+   buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory *d)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    if (numOfTaskHierarchy > 0) {
       buffer.AppendFormatted("   TDirectory **directory = new TDirectory*[%d];\n", numOfTaskHierarchy);
+   } else {
+      buffer.AppendFormatted("   WarningSuppression(d);\n");
    }
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]]) {
@@ -5450,9 +5451,17 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
       } else {
          buffer.AppendFormatted("   directory[%d]->cd();\n", taskHierarchyParentIndex[i]);
       }
-      buffer.AppendFormatted("   directory[%d] = new TDirectory(\"%sHistos%s\", \"Histograms of Task '%s%s'\");\n", i,
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
+      buffer.AppendFormatted("   directory[%d] = new TDirectory(\"%sHistos%s\", \"Histograms of Task '%s%s'\");\n",
+#else
+      buffer.AppendFormatted("   directory[%d] = new TDirectoryFile(\"%sHistos%s\", \"Histograms of Task '%s%s'\");\n",
+#endif
+                             i,
                              taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data(),
                              taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
+   }
+   if (numOfTaskHierarchy > 0) {
+      buffer.AppendFormatted("   delete [] directory;\n");
    }
    buffer.AppendFormatted("}\n\n");
 

@@ -1080,7 +1080,11 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
          if (folderName != fHistoFolder->GetName()) {
             if (!(directory = static_cast<TDirectory*>(d->FindObject(folderName)))) {
                d->cd();
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
                directory = new TDirectory(folderName, folderTitle);
+#else
+               directory = new TDirectoryFile(folderName, folderTitle);
+#endif
             }
          } else {
             directory = d;
@@ -1107,7 +1111,11 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
          if (folderName != fHistoFolder->GetName()) {
             if (!(directory = static_cast<TDirectory*>(d->FindObject(folderName)))) {
                d->cd();
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
                directory = new TDirectory(folderName, folderTitle);
+#else
+               directory = new TDirectoryFile(folderName, folderTitle);
+#endif
             }
          } else {
             directory = d;
