@@ -61,8 +61,11 @@ protected:
    TGLabel                 *fRunEventNumber;       //! run number and event number
    TGTab                   *fTab;                  //! tabs
    ROMECompositeFrame      *fMainFrame;            //! main frame
-   Int_t                    fCurrentTabID;         //! ID number of top tab
+   Int_t                    fCurrentTabID;         //! ID number of current tab
    TObjArray               *fTabObjects;           //! Handle to Tab Objects
+   Int_t                   *fParentIndex;          //! Index of the parent tab. -1 if no parent tab.
+   Int_t                   *fNumberOfChildren;     //! Number of sub-tabs.
+   TObjArray               *fTGTab;                //! array of TGTab* which holds sub-tabs
    Bool_t                   fControllerActive;     //!
    ArgusAnalyzerController *fController;           //!
    ROMENetFolder           *fControllerNetFolder;  //!
@@ -87,7 +90,6 @@ public:
    virtual ~ArgusWindow();
 
    Bool_t          Start();
-   virtual Bool_t  CreateTabs() = 0;
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
    const char*     GetTimeStatisticsString(ROMEString& string);
 
@@ -135,12 +137,12 @@ public:
 
    // Tabs
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
-   ArgusTab       *GetTabObjectAt(Int_t index) { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
-   ArgusTab       *GetTabObject(const char* tabTitle);
-   ArgusTab       *GetTabObject(const int id);
-   Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
-   Int_t           GetTabObjectEntriesFast() { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
-   Int_t           GetCurrentTabObjectIndex();
+   ArgusTab       *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
+   ArgusTab       *GetTabObject(const char* tabTitle) const;
+   ArgusTab       *GetTabObject(const int id) const;
+   Int_t           GetTabObjectEntries() const { return fTabObjects ? fTabObjects->GetEntries() : 0; }
+   Int_t           GetTabObjectEntriesFast() const { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
+   Int_t           GetCurrentTabObjectIndex() const;
 
    // Active. This might be dangerouse because it overload TGFrame::IsActive
    Bool_t          IsActive() const { return fArgusActive; }
@@ -152,6 +154,7 @@ public:
    void CheckActiveFlags();
 
 protected:
+   Bool_t          CreateTabs();
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window
 };

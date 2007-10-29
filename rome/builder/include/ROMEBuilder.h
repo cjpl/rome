@@ -648,7 +648,6 @@ private:
    Bool_t  WriteWindowH();
    Bool_t  WriteDBAccessCpp();
    Bool_t  WriteDBAccessH();
-   Bool_t  AddTab(ROMEString& buffer, Int_t iTab);
    Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset);
    Bool_t  WriteConfigToFormCpp();
    Bool_t  WriteConfigToFormH();
