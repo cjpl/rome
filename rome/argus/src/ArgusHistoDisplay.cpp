@@ -58,12 +58,11 @@
 ClassImp(ArgusHistoDisplay)
 
 //______________________________________________________________________________
-ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt,
-                                     TArrayI *logX, TArrayI *logY, TArrayI *logZ, Int_t nUserMenus,
+ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt, 
+                                     TArrayI *logX, TArrayI *logY, TArrayI *logZ, Int_t nUserMenus, 
                                      const char* inheritName, Int_t nDisplayType)
 :ArgusTab(window, title, drawOpt, logX, logY, logZ, nUserMenus)
 ,fStyle(new TStyle())
-//,fMenuBar(0)
 ,fMenuDisplay(0)
 ,fMenuView(0)
 ,fMenuViewDivide(0)
@@ -135,17 +134,17 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROM
       fMenuViewDivideColumn[i] = new TGPopupMenu(fClient->GetRoot());
       fMenuViewDivideColumn[i]->Associate(fWindow);
       for (j=0;j<kMaxNumberOfPadsY;j++) {
-         str.SetFormatted("%dx%d",i+1,j+1);
+         str.SetFormatted("%dx%d", i+1, j+1);
          fMenuViewDivideColumn[i]->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW[i][j]);
       }
-      str.SetFormatted("%dx.",i+1);
+      str.SetFormatted("%dx.", i+1);
       fMenuViewDivide->AddPopup(str.Data(), fMenuViewDivideColumn[i]);
    }
    fMenuView->AddPopup("Divide", fMenuViewDivide);
    for (i=0;i<kNumberOfDisplayViewSelections0;i++) {
       for (j=0;j<kNumberOfDisplayViewSelections1;j++) {
          for (k=0;k<kNumberOfDisplayViewSelections2;k++) {
-            str.SetFormatted("%d",i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+j*kNumberOfDisplayViewSelections2+k);
+            str.SetFormatted("%d", i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+j*kNumberOfDisplayViewSelections2+k);
             fMenuView10[i][j]->AddEntry(str.Data(),
                                         M_ARGUS_DISPLAY_VIEW_SELECT+i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+j*kNumberOfDisplayViewSelections2+k);
          }
@@ -154,7 +153,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROM
                           i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2+(j+1)*kNumberOfDisplayViewSelections2-1);
          fMenuView100[i]->AddPopup(str.Data(), fMenuView10[i][j]);
       }
-      str.SetFormatted("%d-%d",i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2,(i+1)*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2-1);
+      str.SetFormatted("%d-%d", i*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2, (i+1)*kNumberOfDisplayViewSelections1*kNumberOfDisplayViewSelections2-1);
       fMenuViewSelect->AddPopup(str.Data(), fMenuView100[i]);
    }
    fMenuView->AddPopup("Select", fMenuViewSelect);
@@ -163,6 +162,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROM
    fMenuView->AddEntry("Previous", M_ARGUS_DISPLAY_VIEW_PREVIOUS);
    fMenuView->AddEntry("Reset", M_ARGUS_DISPLAY_VIEW_RESET);
    fMenuView->AddEntry("Pad Configuration", M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
+
 }
 
 //______________________________________________________________________________
@@ -177,11 +177,11 @@ void ArgusHistoDisplay::InitHistoDisplay()
    fLogScaleY = new TArrayI(fNumberOfDisplayTypes);
    fLogScaleZ = new TArrayI(fNumberOfDisplayTypes);
    for (i=0;i<fNumberOfDisplayTypes;i++) {
-      fDisplayObjLoaded->AddAt(0,i);
+      fDisplayObjLoaded->AddAt(0, i);
       fDrawOption->AddLast("");
-      fLogScaleX->AddAt(0,i);
-      fLogScaleY->AddAt(0,i);
-      fLogScaleZ->AddAt(0,i);
+      fLogScaleX->AddAt(0, i);
+      fLogScaleY->AddAt(0, i);
+      fLogScaleZ->AddAt(0, i);
    }
 }
 
@@ -285,7 +285,7 @@ ROMETGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t indx)
       ptr1 = static_cast<TObjArray*>(fUserObjects->At(i));
       if (ptr1->GetEntriesFast() > indx) {
          ptr2 = static_cast<ROMETGraph*>(ptr1->At(indx));
-         if (!strcmp(ptr2->ClassName(),"ROMETGraph")) {
+         if (!strcmp(ptr2->ClassName(), "ROMETGraph")) {
             return ptr2;
          }
       }
@@ -294,7 +294,7 @@ ROMETGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t indx)
 }
 
 //______________________________________________________________________________
-TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t indx,const char* type)
+TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t indx, const char* type)
 {
    int i;
    const Int_t nObjects = fUserObjects->GetEntriesFast();
@@ -313,7 +313,7 @@ TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t indx,const char* type)
 }
 
 //______________________________________________________________________________
-TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
+TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex, Int_t lineIndex)
 {
    int i;
    const Int_t nLines = fUserLines->GetEntriesFast();
@@ -332,7 +332,7 @@ TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
 }
 
 //______________________________________________________________________________
-TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t indx,Int_t typeIndex)
+TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t indx, Int_t typeIndex)
 {
    TObjArray *ptr1 = static_cast<TObjArray*>(fObjects->At(fCurrentDisplayType->At(typeIndex)));
    if (ptr1->GetEntriesFast() > indx) {
@@ -349,7 +349,7 @@ void ArgusHistoDisplay::BaseInit()
    /* Create an embedded canvas and add to the main frame, centered in x and y */
    fCanvas = new TRootEmbeddedCanvas("Canvas", this, 800, 400);
 
-   AddFrame(fCanvas,
+   AddFrame(fCanvas, 
             new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
 
    SetWindowName("DRS");
@@ -362,14 +362,14 @@ void ArgusHistoDisplay::BaseInit()
    while (!IsMapped()) {
       gSystem->Sleep(20);
    }
-   SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
+   SetupPads(fNumberOfPadsX, fNumberOfPadsY, true);
 }
 
 //______________________________________________________________________________
-void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
+void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/, Long_t param)
 {
    fBusy = true;
-   Int_t exitID=1,i,j;
+   Int_t exitID=1, i, j;
    ROMEString str;
    switch (param) {
    case M_ARGUS_DISPLAY_VIEW_NEXT:
@@ -386,8 +386,8 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
    case M_ARGUS_DISPLAY_VIEW_RESET:
       fChannelNumber = 0;
       fDisplayTypeOld = -1;
-      SetupPads(1, 1,true);
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
+      SetupPads(1, 1, true);
+      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[0][0], M_ARGUS_DISPLAY_VIEW[0][0], M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
       break;
    case M_ARGUS_DISPLAY_VIEW_PAD_CONFIG:
       if (fPadConfigActive) {
@@ -397,13 +397,13 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
          fMenuView->CheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
          ROMEStrArray* substitutes = new ROMEStrArray(fNumberOfPads);
          for (i=0;i<fNumberOfPads;i++) {
-            str.SetFormatted("Pad %d",i);
+            str.SetFormatted("Pad %d", i);
             substitutes->Add(str.Data());
          }
-         fDialog = new XMLToForm(gClient->GetRoot(),this,"res/xmltoform/PadConfigDia.xml",&exitID,substitutes);
+         fDialog = new XMLToForm(gClient->GetRoot(), this, "res/xmltoform/PadConfigDia.xml", &exitID, substitutes);
          if (exitID==1) {
             for (i=0;i<kMaxNumberOfPads;i++) {
-               str.SetFormatted("Pad %d/Object Index",i);
+               str.SetFormatted("Pad %d/Object Index", i);
                fPadConfigChannel[i] = fDialog->GetIntValue(str.Data());
             }
             fPadConfigActive = true;
@@ -418,8 +418,8 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
    for (i=0;i<kMaxNumberOfPadsX;i++) {
       for (j=0;j<kMaxNumberOfPadsY;j++) {
          if (param == M_ARGUS_DISPLAY_VIEW[i][j]) {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
-            SetupPads(i+1, j+1,true);
+            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j], M_ARGUS_DISPLAY_VIEW[0][0], M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
+            SetupPads(i+1, j+1, true);
             break;
          }
       }
@@ -446,7 +446,7 @@ void ArgusHistoDisplay::BaseTabSelected()
    for (i=0;i<kMaxNumberOfPadsX;i++) {
       for (j=0;j<kMaxNumberOfPadsY;j++) {
          if (fNumberOfPadsX==i+1 && fNumberOfPadsY==j+1) {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[fNumberOfPadsX-1][fNumberOfPadsY-1]);
+            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j], M_ARGUS_DISPLAY_VIEW[0][0], M_ARGUS_DISPLAY_VIEW[fNumberOfPadsX-1][fNumberOfPadsY-1]);
          }
       }
    }
@@ -456,7 +456,7 @@ void ArgusHistoDisplay::BaseTabSelected()
    } else {
       fMenuView->UnCheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
    }
-   SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);
+   SetupPads(fNumberOfPadsX, fNumberOfPadsY, true);
    fChannelNumber = 0;
 }
 
@@ -506,7 +506,7 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
       fChannelNumber = 0;
    }
 
-   if (fNumberOfPadsX!=nx || fNumberOfPadsY!=ny || fDisplayTypeOld!=fCurrentDisplayType->At(0)) {
+   if (fNumberOfPads<=0 || fNumberOfPadsX!=nx || fNumberOfPadsY!=ny || fDisplayTypeOld!=fCurrentDisplayType->At(0)) {
       fCanvas->GetCanvas()->Clear();
       fCanvas->GetCanvas()->Divide(nx, ny);
       fNumberOfPads = nx*ny;
@@ -527,8 +527,8 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->cd();
          for (j=0;j<fNumberOfCurrentDisplayTypes;j++) {
             ptr1 = static_cast<TObjArray*>(fObjects->At(fCurrentDisplayType->At(j)))->At(i);
-            if (!strcmp(ptr1->ClassName(),"ROMETGraph") || 
-                !strcmp(ptr1->ClassName(),"ROMETCutG")) {
+            if (!strcmp(ptr1->ClassName(), "ROMETGraph") || 
+                !strcmp(ptr1->ClassName(), "ROMETCutG")) {
                if (j==0) {
                   ptr1->Draw("A L");
                } else {
@@ -567,8 +567,8 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
       return;
    }
 
-   Int_t i,j;
-   double x1,x2,y1,y2;
+   Int_t i, j;
+   double x1, x2, y1, y2;
    TObject *ptr;
 
    fStyle->cd();
@@ -618,7 +618,7 @@ void ArgusHistoDisplay::SetLimits(ROMETGraph *g)
       return;
    }
    int i;
-   double xmin,xmax,ymin,ymax;
+   double xmin, xmax, ymin, ymax;
    double *x;
    double *y;
    x = g->GetX();
@@ -640,7 +640,7 @@ void ArgusHistoDisplay::SetLimits(ROMETGraph *g)
       g->SetMaximum(ymax+(ymax-ymin)/10.);
       TAxis *axis = g->GetXaxis();
       if(axis) {
-         axis->SetLimits(xmin,xmax);
+         axis->SetLimits(xmin, xmax);
       }
    }
 }
