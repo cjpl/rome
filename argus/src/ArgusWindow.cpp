@@ -61,6 +61,9 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
 ,fTabObjects(new TObjArray(numberOfTabs))
+,fParentIndex(new Int_t[numberOfTabs])
+,fNumberOfChildren(new Int_t[numberOfTabs])
+,fTGTab(new TObjArray(numberOfTabs))
 ,fControllerActive(kFALSE)
 ,fController(0)
 ,fControllerNetFolder(0)
@@ -95,6 +98,9 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fMainFrame(0)
 ,fCurrentTabID(0)
 ,fTabObjects(new TObjArray(numberOfTabs))
+,fParentIndex(new Int_t[numberOfTabs])
+,fNumberOfChildren(new Int_t[numberOfTabs])
+,fTGTab(new TObjArray(numberOfTabs))
 ,fControllerActive(kFALSE)
 ,fController(0)
 ,fControllerNetFolder(0)
@@ -211,6 +217,61 @@ Bool_t ArgusWindow::Start()
 }
 
 //______________________________________________________________________________
+Bool_t ArgusWindow::CreateTabs()
+{
+   ArgusTab         *tab;
+   Int_t             iTab;
+   const Int_t       nTabs = fTabObjects->GetEntriesFast();
+   TGCompositeFrame *tabFrame;
+   Int_t             newID;
+   TGTab            *parentTab;
+   TGTab            *newTab;
+   ROMEString        command = "";
+
+   for (iTab = 0; iTab < nTabs; iTab++) {
+      tab = GetTabObjectAt(iTab);
+      if (tab->IsSwitch()) {
+         if(fParentIndex[iTab]==-1) {
+            parentTab = fTab;
+            newID = parentTab->GetNumberOfTabs() - 1;
+         } else {
+            parentTab = static_cast<TGTab*>(fTGTab->At(fParentIndex[iTab]));
+            newID = parentTab->GetNumberOfTabs() - 1 + 1000*fParentIndex[iTab];
+         }
+         if (fNumberOfChildren[iTab]<0) {
+            if (fTabWindow) {
+               if (parentTab) {
+                  tabFrame = parentTab->AddTab(tab->GetTitle());
+                  tab->ReparentWindow(tabFrame, 60, 20);
+                  tab->ArgusInit();
+                  tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
+                  tab->SetID(newID);
+               }
+            } else {
+               tab->ReparentWindow(fMainFrame, 60, 20);
+               tab->ArgusInit();
+               fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
+               tab->SetID(0);
+               fCurrentTabID = 0;
+               return kTRUE;
+            }
+         } else {
+            tabFrame = parentTab->AddTab(tab->GetTitle());
+            tab->ReparentWindow(tabFrame, 60, 20);
+            tab->ArgusInit();
+            tab->SetID(newID);
+            newTab = new TGTab(tabFrame, static_cast<UInt_t>(600*GetWindowScale()), static_cast<UInt_t>(400*GetWindowScale()));
+            command.SetFormatted("gAnalyzer->GetWindow()->ProcessMessage($MSG, $PARM1 + %d, $PARM2)", iTab*1000);
+            newTab->SetCommand(command.Data());
+            tabFrame->AddFrame(newTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+            fTGTab->AddAt(newTab, iTab);
+         }
+      }
+   }
+   return kTRUE;
+}
+
+//______________________________________________________________________________
 void ArgusWindow::ClearStatusBar()
 {
 /*
@@ -265,7 +326,7 @@ void ArgusWindow::CheckActiveFlags()
 }
 
 //______________________________________________________________________________
-ArgusTab* ArgusWindow::GetTabObject(const char* tabTitle)
+ArgusTab* ArgusWindow::GetTabObject(const char* tabTitle) const
 {
    // This method might return wrong tab if there are two tabs with same title
    Int_t iTab;
@@ -282,7 +343,7 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabTitle)
 }
 
 //______________________________________________________________________________
-ArgusTab* ArgusWindow::GetTabObject(const int id)
+ArgusTab* ArgusWindow::GetTabObject(const int id) const
 {
    Int_t iTab;
    const Int_t nTabs = fTabObjects->GetEntriesFast();
@@ -298,7 +359,7 @@ ArgusTab* ArgusWindow::GetTabObject(const int id)
 }
 
 //______________________________________________________________________________
-Int_t ArgusWindow::GetCurrentTabObjectIndex()
+Int_t ArgusWindow::GetCurrentTabObjectIndex() const
 {
    Int_t iTab;
    const Int_t nTabs = fTabObjects->GetEntriesFast();
