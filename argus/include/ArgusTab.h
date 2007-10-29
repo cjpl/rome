@@ -114,6 +114,7 @@ public:
    virtual void   RegisterObjects() = 0;
    virtual void   UnRegisterObjects() = 0;
 
+   virtual void   BaseMenuClicked(TGPopupMenu *menu,Long_t param) = 0;
    virtual void   BaseTabSelected() = 0;
    virtual void   BaseTabUnSelected() = 0;
 
