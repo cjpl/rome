@@ -43,7 +43,7 @@ protected:
    Bool_t         fRegisteringActive;     //! Registering active flag
    Bool_t         fSwitch;                //!
    Int_t          fID;                    //!
-   Int_t          fCurrentTab;            //! Flag if current tab
+   Bool_t         fCurrentTab;            //! Flag if current tab
    TObjArray     *fUserPopupMenus;        //!
 
    // General Histo/Graph parameters (object displays, single objects)
