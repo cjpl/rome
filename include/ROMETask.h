@@ -7,7 +7,11 @@
 #ifndef ROMETask_H
 #define ROMETask_H
 
-#include <TDirectory.h>
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
+#   include <TDirectory.h>
+#else
+#   include <TDirectoryFile.h>
+#endif
 #include <TTask.h>
 #include <TFolder.h>
 #include <TObjArray.h>

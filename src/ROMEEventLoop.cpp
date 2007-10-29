@@ -23,6 +23,11 @@
 #include <TTime.h>
 #include <TVirtualMutex.h>
 #include <TArrayL64.h>
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
+#   include <TDirectory.h>
+#else
+#   include <TDirectoryFile.h>
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -1238,7 +1243,11 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
 
    if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
       TDirectory *directory = new TDirectory("histos", "Histogram Directory");
+#else
+      TDirectory *directory = new TDirectoryFile("histos", "Histogram Directory");
+#endif
       gROME->ConstructHistoDirectories(directory);
       for (iTask = 0; iTask < gROME->GetTaskObjectEntries(); iTask++) {
          task = gROME->GetTaskObjectAt(iTask);

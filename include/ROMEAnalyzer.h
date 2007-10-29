@@ -15,6 +15,9 @@
 #include <TTask.h>
 #include <TFolder.h>
 #include <TFile.h>
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2))
+#   include <TDirectoryFile.h>
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
