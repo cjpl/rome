@@ -4499,6 +4499,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    buffer.AppendFormatted("\n");
 
+   // If there is any dependencies, add all "#include" for base tab classes, even if the tab has no dependencies
+   for (i = 0; i < numOfTab; i++) {
+      if (tabUsed[i] && tabDependence[i].Length()) {
+         for (j = 0; j < numOfTab; j++) {
+            buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[j].Data());
+         }
+         buffer.AppendFormatted("\n");
+         break;
+      }
+   }
+
    buffer.AppendFormatted("ClassImp(%sAnalyzer)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sAnalyzer *gAnalyzer;  // global Analyzer Handle\n",shortCut.Data());
@@ -5387,7 +5398,11 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
    buffer.AppendFormatted("\n");
 
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("void %sAnalyzer::ConstructHistoFolders(TFolder *f, Bool_t addToArray)\n",shortCut.Data());
+   if (numOfTaskHierarchy>0) {
+      buffer.AppendFormatted("void %sAnalyzer::ConstructHistoFolders(TFolder *f, Bool_t addToArray)\n",shortCut.Data());
+   } else {
+      buffer.AppendFormatted("void %sAnalyzer::ConstructHistoFolders(TFolder */*f*/, Bool_t /*addToArray*/)\n",shortCut.Data());
+   }
    buffer.AppendFormatted("{\n");
    if (numOfTaskHierarchy > 0) {
       buffer.AppendFormatted("   TFolder **folder = new TFolder*[%d];\n", numOfTaskHierarchy);
@@ -5410,10 +5425,14 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
       buffer.AppendFormatted("      fHistoFolders->AddAtAndExpand(folder[%d], %d);\n", i, i);
       buffer.AppendFormatted("   }\n");
    }
-   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("}\n\n");
 
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory *d)\n",shortCut.Data());
+   if (numOfTaskHierarchy>0) {
+      buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory *d)\n",shortCut.Data());
+   } else {
+      buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory */*d*/)\n",shortCut.Data());
+   }
    buffer.AppendFormatted("{\n");
    if (numOfTaskHierarchy > 0) {
       buffer.AppendFormatted("   TDirectory **directory = new TDirectory*[%d];\n", numOfTaskHierarchy);
@@ -5432,7 +5451,7 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
                              taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data(),
                              taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
    }
-   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("}\n\n");
 
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sAnalyzer::InitTasks()\n",shortCut.Data());
@@ -6729,19 +6748,6 @@ Bool_t ROMEBuilder::WriteWindowH()
       buffer.AppendFormatted("class %sT%s_Base;\n", shortCut.Data(), tabName[i].Data());
    }
    buffer.AppendFormatted("\n");
-
-   // Tab Switches Structure
-//   buffer.AppendFormatted("// Tab Switches Structure\n");
-//   buffer.AppendFormatted("typedef struct{\n");
-//
-//   for (i = 0; i < numOfTab; i++) {
-//      if (!tabUsed[i])
-//         continue;
-//      buffer.AppendFormatted("   Bool_t %s%s;  //! %s%s Tab\n", tabName[i].Data(),tabSuffix[i].Data(),
-//                             tabName[i].Data(),tabSuffix[i].Data());
-//   }
-//   buffer.AppendFormatted("} TabSwitches;\n");
-//   buffer.AppendFormatted("\n");
 
    // Class
    buffer.AppendFormatted("class %sWindow : public ArgusWindow {  \n", shortCut.Data());

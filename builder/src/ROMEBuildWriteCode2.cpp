@@ -116,7 +116,7 @@ Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j, Int_t iHe
    Int_t k;
    for (k = 0; k < numOfMenuItem[i][j]; k++) {
       if (menuItemTitle[i][j][k] == LINE_TITLE) {
-         buffer.AppendFormatted("   menu->AddSeparator();\n");
+         buffer.AppendFormatted("   GetUserPopupMenuAt(%d)->AddSeparator();\n", jHeredity);
       } else if (menuItemChildMenuIndex[i][j][k]) {
          if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k],iHeredity,
                            jOffset+menuItemChildMenuIndex[i][j][k],jOffset+menuItemChildMenuIndex[i][j][k])) {
@@ -4896,12 +4896,12 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       str1.SetFormatted("Task(%s)", taskHierarchyName[i].Data());
-      str2.SetFormatted("((f%sConfigParametersFolder->Get%s%sTaskActive() && analyzer)",mainProgName.Data(),
-                        taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
+      str2.SetFormatted("((f%sConfigParametersFolder->Get%s%sTaskActive() && analyzer)",
+                        mainProgName.Data(), taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
       indx = taskHierarchyParentIndex[i];
       while (indx != -1) {
          str2.AppendFormatted(" &&\n          (f%sConfigParametersFolder->Get%s%sTaskActive() && analyzer)",
-                              mainProgName.Data(), taskHierarchyName[indx].Data(),taskHierarchySuffix[indx].Data());
+                              mainProgName.Data(), taskHierarchyName[indx].Data(), taskHierarchySuffix[indx].Data());
          indx = taskHierarchyParentIndex[indx];
       }
       str2.Append(")");
@@ -4912,12 +4912,12 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
          continue;
 
       str1.SetFormatted("Tab(%s)", tabName[i].Data());
-      str2.SetFormatted("((GetWindow()->GetTabSwitches()->%s%s && monitor)", tabName[i].Data(),
-                        tabSuffix[i].Data());
+      str2.SetFormatted("((GetWindow()->Get%s%sTab()->IsSwitch() && monitor)",
+                        tabName[i].Data(), tabSuffix[i].Data());
       indx = tabParentIndex[i];
       while (indx != -1) {
-         str2.AppendFormatted(" &&\n          (GetWindow()->GetTabSwitches()->%s%s && monitor)", tabName[indx].Data(),
-                              tabSuffix[indx].Data());
+         str2.AppendFormatted(" &&\n          (GetWindow()->Get%s%sTab()->IsSwitch() && monitor)",
+                              tabName[indx].Data(), tabSuffix[indx].Data());
          indx = tabParentIndex[indx];
       }
       str2.Append(")");
