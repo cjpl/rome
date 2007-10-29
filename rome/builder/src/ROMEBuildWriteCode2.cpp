@@ -66,19 +66,21 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t iTab)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // f%s%sTab\n", tabName[iTab].Data(),tabSuffix[iTab].Data());
    buffer.AppendFormatted("   tab = GetTabObjectAt(iTab);\n");
-   buffer.AppendFormatted("   if (%s && tab->IsSwitch()) {\n", parentt.Data());
+   buffer.AppendFormatted("   if (tab->IsSwitch()) {\n");
 
    buffer.AppendFormatted("      if (fTabWindow) {\n");
    if (!tabNumOfChildren[iTab]) {
-      buffer.AppendFormatted("         tabFrame = %s->AddTab(tab->GetTitle());\n", parentt.Data());
-      buffer.AppendFormatted("         tab->ReparentWindow(tabFrame, 60, 20);\n");
-      buffer.AppendFormatted("         tab->ArgusInit();\n");
-      buffer.AppendFormatted("         tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n");
+      buffer.AppendFormatted("         if (%s) {\n", parentt.Data());
+      buffer.AppendFormatted("            tabFrame = %s->AddTab(tab->GetTitle());\n", parentt.Data());
+      buffer.AppendFormatted("            tab->ReparentWindow(tabFrame, 60, 20);\n");
+      buffer.AppendFormatted("            tab->ArgusInit();\n");
+      buffer.AppendFormatted("            tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n");
       if (tabParentIndex[iTab] == -1) {
-         buffer.AppendFormatted("         tab->SetID(%s->GetNumberOfTabs() - 1);\n", parentt.Data());
+         buffer.AppendFormatted("            tab->SetID(%s->GetNumberOfTabs() - 1);\n", parentt.Data());
       } else {
-         buffer.AppendFormatted("         tab->SetID(%s->GetNumberOfTabs() - 1 + %d);\n", parentt.Data(), 1000 * tabParentIndex[iTab]);
+         buffer.AppendFormatted("            tab->SetID(%s->GetNumberOfTabs() - 1 + %d);\n", parentt.Data(), 1000 * tabParentIndex[iTab]);
       }
+      buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("      } else {\n");
       buffer.AppendFormatted("         tab->ReparentWindow(fMainFrame, 60, 20);\n");
       buffer.AppendFormatted("         tab->ArgusInit();\n");
