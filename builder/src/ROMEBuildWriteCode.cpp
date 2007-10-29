@@ -6514,7 +6514,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("      fRunEventNumber->SetText(str);\n");
    buffer.AppendFormatted("      fInfoFrame->Layout(); // call the parent frame's Layout() method to force updating of size of labels.\n");
    buffer.AppendFormatted("   }\n");
-
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ArgusTab *tab = GetTabObject(fCurrentTabID);\n");
    buffer.AppendFormatted("   if (tab) {\n");
    buffer.AppendFormatted("      if (tab->IsSwitch()) {\n");
@@ -6522,10 +6522,10 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-
    buffer.AppendFormatted("   for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {\n");
-   buffer.AppendFormatted("       if (IsSubWindowRunningAt(i))\n");
-   buffer.AppendFormatted("          static_cast<%sWindow*>(fSubWindows->At(i))->TriggerEventHandler();\n",shortCut.Data());
+   buffer.AppendFormatted("      if (IsSubWindowRunningAt(i)) {\n");
+   buffer.AppendFormatted("         static_cast<%sWindow*>(fSubWindows->At(i))->TriggerEventHandler();\n",shortCut.Data());
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   fWatchAll.Stop();\n");
    buffer.AppendFormatted("   SetStatus(2,\"\", 0);\n");
