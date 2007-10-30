@@ -358,19 +358,11 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   ROMEString command;
-                  if (fEventStep == 1) {
-                     command.SetFormatted("gAnalyzer->SetUserEventR();");
-                  } else {
-                     command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() + fEventStep);
-                  }
+                  command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() + fEventStep);
                   fNetFolder->ExecuteCommand(command.Data());
                }
             } else {
-                  if (fEventStep == 1) {
-                     gROME->SetUserEventR();
-                  } else {
-                     gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep);
-                  }
+                  gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep);
             }
             break;
 
