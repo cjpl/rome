@@ -57,7 +57,6 @@ protected:
    TGHorizontalFrame       *fInfoFrame;            //! info frame
    TGMenuBar               *fMenuBar;              //! menu bar
    TGPopupMenu             *fMenuFile;             //! file menu
-   TGPopupMenu             *fMenuNetFolder;        //! file menu, net folder
    TGLabel                 *fRunEventNumber;       //! run number and event number
    TGTab                   *fTab;                  //! tabs
    ROMECompositeFrame      *fMainFrame;            //! main frame
