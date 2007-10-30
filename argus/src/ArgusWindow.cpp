@@ -395,7 +395,6 @@ Bool_t ArgusWindow::CreateTabs()
    TGTab            *parentTab;
    TGTab            *newTab;
    ROMEString        command = "";
-   cout << endl << nTabs << endl;
 
    for (iTab = 0; iTab < nTabs; iTab++) {
       tab = GetTabObjectAt(iTab);
