@@ -664,6 +664,8 @@ Bool_t ROMEMidasDAQ::EndOfRun()
       if (fByteSwapFlagMightBeWrong && gROME->GetProcessedEvents() < 0.5) {
          ROMEPrint::Warning("\nWarning : A flag <MidasByteSwap> in your config XML file might be wrong.\n\n");
       }
+   } else { // online
+      SetContinue();
    }
    return kTRUE;
 }
@@ -1484,9 +1486,8 @@ Bool_t ROMEMidasDAQ::CheckTransition()
       cm_disconnect_experiment(); // this is needed because calling thead can not cancel itself in ROMERint::Terminate => ROMEAnalyzer::Cleaning
       gROME->GetApplication()->Terminate(1);
    }
-   if (localThis->isStopped()) {
-      ROME_LOCKGUARD(fgMutex);
-      fgEventStatus = kContinue;
+   if (localThis->isStopped() && !localThis->isEndOfRun()) {
+      localThis->SetContinue();
       return kTRUE;
    }
 #endif

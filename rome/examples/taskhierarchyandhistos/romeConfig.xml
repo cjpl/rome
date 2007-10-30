@@ -102,6 +102,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Read>false</Read>
         <!-- Run number of the required histogram/graph file. (required) -->
         <RunNumber>0</RunNumber>
+        <Path></Path>
       </HistogramRead>
 
       <Macros>
@@ -124,9 +125,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Histogram>
             <!-- Description of the histogram configuration. -->
             <HistName>MyHisto</HistName>
-            <!--  -->
+            <!-- The title of the histogram. Displayed in the ROOT browser. This value overwrites the value specified in the definition file. (optional) -->
             <HistTitle>MyFirstHisto</HistTitle>
-            <!--  -->
+            <!-- If this value is true the histograms content will be accumulated over all runs. Default is false. -->
             <HistAccumulate>true</HistAccumulate>
           </Histogram>
           <SteeringParameterField>
@@ -142,9 +143,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Histogram>
             <!-- Description of the histogram configuration. -->
             <HistName>MyHisto</HistName>
-            <!--  -->
+            <!-- The title of the histogram. Displayed in the ROOT browser. This value overwrites the value specified in the definition file. (optional) -->
             <HistTitle>MySecondHisto</HistTitle>
-            <!--  -->
+            <!-- If this value is true the histograms content will be accumulated over all runs. Default is false. -->
             <HistAccumulate>true</HistAccumulate>
           </Histogram>
           <SteeringParameterField>
