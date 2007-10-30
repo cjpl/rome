@@ -6312,11 +6312,11 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    // Clone Window
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("%sWindow* %sWindow::CreateSubWindow()\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("ArgusWindow* %sWindow::CreateSubWindow()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
 
-   buffer.AppendFormatted("   %sWindow* window = new %sWindow(gClient->GetRoot(),kFALSE);\n",
-                          shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("   ArgusWindow* window = new %sWindow(gClient->GetRoot(),kFALSE);\n",
+                          shortCut.Data());
    buffer.AppendFormatted("   window->SetStatusBarSwitch(fStatusBarSwitch);\n");
    buffer.AppendFormatted("   window->SetControllerActive(fControllerActive);\n");
    buffer.AppendFormatted("   window->SetWindowScale(fWindowScale);\n");
@@ -6327,104 +6327,16 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    // ProcessMessage
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("Bool_t %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)\n",
-                          shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sWindow::ProcessMessageNetFolder(Long_t param1)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   Int_t        iTab     = 0;\n");
-   buffer.AppendFormatted("   ArgusTab    *tab      = 0;\n");
-   buffer.AppendFormatted("   ArgusTab    *newTab   = 0;\n");
-   buffer.AppendFormatted("   ROMEString   newTitle = \"\";\n");
-   buffer.AppendFormatted("   %sWindow *newWindow = 0;\n",shortCut.Data());
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   // Process messages coming from widgets associated with the dialog.  \n");
-   buffer.AppendFormatted("   switch (GET_MSG(msg)) {\n");
-   buffer.AppendFormatted("   case kC_COMMAND:    \n");
-   buffer.AppendFormatted("      switch (GET_SUBMSG(msg)) {\n");
-   buffer.AppendFormatted("      case kCM_MENU:\n");
-   buffer.AppendFormatted("         tab = GetTabObject(fCurrentTabID);\n");
-   buffer.AppendFormatted("         tab->BaseMenuClicked(0, param1);\n");
-   buffer.AppendFormatted("         switch (param1) {\n");
-   buffer.AppendFormatted("         case M_FILE_NEW_WINDOW:\n");
-   buffer.AppendFormatted("            newWindow = CreateSubWindow();\n");
-   buffer.AppendFormatted("            newTitle = \"Argus - \";\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("            // Collect information from current tab\n");
-   buffer.AppendFormatted("            tab->SetRegisteringActive(kFALSE);\n");
-   buffer.AppendFormatted("            newTitle += tab->GetTitle();\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("            // Set information to the new window and its tab.\n");
-   buffer.AppendFormatted("            newWindow->SetWindowName(newTitle.Data());\n");
-   buffer.AppendFormatted("            newWindow->SetWindowId(fSubWindows->GetEntriesFast());\n");
-   buffer.AppendFormatted("            newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());\n");
-   buffer.AppendFormatted("            newTab->SetTabActive(kTRUE);\n");
-   buffer.AppendFormatted("            newTab->SetCurrentTab(kTRUE);\n");
-   buffer.AppendFormatted("            newTab->SetSwitch(kTRUE);\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("            newWindow->Start();\n");
-   buffer.AppendFormatted("            SetSubWindowRunningAt(fSubWindows->GetEntriesFast(),kTRUE);\n");
-   buffer.AppendFormatted("            fSubWindows->Add(newWindow);\n");
-   buffer.AppendFormatted("            break;\n");
-   buffer.AppendFormatted("         case M_FILE_EXIT:\n");
-   buffer.AppendFormatted("            if (fTabWindow) {\n");
-   buffer.AppendFormatted("               CloseWindow();\n");
-   buffer.AppendFormatted("            } else {\n");
-   buffer.AppendFormatted("               ROMEString str;\n");
-   buffer.AppendFormatted("               gAnalyzer->GetWindow()->SetSubWindowRunningAt(fWindowId,kFALSE);\n");
-   buffer.AppendFormatted("               gAnalyzer->GetWindow()->SetSubWindowTimeStringAt(fWindowId,GetTimeStatisticsString(str));\n");
-   buffer.AppendFormatted("               TGMainFrame::CloseWindow();\n");
-   buffer.AppendFormatted("               tab->SetRegisteringActive(true);\n");
-   buffer.AppendFormatted("               if (!tab->IsTabActive()) {\n");
-   buffer.AppendFormatted("                  tab->UnRegisterObjects();\n");
-   buffer.AppendFormatted("               }\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("            break;\n");
-   buffer.AppendFormatted("         case M_FILE_CONTROLLER:\n");
-   buffer.AppendFormatted("            if (!fControllerActive) {\n");
-   buffer.AppendFormatted("               fController = new ArgusAnalyzerController(gClient->GetRoot(),this, 100, 100, fControllerNetFolder);\n");
-   buffer.AppendFormatted("               fControllerActive = kTRUE;\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("            break;\n");
+      buffer.AppendFormatted("   switch (param1) {\n");
    for (iFolder = 0; iFolder < numOfNetFolder; iFolder++) {
-      buffer.AppendFormatted("         case M_FILE_CONNECT_%s:\n", netFolderName[iFolder].Data());
-      buffer.AppendFormatted("            gAnalyzer->ConnectNetFolder(\"%s\");\n", netFolderName[iFolder].Data());
-      buffer.AppendFormatted("            break;\n");
+      buffer.AppendFormatted("   case M_FILE_CONNECT_%s:\n", netFolderName[iFolder].Data());
+      buffer.AppendFormatted("      gAnalyzer->ConnectNetFolder(\"%s\");\n", netFolderName[iFolder].Data());
+      buffer.AppendFormatted("      break;\n");
    }
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         break;\n");
-   buffer.AppendFormatted("      case kCM_BUTTON:\n");
-   buffer.AppendFormatted("         break;\n");
-   buffer.AppendFormatted("      case kCM_LISTBOX:\n");
-   buffer.AppendFormatted("         break;      \n");
-   buffer.AppendFormatted("      case kCM_TAB:\n");
-   buffer.AppendFormatted("         if (param1 != fCurrentTabID) {\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("            // cleanup current tab\n");
-   buffer.AppendFormatted("            iTab = GetCurrentTabObjectIndex();\n");
-   buffer.AppendFormatted("            if (iTab>=0) {\n");
-   buffer.AppendFormatted("               tab = static_cast<ArgusTab*>(fTabObjects->At(iTab));\n");
-   buffer.AppendFormatted("               tab->BaseTabUnSelected();\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("            // go to the selected tab\n");
-   buffer.AppendFormatted("            fCurrentTabID = param1;\n");
-   buffer.AppendFormatted("            tab = GetTabObject(fCurrentTabID);\n");
-   buffer.AppendFormatted("            if (tab) {\n");
-   buffer.AppendFormatted("               tab->BaseTabSelected();\n");
-   buffer.AppendFormatted("               iTab = GetCurrentTabObjectIndex();\n");
-   buffer.AppendFormatted("               if (fNumberOfChildren[iTab]) {\n");
-   buffer.AppendFormatted("                  // special treatment for tabs with sub-tab\n");
-   buffer.AppendFormatted("                  ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*iTab + static_cast<TGTab*>(fTGTab->At(iTab))->GetCurrent(), 0);\n");
-   buffer.AppendFormatted("               }\n");   
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("            // draw windows\n");
-   buffer.AppendFormatted("            MapSubwindows();\n");
-   buffer.AppendFormatted("            Layout();\n");
-   buffer.AppendFormatted("            MapWindow();\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         break;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      break;\n");
+//   buffer.AppendFormatted("      default:\n");
+//   buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
@@ -6464,8 +6376,9 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sWindow::AddMenuNetFolder(TGPopupMenu* menu)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   if (gAnalyzer->GetNumberOfNetFolders() <= 0 )\n");
+   buffer.AppendFormatted("   if (gAnalyzer->GetNumberOfNetFolders() <= 0 ) {\n");
    buffer.AppendFormatted("      return kFALSE;\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   Bool_t active = kFALSE;\n");
    for (iFolder = 0; iFolder < numOfNetFolder; iFolder++) {
       buffer.AppendFormatted("   if (gAnalyzer->GetNetFolderActive(%d)) {\n", iFolder);
@@ -6479,48 +6392,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("   WarningSuppression(menu);\n");
       buffer.AppendFormatted("   return active;\n");
    }
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
-
-   // Event Handler
-   buffer.AppendFormatted("// Event Handler\n");
-   buffer.Append(kMethodLine);
-   buffer.AppendFormatted("void %sWindow::TriggerEventHandler()\n", shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   char str[128];\n");
-   buffer.AppendFormatted("   SetStatus(0, \"\", 0);\n");
-   buffer.AppendFormatted("   fWatchAll.Start(false);\n");
-   buffer.AppendFormatted("   if (fControllerActive) {\n");
-   buffer.AppendFormatted("      if (fController) {\n");
-   buffer.AppendFormatted("         fController->Update();\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (!gAnalyzer->IsStandAloneARGUS()) {\n");
-#if defined(R__UNIX)
-   buffer.AppendFormatted("      sprintf(str, \"Run : %%6lld     Event : %%6lld\",\n");
-#else
-   buffer.AppendFormatted("      sprintf(str, \"Run : %%6I64d     Event : %%6I64d\",\n");
-#endif
-   buffer.AppendFormatted("              gAnalyzer->GetCurrentRunNumber(), gAnalyzer->GetCurrentEventNumber());\n");
-   buffer.AppendFormatted("      fRunEventNumber->SetText(str);\n");
-   buffer.AppendFormatted("      fInfoFrame->Layout(); // call the parent frame's Layout() method to force updating of size of labels.\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   ArgusTab *tab = GetTabObject(fCurrentTabID);\n");
-   buffer.AppendFormatted("   if (tab) {\n");
-   buffer.AppendFormatted("      if (tab->IsSwitch()) {\n");
-   buffer.AppendFormatted("         tab->ArgusEventHandler();\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {\n");
-   buffer.AppendFormatted("      if (IsSubWindowRunningAt(i)) {\n");
-   buffer.AppendFormatted("         static_cast<%sWindow*>(fSubWindows->At(i))->TriggerEventHandler();\n",shortCut.Data());
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   fWatchAll.Stop();\n");
-   buffer.AppendFormatted("   SetStatus(2,\"\", 0);\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -6696,7 +6567,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("\n");
 
-   // Method
+   // Methods
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   %sWindow(const %sWindow &c); // not implemented\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("   %sWindow &operator=(const %sWindow &c); // not implemented\n", shortCut.Data(),
@@ -6706,9 +6577,14 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   %sWindow();\n", shortCut.Data());
    buffer.AppendFormatted("   %sWindow(const TGWindow *p,Bool_t tabWindow=kTRUE);\n", shortCut.Data());
    buffer.AppendFormatted("   virtual ~%sWindow() {}\n", shortCut.Data());
-   buffer.AppendFormatted("   %sWindow* CreateSubWindow();\n", shortCut.Data());
-   buffer.AppendFormatted("   void   ConstructTabs();\n");
-   buffer.AppendFormatted("   Bool_t AddMenuNetFolder(TGPopupMenu* menu);\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   ArgusWindow *CreateSubWindow();\n");
+   buffer.AppendFormatted("   void         ConstructTabs();\n");
+   buffer.AppendFormatted("private:\n");
+   buffer.AppendFormatted("   Bool_t       AddMenuNetFolder(TGPopupMenu* menu);\n");
+   buffer.AppendFormatted("   Bool_t       ProcessMessageNetFolder(Long_t param1);\n");
+   buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const char* menuName) const;\n");
    buffer.AppendFormatted("\n");
 
    // Tab Getters
@@ -6721,15 +6597,6 @@ Bool_t ROMEBuilder::WriteWindowH()
                              shortCut.Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabSuffix[iTab].Data(),
                              shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
    }
-   buffer.AppendFormatted("\n");
-
-   buffer.AppendFormatted("   Bool_t       ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
-   buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const char* menuName) const;\n");
-   buffer.AppendFormatted("\n");
-
-   // Event Handler
-   buffer.AppendFormatted("   // Event Handler\n");
-   buffer.AppendFormatted("   void TriggerEventHandler();\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("   ClassDef(%sWindow, 0)\n", shortCut.Data());

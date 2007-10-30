@@ -450,43 +450,143 @@ void ArgusWindow::RequestEventHandling()
 }
 
 //______________________________________________________________________________
-// void ArgusWindow::TriggerEventHandler()
-// {
-//    int i;
-//    char str[128];
-//    SetStatus(0, "", 0);
-//    fWatchAll.Start(false);
-//    if (fControllerActive) {
-//       if (fController) {
-//          fController->Update();
-//       }
-//    }
-//    if (!gROME->IsStandAloneARGUS()) {
-// #if defined(R__UNIX)
-//       sprintf(str, "Run : %6lld     Event : %6lld",
-//               gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
-// #else
-//       sprintf(str, "Run : %6I64d     Event : %6I64d",
-//               gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
-// #endif
-//       fRunEventNumber->SetText(str);
-//       fInfoFrame->Layout(); // call the parent frame's Layout() method to force updating of size of labels.
-//    }
-//    ArgusTab *tab = GetTabObject(fCurrentTabID);
-//    if (tab) {
-//       if (tab->IsSwitch()) {
-//          tab->ArgusEventHandler();
-//       }
-//    }
+void ArgusWindow::TriggerEventHandler()
+{
+   int i;
+   char str[128];
+   SetStatus(0, "", 0);
+   fWatchAll.Start(false);
+   if (fControllerActive) {
+      if (fController) {
+         fController->Update();
+      }
+   }
+   if (!gROME->IsStandAloneARGUS()) {
+#if defined(R__UNIX)
+      sprintf(str, "Run : %6lld     Event : %6lld",
+              gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
+#else
+      sprintf(str, "Run : %6I64d     Event : %6I64d",
+              gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
+#endif
+      fRunEventNumber->SetText(str);
+      fInfoFrame->Layout(); // call the parent frame's Layout() method to force updating of size of labels.
+   }
+   ArgusTab *tab = GetTabObject(fCurrentTabID);
+   if (tab) {
+      if (tab->IsSwitch()) {
+         tab->ArgusEventHandler();
+      }
+   }
 
-//    for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {
-//       if (IsSubWindowRunningAt(i)) {
-//          static_cast<ArgusWindow*>(fSubWindows->At(i))->TriggerEventHandler();
-//       }
-//    }
-//    fWatchAll.Stop();
-//    SetStatus(2,"", 0);
-// }
+   for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {
+      if (IsSubWindowRunningAt(i)) {
+         static_cast<ArgusWindow*>(fSubWindows->At(i))->TriggerEventHandler();
+      }
+   }
+   fWatchAll.Stop();
+   SetStatus(2,"", 0);
+}
+
+//______________________________________________________________________________
+Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
+{
+   Int_t        iTab     = 0;
+   ArgusTab    *tab      = 0;
+   ArgusTab    *newTab   = 0;
+   ROMEString   newTitle = "";
+   ArgusWindow *newWindow = 0;
+
+   // Process messages coming from widgets associated with the dialog.  
+   switch (GET_MSG(msg)) {
+   case kC_COMMAND:    
+      switch (GET_SUBMSG(msg)) {
+      case kCM_MENU:
+         tab = GetTabObject(fCurrentTabID);
+         tab->BaseMenuClicked(0, param1);
+         switch (param1) {
+         case M_FILE_NEW_WINDOW:
+            newWindow = CreateSubWindow();
+            newTitle = "Argus - ";
+
+            // Collect information from current tab
+            tab->SetRegisteringActive(kFALSE);
+            newTitle += tab->GetTitle();
+
+            // Set information to the new window and its tab.
+            newWindow->SetWindowName(newTitle.Data());
+            newWindow->SetWindowId(fSubWindows->GetEntriesFast());
+            newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
+            newTab->SetTabActive(kTRUE);
+            newTab->SetCurrentTab(kTRUE);
+            newTab->SetSwitch(kTRUE);
+
+            newWindow->Start();
+            SetSubWindowRunningAt(fSubWindows->GetEntriesFast(),kTRUE);
+            fSubWindows->Add(newWindow);
+            break;
+         case M_FILE_EXIT:
+            if (fTabWindow) {
+               CloseWindow();
+            } else {
+               ROMEString str;
+               gROME->GetWindow()->SetSubWindowRunningAt(fWindowId,kFALSE);
+               gROME->GetWindow()->SetSubWindowTimeStringAt(fWindowId,GetTimeStatisticsString(str));
+               TGMainFrame::CloseWindow();
+               tab->SetRegisteringActive(true);
+               if (!tab->IsTabActive()) {
+                  tab->UnRegisterObjects();
+               }
+            }
+            break;
+         case M_FILE_CONTROLLER:
+            if (!fControllerActive) {
+               fController = new ArgusAnalyzerController(gClient->GetRoot(),this, 100, 100, fControllerNetFolder);
+               fControllerActive = kTRUE;
+            }
+            break;
+         default:
+            ProcessMessageNetFolder(param1);
+            break;
+         }
+         break;
+      case kCM_BUTTON:
+         break;
+      case kCM_LISTBOX:
+         break;      
+      case kCM_TAB:
+         if (param1 != fCurrentTabID) {
+
+            // cleanup current tab
+            iTab = GetCurrentTabObjectIndex();
+            if (iTab>=0) {
+               tab = static_cast<ArgusTab*>(fTabObjects->At(iTab));
+               tab->BaseTabUnSelected();
+            }
+
+            // go to the selected tab
+            fCurrentTabID = param1;
+            tab = GetTabObject(fCurrentTabID);
+            if (tab) {
+               tab->BaseTabSelected();
+               iTab = GetCurrentTabObjectIndex();
+               if (fNumberOfChildren[iTab]) {
+                  // special treatment for tabs with sub-tab
+                  ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*iTab + static_cast<TGTab*>(fTGTab->At(iTab))->GetCurrent(), 0);
+               }
+            }
+
+            // draw windows
+            MapSubwindows();
+            Layout();
+            MapWindow();
+         }
+         break;
+      }
+      break;
+   }
+   return kTRUE;
+}
 
 //______________________________________________________________________________
 //Int_t ArgusWindow::GetActiveTabObjectIndex()

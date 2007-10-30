@@ -93,8 +93,11 @@ public:
    void            CloseWindow();
 
    // Sub Windows
+private:
+   virtual ArgusWindow *CreateSubWindow() = 0;
+public:
    void            SetWindowId(int id) { fWindowId = id; };
-   int             GetWindowId() { return fWindowId; };
+   int             GetWindowId() const { return fWindowId; };
    void            SetSubWindowRunningAt(Int_t i, Bool_t running);
    Bool_t          IsSubWindowRunningAt(Int_t i);
 
@@ -105,13 +108,13 @@ public:
 
    // Status bar
    void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
-   Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; }
-   TGStatusBar    *GetStatusBar() { return fStatusBar; }
+   Bool_t          GetStatusBarSwitch() const { return fStatusBarSwitch; }
+   TGStatusBar    *GetStatusBar() const { return fStatusBar; }
    void            SetStatus(Int_t mode,const char *text,double progress=0.,Int_t sleepingTime=10);
    void            ClearStatusBar();
 
    // Menu
-   TGMenuBar*      GetMenuBar() { return fMenuBar; }
+   TGMenuBar*      GetMenuBar() const { return fMenuBar; }
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
 
    // Tab methods
@@ -127,14 +130,14 @@ private:
 
 public:   
    // Analyzer Controller
-   ArgusAnalyzerController  *GetAnalyzerController() { return fController; }
+   ArgusAnalyzerController *GetAnalyzerController() const { return fController; }
    void            SetControllerActive(bool flag) { fControllerActive = flag; }
-   Bool_t          IsControllerActive() { return fControllerActive; }
+   Bool_t          IsControllerActive() const { return fControllerActive; }
    void            SetControllerNetFolder(const char* folderName);
-   ROMENetFolder  *GetControllerNetFolder() { return fControllerNetFolder; }
+   ROMENetFolder  *GetControllerNetFolder() const { return fControllerNetFolder; }
 
    // Window Scale
-   Float_t         GetWindowScale() { return fWindowScale; }
+   Float_t         GetWindowScale() const { return fWindowScale; }
    void            SetWindowScale(Float_t scale) { fWindowScale = scale; }
    void            SetWindowScale(const char* scale) { Char_t* cstop; fWindowScale = static_cast<Float_t>(strtod(scale,&cstop)); }
    void            SetWindowScale(ROMEString& scale) { SetWindowScale(scale.Data()); }
@@ -142,20 +145,24 @@ public:
    // Event Handling
    void            RequestEventHandling();
    void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
-   Bool_t          IsEventHandlingRequested() { return fRequestEventHandling; }
+   Bool_t          IsEventHandlingRequested() const { return fRequestEventHandling; }
    void            ForceEventHandling() { fForceEventHandling = true; }
    void            ClearEventHandlingForced() { fForceEventHandling = false; }
-   Bool_t          IsEventHandlingForced() { return fForceEventHandling; }
+   Bool_t          IsEventHandlingForced() const { return fForceEventHandling; }
 
    // Event Handler
-   virtual void    TriggerEventHandler() = 0;
+   void            TriggerEventHandler();
 
+   // Message handling
+   Bool_t          ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
+protected:
+   virtual Bool_t  ProcessMessageNetFolder(Long_t param1) = 0;
+
+public:
    // Active. This might be dangerouse because it overload TGFrame::IsActive
    Bool_t          IsActive() const { return fArgusActive; }
 //   Int_t           GetActiveTabObjectIndex();
    void            CheckActiveFlags();
-
-protected:
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window
 };
