@@ -753,11 +753,12 @@ private:
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);
    void    GetUserDictIncludeDirString(ROMEString& buffer,const char* separator);
-   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0,
-                                          ROMEString *objdir = 0);
+   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources, ROMEString *objdir = 0,
+                                          const char* flag = 0, const char *dep = 0);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
-   void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,const char* flag = 0);
+   void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer, const char* flag = 0,
+                                                              const char *dep = 0);
    void    WriteMakefileBuildRule(ROMEString& buffer,const char* builder);
    void    WriteRootCintCall(ROMEString& buffer);
    void    WriteUserMakeFile();

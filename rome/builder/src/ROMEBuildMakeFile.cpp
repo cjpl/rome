@@ -1733,14 +1733,16 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 }
 
 //______________________________________________________________________________
-void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag,
-                                                 ROMEString *objdir)
+void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer, ROMEStrArray* sources, ROMEString *objdir,
+                                                 const char* flag,const char* dep)
 {
+   // additional flag and dep are used only for C++ source
    int i;
    ROMEString path;
    ROMEString name;
    ROMEString ext;
    ROMEString additionalFlag = flag;
+   ROMEString additionalDep = dep;
 #if defined( R__UNIX )
    ROMEString commandPrefix;
    ROMEString tmp;
@@ -1781,8 +1783,14 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF %s/%s.d $< -o $@\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),objdirectory.Data(),name.Data());
       } else {//if (path.Index("/dict/") != -1 || path.Index("dict/") == 0) {
-         buffer.AppendFormatted("%s/%s%s : %s $(%sDep)\n",objdirectory.Data()
+         buffer.AppendFormatted("%s/%s%s : %s $(%sDep)",objdirectory.Data()
                                 ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
+         if (ext != "c" && ext != "F" && ext != "f" && ext != "h") {
+            // C++
+            buffer.AppendFormatted(" %s", additionalDep.Data());
+         }
+         buffer.AppendFormatted("\n");
+
          buffer.AppendFormatted("\t$(call %sechoing, \"compiling %s/%s%s\")\n",shortCut.ToLower(tmp),
                                 objdirectory.Data()
                                 ,name.Data(),kObjectSuffix);
@@ -1990,7 +1998,8 @@ void ROMEBuilder::WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer)
 }
 
 //______________________________________________________________________________
-void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,const char* flag)
+void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,
+                                                                     const char* flag, const char* dep)
 {
    // Write Additional Source Files Compile Commands
    int i,j,k;
@@ -2019,7 +2028,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString&
       ROMEString objdir;
       tempArray->AddFormatted("%s%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
       objdir.SetFormatted("%s",mfSourceFileObjPath[i].Data());
-      WriteMakefileCompileStatements(buffer,tempArray,flag,&objdir);
+      WriteMakefileCompileStatements(buffer,tempArray,&objdir,flag,dep);
       delete tempArray;
       for (j = numOfMFSourceFlags[i] - 1; j >= 0; j--) {
          if (commandLineFlag[j])
@@ -2383,7 +2392,8 @@ void ROMEBuilder::WriteMakefile() {
 // Compile Statements
 // ------------------
    buffer.AppendFormatted("## Compile statements\n");
-   ROMEString additionalFlag;
+   ROMEString additionalFlag = "";
+   ROMEString additionalDep = "";
 
 #if 0
    // recompile librome.a.
@@ -2399,21 +2409,22 @@ void ROMEBuilder::WriteMakefile() {
 
    if (pch) {
       additionalFlag.SetFormatted("-include generated/%sPrecompile.h", shortCut.Data());
+      additionalDep.SetFormatted("include/generated/%sPrecompile.gch", shortCut.Data());
    }
-   WriteMakefileCompileStatements(buffer,romeSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,argusSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,generatedSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,taskSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,tabSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,folderSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,daqSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,databaseSources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,dictionarySources,additionalFlag.Data());
-   WriteMakefileCompileStatements(buffer,precompiledHeaders,additionalFlag.Data());
-   WriteMakefileAdditionalSourceFilesCompileStatments(buffer,additionalFlag.Data());
+   WriteMakefileCompileStatements(buffer,romeSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,argusSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,generatedSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,taskSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,tabSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,folderSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,daqSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,databaseSources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,dictionarySources,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileCompileStatements(buffer,precompiledHeaders,0,additionalFlag.Data(),additionalDep.Data());
+   WriteMakefileAdditionalSourceFilesCompileStatments(buffer,additionalFlag.Data(),additionalDep.Data());
    ROMEStrArray *tempArray = new ROMEStrArray(1);
    tempArray->AddFormatted("dict/%sUserDict.cpp",shortCut.Data());
-   WriteMakefileCompileStatements(buffer,tempArray,additionalFlag.Data());
+   WriteMakefileCompileStatements(buffer,tempArray,0,additionalFlag.Data(),additionalDep.Data());
    delete tempArray;
    buffer.AppendFormatted("\n");
 
