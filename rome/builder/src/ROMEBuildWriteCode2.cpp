@@ -1824,20 +1824,19 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
 //______________________________________________________________________________
 Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex)
 {
-   int iTab, iTabUsed, j, k;
+   int iTab, j, k;
    ROMEString switchString;
    ROMEString steerPointerT;
    ROMEString tabPointerT;
    ROMEConfigParameterGroup* subGroup;
    ROMEConfigParameterGroup* subSubGroup;
-   iTabUsed = -1;
    for (iTab = 0; iTab < numOfTab; iTab++) {
       if (!tabUsed[iTab]) {
          continue;
       }
-      iTabUsed++;
-      if (tabParentIndex[iTab] != parentIndex)
+      if (tabParentIndex[iTab] != parentIndex) {
          continue;
+      }
       subGroup = new ROMEConfigParameterGroup(tabName[iTab],"1","Tab","TabName");
       subGroup->SetComment(ROMEConfig::kCommentLevelObj, tabShortDescription[iTab]);
 
@@ -1845,11 +1844,11 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Tab");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->GetTabObjectAt(%d)->SetSwitch(## != \"false\");",
-                                               iTabUsed);
+                                               tabUsedIndex[iTab]);
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->GetTabObjectAt(%d)->SetTabActive(## != \"false\");",
-                                               iTabUsed);
+                                               tabUsedIndex[iTab]);
       subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->GetTabObjectAt(%d)->IsSwitch()?1:0];",
-                                                 iTabUsed);
+                                                 tabUsedIndex[iTab]);
       if (tabObjectDisplay[iTab]) {
          for (j = 0; j < numOfTabObjectDisplays[iTab]; j++) {
             subSubGroup = new ROMEConfigParameterGroup(tabObjectDisplayName[iTab][j],"1","ObjectDisplay",
@@ -1858,54 +1857,54 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
             // Draw Option
             subSubGroup->AddParameter(new ROMEConfigParameter("DrawOption"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "ObjectDisplay");
-            subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetDrawOptionAt(%d,##.Data());",
-                                                        tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",gAnalyzer->GetWindow()->Get%s%sTab()->GetDrawOptionAt(%d));",
-                                                          tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
+            subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetDrawOptionAt(%d,##.Data());",
+                                                        shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
+            subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->GetDrawOptionAt(%d));",
+                                                          shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
             // Logarithmic scale X
             subSubGroup->AddParameter(new ROMEConfigParameter("LogScaleX","1","CheckButton"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
-            subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleXAt(%d, ## == \"true\");",
-                                                        tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleXAt(%d)?1:0];",
-                                                          tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
+            subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetLogScaleXAt(%d, ## == \"true\");",
+                                                        shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
+            subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsLogScaleXAt(%d)?1:0];",
+                                                          shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
             // Logarithmic scale Y
             subSubGroup->AddParameter(new ROMEConfigParameter("LogScaleY","1","CheckButton"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
-            subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleYAt(%d, ## == \"true\");",
-                                                        tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleYAt(%d)?1:0];",
-                                                          tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
+            subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetLogScaleYAt(%d, ## == \"true\");",
+                                                          shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
+            subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsLogScaleYAt(%d)?1:0];",
+                                                          shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
             // Logarithmic scale Z
             subSubGroup->AddParameter(new ROMEConfigParameter("LogScaleZ","1","CheckButton"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
-            subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleZAt(%d, ## == \"true\");",
-                                                        tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleZAt(%d)?1:0];",
-                                                          tabName[iTab].Data(),tabSuffix[iTab].Data(),j);
+            subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetLogScaleZAt(%d, ## == \"true\");",
+                                                        shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
+            subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsLogScaleZAt(%d)?1:0];",
+                                                          shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], j);
             subGroup->AddSubGroup(subSubGroup);
          }
          // Number Of Pads X
          subGroup->AddParameter(new ROMEConfigParameter("NumberOfPadsX"));
          subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
-         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetNumberOfPadsX(##.ToInteger());",
-                                                  tabName[iTab].Data(),tabSuffix[iTab].Data());
-         subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->Get%s%sTab()->GetNumberOfPadsX());",
-                                                    tabName[iTab].Data(),tabSuffix[iTab].Data());
+         subGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetNumberOfPadsX(##.ToInteger());",
+                                                  shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
+         subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->GetNumberOfPadsX());",
+                                                    shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
          // Number Of Pads Y
          subGroup->AddParameter(new ROMEConfigParameter("NumberOfPadsY"));
          subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
-         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetNumberOfPadsY(##.ToInteger());",
-                                                  tabName[iTab].Data(),tabSuffix[iTab].Data());
-         subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->Get%s%sTab()->GetNumberOfPadsY());",
-                                                    tabName[iTab].Data(),tabSuffix[iTab].Data());
+         subGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetNumberOfPadsY(##.ToInteger());",
+                                                  shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
+         subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->GetNumberOfPadsY());",
+                                                  shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
          // Pad Configuration
          subGroup->AddParameter(new ROMEConfigParameter("PadConfiguration","1","CheckButton"));
          subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
-         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetPadConfigActive(## == \"true\");",
-                                                  tabName[iTab].Data(),tabSuffix[iTab].Data());
-         subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsPadConfigActive()?1:0];",
-                                                    tabName[iTab].Data(),tabSuffix[iTab].Data());
+         subGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetPadConfigActive(## == \"true\");",
+                                                  shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
+         subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsPadConfigActive()?1:0];",
+                                                    shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
       }
       if (numOfTabSingleObjects[iTab] > 0) {
          int nskip = 0;
@@ -1939,46 +1938,47 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
             subSubGroup->AddParameter(new ROMEConfigParameter("DrawOption"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "ObjectDisplay");
             for (k = 0; k < nmulti; k++) {
-               subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetDrawOptionAt(%d,##.Data());",
-                                                           tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
-               subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",gAnalyzer->GetWindow()->Get%s%sTab()->GetDrawOptionAt(%d));",
-                                                             tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
+               subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetDrawOptionAt(%d,##.Data());",
+                                                           shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
+               subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->GetDrawOptionAt(%d));",
+                                                             shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
             }
             // Logarithmic scale X
             subSubGroup->AddParameter(new ROMEConfigParameter("LogScaleX","1","CheckButton"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
             for (k = 0; k < nmulti; k++) {
-               subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleXAt(%d, ## == \"true\");",
-                                                           tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
-               subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleXAt(%d)?1:0];",
-                                                             tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
+               subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetLogScaleXAt(%d, ## == \"true\");",
+                                                           shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
+               subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsLogScaleXAt(%d)?1:0];",
+                                                             shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
             }
             // Logarithmic scale Y
             subSubGroup->AddParameter(new ROMEConfigParameter("LogScaleY","1","CheckButton"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
             for (k = 0;k < nmulti; k++) {
-               subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleYAt(%d, ## == \"true\");",
-                                                           tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
-               subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleYAt(%d)?1:0];",
-                                                             tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
+               subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetLogScaleYAt(%d, ## == \"true\");",
+                                                           shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
+               subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsLogScaleYAt(%d)?1:0];",
+                                                             shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
             }
             // Logarithmic scale Z
             subSubGroup->AddParameter(new ROMEConfigParameter("LogScaleZ","1","CheckButton"));
             subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
             for (k = 0;k < nmulti; k++) {
-               subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetLogScaleZAt(%d, ## == \"true\");",
-                                                           tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
-               subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->Get%s%sTab()->IsLogScaleZAt(%d)?1:0];",
-                                                             tabName[iTab].Data(),tabSuffix[iTab].Data(),multi[k]);
+               subSubGroup->GetLastParameter()->AddSetLine("   static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->SetLogScaleZAt(%d, ## == \"true\");",
+                                                           shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
+               subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->IsLogScaleZAt(%d)?1:0];",
+                                                             shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab], multi[k]);
             }
             subGroup->AddSubGroup(subSubGroup);
          }
       }
       parGroup->AddSubGroup(subGroup);
       if (numOfSteering[iTab+numOfTask + 1] > 0) {
-         steerPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()->GetSP()", tabName[iTab].Data(),
-                                    tabSuffix[iTab].Data());
-         tabPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()", tabName[iTab].Data(), tabSuffix[iTab].Data());
+         steerPointerT.SetFormatted("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))->GetSP()",
+                                    shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
+         tabPointerT.SetFormatted("static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d))",
+                                  shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
          AddSteeringConfigParameters(subGroup, 0, iTab+numOfTask + 1,steerPointerT,tabPointerT);
       }
       AddTabConfigParameters(subGroup,iTab);
@@ -4853,12 +4853,12 @@ ROMEString& ROMEBuilder::ParseDependences(ROMEString& org, ROMEString &result)
          continue;
 
       str1.SetFormatted("Tab(%s)", tabName[i].Data());
-      str2.SetFormatted("((GetWindow()->Get%s%sTab()->IsSwitch() && monitor)",
-                        tabName[i].Data(), tabSuffix[i].Data());
+      str2.SetFormatted("((GetWindow()->GetTabObjectAt(%d)->IsSwitch() && monitor)",
+                        tabUsedIndex[i]);
       indx = tabParentIndex[i];
       while (indx != -1) {
-         str2.AppendFormatted(" &&\n          (GetWindow()->Get%s%sTab()->IsSwitch() && monitor)",
-                              tabName[indx].Data(), tabSuffix[indx].Data());
+         str2.AppendFormatted(" &&\n          (GetWindow()->GetTabObjectAt(%d)->IsSwitch() && monitor)",
+                              tabUsedIndex[indx]);
          indx = tabParentIndex[indx];
       }
       str2.Append(")");

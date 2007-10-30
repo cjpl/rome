@@ -256,6 +256,7 @@ ROMEBuilder::ROMEBuilder()
 ,numOfTabAffiliations(0)
 ,tabAffiliation(0)
 ,tabUsed(0)
+,tabUsedIndex(0)
 ,tabDescription(0)
 ,tabShortDescription(0)
 ,tabUsage(0)
@@ -649,6 +650,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] numOfTabAffiliations;
    delete [] tabAffiliation;
    delete [] tabUsed;
+   delete [] tabUsedIndex;
    delete [] tabDescription;
    delete [] tabShortDescription;
    delete [] tabUsage;
@@ -833,6 +835,7 @@ Bool_t ROMEBuilder::StartBuilder()
    int histoNumber=0;
    int graphNumber=0;
    int is,ie,ind;
+
    // Assign Single Object Tabs
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
@@ -969,9 +972,13 @@ Bool_t ROMEBuilder::StartBuilder()
       }
    }
 
+   Int_t iUsedTab = -1;
    for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
+      if (!tabUsed[i]) {
          continue;
+      }
+      iUsedTab++;
+      tabUsedIndex[i] = iUsedTab;
       tabSingleObjectIndexMax[i] = 0;
       for (j = 0; j < numOfTabSingleObjects[i]; j++) {
          tabSingleObjectIndexMax[i] = TMath::Max(tabSingleObjectIndex[i][j] + 1 +
