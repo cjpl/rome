@@ -2409,7 +2409,7 @@ void ROMEBuilder::WriteMakefile() {
 
    if (pch) {
       additionalFlag.SetFormatted("-include generated/%sPrecompile.h", shortCut.Data());
-      additionalDep.SetFormatted("include/generated/%sPrecompile.gch", shortCut.Data());
+      additionalDep.SetFormatted("include/generated/%sPrecompile.h.gch", shortCut.Data());
    }
    WriteMakefileCompileStatements(buffer,romeSources,0,additionalFlag.Data(),additionalDep.Data());
    WriteMakefileCompileStatements(buffer,argusSources,0,additionalFlag.Data(),additionalDep.Data());
@@ -2451,7 +2451,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("build: \n");
    WriteMakefileBuildRule(buffer,"$(ROMESYS)/bin/romebuilder.exe");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("src/generated/%% include/generated%%:\n");
+   buffer.AppendFormatted("src/generated/%%.cpp include/generated%%.h:\n");
    WriteMakefileBuildRule(buffer,"$(ROMESYS)/bin/romebuilder.exe -nl");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
