@@ -164,7 +164,7 @@ Bool_t ROMEMidasDAQ::Init()
       // Connect to the Frontend
       StartOnlineCommunication(this);
       while (fgCurrentRunNumber < 0) {
-         gSystem->Sleep(10);
+         gSystem->Sleep(1);
       }
       if (fgCurrentRunNumber >= 0) {
          gROME->SetCurrentRunNumber(fgCurrentRunNumber);
@@ -269,7 +269,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t /* event */)
          }
          while (fgOnlineThreadRequest) {
             // wait until thread finish process
-            gSystem->Sleep(10);
+            gSystem->Sleep(1);
          }
       } else {
          if (fOnlineHandlerTimer) {
@@ -310,7 +310,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t /* event */)
             }
             while (fgOnlineThreadRequest) {
                // wait until thread finish process
-               gSystem->Sleep(10);
+               gSystem->Sleep(1);
             }
             if (!fgReadEventReturn) {
                this->SetContinue();
@@ -778,7 +778,7 @@ Bool_t ROMEMidasDAQ::WriteODBOnline(ROMEStr2DArray* values, const char * dataBas
       }
       while (fgOnlineThreadRequest) {
          // wait until thread finish process
-         gSystem->Sleep(10);
+         gSystem->Sleep(1);
       }
       return fgDBWriteReturn;
    } else {
@@ -804,7 +804,7 @@ Bool_t ROMEMidasDAQ::ReadODBOnline(ROMEStr2DArray* values, const char * dataBase
       }
       while (fgOnlineThreadRequest) {
          // wait until thread finish process
-         gSystem->Sleep(10);
+         gSystem->Sleep(1);
       }
       return fgDBReadReturn;
    } else {
@@ -1411,7 +1411,7 @@ void ROMEMidasDAQ::DummyRead()
       }
       while (fgOnlineThreadRequest) {
          // wait until thread finish process
-         gSystem->Sleep(10);
+         gSystem->Sleep(1);
       }
    } else {
       ReadOnlineEventDummy(this);
@@ -1481,7 +1481,7 @@ Bool_t ROMEMidasDAQ::CheckTransition()
          return kTRUE;
       }
    }
-   status = cm_yield(100);
+   status = cm_yield(1);
    if (status == RPC_SHUTDOWN || status == SS_ABORT) {
       cm_disconnect_experiment(); // this is needed because calling thead can not cancel itself in ROMERint::Terminate => ROMEAnalyzer::Cleaning
       gROME->GetApplication()->Terminate(1);
