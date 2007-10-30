@@ -564,7 +564,6 @@ Bool_t ROMEBuilder::AddConfigParameters()
    graphParameters->AddLast("ZLabel");
    graphParameterTypes->AddLast("%s");
    graphParameterWidgetTypes->AddLast("EditBox");
-#if 0
    graphParameters->AddLast("Xmin");
    graphParameterTypes->AddLast("%g");
    graphParameterWidgetTypes->AddLast("EditBox");
@@ -583,7 +582,6 @@ Bool_t ROMEBuilder::AddConfigParameters()
    graphParameters->AddLast("Zmax");
    graphParameterTypes->AddLast("%g");
    graphParameterWidgetTypes->AddLast("EditBox");
-#endif
 
    mainParGroup = new ROMEConfigParameterGroup("ConfigData");
 
