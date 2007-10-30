@@ -174,8 +174,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
       fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/pause.xpm"));
       fPlayButton->SetToolTipText("Stop continuous analysis");
       fPlayButton->SetState(kButtonEngaged,kTRUE);
-   }
-   else {
+   } else {
       fPlayButton->SetToolTipText("Start continuous analysis");
    }
 
@@ -253,8 +252,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
       UInt_t mw, mh; // geometry of main
       gVirtualX->GetWindowSize(main->GetId(), mx, my, mw, mh);
       gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId(), mw >> 1, mh >> 1, ax, ay, wdum);
-   }
-   else {
+   } else {
       UInt_t root_w, root_h;
       gVirtualX->GetWindowSize(fClient->GetRoot()->GetId(), ax, ay, root_w, root_h);
       ax = (root_w - fWidth) >> 1;
@@ -329,21 +327,18 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                      fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventC();");
                      fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
                   }
-               }
-               else {
+               } else {
                   gROME->SetUserEventC();
                   gROME->SetUserEventR();
                }
-            }
-            else {
+            } else {
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
                if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                   if (fNetFolder) {
                      fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
                   }
-               }
-               else {
+               } else {
                   gROME->SetUserEventS();
                }
             }
@@ -355,8 +350,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                   command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() - fEventStep);
                   fNetFolder->ExecuteCommand(command.Data());
                }
-            }
-            else {
+            } else {
                gROME->SetUserEventJ(gROME->GetCurrentEventNumber() - fEventStep);
             }
             break;
@@ -364,12 +358,19 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   ROMEString command;
-                  command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() + fEventStep);
+                  if (fEventStep == 1) {
+                     command.SetFormatted("gAnalyzer->SetUserEventR();");
+                  } else {
+                     command.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");", gROME->GetCurrentEventNumber() + fEventStep);
+                  }
                   fNetFolder->ExecuteCommand(command.Data());
                }
-            }
-            else {
-               gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep);
+            } else {
+                  if (fEventStep == 1) {
+                     gROME->SetUserEventR();
+                  } else {
+                     gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep);
+                  }
             }
             break;
 
@@ -382,8 +383,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (fNetFolder) {
                   fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventE();");
                }
-            }
-            else {
+            } else {
                gROME->SetUserEventE();
             }
             break;
@@ -392,8 +392,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (fNetFolder) {
                   /* do something to go to EndOfRun */
                }
-            }
-            else {
+            } else {
                /* do something to go to EndOfRun */
             }
             break;
@@ -439,8 +438,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                      str.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");",fEventNumber);
                      fNetFolder->ExecuteCommand(str.Data());
                   }
-               }
-               else {
+               } else {
                   gROME->SetUserEventJ(fEventNumber);
                }
             }

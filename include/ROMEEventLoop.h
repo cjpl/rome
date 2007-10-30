@@ -114,7 +114,7 @@ public:
    void         Terminate() {}
 
    void         SetContinuousMode(Bool_t mode) { fContinuous = mode; }
-   Bool_t       isContinuousMode() const { return fContinuous; }
+   Bool_t       isContinuousMode() const       { return fContinuous; }
 
    Int_t        RunEvent();
    Bool_t       StoreEvent(Bool_t useThread);

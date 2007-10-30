@@ -1391,12 +1391,6 @@ void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
    fContinuous = false;
 
    if (fCurrentEvent != -1) {
-      if (fCurrentEvent < eventNumber) {
-         fStop = false;
-         fContinuous = true;
-         fStopAtEvent = eventNumber;
-         fStopAtRun = gROME->GetCurrentRunNumber();
-      }
       ROMEPrint::Print("Stepped to Event "R_LLD"                                                    \n", fCurrentEvent);
    } else {
       fCurrentEvent = oldEventNumber;

@@ -564,7 +564,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
 {
    // Move file pointer to specified event
    //
-   // In offline mode, it jumps to the next of previous trigger event spcified by argument
+   // In offline mode, it jumps to the trigger event spcified by argument
    // For example,
    //
    // Sequencial number : 1000 1001 1002 1003 1004 1005 1006 1007 1008 1009
@@ -572,7 +572,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
    // Event ID          :    1    1    2   10    1    1    2    1    1    1
    //
    // If 'event' is 622, it jumps to serial number 1001, return 622
-   // If 'event' is 623, it jumps to serial number 1002, return 622
+   // If 'event' is 623, it jumps to serial number 1004, return 623
    //
    // In online mode, Seek moves in ring buffer forward or backward,
    // instead of jump to specified event number
@@ -603,8 +603,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       Long64_t oldEventNumber = gROME->GetCurrentEventNumber();
 
       if (event < fValidEventNumber) {
-         readSeqNumber = (event == 0) ? fEventNumToSeqNum->At(static_cast<Int_t>(event)) :
-               fEventNumToSeqNum->At(static_cast<Int_t>(event - 1)) + 1;
+         readSeqNumber = fEventNumToSeqNum->At(static_cast<Int_t>(event));
          readPosition = fSeqNumToFilePos->At(readSeqNumber);
          // use stored position
          if(readPosition != -1) {
@@ -632,8 +631,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
             return -1;
          }
       }
-      readSeqNumber = (event == 0) ? fEventNumToSeqNum->At(static_cast<Int_t>(event)) :
-            fEventNumToSeqNum->At(static_cast<Int_t>(event - 1)) + 1;
+      readSeqNumber = fEventNumToSeqNum->At(static_cast<Int_t>(event));
       readPosition = fSeqNumToFilePos->At(readSeqNumber);
       // use stored position
       if(readPosition != -1) {
@@ -643,6 +641,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
             gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
          }
          fCurrentSeqNumber = readSeqNumber;
+         gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
          return fSeqNumToEventNum->At(readSeqNumber);
       } else {
          return -1;
