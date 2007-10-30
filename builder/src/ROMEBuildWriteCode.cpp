@@ -2896,9 +2896,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted(",f%sArgument_%d(0)\n", threadFunctionName[iTab][i].Data(), j);
          }
       }
-      if (tabHeredity[iTab].Length() == 0) {
-         buffer.AppendFormatted(",fVersion(%s)\n", tabVersion[iTab].Data());
-      }
       // Single Objects
       if (numOfTabSingleObjects[iTab] > 0) {
          buffer.AppendFormatted(",fGeneratedCanvas(0)\n");
@@ -4194,9 +4191,6 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
             buffer.AppendFormatted("   %s f%sArgument_%d; //!\n", threadFunctionArgument[iTab][i][j].Data(),
                                    threadFunctionName[iTab][i].Data(), j);
-      }
-      if (tabHeredity[iTab].Length() == 0) {
-         buffer.AppendFormatted("   Int_t    fVersion;              //! Version number\n");
       }
       // Single Objects
       if (numOfTabSingleObjects[iTab] > 0) {
