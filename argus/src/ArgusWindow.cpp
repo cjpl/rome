@@ -55,7 +55,6 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fInfoFrame(0)
 ,fMenuBar(0)
 ,fMenuFile(0)
-,fMenuNetFolder(0)
 ,fRunEventNumber(0)
 ,fTab(0)
 ,fMainFrame(0)
@@ -92,7 +91,6 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fInfoFrame(0)
 ,fMenuBar(0)
 ,fMenuFile(0)
-,fMenuNetFolder(0)
 ,fRunEventNumber(0)
 ,fTab(0)
 ,fMainFrame(0)
@@ -118,7 +116,6 @@ ArgusWindow::~ArgusWindow()
    SafeDelete(fStatusBar);
    SafeDelete(fMenuBar);
    SafeDelete(fMenuFile);
-   SafeDelete(fMenuNetFolder);
    SafeDelete(fTab);
    SafeDelete(fTabObjects);
    SafeDelete(fProgress);
@@ -153,31 +150,37 @@ Bool_t ArgusWindow::Start()
    // Create info frame
    fInfoFrame = new TGHorizontalFrame(this, 0, 0);
    AddFrame(fInfoFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+   {
+      // run# and event#
+      fRunEventNumber = new TGLabel(fInfoFrame, "");
+      fRunEventNumber->SetTextJustify(kTextCenterX | kTextRight);
+      fInfoFrame->AddFrame(fRunEventNumber, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 10, 0, 0));
 
-   fRunEventNumber = new TGLabel(fInfoFrame, "");
-   fRunEventNumber->SetTextJustify(kTextCenterX | kTextRight);
-   fInfoFrame->AddFrame(fRunEventNumber, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 10, 0, 0));
+      // Create menubar
+      fMenuBar = new TGMenuBar(fInfoFrame, 1, 1, kHorizontalFrame);
+      fInfoFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
+      {
+         // Create menu
+         fMenuFile = new TGPopupMenu(fClient->GetRoot());
+         fMenuFile->Associate(this);
 
-   // Create menu
-   fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
-   fMenuFile = new TGPopupMenu (fClient->GetRoot());
-   fMenuFile->Associate(this);
-
-   if (fTabWindow) {
-      fMenuFile->AddEntry("New Window", M_FILE_NEW_WINDOW);
-      if (AddMenuNetFolder(fMenuNetFolder)) {
-         fMenuFile->AddPopup("&Connect NetFolder", fMenuNetFolder);
+         if (fTabWindow) {
+            fMenuFile->AddEntry("New Window", M_FILE_NEW_WINDOW);
+            if (gROME->GetNumberOfNetFolders()>0) {
+               TGPopupMenu *fMenuNetFolder = new TGPopupMenu(fClient->GetRoot());
+               if (AddMenuNetFolder(fMenuNetFolder)) {
+                  fMenuFile->AddPopup("&Connect NetFolder", fMenuNetFolder);
+                  fMenuNetFolder->Associate(this);
+               }
+            }
+            fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
+            fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
+         } else {
+            fMenuFile->AddEntry("C&lose", M_FILE_EXIT);
+         }
+         fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
       }
-      fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
-      fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
-   } else {
-      fMenuFile->AddEntry("C&lose", M_FILE_EXIT);
    }
-
-   fMenuNetFolder->Associate(this);
-   fMenuBar = new TGMenuBar(fInfoFrame, 1, 1, kHorizontalFrame);
-   fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   fInfoFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
 
    // Create tab widget
    if (fTabWindow) {
