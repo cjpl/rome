@@ -6314,13 +6314,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("ArgusWindow* %sWindow::CreateSubWindow()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-
-   buffer.AppendFormatted("   ArgusWindow* window = new %sWindow(gClient->GetRoot(),kFALSE);\n",
-                          shortCut.Data());
-   buffer.AppendFormatted("   window->SetStatusBarSwitch(fStatusBarSwitch);\n");
-   buffer.AppendFormatted("   window->SetControllerActive(fControllerActive);\n");
-   buffer.AppendFormatted("   window->SetWindowScale(fWindowScale);\n");
-   buffer.AppendFormatted("   window->ClearEventHandlingRequest();\n");
+   buffer.AppendFormatted("   ArgusWindow* window = new %sWindow(gClient->GetRoot(),kFALSE);\n", shortCut.Data());
    buffer.AppendFormatted("   return window;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -6329,7 +6323,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sWindow::ProcessMessageNetFolder(Long_t param1)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   switch (param1) {\n");
+   buffer.AppendFormatted("   switch (param1) {\n");
    for (iFolder = 0; iFolder < numOfNetFolder; iFolder++) {
       buffer.AppendFormatted("   case M_FILE_CONNECT_%s:\n", netFolderName[iFolder].Data());
       buffer.AppendFormatted("      gAnalyzer->ConnectNetFolder(\"%s\");\n", netFolderName[iFolder].Data());
