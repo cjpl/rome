@@ -509,16 +509,18 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
          tab->BaseMenuClicked(0, param1);
          switch (param1) {
          case M_FILE_NEW_WINDOW:
-            newWindow = CreateSubWindow();
-            newTitle = "Argus - ";
-
-            // Collect information from current tab
             tab->SetRegisteringActive(kFALSE);
+            newTitle = "Argus - ";
             newTitle += tab->GetTitle();
 
-            // Set information to the new window and its tab.
+            newWindow = CreateSubWindow();
+            newWindow->SetStatusBarSwitch(fStatusBarSwitch);
+            newWindow->SetControllerActive(fControllerActive);
+            newWindow->SetWindowScale(fWindowScale);
+            newWindow->ClearEventHandlingRequest();
             newWindow->SetWindowName(newTitle.Data());
             newWindow->SetWindowId(fSubWindows->GetEntriesFast());
+
             newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
             newTab->SetTabActive(kTRUE);
             newTab->SetCurrentTab(kTRUE);
