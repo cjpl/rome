@@ -337,6 +337,7 @@ protected:
    Int_t        *numOfTabAffiliations;
    ROMEString  **tabAffiliation;
    Bool_t       *tabUsed;
+   Int_t        *tabUsedIndex;
    ROMEString   *tabDescription;
    ROMEString   *tabShortDescription;
    ROMEString   *tabUsage;

@@ -346,6 +346,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfTabAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfAffiliations));
    tabUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
+   tabUsedIndex = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabUsage = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
@@ -2401,6 +2402,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabObjectDisplay[currentNumberOfTabs] = false;
    numOfTabAffiliations[currentNumberOfTabs] = 0;
    tabUsed[currentNumberOfTabs] = true;
+   tabUsedIndex[currentNumberOfTabs] = -1;
    numOfTabAuthors[currentNumberOfTabs] = 0;
    tabVersion[currentNumberOfTabs] = "0";
    tabDependence[currentNumberOfTabs] = "";
