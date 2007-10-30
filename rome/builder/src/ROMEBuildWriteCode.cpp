@@ -6285,11 +6285,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted(", 0");
    }
    buffer.AppendFormatted(")\n");
-   for (iTab = 0; iTab < numOfTab; iTab++) {
-      if (!tabUsed[iTab])
-         continue;
-      buffer.AppendFormatted(",f%s%sTab(0)\n", tabName[iTab].Data(), tabSuffix[iTab].Data());
-   }
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   ConstructTabs();\n"); // this is necessary to handle config parameters
    buffer.AppendFormatted("\n");
@@ -6311,11 +6306,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    }
    buffer.AppendFormatted(", tabWindow");
    buffer.AppendFormatted(")\n");
-   for (iTab = 0; iTab < numOfTab; iTab++) {
-      if (!tabUsed[iTab])
-         continue;
-      buffer.AppendFormatted(",f%s%sTab(0)\n", tabName[iTab].Data(), tabSuffix[iTab].Data());
-   }
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   ConstructTabs();\n");
    buffer.AppendFormatted("\n");
@@ -6616,9 +6606,7 @@ Bool_t ROMEBuilder::WriteWindow2Cpp()
       }
       tabIndexUsed[iTab] = iTabUsed;
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("   f%s%sTab = new %sT%s(this);\n", tabName[iTab].Data(), tabSuffix[iTab].Data(),
-                             shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   AddTab(f%s%sTab);\n",tabName[iTab].Data(),tabSuffix[iTab].Data());
+      buffer.AppendFormatted("   AddTab(new %sT%s(this));\n", shortCut.Data(), tabName[iTab].Data() );
       buffer.AppendFormatted("   fParentIndex[iTab] = %d;\n", tabParentIndex[iTab]>=0?tabIndexUsed[tabParentIndex[iTab]]:-1);
       buffer.AppendFormatted("   fNumberOfChildren[iTab] = %d;\n", tabNumOfChildren[iTab]);
       buffer.AppendFormatted("   iTab++;\n");
@@ -6636,7 +6624,7 @@ Bool_t ROMEBuilder::WriteWindow2Cpp()
 //______________________________________________________________________________
 Bool_t ROMEBuilder::WriteWindowH()
 {
-   Int_t iTab, iFolder, j, k;
+   Int_t iTab, iFolder, iTabUsed, j, k;
    ROMEString hFile;
    ROMEString buffer;
    ROMEString buf;
@@ -6725,19 +6713,6 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("private:\n");
-
-   // Tab Fields
-   buffer.AppendFormatted("   // Tab Fields\n");
-   for (iTab = 0; iTab < numOfTab; iTab++) {
-      if (!tabUsed[iTab])
-         continue;
-      // cast to int to avoid inconsistency between format and argument
-      buffer.AppendFormatted("   %sT%s_Base* f%s%sTab;  //! Handle to %s%s Tab\n", shortCut.Data(), tabName[iTab].Data(),
-                             tabName[iTab].Data(), tabSuffix[iTab].Data(), tabName[iTab].Data(), tabSuffix[iTab].Data());
-   }
-   buffer.AppendFormatted("\n");
-
    // Method
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   %sWindow(const %sWindow &c); // not implemented\n", shortCut.Data(), shortCut.Data());
@@ -6755,13 +6730,18 @@ Bool_t ROMEBuilder::WriteWindowH()
 
    // Tab Getters
    buffer.AppendFormatted("   // Tabs\n");
+   iTabUsed = 0;
    for (iTab = 0; iTab < numOfTab; iTab++) {
       if (!tabUsed[iTab])
          continue;
       // cast to avoid inconsistency between format and arguments.
-      buffer.AppendFormatted("   %sT%s_Base* Get%s%sTab() const { return f%s%sTab; }\n", shortCut.Data(), tabName[iTab].Data(),
-                             tabName[iTab].Data(), tabSuffix[iTab].Data(), tabName[iTab].Data(), tabSuffix[iTab].Data());
+      buffer.AppendFormatted("   %sT%s_Base* Get%s%sTab() const { return reinterpret_cast<%sT%s_Base*>(GetTabObjectAt(%d)); }\n",
+                             shortCut.Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabSuffix[iTab].Data(),
+                             shortCut.Data(), tabName[iTab].Data(), iTabUsed);
+      iTabUsed ++;
    }
+   buffer.AppendFormatted("\n");
+
    buffer.AppendFormatted("   Bool_t       ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
    buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const char* menuName) const;\n");
    buffer.AppendFormatted("\n");
