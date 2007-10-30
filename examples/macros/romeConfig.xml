@@ -137,6 +137,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Read>false</Read>
         <!-- Run number of the required histogram/graph file. (required) -->
         <RunNumber>0</RunNumber>
+        <Path></Path>
       </HistogramRead>
 
       <Macros>

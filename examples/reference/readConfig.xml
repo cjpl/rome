@@ -91,6 +91,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <HistogramRead>
         <Read>false</Read>
         <RunNumber>0</RunNumber>
+        <Path></Path>
       </HistogramRead>
 
       <Macros>
