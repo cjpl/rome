@@ -349,19 +349,10 @@ void ArgusHistoDisplay::BaseInit()
    /* Create an embedded canvas and add to the main frame, centered in x and y */
    fCanvas = new TRootEmbeddedCanvas("Canvas", this, 800, 400);
 
-   AddFrame(fCanvas, 
-            new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+   AddFrame(fCanvas, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
-   SetWindowName("DRS");
-
-   SetSize(GetDefaultSize());
    fChannelNumber = 0;
    fDisplayTypeOld = -1;
-   MapSubwindows();
-   MapWindow();
-   while (!IsMapped()) {
-      gSystem->Sleep(20);
-   }
    SetupPads(fNumberOfPadsX, fNumberOfPadsY, true);
 }
 
