@@ -340,7 +340,6 @@ void ArgusWindow::OnClick(TGListTreeItem* item, Int_t btn)
 //______________________________________________________________________________
 void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t btn)
 {
-   ArgusTab* tab;
    Int_t iTab = GetSelectedItemIndex(item);
    if (iTab < 0 || iTab == fCurrentTabID) {
       return;
