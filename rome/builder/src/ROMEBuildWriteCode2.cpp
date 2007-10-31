@@ -1226,6 +1226,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
          subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdateFrequency(##.ToInteger());");
          subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdateFrequency());");
+         // ListTreeView
+         subsubGroup->AddParameter(new ROMEConfigParameter("ListTreeView","1","CheckButton"));
+         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetListTreeView(## != \"false\");");
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsListTreeView()?1:0];");
          // AnalyzerController
          {
             subsubSubGroup = new ROMEConfigParameterGroup("AnalyzerController");

@@ -152,8 +152,9 @@ const char* ArgusTab::GetTimeStatisticsString(ROMEString& string)
       nchars = 5;
       name = this->GetName();
       string += name.Data();
-      for (i = 0; i < 35 - name.Length() - 5; i++)
+      for (i = 0; i < 35 - name.Length() - 5; i++) {
          string += ".";
+      }
       string.AppendFormatted(" : %s  %s  %s\n", GetRealTimeOfAll(), GetCpuTimeOfAll(), GetTimeOfUserEvents());
    }
    return string;

@@ -14,15 +14,17 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 4244)
 #endif                          // R__VISUAL_CPLUSPLUS
-#include <TSystem.h>
-#include <TGMenu.h>
+#include <TColor.h>
+#include <TG3DLine.h>
 #include <TGFrame.h>
 #include <TGLabel.h>
+#include <TGListTree.h>
+#include <TGMenu.h>
 #include <TGProgressBar.h>
 #include <TGStatusBar.h>
 #include <TGTab.h>
-#include <TColor.h>
 #include <TObjArray.h>
+#include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
@@ -56,6 +58,9 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fMenuBar(0)
 ,fMenuFile(0)
 ,fRunEventNumber(0)
+,fListTreeView(kFALSE)
+,fListTree(0)
+,fListTreeItem(new TGListTreeItem*[numberOfTabs])
 ,fTab(0)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
@@ -75,7 +80,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 
 //______________________________________________________________________________
 ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t numberOfTabs, Bool_t tabWindow)
-:TGMainFrame(p, 1, 1)
+:TGMainFrame(p, 0, 0)
 ,fWindowId(-1)
 ,fSubWindows(new TObjArray(0))
 ,fSubWindowRunning(new TArrayI())
@@ -92,6 +97,9 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fMenuBar(0)
 ,fMenuFile(0)
 ,fRunEventNumber(0)
+,fListTreeView(kFALSE)
+,fListTree(0)
+,fListTreeItem(new TGListTreeItem*[numberOfTabs])
 ,fTab(0)
 ,fMainFrame(0)
 ,fCurrentTabID(0)
@@ -158,11 +166,12 @@ Bool_t ArgusWindow::Start()
 
       // Create menubar
       fMenuBar = new TGMenuBar(fInfoFrame, 1, 1, kHorizontalFrame);
-      fInfoFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
+      fInfoFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 0, 0));
       {
-         // Create menu
+         // Create popup menu
          fMenuFile = new TGPopupMenu(fClient->GetRoot());
          fMenuFile->Associate(this);
+         fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
 
          if (fTabWindow) {
             fMenuFile->AddEntry("New Window", M_FILE_NEW_WINDOW);
@@ -178,18 +187,39 @@ Bool_t ArgusWindow::Start()
          } else {
             fMenuFile->AddEntry("C&lose", M_FILE_EXIT);
          }
-         fMenuBar->AddPopup("&File", fMenuFile, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
       }
    }
 
-   // Create tab widget
-   if (fTabWindow) {
-      fTab = new TGTab(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));
-      AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
-   } else {
-      fMainFrame = new ROMECompositeFrame(this, static_cast<UInt_t>(600 * GetWindowScale()),
-                                          static_cast<UInt_t>(400 * GetWindowScale()));
-      AddFrame(fMainFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+   // separator
+   TGHorizontal3DLine *hline = new TGHorizontal3DLine(this);
+   AddFrame(hline, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX));
+
+   // Horizontal frame which holds the main canvas
+   TGHorizontalFrame *hFrame = new TGHorizontalFrame(this, 0, 0);
+   AddFrame(hFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
+   {
+      UInt_t fWidth  = static_cast<UInt_t>(640 * GetWindowScale());
+      UInt_t fHeight = static_cast<UInt_t>(480 * GetWindowScale());
+
+      if (fListTreeView && fTabWindow) {
+         // Create ListTree
+         TGCanvas *canvas = new TGCanvas(hFrame, 120, 400);
+         hFrame->AddFrame(canvas, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 1));
+         fListTree = new TGListTree(canvas, kHorizontalFrame);
+         fListTree->Connect("Clicked(TGListTreeItem*,Int_t)", "ArgusWindow", this, "OnClick(TGListTreeItem*,Int_t)");
+         fListTree->Connect("DoubleClicked(TGListTreeItem*,Int_t)", "ArgusWindow", this, "OnDoubleClick(TGListTreeItem*,Int_t)");
+         fListTree->Associate(this);
+      }
+
+      // Create the main frame
+      if (!fListTreeView && fTabWindow) {
+         fTab = new TGTab(hFrame, fWidth, fHeight);
+         fTab->Associate(this);
+         hFrame->AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
+      } else {
+         fMainFrame = new ROMECompositeFrame(hFrame, fWidth, fHeight);
+         hFrame->AddFrame(fMainFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
+      }
    }
 
    ROMEPrint::Debug("Creating Tabs\n");
@@ -201,22 +231,142 @@ Bool_t ArgusWindow::Start()
    ROMEPrint::Debug("Tabs Created\n");
 
    MapSubwindows();
-   Resize(GetDefaultSize());
+
+   TGDimension size = GetDefaultSize();
+
+   if (fListTreeView) {
+      Int_t iTab;
+      const Int_t nTabs = fTabObjects->GetEntriesFast();
+      ArgusTab* tab;
+      ArgusTab *lastTab = 0;
+      TGDimension framesize(0,0);
+
+      // first, hide all the tabs
+      for (iTab = 0; iTab < nTabs; iTab++) {
+         tab = GetTabObjectAt(iTab);
+         fMainFrame->HideFrame(tab);
+      }
+
+      // show all the tabs one by one to get the maximum window size
+      size = GetDefaultSize();
+      for (iTab = nTabs-1; iTab >=0; iTab--) {
+         tab = GetTabObjectAt(iTab);
+         if (tab->IsSwitch() && fNumberOfChildren[iTab]<=0) {
+            fMainFrame->HideFrame(lastTab);
+            fMainFrame->ShowFrame(tab);
+
+            framesize = GetDefaultSize();
+            if (size.fWidth < framesize.fWidth) {
+               size.fWidth = framesize.fWidth;
+            }
+            if (size.fHeight < framesize.fHeight) {
+               size.fHeight = framesize.fHeight;
+            }
+
+            fListTree->HighlightItem(fListTreeItem[iTab]);
+            fCurrentTabID = iTab;
+            lastTab = tab;
+         }
+      }
+   }
+
+   Resize(size);
    gSystem->Sleep(500);
    MapWindow();
-   fCurrentTabID = 1;
 
    while (!IsMapped()) {
       gSystem->Sleep(20);
    }
 
-   ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
+   if (!fListTreeView) {
+      fCurrentTabID = 1;
+      ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
+   } else {
+      GetTabObject(fCurrentTabID)->BaseTabSelected();
+   }
 
    gSystem->Sleep(500);
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    fWatchAll.Stop();
    return kTRUE;
+}
+
+//______________________________________________________________________________
+Int_t ArgusWindow::GetSelectedItemIndex(TGListTreeItem* item) const
+{
+   Int_t iTab;
+   const Int_t nTabs = fTabObjects->GetEntriesFast();
+
+   for (iTab = 0; iTab < nTabs; iTab++ ){
+      if (item == fListTreeItem[iTab]) {
+         return iTab;
+      }
+   }
+
+   Error("GetSelectedItemIndex", "item was not found.");
+   return -1;
+}
+
+//______________________________________________________________________________
+void ArgusWindow::OnClick(TGListTreeItem* item, Int_t btn)
+{
+   ArgusTab* tab;
+   Int_t iTab = GetSelectedItemIndex(item);
+   if (iTab < 0 || iTab == fCurrentTabID) {
+      return;
+   }
+
+   // selecting a branch-node is not allowed. Buttons other than button1 are not allowed, either.
+   if (fNumberOfChildren[iTab] > 0 || btn != kButton1) {
+      fListTree->SetSelected(fListTreeItem[fCurrentTabID]);
+      fListTree->HighlightItem(fListTreeItem[fCurrentTabID], kTRUE, kTRUE);
+      fListTree->HighlightItem(fListTreeItem[iTab], kFALSE, kTRUE);
+      return;
+   }
+   
+   // cleanup current tab
+   tab = GetTabObject(fCurrentTabID);
+   fMainFrame->HideFrame(tab);
+   tab->BaseTabUnSelected();
+   
+   // go to the selected tab
+   fCurrentTabID = iTab;
+   tab = GetTabObject(fCurrentTabID);
+   fMainFrame->ShowFrame(tab);
+   tab->BaseTabSelected();
+}
+
+//______________________________________________________________________________
+void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t btn)
+{
+   ArgusTab* tab;
+   Int_t iTab = GetSelectedItemIndex(item);
+   if (iTab < 0 || iTab == fCurrentTabID) {
+      return;
+   }
+
+   // do not close if current tab is children of selected one
+   Bool_t iflag = kFALSE;
+   Int_t  parent = fParentIndex[fCurrentTabID];
+   while (parent >=0) {
+      if (iTab == parent) {
+         iflag = kTRUE;
+         break;
+      }
+      parent = fParentIndex[parent];
+   }
+   if (iflag) {
+      fListTree->OpenItem(item);
+   }
+
+   // selecting a branch-node is not allowed. Buttons other than button1 are not allowed, either.
+   if (fNumberOfChildren[iTab] > 0 || btn != kButton1) {
+      fListTree->SetSelected(fListTreeItem[fCurrentTabID]);
+      fListTree->HighlightItem(fListTreeItem[fCurrentTabID], kTRUE, kTRUE);
+      fListTree->HighlightItem(fListTreeItem[iTab], kFALSE, kTRUE);
+      return;
+   }
 }
 
 //______________________________________________________________________________
@@ -394,44 +544,63 @@ Bool_t ArgusWindow::CreateTabs()
    Int_t             newID;
    TGTab            *parentTab;
    TGTab            *newTab;
+   TGListTreeItem   *item;
    ROMEString        command = "";
 
    for (iTab = 0; iTab < nTabs; iTab++) {
       tab = GetTabObjectAt(iTab);
       if (tab->IsSwitch()) {
-         parentTab = (fParentIndex[iTab]==-1) ? fTab : static_cast<TGTab*>(fTGTab->At(fParentIndex[iTab]));
-         if (fNumberOfChildren[iTab]<=0) {
-            if (fTabWindow) {
-               if (parentTab) {
-                  newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
-                  tabFrame = parentTab->AddTab(tab->GetTitle());
-                  tab->ReparentWindow(tabFrame, 60, 20);
+         if (!fListTreeView) {
+            parentTab = (fParentIndex[iTab]==-1) ? fTab : static_cast<TGTab*>(fTGTab->At(fParentIndex[iTab]));
+            if (fNumberOfChildren[iTab]<=0) {
+               if (fTabWindow) {
+                  if (parentTab) {
+                     newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
+                     tabFrame = parentTab->AddTab(tab->GetTitle());
+                     tab->ReparentWindow(tabFrame, 60, 20);
+                     tab->ArgusInit();
+                     tab->SetID(newID);
+                     tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
+                  }
+               } else {
+                  tab->ReparentWindow(fMainFrame, 60, 20);
                   tab->ArgusInit();
-                  tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
-                  tab->SetID(newID);
+                  tab->SetID(0);
+                  fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
+                  return kTRUE;
                }
             } else {
-               tab->ReparentWindow(fMainFrame, 60, 20);
+               newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
+               tabFrame = parentTab->AddTab(tab->GetTitle());
+               tab->ReparentWindow(tabFrame, 60, 20);
                tab->ArgusInit();
-               fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
-               tab->SetID(0);
-               fCurrentTabID = 0;
-               return kTRUE;
+               tab->SetID(newID);
+               newTab = new TGTab(tabFrame);
+               command.SetFormatted("gAnalyzer->GetWindow()->ProcessMessage($MSG, $PARM1 + %d, $PARM2)", iTab*1000);
+               newTab->SetCommand(command.Data());
+               tabFrame->AddFrame(newTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+               fTGTab->AddAt(newTab, iTab);
             }
          } else {
-            newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
-            tabFrame = parentTab->AddTab(tab->GetTitle());
-            tab->ReparentWindow(tabFrame, 60, 20);
-            tab->ArgusInit();
-            tab->SetID(newID);
-            newTab = new TGTab(tabFrame, static_cast<UInt_t>(600*GetWindowScale()), static_cast<UInt_t>(400*GetWindowScale()));
-            command.SetFormatted("gAnalyzer->GetWindow()->ProcessMessage($MSG, $PARM1 + %d, $PARM2)", iTab*1000);
-            newTab->SetCommand(command.Data());
-            tabFrame->AddFrame(newTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
-            fTGTab->AddAt(newTab, iTab);
+            item = (fParentIndex[iTab]==-1) ? 0 : fListTreeItem[fParentIndex[iTab]];
+            fListTreeItem[iTab] = fListTree->AddItem(item, tab->GetTitle());
+            fListTree->OpenItem(fListTreeItem[iTab]);
+            if (fNumberOfChildren[iTab]<=0) {
+               tab->ReparentWindow(fMainFrame, 60, 20);
+               tab->ArgusInit();
+               tab->SetID(iTab);
+               fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
+               if (!fTabWindow) {
+                  return kTRUE;
+               }
+            } else {
+               tab->ArgusInit();
+               tab->SetID(iTab);
+            }
          }
       }
    }
+   
    return kTRUE;
 }
 
@@ -458,11 +627,10 @@ void ArgusWindow::TriggerEventHandler()
    char str[128];
    SetStatus(0, "", 0);
    fWatchAll.Start(false);
-   if (fControllerActive) {
-      if (fController) {
-         fController->Update();
-      }
+   if (fControllerActive && fController) {
+      fController->Update();
    }
+
    if (!gROME->IsStandAloneARGUS()) {
 #if defined(R__UNIX)
       sprintf(str, "Run : %6lld     Event : %6lld",
@@ -475,10 +643,8 @@ void ArgusWindow::TriggerEventHandler()
       fInfoFrame->Layout(); // call the parent frame's Layout() method to force updating of size of labels.
    }
    ArgusTab *tab = GetTabObject(fCurrentTabID);
-   if (tab) {
-      if (tab->IsSwitch()) {
-         tab->ArgusEventHandler();
-      }
+   if (tab && tab->IsSwitch()) {
+      tab->ArgusEventHandler();
    }
 
    for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {
@@ -509,16 +675,17 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
          switch (param1) {
          case M_FILE_NEW_WINDOW:
             tab->SetRegisteringActive(kFALSE);
-            newTitle = "Argus - ";
+            newTitle = "ARGUS - ";
             newTitle += tab->GetTitle();
 
             newWindow = CreateSubWindow();
             newWindow->SetStatusBarSwitch(fStatusBarSwitch);
+//            newWindow->SetListTreeView(kFALSE);
             newWindow->SetControllerActive(fControllerActive);
             newWindow->SetWindowScale(fWindowScale);
-            newWindow->ClearEventHandlingRequest();
             newWindow->SetWindowName(newTitle.Data());
             newWindow->SetWindowId(fSubWindows->GetEntriesFast());
+            newWindow->ClearEventHandlingRequest();
 
             newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
             newTab->SetTabActive(kTRUE);
@@ -571,13 +738,11 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             // go to the selected tab
             fCurrentTabID = param1;
             tab = GetTabObject(fCurrentTabID);
-            if (tab) {
-               tab->BaseTabSelected();
-               iTab = GetCurrentTabObjectIndex();
-               if (fNumberOfChildren[iTab]) {
-                  // special treatment for tabs with sub-tab
-                  ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*iTab + static_cast<TGTab*>(fTGTab->At(iTab))->GetCurrent(), 0);
-               }
+            tab->BaseTabSelected();
+            iTab = GetCurrentTabObjectIndex();
+            if (fNumberOfChildren[iTab] >0) {
+               // special treatment for tabs with sub-tab
+               ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*iTab + static_cast<TGTab*>(fTGTab->At(iTab))->GetCurrent(), 0);
             }
 
             // draw windows
@@ -610,23 +775,18 @@ void ArgusWindow::CheckActiveFlags()
    if (gROME->IsROMEMonitor()) {
       int i,j;
       ROMETask *ptr;
+      Bool_t flag;
       for (i = 0; i < gROME->GetTaskObjectEntries(); i++) {
          ptr = gROME->GetTaskObjectAt(i);
          if (gROME->IsTaskActive(i)) {
             ptr->SetActive(true);
             for (j = 0; j < ptr->GetNumberOfHistos(); j++) {
-               if (gROME->IsHistoActive(i,j)) {
-                  ptr->GetHistoParameterAt(j)->SetActive(true);
-               } else {
-                  ptr->GetHistoParameterAt(j)->SetActive(false);
-               }
+               flag = gROME->IsHistoActive(i,j);
+               ptr->GetHistoParameterAt(j)->SetActive(flag);
             }
             for (j = 0; j < ptr->GetNumberOfGraphs(); j++) {
-               if (gROME->IsGraphActive(i,j)) {
-                  ptr->GetGraphParameterAt(j)->SetActive(true);
-               } else {
-                  ptr->GetGraphParameterAt(j)->SetActive(false);
-               }
+               flag = gROME->IsGraphActive(i,j);
+               ptr->GetHistoParameterAt(j)->SetActive(flag);
             }
          } else {
             ptr->SetActive(false);

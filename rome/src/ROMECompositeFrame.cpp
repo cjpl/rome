@@ -17,7 +17,6 @@ ClassImp(ROMECompositeFrame)
 void ROMECompositeFrame::HideFrame(TGFrame *f)
 {
    // Hide sub frame.
-
    if (!fList) return;
 
    TGFrameElement *el;

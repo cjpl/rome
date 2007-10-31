@@ -31,13 +31,15 @@
 #include "ArgusAnalyzerController.h"
 #include "ArgusTab.h"
 
-class TGTab;
-class TObjArray;
-class TGHProgressBar;
-class TGTextEntry;
-class TGVerticalFrame;
 class ROMECompositeFrame;
 class ROMEStrArray;
+class TGHProgressBar;
+class TGListTree;
+class TGListTreeItem;
+class TGTab;
+class TGTextEntry;
+class TGVerticalFrame;
+class TObjArray;
 
 class ArgusWindow : public TGMainFrame
 {
@@ -58,6 +60,9 @@ protected:
    TGMenuBar               *fMenuBar;              //! menu bar
    TGPopupMenu             *fMenuFile;             //! file menu
    TGLabel                 *fRunEventNumber;       //! run number and event number
+   Bool_t                   fListTreeView;         //!
+   TGListTree              *fListTree;             //!
+   TGListTreeItem         **fListTreeItem;         //!
    TGTab                   *fTab;                  //! tabs
    ROMECompositeFrame      *fMainFrame;            //! main frame
    Int_t                    fCurrentTabID;         //! ID number of current tab
@@ -115,8 +120,16 @@ public:
    // Menu
    TGMenuBar*      GetMenuBar() const { return fMenuBar; }
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
+   // ListTree
+   void            SetListTreeView(Bool_t sw) { fListTreeView = sw; }
+   Bool_t          IsListTreeView() const { return fListTreeView; }
+   void            OnClick(TGListTreeItem* item, Int_t btn);
+   void            OnDoubleClick(TGListTreeItem* item, Int_t btn);
+private:
+   Int_t           GetSelectedItemIndex(TGListTreeItem*) const;
 
-   // Tab methods
+public:
+   // Tab/ListTree methods
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
    ArgusTab       *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
    ArgusTab       *GetTabObject(const char* tabTitle) const;
