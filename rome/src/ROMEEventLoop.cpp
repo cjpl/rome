@@ -1248,18 +1248,21 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
 #else
       TDirectory *directory = new TDirectoryFile("histos", "Histogram Directory");
 #endif
-      gROME->ConstructHistoDirectories(directory);
+      TObjArray *directories = new TObjArray();
+      gROME->ConstructHistoDirectories(directory,directories);
       for (iTask = 0; iTask < gROME->GetTaskObjectEntries(); iTask++) {
          task = gROME->GetTaskObjectAt(iTask);
-         taskHistoDirectory = static_cast<TDirectory*>(directory->FindObjectAny(task->GetHistoFolder()->GetName()));
-         if (task->IsActive() && taskHistoDirectory && !strcmp(taskHistoDirectory->ClassName(), "TDirectory")) {
+         taskHistoDirectory = ((TDirectory*)directories->At(iTask));
+         if (task->IsActive() && taskHistoDirectory) {
             task->CopyHistosAndGraphs(taskHistoDirectory);
          }
       }
       fHistoFile->Write();
       fHistoFile->Close();
       SafeDelete(fHistoFile);
+      SafeDelete(directories);
       gROOT->cd();
+delete [] directories;
    }
 
    // Write trees
