@@ -5427,12 +5427,11 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
    buffer.AppendFormatted("}\n\n");
 
    buffer.Append(kMethodLine);
-   buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory *d)\n",shortCut.Data());
+   buffer.AppendFormatted("void %sAnalyzer::ConstructHistoDirectories(TDirectory *d, TObjArray *cratedDir)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   if (numOfTaskHierarchy > 0) {
-      buffer.AppendFormatted("   TDirectory **directory = new TDirectory*[%d];\n", numOfTaskHierarchy);
-   } else {
+   if (numOfTaskHierarchy <= 0) {
       buffer.AppendFormatted("   WarningSuppression(d);\n");
+      buffer.AppendFormatted("   WarningSuppression(cratedDir);\n");
    }
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]]) {
@@ -5442,19 +5441,15 @@ Bool_t ROMEBuilder::WriteAnalyzer2Cpp()
       if (taskHierarchyParentIndex[i] == -1) {
          buffer.AppendFormatted("   d->cd();\n");
       } else {
-         buffer.AppendFormatted("   directory[%d]->cd();\n", taskHierarchyParentIndex[i]);
+         buffer.AppendFormatted("   ((TDirectory*)cratedDir->At(%d))->cd();\n", taskHierarchyParentIndex[i]);
       }
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
-      buffer.AppendFormatted("   directory[%d] = new TDirectory(\"%sHistos%s\", \"Histograms of Task '%s%s'\");\n",
+      buffer.AppendFormatted("   cratedDir->AddAtAndExpand(new TDirectory(\"%sHistos%s\", \"Histograms of Task '%s%s'\"),%d);\n",
 #else
-      buffer.AppendFormatted("   directory[%d] = new TDirectoryFile(\"%sHistos%s\", \"Histograms of Task '%s%s'\");\n",
+      buffer.AppendFormatted("   cratedDir->AddAtAndExpand(new TDirectoryFile(\"%sHistos%s\", \"Histograms of Task '%s%s'\"),%d);\n",
 #endif
-                             i,
                              taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data(),
-                             taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
-   }
-   if (numOfTaskHierarchy > 0) {
-      buffer.AppendFormatted("   delete [] directory;\n");
+                             taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data(),i);
    }
    buffer.AppendFormatted("}\n\n");
 
@@ -6073,7 +6068,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Tasks
    buffer.AppendFormatted("   // Tasks\n");
    buffer.AppendFormatted("   void ConstructHistoFolders(TFolder *f, Bool_t addToArray);\n");
-   buffer.AppendFormatted("   void ConstructHistoDirectories(TDirectory *d);\n");
+   buffer.AppendFormatted("   void ConstructHistoDirectories(TDirectory *d, TObjArray *cratedDir);\n");
    buffer.AppendFormatted("   void InitTasks();\n");
    buffer.AppendFormatted("\n");
    for (i = 0; i < numOfTaskHierarchy; i++) {
