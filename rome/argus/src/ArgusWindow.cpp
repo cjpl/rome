@@ -420,6 +420,8 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
 {
    Int_t iTab;
    const Int_t nTabs = fTabObjects->GetEntriesFast();
+   Int_t iSub;
+   const Int_t nSubs = fSubWindows->GetEntriesFast();
    ROMEString str;
    if (fTabWindow) {
       string.SetFormatted("main window........................ : %s  %s\n",
@@ -432,11 +434,11 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
       static_cast<ArgusTab*>(fTabObjects->At(iTab))->GetTimeStatisticsString(str);
       string.AppendFormatted(str.Data());
    }
-   for (iTab = 0; iTab < nTabs; iTab++) {
-      if (IsSubWindowRunningAt(iTab)) {
-         string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iTab))->GetTimeStatisticsString(str));
+   for (iSub = 0; iSub < nSubs; iSub++) {
+      if (IsSubWindowRunningAt(iSub)) {
+         string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str));
       } else {
-         string.AppendFormatted(GetSubWindowTimeStringAt(iTab));
+         string.AppendFormatted(GetSubWindowTimeStringAt(iSub));
       }
    }
    return string.Data();
