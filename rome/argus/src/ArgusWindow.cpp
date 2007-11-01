@@ -45,7 +45,6 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fWindowId(-1)
 ,fSubWindows(new TObjArray(0))
 ,fSubWindowRunning(new TArrayI())
-,fSubWindowTimeString(new ROMEStrArray())
 ,fTabWindow(kTRUE)
 ,fWatchAll()
 ,fCpuTimeAllString("")
@@ -84,7 +83,6 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fWindowId(-1)
 ,fSubWindows(new TObjArray(0))
 ,fSubWindowRunning(new TArrayI())
-,fSubWindowTimeString(new ROMEStrArray())
 ,fTabWindow(tabWindow)
 ,fWatchAll()
 ,fCpuTimeAllString("")
@@ -129,7 +127,6 @@ ArgusWindow::~ArgusWindow()
    SafeDelete(fProgress);
 #endif
    SafeDelete(fSubWindowRunning);
-   SafeDelete(fSubWindowTimeString);
 //   SafeDelete(fController); // fController can be deleted by clicking closed box.
 }
 
@@ -399,23 +396,6 @@ void ArgusWindow::SetSubWindowRunningAt(Int_t i, Bool_t running)
 }
 
 //______________________________________________________________________________
-const char* ArgusWindow::GetSubWindowTimeStringAt(Int_t i)
-{
-   const Int_t n = fSubWindowTimeString->GetEntriesFast();
-   if (i<n) {
-      return fSubWindowTimeString->At(i).Data();
-   } else {
-      return "";
-   }
-}
-
-//______________________________________________________________________________
-void ArgusWindow::SetSubWindowTimeStringAt(Int_t i, const char* timeString)
-{
-   fSubWindowTimeString->AddAt(timeString, i);
-}
-
-//______________________________________________________________________________
 const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
 {
    Int_t iTab;
@@ -435,11 +415,7 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
       string.AppendFormatted(str.Data());
    }
    for (iSub = 0; iSub < nSubs; iSub++) {
-      if (IsSubWindowRunningAt(iSub)) {
-         string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str));
-      } else {
-         string.AppendFormatted(GetSubWindowTimeStringAt(iSub));
-      }
+      string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str));
    }
    return string.Data();
 }
@@ -702,7 +678,6 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             } else {
                ROMEString str;
                gROME->GetWindow()->SetSubWindowRunningAt(fWindowId,kFALSE);
-               gROME->GetWindow()->SetSubWindowTimeStringAt(fWindowId,GetTimeStatisticsString(str));
                ClearEventHandlingRequest();
                ClearEventHandlingForced();
 

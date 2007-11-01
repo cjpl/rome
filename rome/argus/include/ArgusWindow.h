@@ -47,7 +47,6 @@ protected:
    Int_t                    fWindowId;             //! Window id
    TObjArray               *fSubWindows;           //! Handles to sub windows
    TArrayI                 *fSubWindowRunning;     //! Flags running sub windows
-   ROMEStrArray            *fSubWindowTimeString;  //! Run time of sub window
    Bool_t                   fTabWindow;            //! Flags Monitor with Tabs
    ROMEStopwatch            fWatchAll;             //! Records time used by window
    ROMEString               fCpuTimeAllString;     //! Elapsed CPU Time of all in a readable format
@@ -106,8 +105,6 @@ public:
    Bool_t          IsSubWindowRunningAt(Int_t i);
 
    // Stopwatch
-   void            SetSubWindowTimeStringAt(Int_t i, const char* timeString);
-   const char*     GetSubWindowTimeStringAt(Int_t i);
    const char*     GetTimeStatisticsString(ROMEString& string);
 
    // Status bar
@@ -120,6 +117,7 @@ public:
    // Menu
    TGMenuBar*      GetMenuBar() const { return fMenuBar; }
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
+
    // ListTree
    void            SetListTreeView(Bool_t sw) { fListTreeView = sw; }
    Bool_t          IsListTreeView() const { return fListTreeView; }
