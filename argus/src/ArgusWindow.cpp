@@ -685,7 +685,7 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             newWindow->SetWindowName(newTitle.Data());
             newWindow->SetWindowId(fSubWindows->GetEntriesFast());
             newWindow->ClearEventHandlingRequest();
-
+            newWindow->ClearEventHandlingForced();
             newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
             newTab->SetTabActive(kTRUE);
             newTab->SetSwitch(kTRUE);
@@ -701,6 +701,8 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
                ROMEString str;
                gROME->GetWindow()->SetSubWindowRunningAt(fWindowId,kFALSE);
                gROME->GetWindow()->SetSubWindowTimeStringAt(fWindowId,GetTimeStatisticsString(str));
+               ClearEventHandlingRequest();
+               ClearEventHandlingForced();
                TGMainFrame::CloseWindow();
                tab->SetRegisteringActive(true);
                if (!tab->IsTabActive()) {
