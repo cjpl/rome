@@ -198,8 +198,8 @@ Bool_t ArgusWindow::Start()
    TGHorizontalFrame *hFrame = new TGHorizontalFrame(this, 0, 0);
    AddFrame(hFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    {
-      UInt_t fWidth  = static_cast<UInt_t>(640 * GetWindowScale());
-      UInt_t fHeight = static_cast<UInt_t>(480 * GetWindowScale());
+      UInt_t width  = static_cast<UInt_t>(640 * GetWindowScale());
+      UInt_t height = static_cast<UInt_t>(480 * GetWindowScale());
 
       if (fListTreeView && fTabWindow) {
          // Create ListTree
@@ -213,11 +213,11 @@ Bool_t ArgusWindow::Start()
 
       // Create the main frame
       if (!fListTreeView && fTabWindow) {
-         fTab = new TGTab(hFrame, fWidth, fHeight);
+         fTab = new TGTab(hFrame, width, height);
          fTab->Associate(this);
          hFrame->AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
       } else {
-         fMainFrame = new ROMECompositeFrame(hFrame, fWidth, fHeight);
+         fMainFrame = new ROMECompositeFrame(hFrame, width, height);
          hFrame->AddFrame(fMainFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
       }
    }
