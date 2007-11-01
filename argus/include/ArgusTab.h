@@ -43,7 +43,6 @@ protected:
    Bool_t         fRegisteringActive;     //! Registering active flag
    Bool_t         fSwitch;                //!
    Int_t          fID;                    //!
-   Bool_t         fCurrentTab;            //! Flag if current tab
    TObjArray     *fUserPopupMenus;        //!
 
    // General Histo/Graph parameters (object displays, single objects)
@@ -99,9 +98,6 @@ public:
 
    void           SetID(const int id) { fID = id; }
    Int_t          GetID() const { return fID; }
-
-   void           SetCurrentTab(Bool_t currentTab) { fCurrentTab = currentTab; }
-   Bool_t         IsCurrentTab() const { return fCurrentTab; }
 
    TGPopupMenu   *GetUserPopupMenuAt(int i) const { return static_cast<TGPopupMenu*>(fUserPopupMenus->At(i)); }
 

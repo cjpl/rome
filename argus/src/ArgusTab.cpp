@@ -44,7 +44,6 @@ ArgusTab::ArgusTab(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt
 ,fRegisteringActive(kTRUE)
 ,fSwitch(kFALSE)
 ,fID(-1)
-,fCurrentTab(kFALSE)
 ,fUserPopupMenus(new TObjArray(nUserMenus))
 ,fDrawOption(drawOpt)
 ,fLogScaleX(logX)
