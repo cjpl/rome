@@ -1349,6 +1349,22 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
       subGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"false\";");
       subGroup->GetLastParameter()->AddAdditionalWriteLine("}");
+      // online loop period
+      subGroup->AddParameter(new ROMEConfigParameter("MidasOnlineLoopPeriod"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName(),
+                                                "/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:complexType/xs:sequence/xs:element[@name=MidasOnlineLoopPeriod]/xs:annotation/xs:documentation");
+      subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->SetOnlineLoopPeriod(strtol(##,&cstop, 10));");
+      subGroup->GetLastParameter()->AddSetLine("}");
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
+      subGroup->GetLastParameter()->AddWriteLine("  writeString.SetFormatted(\"%%d\", gAnalyzer->GetMidasDAQ()->GetOnlineLoopPeriod());");
+      subGroup->GetLastParameter()->AddWriteLine("}");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = ##;");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = kMidasInitialOnlineLoopPeriod;");
+      subGroup->GetLastParameter()->AddAdditionalWriteLine("}");
    }
    for (i = 0; i < numOfEvent; i++) {
       subSubGroup = new ROMEConfigParameterGroup(eventName[i],"1","Event");
