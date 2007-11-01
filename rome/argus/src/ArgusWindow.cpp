@@ -600,8 +600,10 @@ void ArgusWindow::RequestEventHandling()
 //______________________________________________________________________________
 void ArgusWindow::TriggerEventHandler()
 {
-   int i;
+   int iSub;
+   const Int_t nSub = fSubWindows->GetEntriesFast();
    char str[128];
+
    SetStatus(0, "", 0);
    fWatchAll.Start(false);
    if (fControllerActive && fController) {
@@ -624,9 +626,9 @@ void ArgusWindow::TriggerEventHandler()
       tab->ArgusEventHandler();
    }
 
-   for (i = 0; i < fSubWindows->GetEntriesFast(); i++) {
-      if (IsSubWindowRunningAt(i)) {
-         static_cast<ArgusWindow*>(fSubWindows->At(i))->TriggerEventHandler();
+   for (iSub = 0; iSub < nSub; iSub++) {
+      if (IsSubWindowRunningAt(iSub)) {
+         static_cast<ArgusWindow*>(fSubWindows->At(iSub))->TriggerEventHandler();
       }
    }
    fWatchAll.Stop();
@@ -640,7 +642,9 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
    ArgusTab    *tab      = 0;
    ArgusTab    *newTab   = 0;
    ROMEString   newTitle = "";
-   ArgusWindow *newWindow = 0;
+   ArgusWindow *subWindow = 0;
+   Int_t        iSub;
+   Int_t        nSub;
 
    // Process messages coming from widgets associated with the dialog.  
    switch (GET_MSG(msg)) {
@@ -652,32 +656,46 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
          switch (param1) {
          case M_FILE_NEW_WINDOW:
             tab->SetRegisteringActive(kFALSE);
+
+            // Reuse the unmapped sub window with the selected tab, if any.
+            nSub = fSubWindows->GetEntriesFast();
+            for (iSub = 0; iSub < nSub; iSub++) {
+               if (!IsSubWindowRunningAt(iSub)) {
+                  subWindow = static_cast<ArgusWindow*>(fSubWindows->At(iSub));
+                  if (GetCurrentTabObjectIndex() == subWindow->GetCurrentTabObjectIndex()) {
+                     subWindow->MapWindow();
+                     SetSubWindowRunningAt(iSub, kTRUE);
+                     return kTRUE;
+                  }
+               }
+            }
+
             newTitle = "ARGUS - ";
             newTitle += tab->GetTitle();
 
-            newWindow = CreateSubWindow();
-            newWindow->SetStatusBarSwitch(fStatusBarSwitch);
-//            newWindow->SetListTreeView(kFALSE);
-            newWindow->SetControllerActive(fControllerActive);
-            newWindow->SetWindowScale(fWindowScale);
-            newWindow->SetWindowName(newTitle.Data());
-            newWindow->SetWindowId(fSubWindows->GetEntriesFast());
-            newWindow->ClearEventHandlingRequest();
-            newWindow->ClearEventHandlingForced();
-            newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
+            subWindow = CreateSubWindow();
+            subWindow->SetStatusBarSwitch(fStatusBarSwitch);
+//            subWindow->SetListTreeView(kFALSE);
+            subWindow->SetControllerActive(fControllerActive);
+            subWindow->SetWindowScale(fWindowScale);
+            subWindow->SetWindowName(newTitle.Data());
+            subWindow->SetWindowId(fSubWindows->GetEntriesFast());
+            subWindow->ClearEventHandlingRequest();
+            subWindow->ClearEventHandlingForced();
+            newTab = subWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
             newTab->SetTabActive(kTRUE);
             newTab->SetSwitch(kTRUE);
 
-            newWindow->Start();
+            subWindow->Start();
             SetSubWindowRunningAt(fSubWindows->GetEntriesFast(),kTRUE);
-            fSubWindows->Add(newWindow);
+            fSubWindows->Add(subWindow); 
             break;
          case M_FILE_EXIT:
             if (fTabWindow) {
                CloseWindow();
             } else {
                ROMEString str;
-               gROME->GetWindow()->SetSubWindowRunningAt(fWindowId,kFALSE);
+               gROME->GetWindow()->SetSubWindowRunningAt(fWindowId, kFALSE);
                ClearEventHandlingRequest();
                ClearEventHandlingForced();
 
