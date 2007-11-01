@@ -90,8 +90,9 @@ const UShort_t TID_LAST      = 17;      //< end of TID list indicator
 #  define MAX_EVENT_SIZE         0xA00000   /**< maximum event size if fixed 10MB */
 #endif
 
-const Int_t kMaxMidasEventTypes = 5;
-const Int_t kRawDataEvents      = 8;
+const Int_t kMaxMidasEventTypes           = 5;
+const Int_t kRawDataEvents                = 8;
+const Int_t kMidasInitialOnlineLoopPeriod = 10;
 
 class TThread;
 class TTimer;
@@ -136,7 +137,6 @@ protected:
    TTimer       *fOnlineHandlerTimer;                      //! Timer to handle online connection
    Bool_t        fOnlineConnection;                        //! Flag if onine connection should be alive in thread
    Bool_t        fOnlineThread;                            //! Flag if using thread for online communication
-
    Int_t         fODBBufferSize;                           //! Buffer size for ODB online database
    char         *fODBBuffer;                               //! Buffer for ODB online database
 
@@ -224,6 +224,9 @@ public:
    // online connection
    void              SetOnlineThread(Bool_t flag) { fOnlineThread = flag; }
    Bool_t            IsOnlineThread() const { return fOnlineThread; }
+
+   void              SetOnlineLoopPeriod(Int_t period);
+   Int_t             GetOnlineLoopPeriod() const;
 
    static THREADTYPE OnlineConnectionLoop(void *arg);
    static Bool_t     ConnectExperiment(ROMEMidasDAQ *localThis);

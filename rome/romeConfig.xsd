@@ -1171,6 +1171,11 @@
 								<xs:documentation>When it is true, in online mode, framework communicates with MIDAS server by using dedicated thread. You may use this option when you have time consuming functions in event loop. When there is a time consuming function in event loop, the program may not receive signals from MIDAS server to start/stop runs. This can cause error in MIDAS server. Timeout of MIDAS communication is different depends on OS, it is typically around 1 minute. If this option is true, ODB functions in user code may not work properly, because MIDAS communication is implemented with assuming done in a thread.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="MidasOnlineLoopPeriod" type="xs:integer" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Loop period to read online midas event from experiment in milli second. If you set small number, analyzer reads events frequently. If it is too much load for midas server, you may increase this number. Positive number or 0 is valid.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="Event" type="EventDesc" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>Describes a midas event. (optional)</xs:documentation>

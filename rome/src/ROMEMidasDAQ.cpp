@@ -57,6 +57,8 @@ namespace {
       kCheckTransition
    };
    // inter thread communication
+   Int_t           fgOnlineLoopPeriod         = kMidasInitialOnlineLoopPeriod;
+   ULong_t         fgLastLoopTime             = 0;
    Int_t           fgOnlineThreadRequest      = 0;
    Bool_t          fgReadEventReturn          = kFALSE;
    Bool_t          fgDBReadReturn             = kFALSE;
@@ -257,6 +259,15 @@ Bool_t ROMEMidasDAQ::Event(Long64_t /* event */)
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       void* mEvent;
+
+      // check loop period
+      if (fgOnlineLoopPeriod > 0) {
+         if(static_cast<ULong_t>(gSystem->Now()) - fgLastLoopTime < static_cast<ULong_t>(fgOnlineLoopPeriod)) {
+            this->SetContinue();
+            return kTRUE;
+         }
+         fgLastLoopTime = static_cast<ULong_t>(gSystem->Now());
+      }
 
       // check transition
       if (fOnlineThread) {
@@ -1480,7 +1491,9 @@ Bool_t ROMEMidasDAQ::CheckTransition()
          return kTRUE;
       }
    }
-   status = cm_yield(1);
+
+   status = cm_yield(fgOnlineLoopPeriod > 0 ? fgOnlineLoopPeriod : 1000);
+
    if (status == RPC_SHUTDOWN || status == SS_ABORT) {
       cm_disconnect_experiment(); // this is needed because calling thead can not cancel itself in ROMERint::Terminate => ROMEAnalyzer::Cleaning
       gROME->GetApplication()->Terminate(1);
@@ -1501,4 +1514,16 @@ void ROMEMidasDAQ::SetODBBufferSize(Int_t size)
       SafeDeleteArray(fODBBuffer);
       fODBBuffer = new char[fODBBufferSize];
    }
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::SetOnlineLoopPeriod(Int_t period)
+{
+   fgOnlineLoopPeriod = period;
+}
+
+//______________________________________________________________________________
+Int_t ROMEMidasDAQ::GetOnlineLoopPeriod() const
+{
+   return fgOnlineLoopPeriod;
 }
