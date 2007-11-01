@@ -3816,7 +3816,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // Tab Selected
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected()\n{\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   fCurrentTab = kTRUE;\n");
       buffer.AppendFormatted("   SetForeground(kTRUE);\n");
       // Create build-in menus
       if (tabObjectDisplay[iTab]) {
@@ -3861,7 +3860,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // Tab Unselected
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %sT%s_Base::BaseTabUnSelected()\n{\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   fCurrentTab = kFALSE;\n");
       buffer.AppendFormatted("   SetForeground(kFALSE);\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabUnSelected();\n");

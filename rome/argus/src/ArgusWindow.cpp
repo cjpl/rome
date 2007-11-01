@@ -524,7 +524,7 @@ Int_t ArgusWindow::GetCurrentTabObjectIndex() const
    ArgusTab *ptr;
    for (iTab = 0; iTab < nTabs; iTab++) {
       ptr = static_cast<ArgusTab*>(fTabObjects->At(iTab));
-      if (ptr->IsCurrentTab()) {
+      if (ptr->IsForeground()) {
          return iTab;
       }
    }
@@ -688,7 +688,6 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 
             newTab = newWindow->GetTabObjectAt(GetCurrentTabObjectIndex());
             newTab->SetTabActive(kTRUE);
-            newTab->SetCurrentTab(kTRUE);
             newTab->SetSwitch(kTRUE);
 
             newWindow->Start();
