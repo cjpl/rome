@@ -2926,8 +2926,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   fName = \"%s\";\n", tabName[iTab].Data());
 
-      buffer.AppendFormatted("\n");
       if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   InitHistoDisplay();\n");
       }
 
