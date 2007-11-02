@@ -368,7 +368,31 @@ void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t btn)
 //______________________________________________________________________________
 void ArgusWindow::CloseWindow()
 {
-   gROME->WindowClosed();
+   if (fTabWindow) {
+      gROME->WindowClosed();
+   } else {
+      ArgusTab* tab = GetTabObject(fCurrentTabID);
+      ROMEString str;
+      gROME->GetWindow()->SetSubWindowRunningAt(fWindowId, kFALSE);
+      ClearEventHandlingRequest();
+      ClearEventHandlingForced();
+      
+      // When a sub window is newly opened or it is closed,
+      // calling TGMainFrame::CloseWindow() causes BadWindow
+      // and/or BadDrawable error on X11, which terminates
+      // the program. In order avoid this, just unmap the sub
+      // window rather than closing it. This also makes it
+      // possible to map the sub window again instead of
+      // creating a new sub window.
+      
+//               TGMainFrame::CloseWindow();
+      UnmapWindow();
+
+      tab->SetRegisteringActive(true);
+      if (!tab->IsTabActive()) {
+         tab->UnRegisterObjects();
+      }
+   }
 }
 
 //______________________________________________________________________________
@@ -691,30 +715,7 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             fSubWindows->Add(subWindow); 
             break;
          case M_FILE_EXIT:
-            if (fTabWindow) {
-               CloseWindow();
-            } else {
-               ROMEString str;
-               gROME->GetWindow()->SetSubWindowRunningAt(fWindowId, kFALSE);
-               ClearEventHandlingRequest();
-               ClearEventHandlingForced();
-
-               // When a sub window is newly opened or it is closed,
-               // calling TGMainFrame::CloseWindow() causes BadWindow
-               // and/or BadDrawable error on X11, which terminates
-               // the program. In order avoid this, just unmap the sub
-               // window rather than closing it. This also makes it
-               // possible to map the sub window again instead of
-               // creating a new sub window.
-
-//               TGMainFrame::CloseWindow();
-               UnmapWindow();
-
-               tab->SetRegisteringActive(true);
-               if (!tab->IsTabActive()) {
-                  tab->UnRegisterObjects();
-               }
-            }
+            CloseWindow();
             break;
          case M_FILE_CONTROLLER:
             if (!fControllerActive) {
