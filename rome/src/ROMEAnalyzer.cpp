@@ -1587,6 +1587,7 @@ static Long64_t getNumber(const char op, const Long64_t a, const Long64_t b)
       return 0;
       break;
    }
+   return 0;
 }
 
 //______________________________________________________________________________
