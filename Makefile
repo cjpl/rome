@@ -339,15 +339,15 @@ endif
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
-	$(Q)$(ROOTCINT) -f ROMELibDict.cpp -c -p $(INCLUDE) $(LibDictHeaders) include/ROMELibLinkDef.h
+	$(Q)$(ROOTCINT) -f ROMELibDict.cpp -c -p $(INCLUDE) $(CINTFLAGS) $(LibDictHeaders) include/ROMELibLinkDef.h
 
 ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
-	$(Q)$(ROOTCINT) -f ROMEBuilderDict.cpp -c -p $(INCLUDE) $(BldDictHeaders) include/ROMEBuildLinkDef.h
+	$(Q)$(ROOTCINT) -f ROMEBuilderDict.cpp -c -p $(INCLUDE) $(CINTFLAGS) $(BldDictHeaders) include/ROMEBuildLinkDef.h
 
 UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
-	$(Q)$(ROOTCINT) -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders) include/UpdateVersionHLinkDef.h
+	$(Q)$(ROOTCINT) -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(CINTFLAGS) $(UpHDictHeaders) include/UpdateVersionHLinkDef.h
 
 obj/mxml.o: src/mxml.c include/mxml.h
 	$(call romeechoing, "compiling $@")

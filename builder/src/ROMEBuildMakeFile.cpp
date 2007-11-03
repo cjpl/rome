@@ -1542,6 +1542,13 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
       for (i = 0; i < affiliations.GetEntriesFast(); i++) {
          arguments.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
       }
+#if defined( R__MACOSX )
+      // this is temporary fix of dictionary generation on Mac OSX 10.5
+      // this can be removed after ROOT group fix the problem related to
+      // __builtin_va_list in _types.h
+      // (this might cause side effect)
+      arguments.AppendFormatted(" -D__builtin_va_list=va_list");
+#endif
       buffer.AppendFormatted(arguments.Data());
 #if defined( R__UNIX )
       buffer.AppendFormatted(" $(Includes)");

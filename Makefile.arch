@@ -37,6 +37,11 @@ SOFLAGS := -dynamiclib -single_module -undefined dynamic_lookup
 endif
 endif
 SOEXT = dylib
+# this is temporary fix of dictionary generation on Mac OSX 10.5
+# this can be removed after ROOT group fix the problem related to
+# __builtin_va_list in _types.h
+# (this might cause side effect)
+CINTFLAGS = -D__builtin_va_list=va_list
 endif
 
 ifeq ($(OSTYPE),linux)
