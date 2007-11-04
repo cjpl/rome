@@ -6599,7 +6599,7 @@ Bool_t ROMEBuilder::WriteWindowH()
 //______________________________________________________________________________
 Bool_t ROMEBuilder::WriteDBAccessCpp()
 {
-   int i,j;
+   int i,j,k;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -6636,6 +6636,34 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"TMath.h\"\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+
+
+   for (i = 0; i < numOfTaskHierarchy; i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]]) {
+         continue;
+      }
+      str.SetFormatted("Get%s%sTask", taskHierarchyName[i].Data(), taskHierarchySuffix[i].Data());
+      for (j = 0; j < numOfFolder; j++) {
+         for (k = 0; k < numOfValue[j]; k++) {
+            if (valueDimension[j][k] > 1 || valueArray[j][k][0] == "variable" ||
+                isFolder(valueType[j][k].Data()) || valueIsTObject[j][k]) {
+               continue;
+            }
+#if 1 // forbid DB access for fields without DB path in definixion XML file
+            if (!valueDBPath[j][k].Length()) {
+               continue;
+            }
+#endif
+            if (valueDBIf[j][k].Contains(str)) {
+               buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n", shortCut.Data(),
+                                      taskHierarchyName[i].Data());
+               j = numOfFolder;
+               break;
+            }
+         }
+      }
+   }
+
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("ClassImp(%sDBAccess)\n", shortCut.Data());
