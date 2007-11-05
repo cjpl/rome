@@ -99,7 +99,6 @@ void ArgusTab::ArgusEventHandler() {
 Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber) {
 
    Bool_t forced = kFALSE;
-   Int_t i,j;
    if (gROME->GetWindow()->IsEventHandlingForced()) {
       forced = kTRUE;
       gROME->GetWindow()->ClearEventHandlingForced();
