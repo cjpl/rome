@@ -67,6 +67,7 @@ protected:
    ROMECompositeFrame      *fMainFrame;            //! main frame
    Int_t                    fCurrentTabID;         //! ID number of current tab, supposed to be used only for tab-view
    TObjArray               *fTabObjects;           //! Handle to Tab Objects
+   Int_t                    fCurrentTabIndex;      //! Index of the current Tab Objects
    Int_t                   *fParentIndex;          //! Index of the parent tab. -1 if no parent tab.
    Int_t                   *fNumberOfChildren;     //! Number of sub-tabs.
    TObjArray               *fTGTab;                //! array of TGTab* which holds sub-tabs
@@ -133,12 +134,14 @@ public:
    Int_t           GetTabObjectEntries() const { return fTabObjects ? fTabObjects->GetEntries() : 0; }
    Int_t           GetTabObjectEntriesFast() const { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
    ArgusTab       *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
-   Int_t           GetCurrentTabObjectIndex() const;
-   ArgusTab       *GetCurrentTabObject() const { return GetTabObjectAt(GetCurrentTabObjectIndex()); }
+   Int_t           GetCurrentTabObjectIndex() const { return fCurrentTabIndex; }
 private:
    ArgusTab       *GetTabObject(const char* tabTitle) const;
    ArgusTab       *GetTabObject(const int id) const;
+   Int_t           GetTabObjectIndex(const int id) const;
    Bool_t          CreateTabs();
+   void            TriggerTabSelected(Int_t index);
+   void            TriggerTabUnSelected(Int_t index);
 
 public:   
    // Analyzer Controller

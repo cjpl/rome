@@ -3363,6 +3363,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // BaseTabEventHandler
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler()\n{\n", shortCut.Data(), tabName[iTab].Data());
+//      buffer.AppendFormatted("   cout << \"%sT%s_Base::BaseEventHandler()\" << endl;\n", shortCut.Data(), tabName[iTab].Data());
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   int ii;\n");
          buffer.AppendFormatted("   if (RequestNewEvent(fCurrentRun, fCurrentEvent)) {\n");
@@ -3816,7 +3817,9 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // Tab Selected
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected()\n{\n", shortCut.Data(), tabName[iTab].Data());
+//      buffer.AppendFormatted("   cout << \"%sT%s_Base::BaseTabSelected()\" << endl;\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   SetForeground(kTRUE);\n");
+
       // Create build-in menus
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fStyle->cd();\n");
@@ -3860,6 +3863,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // Tab Unselected
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %sT%s_Base::BaseTabUnSelected()\n{\n", shortCut.Data(), tabName[iTab].Data());
+//      buffer.AppendFormatted("   cout << \"%sT%s_Base::BaseTabUnSelected()\" << endl;\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   SetForeground(kFALSE);\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabUnSelected();\n");
@@ -6338,7 +6342,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       if (!tabUsed[iTab] || (tabHeredity[iTab].Length() <= 0 && numOfMenu[iTab] <= 0)) {
          continue;
       }
-      buffer.AppendFormatted("   if (GetCurrentTabObjectIndex() == %d) {\n", tabUsedIndex[iTab]);
+      buffer.AppendFormatted("   if (fCurrentTabIndex == %d) {\n", tabUsedIndex[iTab]);
       if (tabHeredity[iTab].Length() > 0) {
          for (j = 0; j < numOfMenu[tabHeredityIndex[iTab]]; j++) {
             buffer.AppendFormatted("      if (!strcmp(menuName,\"%s\")) {\n", menuTitle[tabHeredityIndex[iTab]][j].Data());
