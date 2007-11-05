@@ -96,6 +96,7 @@ public:
    void         SetHistoUpToDateAt(Int_t i,Bool_t flag) { fHistoUpToDate[i] = flag; };
    void         ResetHisto();
    void         CopyHistosAndGraphs(TDirectory *d) const;
+   void         PropagateDeactivation();
 
 protected:
    void         BookHisto();
