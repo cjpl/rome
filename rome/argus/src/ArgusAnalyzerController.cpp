@@ -37,66 +37,49 @@
 #   include "../icons/update.xpm"
 #endif
 
+const int   kDigitWidth = 8;
 
 ClassImp(ArgusAnalyzerController)
 
 //______________________________________________________________________________
 ArgusAnalyzerController::ArgusAnalyzerController()
-:TGTransientFrame(0, 0, 1, 1)
+:TGDockableFrame(0)
 ,fNetFolder(0)
 ,fRunNumber(0)
 ,fLastRunNumber(0)
 ,fEventNumber(0)
 ,fEventStep(1)
 ,fEventInterval(1)
-,fRunNumberEntry(0)
-,fEventNumberEntry(0)
-,fEventStepEntry(0)
-,fEventIntervalEntry(0)
-,fRunNumberLabel(0)
-,fEventNumberLabel(0)
-,fEventStepLabel(0)
-,fEventIntervalLabel(0)
 ,fPlayButton(0)
 ,fPreviousButton(0)
 ,fNextButton(0)
 ,fUpdateButton(0)
 ,fStopButton(0)
-,fOnDisplay(kTRUE)
-,fInitialized(kFALSE)
+,fRunNumberEntry(0)
+,fEventNumberEntry(0)
+,fEventStepEntry(0)
+,fEventIntervalEntry(0)
 {
-   fVerticalFrame[0] = fVerticalFrame[1] = 0;
-   fHorizontalFrame[0] = fHorizontalFrame[1] = 0;
 }
 
 //______________________________________________________________________________
-ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main,
-                                                 UInt_t w, UInt_t h, ROMENetFolder * nf,
-                                                 UInt_t options)
-:TGTransientFrame(p, main, w, h, options)
+ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, Int_t id, ROMENetFolder * nf, UInt_t options)
+:TGDockableFrame(p, id, options)
 ,fNetFolder(nf)
 ,fRunNumber(0)
 ,fLastRunNumber(0)
 ,fEventNumber(0)
 ,fEventStep(1)
 ,fEventInterval(1)
-//,fVerticalFrame({0, 0})
-//,fHorizontalFrame({0, 0})
-,fRunNumberEntry(0)
-,fEventNumberEntry(0)
-,fEventStepEntry(0)
-,fEventIntervalEntry(0)
-,fRunNumberLabel(0)
-,fEventNumberLabel(0)
-,fEventStepLabel(0)
-,fEventIntervalLabel(0)
 ,fPlayButton(0)
 ,fPreviousButton(0)
 ,fNextButton(0)
 ,fUpdateButton(0)
 ,fStopButton(0)
-,fOnDisplay(kTRUE)
-,fInitialized(kFALSE)
+,fRunNumberEntry(0)
+,fEventNumberEntry(0)
+,fEventStepEntry(0)
+,fEventIntervalEntry(0)
 {
    fRunNumber = gROME->GetCurrentRunNumber();
    fLastRunNumber = fRunNumber;
@@ -110,10 +93,11 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    return;
 #endif
 
-   ChangeOptions((GetOptions() & ~kHorizontalFrame) | kVerticalFrame);
+   TGHorizontalFrame  *hFrame[2];
+   TGVerticalFrame    *vFrame[2];
 
    // Horizontal frame which contains picture buttons
-   fHorizontalFrame[0] = new TGHorizontalFrame(this, 32 * 6 + 4, 32 + 4);
+   hFrame[0] = new TGHorizontalFrame(fContainer, 0, 0);
 
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,2,0))
    TImage *previousImage = TImage::Create();
@@ -127,46 +111,46 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    nextImage->SetImageBuffer(const_cast<char**>(next_xpm), TImage::kXpm);
    updateImage->SetImageBuffer(const_cast<char**>(update_xpm), TImage::kXpm);
 
-   fPreviousButton = new TGPictureButton(fHorizontalFrame[0],
-                                         gClient->GetPicturePool()->GetPicture("previous",
-                                                                               previousImage->GetPixmap(),
-                                                                               previousImage->GetMask()),
-                                         B_Previous);
-   fPlayButton = new TGPictureButton(fHorizontalFrame[0],
-                                     gClient->GetPicturePool()->GetPicture("play",
-                                                                           playImage->GetPixmap(),
-                                                                           playImage->GetMask()),
-                                     B_Play);
-   fStopButton = new TGPictureButton(fHorizontalFrame[0],
-                                     gClient->GetPicturePool()->GetPicture("stop",
-                                                                           stopImage->GetPixmap(),
-                                                                           stopImage->GetMask()),
-                                     B_Stop);
-   fNextButton = new TGPictureButton(fHorizontalFrame[0],
-                                     gClient->GetPicturePool()->GetPicture("next",
-                                                                           nextImage->GetPixmap(),
-                                                                           nextImage->GetMask()),
-                                     B_Next);
-   fUpdateButton = new TGPictureButton(fHorizontalFrame[0],
-                                     gClient->GetPicturePool()->GetPicture("update",
-                                                                           updateImage->GetPixmap(),
-                                                                           updateImage->GetMask()),
-                                       B_Update);
+   fPreviousButton =
+         new TGPictureButton(hFrame[0], gClient->GetPicturePool()->GetPicture("previous",
+                                                                   previousImage->GetPixmap(),
+                                                                   previousImage->GetMask()),
+                             B_Previous);
+   fPlayButton =
+         new TGPictureButton(hFrame[0], gClient->GetPicturePool()->GetPicture("play",
+                                                                              playImage->GetPixmap(),
+                                                                              playImage->GetMask()),
+                             B_Play);
+   fStopButton =
+         new TGPictureButton(hFrame[0], gClient->GetPicturePool()->GetPicture("stop",
+                                                                              stopImage->GetPixmap(),
+                                                                              stopImage->GetMask()),
+                             B_Stop);
+   fNextButton =
+         new TGPictureButton(hFrame[0], gClient->GetPicturePool()->GetPicture("next",
+                                                                              nextImage->GetPixmap(),
+                                                                              nextImage->GetMask()),
+                             B_Next);
+   fUpdateButton =
+         new TGPictureButton(hFrame[0], gClient->GetPicturePool()->GetPicture("update",
+                                                                              updateImage->GetPixmap(),
+                                                                              updateImage->GetMask()),
+                             B_Update);
    // comment out until way to go to EndOfRun is implemented
-   //   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
+   //   fFrwdButton = new TGPictureButton(hFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
 #else
-   fPreviousButton = new TGPictureButton(fHorizontalFrame[0],
+   fPreviousButton = new TGPictureButton(hFrame[0],
                                          gClient->GetPicture("$ROMESYS/argus/icons/previous.xpm"), B_Previous);
-   fPlayButton = new TGPictureButton(fHorizontalFrame[0],
+   fPlayButton = new TGPictureButton(hFrame[0],
                                      gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
-   fStopButton = new TGPictureButton(fHorizontalFrame[0],
+   fStopButton = new TGPictureButton(hFrame[0],
                                      gClient->GetPicture("$ROMESYS/argus/icons/stop.xpm"), B_Stop);
-   fNextButton = new TGPictureButton(fHorizontalFrame[0],
+   fNextButton = new TGPictureButton(hFrame[0],
                                      gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
-   fUpdateButton = new TGPictureButton(fHorizontalFrame[0],
+   fUpdateButton = new TGPictureButton(hFrame[0],
                                        gClient->GetPicture("$ROMESYS/argus/icons/update.xpm"), B_Update);
    // comment out until way to go to EndOfRun is implemented
-   //   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
+   //   fFrwdButton = new TGPictureButton(hFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
 #endif
 
    fPlayButton->AllowStayDown(kTRUE);
@@ -179,9 +163,9 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    }
 
    fPreviousButton->SetToolTipText("Go to previous event");
-   fNextButton->SetToolTipText("Go to next event");
-   fUpdateButton->SetToolTipText("Update display");
-   fStopButton->SetToolTipText("Terminate this run");
+   fNextButton    ->SetToolTipText("Go to next event");
+   fUpdateButton  ->SetToolTipText("Update display");
+   fStopButton    ->SetToolTipText("Terminate this run");
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton->SetToolTipText("Go to end of run");
 
@@ -193,97 +177,72 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton->Associate(this);
 
-   fHorizontalFrame[0]->AddFrame(fPreviousButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
-   fHorizontalFrame[0]->AddFrame(fPlayButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
-   fHorizontalFrame[0]->AddFrame(fStopButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
-   fHorizontalFrame[0]->AddFrame(fNextButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
-   fHorizontalFrame[0]->AddFrame(fUpdateButton, new TGLayoutHints(kLHintsCenterY | kLHintsRight, 0, 0, 2, 2));
+   hFrame[0]->AddFrame(fPreviousButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 0, 0));
+   hFrame[0]->AddFrame(fPlayButton,     new TGLayoutHints(kLHintsCenterY, 0, 0, 0, 0));
+   hFrame[0]->AddFrame(fStopButton,     new TGLayoutHints(kLHintsCenterY, 0, 0, 0, 0));
+   hFrame[0]->AddFrame(fNextButton,     new TGLayoutHints(kLHintsCenterY, 0, 0, 0, 0));
+   hFrame[0]->AddFrame(fUpdateButton,   new TGLayoutHints(kLHintsCenterY, 5, 0, 0, 0)); // put a small gap
    // comment out until way to go to EndOfRun is implemented
-   //   fHorizontalFrame[0]->AddFrame(fFrwdButton, new TGLayoutHints(kLHintsCenterY, 0, 2, 2, 2));
+   //   hFrame[0]->AddFrame(fFrwdButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 0, 0));
 
    // Horizontal frame which contains two vertical frames
-   fHorizontalFrame[1] = new TGHorizontalFrame(this, 10, 10);
+   hFrame[1] = new TGHorizontalFrame(fContainer, 10, 10);
 
    // Vertical frame which contains labels
-   fVerticalFrame[0] = new TGVerticalFrame(fHorizontalFrame[1], 10, 10);
-   fRunNumberLabel = new TGLabel(fVerticalFrame[0], "Run number");
-   fEventNumberLabel = new TGLabel(fVerticalFrame[0], "Event number");
-   fEventStepLabel = new TGLabel(fVerticalFrame[0], "Event step");
-   fEventIntervalLabel = new TGLabel(fVerticalFrame[0], "Update frequency");
+   vFrame[0] = new TGVerticalFrame(hFrame[1], 10, 10);
+   TGLabel *fRunNumberLabel     = new TGLabel(vFrame[0], "Run : ");
+   TGLabel *fEventNumberLabel   = new TGLabel(vFrame[0], "Event : ");
+   TGLabel *fEventStepLabel     = new TGLabel(vFrame[0], "Event step");
+   TGLabel *fEventIntervalLabel = new TGLabel(vFrame[0], "Update freq.");
 
-   fVerticalFrame[0]->AddFrame(fRunNumberLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fVerticalFrame[0]->AddFrame(fEventNumberLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fVerticalFrame[0]->AddFrame(fEventStepLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fVerticalFrame[0]->AddFrame(fEventIntervalLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
+   vFrame[0]->AddFrame(fRunNumberLabel,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fEventNumberLabel,   new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fEventStepLabel,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fEventIntervalLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
 
    // Vertical frame which contains text entries
-   fVerticalFrame[1] = new TGVerticalFrame(fHorizontalFrame[1], 60, 20);
-   fRunNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_RunNumber, static_cast<Double_t>(fRunNumber),
-                                            TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_EventNumber, 0.,
-                                              TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventStepEntry = new TGNumberEntry(fVerticalFrame[1], fEventStep, 5, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1], fEventInterval, 5, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   vFrame[1]   = new TGVerticalFrame(hFrame[1], 60, 20);
+   fRunNumberEntry     = new TGNumberEntry(vFrame[1], 0., kDigitWidth, T_RunNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fEventNumberEntry   = new TGNumberEntry(vFrame[1], 0., kDigitWidth, T_EventNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fEventStepEntry     = new TGNumberEntry(vFrame[1], fEventStep, kDigitWidth, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fEventIntervalEntry = new TGNumberEntry(vFrame[1], fEventInterval, kDigitWidth, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
 
-   fRunNumberEntry->Associate(this);
-   fEventNumberEntry->Associate(this);
-   fEventStepEntry->Associate(this);
+   fRunNumberEntry    ->SetButtonToNum(kFALSE);
+   fEventNumberEntry  ->SetButtonToNum(kFALSE);
+   fEventStepEntry    ->SetButtonToNum(kFALSE);
+   fEventIntervalEntry->SetButtonToNum(kFALSE);
+
+   fRunNumberEntry    ->Associate(this);
+   fEventNumberEntry  ->Associate(this);
+   fEventStepEntry    ->Associate(this);
    fEventIntervalEntry->Associate(this);
 
-   fVerticalFrame[1]->AddFrame(fRunNumberEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fVerticalFrame[1]->AddFrame(fEventNumberEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fVerticalFrame[1]->AddFrame(fEventStepEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fVerticalFrame[1]->AddFrame(fEventIntervalEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
+   vFrame[1]->AddFrame(fRunNumberEntry,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fEventNumberEntry,   new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fEventStepEntry,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fEventIntervalEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
 
-   fHorizontalFrame[1]->AddFrame(fVerticalFrame[0], new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   fHorizontalFrame[1]->AddFrame(fVerticalFrame[1], new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
+   hFrame[1]->AddFrame(vFrame[0], new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 5, 5, 0, 0));
+   hFrame[1]->AddFrame(vFrame[1], new TGLayoutHints(kLHintsRight | kLHintsExpandY, 0, 0, 0, 0));
 
-   AddFrame(fHorizontalFrame[0], new TGLayoutHints(kLHintsExpandX | kLHintsLeft, 2, 2, 2, 2));
-   AddFrame(fHorizontalFrame[1], new TGLayoutHints(kLHintsCenterX, 2, 2, 2, 2));
+   fContainer->AddFrame(hFrame[0], new TGLayoutHints(kLHintsExpandX | kLHintsLeft, 2, 2, 2, 2));
+   fContainer->AddFrame(hFrame[1], new TGLayoutHints(kLHintsExpandX | kLHintsLeft, 2, 2, 2, 2));
 
-   MapSubwindows();
-   Resize(GetDefaultSize());
-
-   // position relative to the parent's window
-   Int_t ax, ay;
-   if (main) {
-      Window_t wdum;
-      Int_t mx, my; // geometry of main
-      UInt_t mw, mh; // geometry of main
-      gVirtualX->GetWindowSize(main->GetId(), mx, my, mw, mh);
-      gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId(), mw >> 1, mh >> 1, ax, ay, wdum);
-   } else {
-      UInt_t root_w, root_h;
-      gVirtualX->GetWindowSize(fClient->GetRoot()->GetId(), ax, ay, root_w, root_h);
-      ax = (root_w - fWidth) >> 1;
-      ay = (root_h - fHeight) >> 1;
-   }
-
-   Move(ax, ay);
-   SetWMPosition(ax, ay);
-
-   TString window_name = "Analyzer Controller";
+   TString window_name = "ARGUS Controller";
 #if 0 // fSocket is protected
+   window_name += ".";
    window_name += fNetFolder->fSocket->GetUrl();
 #endif
-   window_name += ".";
    SetWindowName(window_name);
 
-   SetMWMHints(kMWMDecorAll | kMWMDecorMaximize | kMWMDecorMenu, kMWMFuncAll | kMWMFuncMaximize | kMWMFuncResize, kMWMInputModeless);
+//   GetUndocked()->SetMWMHints(kMWMDecorAll | kMWMDecorMaximize | kMWMDecorMenu, kMWMFuncAll | kMWMFuncMaximize | kMWMFuncResize, kMWMInputModeless);
 
-   MapWindow();
-//   fClient->WaitFor(this);
-   fInitialized = true;
 }
 
 //______________________________________________________________________________
 ArgusAnalyzerController::~ArgusAnalyzerController()
 {
 #if 0 // deleting GUI objects may cause error
-   SafeDelete(fHorizontalFrame[0]);
-   SafeDelete(fHorizontalFrame[1]);
-   SafeDelete(fVerticalFrame[0]);
-   SafeDelete(fVerticalFrame[1]);
    SafeDelete(fPlayButton);
    SafeDelete(fPreviousButton);
    SafeDelete(fNextButton);
@@ -311,13 +270,26 @@ void ArgusAnalyzerController::Update()
 }
 
 //______________________________________________________________________________
-Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
+Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
+
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
       case kCM_BUTTON:
          switch (parm1) {
+         case 1:
+            if (!fHidden) {
+               UndockContainer();
+            }
+            break;
+         case 2:
+            if (!fHidden) {
+               HideContainer();
+            } else {
+               ShowContainer();
+            }
+            break;
          case B_Play:
             if (fPlayButton->IsDown()) {
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/pause.xpm"));
@@ -388,6 +360,33 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                /* do something to go to EndOfRun */
             }
             break;
+         case T_RunNumber:
+            /* change run number in analyzer */
+            break;
+         case T_EventNumber:
+            fEventNumberEntry->GetNumberEntry()
+                  ->IncreaseNumber((TGNumberFormat::EStepSize)(parm2%100), parm2/10000?-1:1, (parm2%10000/100));
+            fEventNumber = fEventNumberEntry->GetIntNumber();
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
+               if (fNetFolder) {
+                  ROMEString str;
+                  str.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");",fEventNumber);
+                  fNetFolder->ExecuteCommand(str.Data());
+               }
+            } else {
+               gROME->SetUserEventJ(fEventNumber);
+            }
+            break;
+         case T_EventStep:
+            fEventStepEntry->GetNumberEntry()
+                  ->IncreaseNumber((TGNumberFormat::EStepSize)(parm2%100), parm2/10000?-1:1, (parm2%10000/100));
+            fEventStep = fEventStepEntry->GetIntNumber();
+            break;
+         case T_EventInterval:
+            fEventIntervalEntry->GetNumberEntry()
+                  ->IncreaseNumber((TGNumberFormat::EStepSize)(parm2%100), parm2/10000?-1:1, (parm2%10000/100));
+            fEventInterval = fEventIntervalEntry->GetIntNumber();
+            break;
          default:
             break;
          }
@@ -404,13 +403,13 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             /* change run number in analyzer */
             break;
          case T_EventNumber:
-            fEventNumber = fEventNumberEntry->GetIntNumber();
+            /* do nothing until ENTER is presses */
             break;
          case T_EventStep:
-            fEventStep = fEventStepEntry->GetIntNumber();
+            /* do nothing until ENTER is presses */
             break;
          case T_EventInterval:
-            fEventInterval = fEventIntervalEntry->GetIntNumber();
+            /* do nothing until ENTER is presses */
             break;
          default:
             break;
@@ -422,17 +421,15 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             fRunNumber = fRunNumberEntry->GetIntNumber();
             break;
          case T_EventNumber:
-            if (fInitialized) {
-               fEventNumber = fEventNumberEntry->GetIntNumber();
-               if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
-                  if (fNetFolder) {
-                     ROMEString str;
-                     str.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");",fEventNumber);
-                     fNetFolder->ExecuteCommand(str.Data());
-                  }
-               } else {
-                  gROME->SetUserEventJ(fEventNumber);
+            fEventNumber = fEventNumberEntry->GetIntNumber();
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
+               if (fNetFolder) {
+                  ROMEString str;
+                  str.SetFormatted("gAnalyzer->SetUserEventJ("R_LLD");",fEventNumber);
+                  fNetFolder->ExecuteCommand(str.Data());
                }
+            } else {
+               gROME->SetUserEventJ(fEventNumber);
             }
             break;
          case T_EventStep:
@@ -454,13 +451,4 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
       break;
    }
    return kTRUE;
-}
-
-//______________________________________________________________________________
-void ArgusAnalyzerController::CloseWindow()
-{
-   // Close the dialog. On close the dialog will be deleted and cannot be
-   // re-used.
-   gROME->GetWindow()->SetControllerActive(kFALSE);
-   DeleteWindow();
 }

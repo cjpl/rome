@@ -34,6 +34,8 @@
 class ROMECompositeFrame;
 class ROMEStrArray;
 class TGHProgressBar;
+class TGDockableFrame;
+class TGLabel;
 class TGListTree;
 class TGListTreeItem;
 class TGTab;
@@ -55,7 +57,6 @@ protected:
    TGStatusBar             *fStatusBar;            //! status bar
    Bool_t                   fStatusBarSwitch;      //! status bar switch
    TGHProgressBar          *fProgress;             //!
-   TGHorizontalFrame       *fInfoFrame;            //! info frame
    TGMenuBar               *fMenuBar;              //! menu bar
    TGPopupMenu             *fMenuFile;             //! file menu
    TGLabel                 *fRunEventNumber;       //! run number and event number

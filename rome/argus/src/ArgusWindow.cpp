@@ -53,7 +53,6 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fStatusBar(0)
 ,fStatusBarSwitch(statusBarSwitch)
 ,fProgress(0)
-,fInfoFrame(0)
 ,fMenuBar(0)
 ,fMenuFile(0)
 ,fRunEventNumber(0)
@@ -91,7 +90,6 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fStatusBar(0)
 ,fStatusBarSwitch(statusBarSwitch)
 ,fProgress(0)
-,fInfoFrame(0)
 ,fMenuBar(0)
 ,fMenuFile(0)
 ,fRunEventNumber(0)
@@ -136,10 +134,6 @@ Bool_t ArgusWindow::Start()
    // Start Argus Window
    fWatchAll.Start(false);
    ROMEPrint::Debug("ArgusWindow::Start()\n");
-   // Initialize Analyzer Controller
-   if (fTabWindow && fControllerActive) {
-      fController = new ArgusAnalyzerController(gClient->GetRoot(), this, 100, 100, fControllerNetFolder);
-   }
 
    // Create status bar
    Int_t parts[2] = {70, 30};
@@ -152,18 +146,18 @@ Bool_t ArgusWindow::Start()
       this->AddFrame(fStatusBar, new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX, 0, 0, 2, 0));
    }
 
-   // Create info frame
-   fInfoFrame = new TGHorizontalFrame(this, 0, 0);
-   AddFrame(fInfoFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+   // Create horizontal frame which holds menu bar and run#/event#
+   TGHorizontalFrame *hMenuFrame = new TGHorizontalFrame(this, 0, 0);
+   AddFrame(hMenuFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
    {
       // run# and event#
-      fRunEventNumber = new TGLabel(fInfoFrame, "");
+      fRunEventNumber = new TGLabel(hMenuFrame, "");
       fRunEventNumber->SetTextJustify(kTextCenterX | kTextRight);
-      fInfoFrame->AddFrame(fRunEventNumber, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 10, 0, 0));
+      hMenuFrame->AddFrame(fRunEventNumber, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 10, 0, 0));
 
       // Create menubar
-      fMenuBar = new TGMenuBar(fInfoFrame, 1, 1, kHorizontalFrame);
-      fInfoFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 0, 0));
+      fMenuBar = new TGMenuBar(hMenuFrame, 1, 1, kHorizontalFrame);
+      hMenuFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 0, 0));
       {
          // Create popup menu
          fMenuFile = new TGPopupMenu(fClient->GetRoot());
@@ -179,7 +173,7 @@ Bool_t ArgusWindow::Start()
                   fMenuNetFolder->Associate(this);
                }
             }
-            fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
+//            fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
             fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
          } else {
             fMenuFile->AddEntry("C&lose", M_FILE_EXIT);
@@ -194,14 +188,28 @@ Bool_t ArgusWindow::Start()
    // Horizontal frame which holds the main canvas
    TGHorizontalFrame *hFrame = new TGHorizontalFrame(this, 0, 0);
    AddFrame(hFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
+
+   // Vertical frame which holds the info frame and listtree
+   TGVerticalFrame *vFrame = new TGVerticalFrame(hFrame, 0, 0);
+   hFrame->AddFrame(vFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY, 0, 1));
    {
-      UInt_t width  = static_cast<UInt_t>(640 * GetWindowScale());
-      UInt_t height = static_cast<UInt_t>(480 * GetWindowScale());
+
+      // now analyzer controller is dockable
+      if (fTabWindow && !gROME->IsStandAloneARGUS()) {
+         fController = new ArgusAnalyzerController(vFrame, -1, fControllerNetFolder);
+         vFrame->AddFrame(fController, new TGLayoutHints (kLHintsTop | kLHintsLeft));
+      }
+
+//         fControllerDock = new TGDockableFrame(vFrame, 0, kVerticalFrame);
+//         vFrame->AddFrame(fControllerDock, new TGLayoutHints(kLHintsTop | kLHintsLeft));
+//         fControllerDock->EnableUndock(kTRUE);
+//         fControllerDock->EnableHide(kTRUE);
+//         fControllerDock->Associate(this);
 
       if (fListTreeView && fTabWindow) {
          // Create ListTree
-         TGCanvas *canvas = new TGCanvas(hFrame, 120, 400);
-         hFrame->AddFrame(canvas, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 1));
+         TGCanvas *canvas = new TGCanvas(vFrame, 120, 400);
+         vFrame->AddFrame(canvas, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
          fListTree = new TGListTree(canvas, kHorizontalFrame);
          fListTree->Connect("Clicked(TGListTreeItem*,Int_t)", "ArgusWindow", this, "OnClick(TGListTreeItem*,Int_t)");
          fListTree->Connect("DoubleClicked(TGListTreeItem*,Int_t)", "ArgusWindow", this, "OnDoubleClick(TGListTreeItem*,Int_t)");
@@ -209,6 +217,8 @@ Bool_t ArgusWindow::Start()
       }
 
       // Create the main frame
+      const UInt_t width  = static_cast<UInt_t>(640 * GetWindowScale());
+      const UInt_t height = static_cast<UInt_t>(480 * GetWindowScale());
       if (!fListTreeView && fTabWindow) {
          fTab = new TGTab(hFrame, width, height);
          fTab->Associate(this);
@@ -630,7 +640,7 @@ void ArgusWindow::TriggerEventHandler()
 
    SetStatus(0, "", 0);
    fWatchAll.Start(false);
-   if (fControllerActive && fController) {
+   if (fController) {
       fController->Update();
    }
 
@@ -643,7 +653,8 @@ void ArgusWindow::TriggerEventHandler()
               gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
 #endif
       fRunEventNumber->SetText(str);
-      fInfoFrame->Layout(); // call the parent frame's Layout() method to force updating of size of labels.
+      // call the parent frame's Layout() method to force updating of size of labels.
+      ((TGCompositeFrame*)(fRunEventNumber->GetParent()))->Layout();
    }
    ArgusTab *tab = GetTabObject(fCurrentTabID);
    if (tab && tab->IsSwitch()) {
@@ -669,6 +680,8 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
    ArgusWindow *subWindow = 0;
    Int_t        iSub;
    Int_t        nSub;
+
+//   cout << "ArgusWindow::ProcessMessage " << GET_MSG(msg) << " " << GET_SUBMSG(msg) << " " << param1 << endl;
 
    // Process messages coming from widgets associated with the dialog.  
    switch (GET_MSG(msg)) {
@@ -700,7 +713,6 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             subWindow = CreateSubWindow();
             subWindow->SetStatusBarSwitch(fStatusBarSwitch);
 //            subWindow->SetListTreeView(kFALSE);
-            subWindow->SetControllerActive(fControllerActive);
             subWindow->SetWindowScale(fWindowScale);
             subWindow->SetWindowName(newTitle.Data());
             subWindow->SetWindowId(fSubWindows->GetEntriesFast());
@@ -718,9 +730,8 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             CloseWindow();
             break;
          case M_FILE_CONTROLLER:
-            if (!fControllerActive) {
-               fController = new ArgusAnalyzerController(gClient->GetRoot(),this, 100, 100, fControllerNetFolder);
-               fControllerActive = kTRUE;
+            if (fController->IsHidden()) {
+               fController->ShowContainer();
             }
             break;
          default:
@@ -757,6 +768,18 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             Layout();
             MapWindow();
          }
+         break;
+      }
+      break;
+   case kC_DOCK:
+      switch (GET_SUBMSG(msg)) {
+      case kDOCK_DOCK:
+         break;
+      case kDOCK_UNDOCK:
+         break;
+      case kDOCK_SHOW:
+         break;
+      case kDOCK_HIDE:
          break;
       }
       break;

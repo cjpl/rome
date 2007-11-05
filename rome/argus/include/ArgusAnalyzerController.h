@@ -17,18 +17,17 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TGFrame.h>
+#include <TGDockableFrame.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
 class ROMENetFolder;
-class TGNumberEntryField;
+class TGDockableFrame;
 class TGNumberEntry;
-class TGLabel;
 class TGPictureButton;
 
-class ArgusAnalyzerController : public TGTransientFrame
+class ArgusAnalyzerController : public TGDockableFrame
 {
 protected:
    ROMENetFolder      *fNetFolder;
@@ -37,26 +36,20 @@ protected:
    Long64_t            fEventNumber;
    Int_t               fEventStep;
    Int_t               fEventInterval;
-   TGVerticalFrame    *fVerticalFrame[2];
-   TGHorizontalFrame  *fHorizontalFrame[2];
-   TGNumberEntryField *fRunNumberEntry;
-   TGNumberEntryField *fEventNumberEntry;
-   TGNumberEntry      *fEventStepEntry;
-   TGNumberEntry      *fEventIntervalEntry;
-   TGLabel            *fRunNumberLabel;
-   TGLabel            *fEventNumberLabel;
-   TGLabel            *fEventStepLabel;
-   TGLabel            *fEventIntervalLabel;
    TGPictureButton    *fPlayButton;
    TGPictureButton    *fPreviousButton;
    TGPictureButton    *fNextButton;
    TGPictureButton    *fUpdateButton;
    TGPictureButton    *fStopButton;
 //   TGPictureButton  *fFrwdButton;
-   Bool_t              fOnDisplay;
-   Bool_t              fInitialized;
+   TGNumberEntry      *fRunNumberEntry;
+   TGNumberEntry      *fEventNumberEntry;
+   TGNumberEntry      *fEventStepEntry;
+   TGNumberEntry      *fEventIntervalEntry;
 
    enum CommandIdentifiers{
+      B_Dock = 1,
+      B_Hide,
       B_Play,
       B_Previous,
       B_Next,
@@ -75,12 +68,10 @@ private:
 
 public:
    ArgusAnalyzerController();
-   ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,
-                           UInt_t options = kVerticalFrame);
+   ArgusAnalyzerController(const TGWindow* p, Int_t id, ROMENetFolder* nf, UInt_t options = kVerticalFrame);
    virtual ~ArgusAnalyzerController();
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
-   void           CloseWindow();
    void           Update();
 
    ClassDef(ArgusAnalyzerController,0) // Panel to control event loop of analyzer
