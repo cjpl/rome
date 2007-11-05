@@ -6338,7 +6338,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       if (!tabUsed[iTab] || (tabHeredity[iTab].Length() <= 0 && numOfMenu[iTab] <= 0)) {
          continue;
       }
-      buffer.AppendFormatted("   if (fCurrentTabID == GetTabObjectAt(%d)->GetID()) {\n", tabUsedIndex[iTab]);
+      buffer.AppendFormatted("   if (GetCurrentTabObjectIndex() == %d) {\n", tabUsedIndex[iTab]);
       if (tabHeredity[iTab].Length() > 0) {
          for (j = 0; j < numOfMenu[tabHeredityIndex[iTab]]; j++) {
             buffer.AppendFormatted("      if (!strcmp(menuName,\"%s\")) {\n", menuTitle[tabHeredityIndex[iTab]][j].Data());
