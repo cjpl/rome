@@ -49,7 +49,7 @@ protected:
    Int_t                    fWindowId;             //! Window id
    TObjArray               *fSubWindows;           //! Handles to sub windows
    TArrayI                 *fSubWindowRunning;     //! Flags running sub windows
-   Bool_t                   fTabWindow;            //! Flags Monitor with Tabs
+   Bool_t                   fTabWindow;            //! Flags main window
    ROMEStopwatch            fWatchAll;             //! Records time used by window
    ROMEString               fCpuTimeAllString;     //! Elapsed CPU Time of all in a readable format
    ROMEString               fRealTimeAllString;    //! Elapsed Real Time of all in a readable format
@@ -65,7 +65,7 @@ protected:
    TGListTreeItem         **fListTreeItem;         //!
    TGTab                   *fTab;                  //! tabs
    ROMECompositeFrame      *fMainFrame;            //! main frame
-   Int_t                    fCurrentTabID;         //! ID number of current tab
+   Int_t                    fCurrentTabID;         //! ID number of current tab, supposed to be used only for tab-view
    TObjArray               *fTabObjects;           //! Handle to Tab Objects
    Int_t                   *fParentIndex;          //! Index of the parent tab. -1 if no parent tab.
    Int_t                   *fNumberOfChildren;     //! Number of sub-tabs.
@@ -130,13 +130,14 @@ private:
 public:
    // Tab/ListTree methods
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
-   ArgusTab       *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
-   ArgusTab       *GetTabObject(const char* tabTitle) const;
-   ArgusTab       *GetTabObject(const int id) const;
    Int_t           GetTabObjectEntries() const { return fTabObjects ? fTabObjects->GetEntries() : 0; }
    Int_t           GetTabObjectEntriesFast() const { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
+   ArgusTab       *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
    Int_t           GetCurrentTabObjectIndex() const;
+   ArgusTab       *GetCurrentTabObject() const { return GetTabObjectAt(GetCurrentTabObjectIndex()); }
 private:
+   ArgusTab       *GetTabObject(const char* tabTitle) const;
+   ArgusTab       *GetTabObject(const int id) const;
    Bool_t          CreateTabs();
 
 public:   
