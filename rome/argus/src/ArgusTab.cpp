@@ -116,13 +116,6 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber)
          // if new run#/event# or event handling is forced
          fCurrentRun   = gROME->GetCurrentRunNumber();
          fCurrentEvent = gROME->GetCurrentEventNumber();
-         if (gROME->IsROMEMonitor()) {
-            for (i=0;i<gROME->GetTaskObjectEntries();i++) {
-               for (j=0;j<gROME->GetTaskObjectAt(i)->GetNumberOfHistos();j++) {
-                  gROME->GetTaskObjectAt(i)->SetHistoUpToDateAt(j,kFALSE);
-               }
-            }
-         }
          return kTRUE;
       }
    }
