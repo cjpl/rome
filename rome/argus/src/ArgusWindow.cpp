@@ -270,8 +270,9 @@ Bool_t ArgusWindow::Start()
                size.fHeight = framesize.fHeight;
             }
 
-            fListTree->HighlightItem(fListTreeItem[iTab]);
-//            fCurrentTabID = iTab;
+            if (fTabWindow) { // we don't have listtrees for sub-windows
+               fListTree->HighlightItem(fListTreeItem[iTab]);
+            }
             lastTab = tab;
          }
       }
@@ -560,6 +561,9 @@ Bool_t ArgusWindow::CreateTabs()
 
    for (iTab = 0; iTab < nTabs; iTab++) {
       tab = GetTabObjectAt(iTab);
+
+//      cout << "CreateTabs : " << iTab << " " << tab->IsSwitch() << " " << tab->GetName() << endl;
+
       if (tab->IsSwitch()) {
          if (!fListTreeView) {
             parentTab = (fParentIndex[iTab]==-1) ? fTab : static_cast<TGTab*>(fTGTab->At(fParentIndex[iTab]));
@@ -593,9 +597,11 @@ Bool_t ArgusWindow::CreateTabs()
                fTGTab->AddAt(newTab, iTab);
             }
          } else {
-            item = (fParentIndex[iTab]==-1) ? 0 : fListTreeItem[fParentIndex[iTab]];
-            fListTreeItem[iTab] = fListTree->AddItem(item, tab->GetTitle());
-            fListTree->OpenItem(fListTreeItem[iTab]);
+            if (fTabWindow) { // we don't have listtrees for sub-windows
+               item = (fParentIndex[iTab]==-1) ? 0 : fListTreeItem[fParentIndex[iTab]];
+               fListTreeItem[iTab] = fListTree->AddItem(item, tab->GetTitle());
+               fListTree->OpenItem(fListTreeItem[iTab]);
+            }
             if (fNumberOfChildren[iTab]<=0) {
                tab->ReparentWindow(fMainFrame, 60, 20);
                tab->ArgusInit();
@@ -673,11 +679,13 @@ void ArgusWindow::TriggerEventHandler()
 //______________________________________________________________________________
 Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
-   Int_t        iTab     = 0;
-   ArgusTab    *tab      = 0;
-   ArgusTab    *newTab   = 0;
-   ROMEString   newTitle = "";
+   Int_t        currentTab = 0;
+   ArgusTab    *tab       = 0;
+   ArgusTab    *newTab    = 0;
+   ROMEString   newTitle  = "";
    ArgusWindow *subWindow = 0;
+   Int_t        iTab      = 0;
+   Int_t        iParent   = 0;
    Int_t        iSub;
    Int_t        nSub;
 
@@ -688,8 +696,8 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
    case kC_COMMAND:    
       switch (GET_SUBMSG(msg)) {
       case kCM_MENU:
-         iTab = GetCurrentTabObjectIndex();
-         tab  = GetTabObjectAt(iTab);
+         currentTab = GetCurrentTabObjectIndex();
+         tab  = GetTabObjectAt(currentTab);
          tab->BaseMenuClicked(0, param1);
          switch (param1) {
          case M_FILE_NEW_WINDOW:
@@ -700,7 +708,7 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             for (iSub = 0; iSub < nSub; iSub++) {
                if (!IsSubWindowRunningAt(iSub)) {
                   subWindow = static_cast<ArgusWindow*>(fSubWindows->At(iSub));
-                  if (subWindow->GetCurrentTabObjectIndex() == iTab) {
+                  if (subWindow->GetCurrentTabObjectIndex() == currentTab) {
                      subWindow->MapWindow();
                      SetSubWindowRunningAt(iSub, kTRUE);
                      return kTRUE;
@@ -713,15 +721,22 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 
             subWindow = CreateSubWindow();
             subWindow->SetStatusBarSwitch(fStatusBarSwitch);
-//            subWindow->SetListTreeView(kFALSE);
+            subWindow->SetListTreeView(kTRUE);
             subWindow->SetWindowScale(fWindowScale);
             subWindow->SetWindowName(newTitle.Data());
             subWindow->SetWindowId(fSubWindows->GetEntriesFast());
             subWindow->ClearEventHandlingRequest();
             subWindow->ClearEventHandlingForced();
-            newTab = subWindow->GetTabObjectAt(iTab);
+            newTab = subWindow->GetTabObjectAt(currentTab);
             newTab->SetTabActive(kTRUE);
             newTab->SetSwitch(kTRUE);
+
+            // switch on all the ancestor tabs
+            iTab = currentTab;
+            while ((iParent=fParentIndex[iTab]) != -1) {
+               subWindow->GetTabObjectAt(iParent)->SetSwitch(kTRUE);
+               iTab = iParent;
+            }
 
             subWindow->Start();
             SetSubWindowRunningAt(fSubWindows->GetEntriesFast(),kTRUE);
@@ -748,9 +763,9 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
          if (param1 != fCurrentTabID) {
 
             // cleanup current tab
-            iTab = GetCurrentTabObjectIndex();
-            if (iTab>=0) {
-               tab = static_cast<ArgusTab*>(fTabObjects->At(iTab));
+            currentTab = GetCurrentTabObjectIndex();
+            if (currentTab>=0) {
+               tab = static_cast<ArgusTab*>(fTabObjects->At(currentTab));
                tab->BaseTabUnSelected();
             }
 
@@ -758,10 +773,10 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
             fCurrentTabID = param1;
             tab = GetTabObject(param1);
             tab->BaseTabSelected();
-            iTab = GetCurrentTabObjectIndex();
-            if (fNumberOfChildren[iTab] >0) {
+            currentTab = GetCurrentTabObjectIndex();
+            if (fNumberOfChildren[currentTab] >0) {
                // special treatment for tabs with sub-tab
-               ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*iTab + static_cast<TGTab*>(fTGTab->At(iTab))->GetCurrent(), 0);
+               ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*currentTab + static_cast<TGTab*>(fTGTab->At(currentTab))->GetCurrent(), 0);
             }
          }
          break;
