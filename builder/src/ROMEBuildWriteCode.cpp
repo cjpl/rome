@@ -11007,11 +11007,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                }
             }
          }
+         buffer.AppendFormatted("      PropagateDeactivation();\n");
          buffer.AppendFormatted("   }\n");
       }
       buffer.AppendFormatted("}\n\n");
    }
-
 
    // Reset statistics
    buffer.Append(kMethodLine);

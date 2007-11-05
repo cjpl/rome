@@ -1133,3 +1133,20 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
       }
    }
 }
+
+//______________________________________________________________________________
+void ROMETask::PropagateDeactivation()
+{
+   // Deactivate sub tasks if this is deactivated
+   TIter next1(fTasks);
+   ROMETask *task;
+   if (!IsActive()) {
+      while((task = static_cast<ROMETask*>(next1()))) {
+         task->SetActive(kFALSE);
+      }
+   }
+   TIter next2(fTasks);
+   while((task = static_cast<ROMETask*>(next2()))) {
+      task->PropagateDeactivation();
+   }
+}

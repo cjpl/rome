@@ -178,7 +178,7 @@ protected:
 
    // Object Handles
    TObjArray     *fTaskObjects;                  //! Handle to Task Objects
-   TTask         *fMainTask;                     //! Handle to Main Task
+   ROMETask      *fMainTask;                     //! Handle to Main Task
    TFolder       *fMainFolder;                   //! Handle to Main Folder
    TFile         *fHistoFiles;                   //! Handle to Histogram Files
    ROMENetFolderServer *fNetFolderServer;        //! Handle to NetFolder server

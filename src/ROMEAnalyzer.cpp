@@ -598,6 +598,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       return false;
    }
 
+   fMainTask->PropagateDeactivation();
+
    ROMEPrint::Debug("Reading command line options\n");
    for (i = 1; i < argc; i++) {
       if (!strcmp(argv[i], "-q")) {
