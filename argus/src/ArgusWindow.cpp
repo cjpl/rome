@@ -763,11 +763,6 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
                // special treatment for tabs with sub-tab
                ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 1000*iTab + static_cast<TGTab*>(fTGTab->At(iTab))->GetCurrent(), 0);
             }
-
-            // draw windows
-            MapSubwindows();
-            Layout();
-            MapWindow();
          }
          break;
       }
