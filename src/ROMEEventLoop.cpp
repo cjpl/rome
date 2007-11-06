@@ -92,7 +92,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
 ,fFileIOWatch()
 ,fUpdateWindow(kFALSE)
 ,fLastUpdateTime(0)
-,fWindowFirstDraw(kFALSE)
+//,fWindowFirstDraw(kFALSE)
 ,fUpdateWindowLastEvent(0)
 ,fBeginOfRunMacro("")
 ,fBeginOfEventMacro("")
@@ -257,7 +257,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             }
             gROME->StartWindow();
             ROMEPrint::Print("Argus monitor running                                 \n");
-            fWindowFirstDraw = kTRUE;
+//            fWindowFirstDraw = kTRUE;
          }
       }
 
@@ -538,11 +538,11 @@ Int_t ROMEEventLoop::RunEvent()
          }
       }
    }
-   if (fWindowFirstDraw && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
-      fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
-      gROME->GetWindow()->TriggerEventHandler();
-      fWindowFirstDraw = kFALSE;
-   }
+//   if (fWindowFirstDraw && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+//      fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+//      gROME->GetWindow()->TriggerEventHandler();
+//      fWindowFirstDraw = kFALSE;
+//   }
 
    return kContinue;
 }
