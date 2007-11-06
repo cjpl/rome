@@ -98,12 +98,6 @@ void ArgusTab::ArgusEventHandler() {
 //______________________________________________________________________________
 Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber) {
 
-   Bool_t forced = kFALSE;
-   if (gROME->GetWindow()->IsEventHandlingForced()) {
-      forced = kTRUE;
-      gROME->GetWindow()->ClearEventHandlingForced();
-   }
-
    if (gROME->IsROMEMonitor()) {
       fCurrentRun   = gROME->GetCurrentRunNumber();
       fCurrentEvent = gROME->GetCurrentEventNumber();
@@ -111,7 +105,7 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber, Long64_t oldEventNumber)
    } else {
       if (oldRunNumber!=gROME->GetCurrentRunNumber()
           || oldEventNumber!=gROME->GetCurrentEventNumber()
-          || forced ) {
+          || gROME->GetWindow()->IsEventHandlingForced() ) {
          // if new run#/event# or event handling is forced
          fCurrentRun   = gROME->GetCurrentRunNumber();
          fCurrentEvent = gROME->GetCurrentEventNumber();
