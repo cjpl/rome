@@ -563,66 +563,80 @@ Bool_t ArgusWindow::CreateTabs()
    TGTab            *newTab;
    TGListTreeItem   *item;
    ROMEString        command = "";
+   Int_t             iParent;
+//   Bool_t            isSwitch;   
 
    for (iTab = 0; iTab < nTabs; iTab++) {
       tab = GetTabObjectAt(iTab);
+//      isSwitch = tab->IsSwitch();
 
-//      cout << "CreateTabs : " << iTab << " " << tab->IsSwitch() << " " << tab->GetName() << endl;
+      // switch off the tab if its ancestor is off
+      iParent = fParentIndex[iTab];
+      while (iParent != -1) {
+         if (! GetTabObjectAt(iParent)->IsSwitch()) {
+            tab->SetSwitch(kFALSE);
+            break;
+         }
+         iParent = fParentIndex[iParent];
+      }
+//      cout << "CreateTabs : " << iTab << " " << tab->IsSwitch() << " " << isSwitch << " " << tab->GetName() << endl;
 
-      if (tab->IsSwitch()) {
-         if (!fListTreeView) {
-            parentTab = (fParentIndex[iTab]==-1) ? fTab : static_cast<TGTab*>(fTGTab->At(fParentIndex[iTab]));
-            if (fNumberOfChildren[iTab]<=0) {
-               if (fTabWindow) {
-                  if (parentTab) {
-                     newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
-                     tabFrame = parentTab->AddTab(tab->GetTitle());
-                     tab->ReparentWindow(tabFrame, 60, 20);
-                     tab->ArgusInit();
-                     tab->SetID(newID);
-                     tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
-                  }
-               } else {
-                  tab->ReparentWindow(fMainFrame, 60, 20);
+      if (!tab->IsSwitch()) {
+         continue;
+      }
+
+      if (!fListTreeView) {
+         parentTab = (fParentIndex[iTab]==-1) ? fTab : static_cast<TGTab*>(fTGTab->At(fParentIndex[iTab]));
+         if (fNumberOfChildren[iTab]<=0) {
+            if (fTabWindow) {
+               if (parentTab) {
+                  newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
+                  tabFrame = parentTab->AddTab(tab->GetTitle());
+                  tab->ReparentWindow(tabFrame, 60, 20);
                   tab->ArgusInit();
-                  tab->SetID(0);
-                  fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
-                  return kTRUE;
+                  tab->SetID(newID);
+                  tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
                }
             } else {
-               newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
-               tabFrame = parentTab->AddTab(tab->GetTitle());
-               tab->ReparentWindow(tabFrame, 60, 20);
-               tab->ArgusInit();
-               tab->SetID(newID);
-               newTab = new TGTab(tabFrame);
-               command.SetFormatted("gAnalyzer->GetWindow()->ProcessMessage($MSG, $PARM1 + %d, $PARM2)", iTab*1000);
-               newTab->SetCommand(command.Data());
-               tabFrame->AddFrame(newTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
-               fTGTab->AddAt(newTab, iTab);
-            }
-         } else {
-            if (fTabWindow) { // we don't have listtrees for sub-windows
-               item = (fParentIndex[iTab]==-1) ? 0 : fListTreeItem[fParentIndex[iTab]];
-               fListTreeItem[iTab] = fListTree->AddItem(item, tab->GetTitle());
-               fListTree->OpenItem(fListTreeItem[iTab]);
-            }
-            if (fNumberOfChildren[iTab]<=0) {
                tab->ReparentWindow(fMainFrame, 60, 20);
                tab->ArgusInit();
-               tab->SetID(iTab);
+               tab->SetID(0);
                fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
-               if (!fTabWindow) {
-                  return kTRUE;
-               }
-            } else {
-               tab->ArgusInit();
-               tab->SetID(iTab);
+               return kTRUE;
             }
+         } else {
+            newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
+            tabFrame = parentTab->AddTab(tab->GetTitle());
+            tab->ReparentWindow(tabFrame, 60, 20);
+            tab->ArgusInit();
+            tab->SetID(newID);
+            newTab = new TGTab(tabFrame);
+            command.SetFormatted("gAnalyzer->GetWindow()->ProcessMessage($MSG, $PARM1 + %d, $PARM2)", iTab*1000);
+            newTab->SetCommand(command.Data());
+            tabFrame->AddFrame(newTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
+            fTGTab->AddAt(newTab, iTab);
+         }
+      } else {
+         if (fTabWindow) { // we don't have listtrees for sub-windows
+            item = (fParentIndex[iTab]==-1) ? 0 : fListTreeItem[fParentIndex[iTab]];
+            fListTreeItem[iTab] = fListTree->AddItem(item, tab->GetTitle());
+            fListTree->OpenItem(fListTreeItem[iTab]);
+         }
+         if (fNumberOfChildren[iTab]<=0) {
+            tab->ReparentWindow(fMainFrame, 60, 20);
+            tab->ArgusInit();
+            tab->SetID(iTab);
+            fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
+            if (!fTabWindow) {
+               return kTRUE;
+            }
+         } else {
+            tab->ArgusInit();
+            tab->SetID(iTab);
          }
       }
    }
-   
+
    return kTRUE;
 }
 
