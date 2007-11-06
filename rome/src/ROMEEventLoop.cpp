@@ -983,10 +983,10 @@ Bool_t ROMEEventLoop::UserInput()
    if (fStop) {
       wait = true;
       fStop = false;
-      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
-         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
-         gROME->GetWindow()->TriggerEventHandler();
-      }
+//      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+//         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+//         gROME->GetWindow()->TriggerEventHandler();
+//      }
    } else if ((fStopAtRun == gROME->GetCurrentRunNumber() && fStopAtEvent == gROME->GetCurrentEventNumber()) ||
               (gROME->GetCurrentEventNumber() == 0 && !fContinuous)) {
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
@@ -1043,10 +1043,10 @@ Bool_t ROMEEventLoop::UserInput()
          }
          if (ch == 's' || ch == 'S' || gROME->IsUserEventS()) {
             ROMEPrint::Print("Stopped after event "R_LLD"                   \r", gROME->GetCurrentEventNumber());
-            if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
-               fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
-               gROME->GetWindow()->TriggerEventHandler();
-            }
+//            if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+//               fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+//               gROME->GetWindow()->TriggerEventHandler();
+//            }
             wait = true;
          }
          if (ch == 'o' || ch == 'O' || gROME->IsUserEventO()) {
