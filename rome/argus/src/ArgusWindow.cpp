@@ -739,6 +739,11 @@ void ArgusWindow::TriggerEventHandler()
          static_cast<ArgusWindow*>(fSubWindows->At(iSub))->TriggerEventHandler();
       }
    }
+
+   // clear requests
+   ClearEventHandlingRequest();
+   ClearEventHandlingForced();
+
    fWatchAll.Stop();
    SetStatus(2, "", 0);
 }
@@ -804,9 +809,16 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
                iTab = iParent;
             }
 
-            subWindow->Start();
-            SetSubWindowRunningAt(fSubWindows->GetEntriesFast(),kTRUE);
             fSubWindows->Add(subWindow); 
+
+            SetSubWindowRunningAt(fSubWindows->GetEntriesFast(),kTRUE);
+            subWindow->Start();
+
+            // force event handler for new window
+            ForceEventHandling();
+            subWindow->TriggerEventHandler();
+            ClearEventHandlingForced();
+
             break;
          case M_FILE_EXIT:
             CloseWindow();

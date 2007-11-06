@@ -912,7 +912,6 @@ Bool_t ROMEEventLoop::Update()
       if (gROME->GetActiveDAQ()->isStopped() && gROME->GetWindow()->IsEventHandlingRequested()) {
          fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
          gROME->GetWindow()->TriggerEventHandler();
-         gROME->GetWindow()->ClearEventHandlingRequest();
       }
    }
 
@@ -950,7 +949,6 @@ Bool_t ROMEEventLoop::Update()
             }
             fLastUpdateTime = static_cast<ULong_t>(gSystem->Now());
          }
-         gROME->GetWindow()->ClearEventHandlingRequest();
       }
       gROME->GetApplication()->DisableFPETrap();
       gSystem->ProcessEvents();
@@ -1006,7 +1004,6 @@ Bool_t ROMEEventLoop::UserInput()
          if (!first && gROME->GetWindow()->IsEventHandlingRequested()) {
             fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
             gROME->GetWindow()->TriggerEventHandler();
-            gROME->GetWindow()->ClearEventHandlingRequest();
          }
       }
       first = false;

@@ -128,8 +128,8 @@ public:
 private:
    Int_t           GetSelectedItemIndex(TGListTreeItem*) const;
 
-public:
    // Tab/ListTree methods
+public:
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
    Int_t           GetTabObjectEntries() const { return fTabObjects ? fTabObjects->GetEntries() : 0; }
    Int_t           GetTabObjectEntriesFast() const { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
@@ -143,8 +143,8 @@ private:
    void            TriggerTabSelected(Int_t index);
    void            TriggerTabUnSelected(Int_t index);
 
-public:   
    // Analyzer Controller
+public:   
    ArgusAnalyzerController *GetAnalyzerController() const { return fController; }
    void            SetControllerActive(bool flag) { fControllerActive = flag; }
    Bool_t          IsControllerActive() const { return fControllerActive; }
@@ -158,14 +158,17 @@ public:
    void            SetWindowScale(ROMEString& scale) { SetWindowScale(scale.Data()); }
 
    // Event Handling
+public:
    void            RequestEventHandling();
-   void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
    Bool_t          IsEventHandlingRequested() const { return fRequestEventHandling; }
    void            ForceEventHandling() { fForceEventHandling = true; }
-   void            ClearEventHandlingForced() { fForceEventHandling = false; }
    Bool_t          IsEventHandlingForced() const { return fForceEventHandling; }
+private:
+   void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
+   void            ClearEventHandlingForced() { fForceEventHandling = false; }
 
    // Event Handler
+public:
    void            TriggerEventHandler();
 
    // Message handling
@@ -173,8 +176,8 @@ public:
 protected:
    virtual Bool_t  ProcessMessageNetFolder(Long_t param1) = 0;
 
-public:
    // Active. This might be dangerouse because it overload TGFrame::IsActive
+public:
    Bool_t          IsActive() const { return fArgusActive; }
 //   Int_t           GetActiveTabObjectIndex();
    void            CheckActiveFlags();
