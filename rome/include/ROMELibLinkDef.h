@@ -38,6 +38,7 @@
 #pragma link C++ class ROMEHisto;
 #pragma link C++ class ROMEConfigHisto;
 #pragma link C++ class ROMETGraph+;
+#pragma link C++ class ROMETGraphErrors+;
 #pragma link C++ class ROMETCutG;
 #pragma link C++ class TNetFolder;
 #pragma link C++ class TNetFolderServer;

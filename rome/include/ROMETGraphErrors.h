@@ -12,7 +12,7 @@
 class ROMETGraphErrors : public TGraphErrors
 {
 public:
-   ROMETGraphErrors():TGraphErrors(){};
+   ROMETGraphErrors():TGraphErrors(){}
    ROMETGraphErrors(Int_t n):TGraphErrors(n){}
    ROMETGraphErrors(Int_t n, const Float_t *x, const Float_t *y, const Float_t* ex = 0, const Float_t* ey = 0):TGraphErrors(n,x,y,ex,ey){}
    ROMETGraphErrors(Int_t n, const Double_t *x, const Double_t *y, const Double_t* ex = 0, const Double_t* ey = 0):TGraphErrors(n,x,y,ex,ey){}
