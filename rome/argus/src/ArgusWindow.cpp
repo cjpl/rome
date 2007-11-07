@@ -14,6 +14,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 4244)
 #endif                          // R__VISUAL_CPLUSPLUS
+#include <TArrayI.h>
 #include <TColor.h>
 #include <TG3DLine.h>
 #include <TGFrame.h>
@@ -25,6 +26,7 @@
 #include <TGTab.h>
 #include <TObjArray.h>
 #include <TSystem.h>
+#include <TTimeStamp.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
@@ -55,7 +57,12 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fProgress(0)
 ,fMenuBar(0)
 ,fMenuFile(0)
-,fRunEventNumber(0)
+,fRunNumber(0)
+,fEventNumber(0)
+,fYearMonDay(0)
+,fHourMinSec(0)
+,fUserInfoFrame(0)
+,fUserInfoObjects(new TObjArray(0))
 ,fListTreeView(kFALSE)
 ,fListTree(0)
 ,fListTreeItem(new TGListTreeItem*[numberOfTabs])
@@ -93,7 +100,12 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fProgress(0)
 ,fMenuBar(0)
 ,fMenuFile(0)
-,fRunEventNumber(0)
+,fRunNumber(0)
+,fEventNumber(0)
+,fYearMonDay(0)
+,fHourMinSec(0)
+,fUserInfoFrame(0)
+,fUserInfoObjects(new TObjArray(0))
 ,fListTreeView(kFALSE)
 ,fListTree(0)
 ,fListTreeItem(new TGListTreeItem*[numberOfTabs])
@@ -148,15 +160,10 @@ Bool_t ArgusWindow::Start()
       this->AddFrame(fStatusBar, new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX, 0, 0, 2, 0));
    }
 
-   // Create horizontal frame which holds menu bar and run#/event#
+   // Create horizontal frame which holds menu bar
    TGHorizontalFrame *hMenuFrame = new TGHorizontalFrame(this, 0, 0);
    AddFrame(hMenuFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
    {
-      // run# and event#
-      fRunEventNumber = new TGLabel(hMenuFrame, "");
-      fRunEventNumber->SetTextJustify(kTextCenterX | kTextRight);
-      hMenuFrame->AddFrame(fRunEventNumber, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 10, 0, 0));
-
       // Create menubar
       fMenuBar = new TGMenuBar(hMenuFrame, 1, 1, kHorizontalFrame);
       hMenuFrame->AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 0, 0));
@@ -183,24 +190,81 @@ Bool_t ArgusWindow::Start()
       }
    }
 
-   // separator
-   TGHorizontal3DLine *hline = new TGHorizontal3DLine(this);
-   AddFrame(hline, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX));
+   {
+      // separator
+      TGHorizontal3DLine *hline = new TGHorizontal3DLine(this);
+      AddFrame(hline, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX));
+   }
 
    // Horizontal frame which holds the main canvas
-   TGHorizontalFrame *hFrame = new TGHorizontalFrame(this, 0, 0);
+   TGHorizontalFrame *hFrame = new TGHorizontalFrame(this);
    AddFrame(hFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
 
    // Vertical frame which holds the info frame and listtree
-   TGVerticalFrame *vFrame = new TGVerticalFrame(hFrame, 0, 0);
+   TGVerticalFrame *vFrame = new TGVerticalFrame(hFrame);
    hFrame->AddFrame(vFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY, 0, 1));
    {
 
       // now analyzer controller is dockable
       if (fTabWindow && !gROME->IsStandAloneARGUS()) {
          fController = new ArgusAnalyzerController(vFrame, -1, fControllerNetFolder);
+         fController->Associate(this);
          vFrame->AddFrame(fController, new TGLayoutHints (kLHintsTop | kLHintsLeft));
       }
+
+      if (!gROME->IsStandAloneARGUS()) {
+         // run#
+         TGHorizontalFrame *runFrame = new TGHorizontalFrame(vFrame);
+         vFrame->AddFrame(runFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 15, 10, 2, 2));
+
+         TGLabel *fRunLabel   = new TGLabel(runFrame, "Run : ");
+         fRunLabel->SetTextJustify(kTextLeft | kTextCenterY);
+         runFrame->AddFrame(fRunLabel, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+
+         fRunNumber   = new TGLabel(runFrame, "0");
+         fRunNumber->SetTextJustify(kTextRight | kTextCenterY);
+         runFrame->AddFrame(fRunNumber, new TGLayoutHints(kLHintsRight, 5, 0, 0, 0));
+
+         // evnet#
+         TGHorizontalFrame *eventFrame = new TGHorizontalFrame(vFrame);
+         vFrame->AddFrame(eventFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 15, 10, 2, 2));
+
+         TGLabel *fEventLabel   = new TGLabel(eventFrame, "Eevent : ");
+         fEventLabel->SetTextJustify(kTextLeft | kTextCenterY);
+         eventFrame->AddFrame(fEventLabel, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+
+         fEventNumber   = new TGLabel(eventFrame, "0");
+         fEventNumber->SetTextJustify(kTextLeft | kTextCenterY);
+         eventFrame->AddFrame(fEventNumber, new TGLayoutHints(kLHintsRight, 5, 0, 0, 0));
+
+         // Year/Mon/Day
+         TGHorizontalFrame *YearMonDayFrame = new TGHorizontalFrame(vFrame);
+         vFrame->AddFrame(YearMonDayFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 15, 10, 2, 2));
+
+         TGLabel *fYearMonDayLabel = new TGLabel(YearMonDayFrame, "Date(UTC) : ");
+         fYearMonDayLabel->SetTextJustify(kTextLeft | kTextCenterY);
+         YearMonDayFrame->AddFrame(fYearMonDayLabel, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+
+         fYearMonDay = new TGLabel(YearMonDayFrame, "1970-Jan-01");
+         fYearMonDay->SetTextJustify(kTextLeft | kTextCenterY);
+         YearMonDayFrame->AddFrame(fYearMonDay, new TGLayoutHints(kLHintsRight, 5, 0, 0, 0));
+
+         // Hour/Min/Sec
+         TGHorizontalFrame *HourMinSecFrame = new TGHorizontalFrame(vFrame);
+         vFrame->AddFrame(HourMinSecFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 15, 10, 2, 2));
+
+         TGLabel *fHourMinSecLabel = new TGLabel(HourMinSecFrame, "Time : ");
+         fHourMinSecLabel->SetTextJustify(kTextLeft | kTextCenterY);
+         HourMinSecFrame->AddFrame(fHourMinSecLabel, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+
+         fHourMinSec = new TGLabel(HourMinSecFrame, "00:00:00");
+         fHourMinSec->SetTextJustify(kTextLeft | kTextCenterY);
+         HourMinSecFrame->AddFrame(fHourMinSec, new TGLayoutHints(kLHintsRight, 5, 0, 0, 0));
+      }
+
+      // Vertical frame which holds users info frame
+      fUserInfoFrame = new TGVerticalFrame(vFrame);
+      vFrame->AddFrame(fUserInfoFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0));
 
 //         fControllerDock = new TGDockableFrame(vFrame, 0, kVerticalFrame);
 //         vFrame->AddFrame(fControllerDock, new TGLayoutHints(kLHintsTop | kLHintsLeft));
@@ -297,6 +361,14 @@ Bool_t ArgusWindow::Start()
 
    while (!IsMapped()) {
       gSystem->Sleep(20);
+   }
+
+   if (!gROME->IsStandAloneARGUS()) {
+      // hide run# and event# if argus controller is shown/docked
+      if (fController && (!fController->IsHidden() || !fController->IsUndocked())) {
+         ((TGCompositeFrame*)(fRunNumber->GetParent()->GetParent()))->HideFrame((TGFrame*)(fRunNumber->GetParent()));
+         ((TGCompositeFrame*)(fEventNumber->GetParent()->GetParent()))->HideFrame((TGFrame*)(fEventNumber->GetParent()));
+      }
    }
 
    TriggerTabSelected(lastTabIndex);
@@ -660,6 +732,9 @@ void ArgusWindow::TriggerTabSelected(Int_t index)
       GetTabObjectAt(tabStack[tabLevel])->BaseTabSelected();
    }
 
+   // call the parent frame's Layout() method so that menus added in BaseTabSelected() will be displayed.
+   ((TGCompositeFrame*)(fMenuBar->GetParent()))->Layout();
+
    delete [] tabStack;
 }
 
@@ -694,9 +769,17 @@ void ArgusWindow::RequestEventHandling()
 //______________________________________________________________________________
 void ArgusWindow::TriggerEventHandler()
 {
-   int iSub;
-   const Int_t nSub = fSubWindows->GetEntriesFast();
-   char str[128];
+   int          iSub;
+   const Int_t  nSub = fSubWindows->GetEntriesFast();
+   Int_t        tabLevel = 0;
+   const Int_t  nTabs = fTabObjects->GetEntriesFast();
+   Int_t       *tabStack = new Int_t[nTabs];
+
+   char         str[64];
+   UInt_t       year, mon, day, hour, min, sec;
+   const char   month[12][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+   const Bool_t iUTC = kTRUE;
 
    SetStatus(0, "", 0);
    fWatchAll.Start(false);
@@ -705,21 +788,36 @@ void ArgusWindow::TriggerEventHandler()
    }
 
    if (!gROME->IsStandAloneARGUS()) {
+      // run#
 #if defined(R__UNIX)
-      sprintf(str, "Run : %6lld     Event : %6lld",
-              gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
+      sprintf(str, "%7lld", gROME->GetCurrentRunNumber());
 #else
-      sprintf(str, "Run : %6I64d     Event : %6I64d",
-              gROME->GetCurrentRunNumber(), gROME->GetCurrentEventNumber());
+      sprintf(str, "%7I64d", gROME->GetCurrentRunNumber());
 #endif
-      fRunEventNumber->SetText(str);
-      // call the parent frame's Layout() method to force updating of size of labels.
-      ((TGCompositeFrame*)(fRunEventNumber->GetParent()))->Layout();
-   }
+      fRunNumber  ->SetText(str);
 
-   Int_t        tabLevel = 0;
-   const Int_t  nTabs = fTabObjects->GetEntriesFast();
-   Int_t       *tabStack = new Int_t[nTabs];
+      // event#
+#if defined(R__UNIX)
+      sprintf(str, "%7lld", gROME->GetCurrentEventNumber());
+#else
+      sprintf(str, "%7I64d", gROME->GetCurrentEventNumber());
+#endif
+      fEventNumber->SetText(str);
+
+      // date and time
+      TTimeStamp timeStamp(gROME->GetActiveDAQ()->GetTimeStamp(), 0);
+      timeStamp.GetDate(iUTC, 0, &year, &mon, &day);
+      timeStamp.GetTime(iUTC, 0, &hour, &min, &sec);
+
+      sprintf(str, "%4d-%3s-%02d", year, month[mon-1], day);
+      fYearMonDay->SetText(str);
+
+      sprintf(str, "%02d:%02d:%02d", hour, min, sec);
+      fHourMinSec->SetText(str);
+
+      // call the parent frame's Layout() method to force updating of size of labels.
+      ((TGCompositeFrame*)(fRunNumber->GetParent())->GetParent())->Layout();
+   }
 
    // push parent tab's index to stack until reaching the top-level tab
    tabStack[tabLevel] = fCurrentTabIndex;
@@ -860,13 +958,22 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
       break;
    case kC_DOCK:
       switch (GET_SUBMSG(msg)) {
+         // hide/show run# and event#
       case kDOCK_DOCK:
+         ((TGCompositeFrame*)(fRunNumber->GetParent()->GetParent()))->HideFrame((TGFrame*)(fRunNumber->GetParent()));
+         ((TGCompositeFrame*)(fEventNumber->GetParent()->GetParent()))->HideFrame((TGFrame*)(fEventNumber->GetParent()));
          break;
       case kDOCK_UNDOCK:
+         ((TGCompositeFrame*)(fRunNumber->GetParent()->GetParent()))->ShowFrame((TGFrame*)(fRunNumber->GetParent()));
+         ((TGCompositeFrame*)(fEventNumber->GetParent()->GetParent()))->ShowFrame((TGFrame*)(fEventNumber->GetParent()));
          break;
       case kDOCK_SHOW:
+         ((TGCompositeFrame*)(fRunNumber->GetParent()->GetParent()))->HideFrame((TGFrame*)(fRunNumber->GetParent()));
+         ((TGCompositeFrame*)(fEventNumber->GetParent()->GetParent()))->HideFrame((TGFrame*)(fEventNumber->GetParent()));
          break;
       case kDOCK_HIDE:
+         ((TGCompositeFrame*)(fRunNumber->GetParent()->GetParent()))->ShowFrame((TGFrame*)(fRunNumber->GetParent()));
+         ((TGCompositeFrame*)(fEventNumber->GetParent()->GetParent()))->ShowFrame((TGFrame*)(fEventNumber->GetParent()));
          break;
       }
       break;
