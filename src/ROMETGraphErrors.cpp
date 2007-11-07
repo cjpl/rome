@@ -5,7 +5,7 @@
 //
 //  TGraphErrors class for ROME. Fixes problems when used in multi-threaded programs and in the operator=.
 //
-//  $Id: ROMETGraphErrors.cpp 1984 2007-07-08 21:21:59Z sawada $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
