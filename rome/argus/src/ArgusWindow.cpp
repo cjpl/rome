@@ -369,7 +369,7 @@ Bool_t ArgusWindow::Start()
 
          // Height shall be the same as the parent, but width might be
          // different because of different width of info frame.
-         Resize(size1.fWidth - size3.fWidth + size4.fWidth, size1.fHeight)
+         Resize(size1.fWidth - size3.fWidth + size4.fWidth, size1.fHeight);
       }
    }
 
