@@ -35,6 +35,7 @@
 
 #include "TCutG.h"
 #include "ROMETCutG.h"
+#include "ROMETGraphErrors.h"
 
 ClassImp(ROMETask)
 
@@ -880,6 +881,9 @@ void ROMETask::BookGraph()
             } else if (fGraphType[i] == "ROMETGraph") {
                fGraph->AddAt(new ROMETGraph(), i);
                fGraphStorage->AddAt(new ROMETGraph(), i);
+            } else if (fGraphType[i] == "ROMETGraphErrors") {
+               fGraph->AddAt(new ROMETGraphErrors(), i);
+               fGraphStorage->AddAt(new ROMETGraphErrors(), i);
             } else if (fGraphType[i] == "ROMETCutG") {
                fGraph->AddAt(new ROMETCutG(), i);
                fGraphStorage->AddAt(new ROMETCutG(), i);
@@ -913,6 +917,9 @@ void ROMETask::BookGraph()
                } else if (fGraphType[i] == "ROMETGraph") {
                   static_cast<TObjArray*>(fGraph->At(i))->AddAt(new ROMETGraph(), j);
                   static_cast<TObjArray*>(fGraphStorage->At(i))->AddAt(new ROMETGraph(), j);
+               } else if (fGraphType[i] == "ROMETGraphErrors") {
+                  static_cast<TObjArray*>(fGraph->At(i))->AddAt(new ROMETGraphErrors(), j);
+                  static_cast<TObjArray*>(fGraphStorage->At(i))->AddAt(new ROMETGraphErrors(), j);
                } else if (fGraphType[i] == "ROMETCutG") {
                   static_cast<TObjArray*>(fGraph->At(i))->AddAt(new ROMETCutG(), j);
                   static_cast<TObjArray*>(fGraphStorage->At(i))->AddAt(new ROMETCutG(), j);
@@ -1032,6 +1039,9 @@ void ROMETask::ReBookGraph()
                } else if (fGraphType[i] == "ROMETGraph") {
                   static_cast<TObjArray*>(fGraph->At(i))->AddAt(new ROMETGraph(), j);
                   static_cast<TObjArray*>(fGraphStorage->At(i))->AddAt(new ROMETGraph(), j);
+               } else if (fGraphType[i] == "ROMETGraphErrors") {
+                  static_cast<TObjArray*>(fGraph->At(i))->AddAt(new ROMETGraphErrors(), j);
+                  static_cast<TObjArray*>(fGraphStorage->At(i))->AddAt(new ROMETGraphErrors(), j);
                } else if (fGraphType[i] == "ROMETCutG") {
                   static_cast<TObjArray*>(fGraph->At(i))->AddAt(new ROMETCutG(), j);
                   static_cast<TObjArray*>(fGraphStorage->At(i))->AddAt(new ROMETCutG(), j);

@@ -46,6 +46,23 @@
 					</Tab>
 				</Argus>
 			</Graph>
+			<Graph>
+				<GraphName>MyGraphError</GraphName>
+				<GraphFolderName>mygraphs</GraphFolderName>
+				<GraphType>TGraphErrors</GraphType>
+				<GraphXLabel>X</GraphXLabel>
+				<GraphYLabel>Y</GraphYLabel>
+				<GraphXmin>0</GraphXmin>
+				<GraphXmax>4</GraphXmax>
+				<GraphYmin>-2</GraphYmin>
+				<GraphYmax>2</GraphYmax>
+				<Argus>
+					<Tab>
+						<TabName>GeneratedHisto</TabName>
+						<Index>5</Index>
+					</Tab>
+				</Argus>
+			</Graph>
 			<Histogram>
 				<HistName>MyOtherHisto</HistName>
 				<HistFolderName>myotherhistos</HistFolderName>
