@@ -71,6 +71,7 @@ void ROMEBuilder::AddPrecompiledHeaders()
    precompiledIncludeHeaders->AddFormatted("TH2F.h");
    precompiledIncludeHeaders->AddFormatted("TH3F.h");
    precompiledIncludeHeaders->AddFormatted("ROMETGraph.h");
+   precompiledIncludeHeaders->AddFormatted("ROMETGraphErrors.h");
    precompiledIncludeHeaders->AddFormatted("ROMETCutG.h");
 }
 
@@ -122,6 +123,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/array64/TArrayL64.h");
 #endif
    romeHeaders->Add("$(ROMESYS)/include/ROMETGraph.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMETGraphErrors.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETCutG.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
@@ -205,6 +207,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("-");
 #endif
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETGraph.h");
+      romeLinkDefSuffix->Add("+");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETGraphErrors.h");
       romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETCutG.h");
       romeLinkDefSuffix->Add("");
@@ -314,6 +318,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
 #endif
       romeSources->Add("$(ROMESYS)/src/ROMETGraph.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMETGraphErrors.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETCutG.cpp");
       romeSources->Add("$(ROMESYS)/src/strlcpy.c");
       romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");

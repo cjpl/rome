@@ -802,6 +802,7 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString newFile;
 
    tabObjectDisplaySupportedObjects.AddLast("ROMETGraph");
+   tabObjectDisplaySupportedObjects.AddLast("ROMETGraphErrors");
    tabObjectDisplaySupportedObjects.AddLast("ROMETCutG");
 //   tabObjectDisplaySupportedObjects.AddLast("TGraph2D");
    tabObjectDisplaySupportedObjects.AddLast("TH1C");

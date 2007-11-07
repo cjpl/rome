@@ -2187,6 +2187,8 @@ Bool_t ROMEBuilder::ReadXMLTask()
                FormatText(graphType[numOfTask][numOfGraphs[numOfTask]], kTRUE);
                if (graphType[numOfTask][numOfGraphs[numOfTask]] == "TGraph")
                   graphType[numOfTask][numOfGraphs[numOfTask]]="ROMETGraph";
+               if (graphType[numOfTask][numOfGraphs[numOfTask]] == "TGraphErrors")
+                  graphType[numOfTask][numOfGraphs[numOfTask]]="ROMETGraphErrors";
                if (graphType[numOfTask][numOfGraphs[numOfTask]] == "TCutG")
                   graphType[numOfTask][numOfGraphs[numOfTask]]="ROMETCutG";
             }
@@ -2798,6 +2800,10 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]]
                               = "ROMETGraph";
                      if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]]
+                         == "TGraphErrors")
+                        tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]]
+                              = "ROMETGraphErrors";
+                     if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]]
                          == "TCutG")
                         tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][numOfTabObjectDisplayObjects[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]]
                               = "ROMETCutG";
@@ -2838,6 +2844,8 @@ Bool_t ROMEBuilder::ReadXMLTab()
                            for (k = 0; k < tabObjectDisplaySupportedObjects.GetEntriesFast(); k++) {
                               if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][l] 
                                   == "ROMETGraph" ||
+                                  tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][l]
+                                  == "ROMETGraphErrors" ||
                                   tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][l]
                                   == "ROMETCutG" ||
                                   tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]][l]

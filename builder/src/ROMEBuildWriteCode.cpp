@@ -2362,6 +2362,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       }
       if (numOfGraphs[iTask] > 0) {
          buffer.AppendFormatted("#include <ROMETGraph.h>\n");
+         buffer.AppendFormatted("#include <ROMETGraphErrors.h>\n");
          buffer.AppendFormatted("#include <TGraph2D.h>\n");
          buffer.AppendFormatted("#include <ROMETCutG.h>\n");
       }
@@ -2770,6 +2771,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("#include \"ROMETGraph.h\"\n");
+         buffer.AppendFormatted("#include \"ROMETGraphErrors.h\"\n");
          buffer.AppendFormatted("#include <TGraph2D.h>\n");
          buffer.AppendFormatted("#include <ROMETCutG.h>\n");
          buffer.AppendFormatted("#include <TH1.h>\n");
@@ -3247,6 +3249,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                                    tabObjectDisplayObjectType[iTab][i].Data());
             buffer.AppendFormatted("      }\n");
             if (tabObjectDisplayObjectType[iTab][i] == "ROMETGraph" ||
+                tabObjectDisplayObjectType[iTab][i] == "ROMETGraphErrors" ||
                 tabObjectDisplayObjectType[iTab][i] == "ROMETCutG") {
                buffer.AppendFormatted("      static_cast<TObjArray*>(fObjects->Last())->AddLast(new %s(1));\n",
                                       tabObjectDisplayObjectType[iTab][i].Data());
@@ -3279,6 +3282,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             if (tabObjectDisplayTaskIndex[iTab][i] > -1) {
                for (j = 0; j < numOfTabObjectDisplayObjects[iTab][i]; j++) {
                   if (tabObjectDisplayType[iTab][i][j].Index("ROMETGraph") != -1 ||
+                      tabObjectDisplayType[iTab][i][j].Index("ROMETGraphErrors") != -1 ||
                       tabObjectDisplayType[iTab][i][j].Index("ROMETCutG") != -1) {
                      buffer.AppendFormatted("   if (fNumberOfObjects < %s) {\n",
                                             graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i][j]].Data());
@@ -3320,6 +3324,14 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted("      static_cast<ROMETGraph*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->GetHistogram()->SetName(str.Data());\n");
                   buffer.AppendFormatted("      static_cast<ROMETGraph*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
                   buffer.AppendFormatted("      static_cast<ROMETGraph*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->SetPoint(0, 0, 0);\n");
+               }else if (tabObjectDisplayObjectType[iTab][i] == "ROMETGraphErrors") {
+                  buffer.AppendFormatted("      static_cast<TObjArray*>(fUserObjects->Last())->AddLast(new %s(1));\n",
+                                         tabObjectDisplayObjectType[iTab][i].Data());
+                  buffer.AppendFormatted("      str.SetFormatted(\"fUser%s_%%d_%%s_Histo\",i,fInheritanceName.Data());\n",
+                                         tabObjectDisplayObjectType[iTab][i].Data());
+                  buffer.AppendFormatted("      static_cast<ROMETGraphErrors*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->GetHistogram()->SetName(str.Data());\n");
+                  buffer.AppendFormatted("      static_cast<ROMETGraphErrors*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
+                  buffer.AppendFormatted("      static_cast<ROMETGraphErrors*>(static_cast<TObjArray*>(fUserObjects->Last())->Last())->SetPoint(0, 0, 0);\n");
                }else if (tabObjectDisplayObjectType[iTab][i] == "ROMETCutG") {
                   buffer.AppendFormatted("      static_cast<TObjArray*>(fUserObjects->Last())->AddLast(new %s(1));\n",
                                          tabObjectDisplayObjectType[iTab][i].Data());
@@ -3579,6 +3591,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                                    tabObjectDisplayObjectType[iTab][i].Data(),
                                    tabObjectDisplayObjectType[iTab][i].Data());
             if (tabObjectDisplayObjectType[iTab][i] == "ROMETGraph" ||
+                tabObjectDisplayObjectType[iTab][i] == "ROMETGraphErrors" ||
                 tabObjectDisplayObjectType[iTab][i] == "ROMETCutG") {
                buffer.AppendFormatted("               if(static_cast<%s*>(objects->At(i))->GetN() == 0) {\n",
                                       tabObjectDisplayObjectType[iTab][i].Data());
@@ -3602,15 +3615,16 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("               line->SetLineStyle(userLine->GetLineStyle());\n");
          buffer.AppendFormatted("               line->SetLineWidth(userLine->GetLineWidth());\n");
          buffer.AppendFormatted("            }\n");
-         buffer.AppendFormatted("            if (!strcmp(objects->At(i)->ClassName(),\"ROMETGraph\")) {\n");
-         buffer.AppendFormatted("               SetLimits(static_cast<ROMETGraph*>(objects->At(i)));\n");
-         buffer.AppendFormatted("            }\n");
-         buffer.AppendFormatted("            if (!strcmp(objects->At(i)->ClassName(),\"ROMETCutG\")) {\n");
-         buffer.AppendFormatted("               SetLimits(static_cast<ROMETCutG*>(objects->At(i)));\n");
+         buffer.AppendFormatted("            if (!strcmp(objects->At(i)->ClassName(),\"ROMETGraph\") ||\n");
+         buffer.AppendFormatted("                !strcmp(objects->At(i)->ClassName(),\"ROMETGraphErrors\") ||\n");
+         buffer.AppendFormatted("                !strcmp(objects->At(i)->ClassName(),\"ROMETCutG\")) {\n");
+         buffer.AppendFormatted("               SetLimits(static_cast<TGraph*>(objects->At(i)));\n");
          buffer.AppendFormatted("            }\n");
          buffer.AppendFormatted("         } else {\n");
          buffer.AppendFormatted("            if (!strcmp(objects->At(i)->ClassName(),\"ROMETGraph\"))\n");
          buffer.AppendFormatted("               static_cast<ROMETGraph*>(objects->At(i))->Set(1);\n");
+         buffer.AppendFormatted("            else if (!strcmp(objects->At(i)->ClassName(),\"ROMETGraphErrors\"))\n");
+         buffer.AppendFormatted("               static_cast<ROMETGraphErrors*>(objects->At(i))->Set(1);\n");
          buffer.AppendFormatted("            else if (!strcmp(objects->At(i)->ClassName(),\"ROMETCutG\"))\n");
          buffer.AppendFormatted("               static_cast<ROMETCutG*>(objects->At(i))->Set(1);\n");
          buffer.AppendFormatted("            else \n");
@@ -4121,6 +4135,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          buffer.AppendFormatted("#include <TProfile.h>\n");
          buffer.AppendFormatted("#include <TProfile2D.h>\n");
          buffer.AppendFormatted("#include <ROMETGraph.h>\n");
+         buffer.AppendFormatted("#include <ROMETGraphErrors.h>\n");
          buffer.AppendFormatted("#include <TGraph2D.h>\n");
          buffer.AppendFormatted("#include <ROMETCutG.h>\n");
       }
@@ -10446,6 +10461,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("#include <TProfile.h>\n");
    buffer.AppendFormatted("#include <TProfile2D.h>\n");
    buffer.AppendFormatted("#include <ROMETGraph.h>\n");
+   buffer.AppendFormatted("#include <ROMETGraphErrors.h>\n");
    buffer.AppendFormatted("#include <TGraph2D.h>\n");
    buffer.AppendFormatted("#include <ROMETCutG.h>\n");
 
