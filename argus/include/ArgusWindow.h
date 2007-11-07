@@ -17,9 +17,6 @@
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif
-#include <TArrayI.h>
-#include <TGMenu.h>
-#include <TGStatusBar.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
@@ -33,11 +30,14 @@
 
 class ROMECompositeFrame;
 class ROMEStrArray;
+class TArrayI;
 class TGHProgressBar;
 class TGDockableFrame;
 class TGLabel;
 class TGListTree;
 class TGListTreeItem;
+class TGMenuBar;
+class TGStatusBar;
 class TGTab;
 class TGTextEntry;
 class TGVerticalFrame;
@@ -59,7 +59,12 @@ protected:
    TGHProgressBar          *fProgress;             //!
    TGMenuBar               *fMenuBar;              //! menu bar
    TGPopupMenu             *fMenuFile;             //! file menu
-   TGLabel                 *fRunEventNumber;       //! run number and event number
+   TGLabel                 *fRunNumber;            //! run number
+   TGLabel                 *fEventNumber;          //! event number
+   TGLabel                 *fYearMonDay;           //! date
+   TGLabel                 *fHourMinSec;           //! time
+   TGVerticalFrame         *fUserInfoFrame;        //!
+   TObjArray               *fUserInfoObjects;      //!
    Bool_t                   fListTreeView;         //!
    TGListTree              *fListTree;             //!
    TGListTreeItem         **fListTreeItem;         //!
@@ -94,93 +99,100 @@ public:
    ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch = kTRUE, Int_t numberOfTabs = 0, Bool_t tabWindow = kTRUE);
    virtual ~ArgusWindow();
 
-   Bool_t          Start();
-   void            CloseWindow();
+   Bool_t           Start();
+   void             CloseWindow();
 
    // Sub Windows
 private:
    virtual ArgusWindow *CreateSubWindow() = 0;
 public:
-   void            SetWindowId(int id) { fWindowId = id; };
-   int             GetWindowId() const { return fWindowId; };
-   void            SetSubWindowRunningAt(Int_t i, Bool_t running);
-   Bool_t          IsSubWindowRunningAt(Int_t i);
+   void             SetWindowId(int id) { fWindowId = id; };
+   int              GetWindowId() const { return fWindowId; };
+   void             SetSubWindowRunningAt(Int_t i, Bool_t running);
+   Bool_t           IsSubWindowRunningAt(Int_t i);
 
    // Stopwatch
-   const char*     GetTimeStatisticsString(ROMEString& string);
+   const char*      GetTimeStatisticsString(ROMEString& string);
 
    // Status bar
-   void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
-   Bool_t          GetStatusBarSwitch() const { return fStatusBarSwitch; }
-   TGStatusBar    *GetStatusBar() const { return fStatusBar; }
-   void            SetStatus(Int_t mode,const char *text,double progress=0.,Int_t sleepingTime=10);
-   void            ClearStatusBar();
+   void             SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
+   Bool_t           GetStatusBarSwitch() const { return fStatusBarSwitch; }
+   TGStatusBar     *GetStatusBar() const { return fStatusBar; }
+   void             SetStatus(Int_t mode,const char *text,double progress=0.,Int_t sleepingTime=10);
+   void             ClearStatusBar();
+
+   // Info frame
+   TGVerticalFrame *GetUserInfoFrame() const { return fUserInfoFrame; }
+   Int_t            GetUserInfoObjectEntriesFast() const { return fUserInfoObjects ? fUserInfoObjects->GetEntriesFast() : 0; }
+//   void             GetUserInfoObjectAddAt(TObject *obj, Int_t idx) { fUserInfoObjects->AddAt(obj, idx); }
+//   TObject         *GetUserInfoObjectAt(Int_t idx) const { return fUserInfoObjects->At(idx); }
+   TObjArray       *GetUserInfoObjects() const { return fUserInfoObjects; }
 
    // Menu
-   TGMenuBar*      GetMenuBar() const { return fMenuBar; }
-   virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
+   TGMenuBar*       GetMenuBar() const { return fMenuBar; }
+   virtual Bool_t   AddMenuNetFolder(TGPopupMenu* menu) = 0;
 
    // ListTree
-   void            SetListTreeView(Bool_t sw) { fListTreeView = sw; }
-   Bool_t          IsListTreeView() const { return fListTreeView; }
-   void            OnClick(TGListTreeItem* item, Int_t btn);
-   void            OnDoubleClick(TGListTreeItem* item, Int_t btn);
+   void             SetListTreeView(Bool_t sw) { fListTreeView = sw; }
+   Bool_t           IsListTreeView() const { return fListTreeView; }
+   void             OnClick(TGListTreeItem* item, Int_t btn);
+   void             OnDoubleClick(TGListTreeItem* item, Int_t btn);
 private:
-   Int_t           GetSelectedItemIndex(TGListTreeItem*) const;
+   Int_t            GetSelectedItemIndex(TGListTreeItem*) const;
 
    // Tab/ListTree methods
 public:
-   void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
-   Int_t           GetTabObjectEntries() const { return fTabObjects ? fTabObjects->GetEntries() : 0; }
-   Int_t           GetTabObjectEntriesFast() const { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
-   ArgusTab       *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
-   Int_t           GetCurrentTabObjectIndex() const { return fCurrentTabIndex; }
+   void             AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
+   Int_t            GetTabObjectEntries() const { return fTabObjects ? fTabObjects->GetEntries() : 0; }
+   Int_t            GetTabObjectEntriesFast() const { return fTabObjects ? fTabObjects->GetEntriesFast() : 0; }
+   ArgusTab        *GetTabObjectAt(Int_t index) const { return static_cast<ArgusTab*>(fTabObjects->At(index)); }
+   Int_t            GetCurrentTabObjectIndex() const { return fCurrentTabIndex; }
 private:
-   ArgusTab       *GetTabObject(const char* tabTitle) const;
-   ArgusTab       *GetTabObject(const int id) const;
-   Int_t           GetTabObjectIndex(const int id) const;
-   Bool_t          CreateTabs();
-   void            TriggerTabSelected(Int_t index);
-   void            TriggerTabUnSelected(Int_t index);
+   ArgusTab        *GetTabObject(const char* tabTitle) const;
+   ArgusTab        *GetTabObject(const int id) const;
+   Int_t            GetTabObjectIndex(const int id) const;
+   Bool_t           CreateTabs();
+   void             TriggerTabSelected(Int_t index);
+   void             TriggerTabUnSelected(Int_t index);
 
    // Analyzer Controller
 public:   
    ArgusAnalyzerController *GetAnalyzerController() const { return fController; }
-   void            SetControllerActive(bool flag) { fControllerActive = flag; }
-   Bool_t          IsControllerActive() const { return fControllerActive; }
-   void            SetControllerNetFolder(const char* folderName);
-   ROMENetFolder  *GetControllerNetFolder() const { return fControllerNetFolder; }
+   void             SetControllerActive(bool flag) { fControllerActive = flag; }
+   Bool_t           IsControllerActive() const { return fControllerActive; }
+   void             SetControllerNetFolder(const char* folderName);
+   ROMENetFolder   *GetControllerNetFolder() const { return fControllerNetFolder; }
 
    // Window Scale
-   Float_t         GetWindowScale() const { return fWindowScale; }
-   void            SetWindowScale(Float_t scale) { fWindowScale = scale; }
-   void            SetWindowScale(const char* scale) { Char_t* cstop; fWindowScale = static_cast<Float_t>(strtod(scale,&cstop)); }
-   void            SetWindowScale(ROMEString& scale) { SetWindowScale(scale.Data()); }
+   Float_t          GetWindowScale() const { return fWindowScale; }
+   void             SetWindowScale(Float_t scale) { fWindowScale = scale; }
+   void             SetWindowScale(const char* scale) { Char_t* cstop; fWindowScale = static_cast<Float_t>(strtod(scale,&cstop)); }
+   void             SetWindowScale(ROMEString& scale) { SetWindowScale(scale.Data()); }
 
    // Event Handling
 public:
-   void            RequestEventHandling();
-   Bool_t          IsEventHandlingRequested() const { return fRequestEventHandling; }
-   void            ForceEventHandling() { fForceEventHandling = true; }
-   Bool_t          IsEventHandlingForced() const { return fForceEventHandling; }
+   void             RequestEventHandling();
+   Bool_t           IsEventHandlingRequested() const { return fRequestEventHandling; }
+   void             ForceEventHandling() { fForceEventHandling = true; }
+   Bool_t           IsEventHandlingForced() const { return fForceEventHandling; }
 private:
-   void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
-   void            ClearEventHandlingForced() { fForceEventHandling = false; }
+   void             ClearEventHandlingRequest() { fRequestEventHandling = false; }
+   void             ClearEventHandlingForced() { fForceEventHandling = false; }
 
    // Event Handler
 public:
-   void            TriggerEventHandler();
+   void             TriggerEventHandler();
 
    // Message handling
-   Bool_t          ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
+   Bool_t           ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
 protected:
-   virtual Bool_t  ProcessMessageNetFolder(Long_t param1) = 0;
+   virtual Bool_t   ProcessMessageNetFolder(Long_t param1) = 0;
 
    // Active. This might be dangerouse because it overload TGFrame::IsActive
 public:
-   Bool_t          IsActive() const { return fArgusActive; }
-//   Int_t           GetActiveTabObjectIndex();
-   void            CheckActiveFlags();
+   Bool_t           IsActive() const { return fArgusActive; }
+//   Int_t            GetActiveTabObjectIndex();
+   void             CheckActiveFlags();
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window
 };
