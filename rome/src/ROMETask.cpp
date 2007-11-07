@@ -1133,11 +1133,11 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
          directory->cd();
          if (!fGraphArray[i]) {
             ROMEPrint::Debug("Writing graph %s:%s\n", GetName(), fGraph->At(i)->GetName());
-            fGraph->At(i)->Clone();
+            fGraph->At(i)->Write(0, TObject::kOverwrite);
          } else {
             for (j = 0; j < static_cast<TObjArray*>(fGraph->At(i))->GetEntries(); j++) {
                ROMEPrint::Debug("Writing graph %s:%s\n", GetName(), static_cast<TObjArray*>(fGraph->At(i))->At(j)->GetName());
-               static_cast<TObjArray*>(fGraph->At(i))->At(j)->Clone();
+               static_cast<TObjArray*>(fGraph->At(i))->At(j)->Write(0, TObject::kOverwrite);
             }
          }
       }
