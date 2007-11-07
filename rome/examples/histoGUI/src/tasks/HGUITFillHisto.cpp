@@ -18,6 +18,7 @@
 //    MyOtherHisto                                                            //
 // This task contains the following graphs :                                  //
 //    MyGraph                                                                 //
+//    MyGraphError                                                            //
 //                                                                            //
 // The histograms/graph are created and saved automaticaly by the task.       //
 //                                                                            //
@@ -66,6 +67,11 @@ void HGUITFillHisto::Event()
    GetMyGraph()->SetPoint(2,2,gRandom->Gaus(0,1));
    GetMyGraph()->SetPoint(3,3,gRandom->Gaus(0,1));
    GetMyGraph()->SetPoint(4,4,gRandom->Gaus(0,1));
+   GetMyGraphError()->SetPoint(0,0,gRandom->Gaus(0,1));
+   GetMyGraphError()->SetPoint(1,1,gRandom->Gaus(0,1));
+   GetMyGraphError()->SetPoint(2,2,gRandom->Gaus(0,1));
+   GetMyGraphError()->SetPoint(3,3,gRandom->Gaus(0,1));
+   GetMyGraphError()->SetPoint(4,4,gRandom->Gaus(0,1));
 }
 
 void HGUITFillHisto::EndOfRun()

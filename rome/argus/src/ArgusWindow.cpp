@@ -723,7 +723,7 @@ void ArgusWindow::TriggerTabSelected(Int_t index)
 
    // push parent tab's index to stack until reaching the top-level tab
    tabStack[tabLevel] = index;
-   while ((tabStack[tabLevel+1]=fParentIndex[tabStack[tabLevel]]) != -1) {
+   while (tabLevel+1<nTabs && (tabStack[tabLevel+1]=fParentIndex[tabStack[tabLevel]]) != -1) {
       tabLevel++;
    }
 
@@ -821,7 +821,7 @@ void ArgusWindow::TriggerEventHandler()
 
    // push parent tab's index to stack until reaching the top-level tab
    tabStack[tabLevel] = fCurrentTabIndex;
-   while ((tabStack[tabLevel+1]=fParentIndex[tabStack[tabLevel]]) != -1) {
+   while (tabLevel+1<nTabs && (tabStack[tabLevel+1]=fParentIndex[tabStack[tabLevel]]) != -1) {
       tabLevel++;
    }
 
