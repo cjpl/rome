@@ -137,7 +137,7 @@ protected:
    void           BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw);
    void           SetStatisticBox(Bool_t flag);
    void           Modified(Bool_t processEvents=true);
-   void           SetLimits(ROMETGraph *g);
+   void           SetLimits(TGraph *g);
 
    virtual void   Init() = 0;
    virtual void   EndInit() = 0;

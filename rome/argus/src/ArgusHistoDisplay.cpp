@@ -583,7 +583,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
             SetStatisticBox(true);
             // this allows changing X range
             fPad[i]->cd();
-            SetLimits(static_cast<ROMETGraph*>(ptr));
+            SetLimits(static_cast<TGraph*>(ptr));
          }
       }
       fPad[i]->Modified();
@@ -602,7 +602,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
 }
 
 //______________________________________________________________________________
-void ArgusHistoDisplay::SetLimits(ROMETGraph *g)
+void ArgusHistoDisplay::SetLimits(TGraph *g)
 {
    const Int_t n = g->GetN();
    if (n<=1) {
