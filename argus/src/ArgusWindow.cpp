@@ -814,9 +814,6 @@ void ArgusWindow::TriggerEventHandler()
 
       sprintf(str, "%02d:%02d:%02d", hour, min, sec);
       fHourMinSec->SetText(str);
-
-      // call the parent frame's Layout() method to force updating of size of labels.
-      ((TGCompositeFrame*)(fRunNumber->GetParent())->GetParent())->Layout();
    }
 
    // push parent tab's index to stack until reaching the top-level tab
@@ -837,6 +834,9 @@ void ArgusWindow::TriggerEventHandler()
          static_cast<ArgusWindow*>(fSubWindows->At(iSub))->TriggerEventHandler();
       }
    }
+
+   // call Layout() method to force updating of size of labels in the infoFrame, including UserInfoFrame
+   ((TGCompositeFrame*)(fUserInfoFrame->GetParent()))->Layout();
 
    // clear requests
    ClearEventHandlingRequest();
