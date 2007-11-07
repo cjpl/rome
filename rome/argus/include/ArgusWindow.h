@@ -80,6 +80,8 @@ protected:
    ArgusAnalyzerController *fController;           //!
    ROMENetFolder           *fControllerNetFolder;  //!
    Float_t                  fWindowScale;          //! Window scale
+   UInt_t                   fInitialWidth;         //! Default width of the window at startup
+   UInt_t                   fInitialHeight;        //! Default height of the window at startup
    Bool_t                   fRequestEventHandling; //! Event handling request flag
    Bool_t                   fForceEventHandling;   //! Force event handling even if it is the same event
 
@@ -168,6 +170,9 @@ public:
    void             SetWindowScale(Float_t scale) { fWindowScale = scale; }
    void             SetWindowScale(const char* scale) { Char_t* cstop; fWindowScale = static_cast<Float_t>(strtod(scale,&cstop)); }
    void             SetWindowScale(ROMEString& scale) { SetWindowScale(scale.Data()); }
+
+   //
+   TGDimension      GetInitialSize() const { return TGDimension(fInitialWidth, fInitialHeight); }
 
    // Event Handling
 public:

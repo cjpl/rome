@@ -308,11 +308,11 @@ Bool_t ArgusWindow::Start()
    TGDimension size = GetDefaultSize();
 
    ArgusTab   *tab;
-   ArgusTab   *lastTab = 0;
    Int_t       lastTabIndex = -1;
    Int_t       iTab;
    const Int_t nTabs = fTabObjects->GetEntriesFast();
    if (fListTreeView) {
+      ArgusTab   *lastTab = 0;
       TGDimension framesize(0,0);
 
       // first, hide all the tabs
@@ -349,13 +349,30 @@ Bool_t ArgusWindow::Start()
          tab = GetTabObjectAt(iTab);
          if (tab->IsSwitch() && fNumberOfChildren[iTab]<=0) {
             fCurrentTabID = tab->GetID();
-            lastTab = tab;
             lastTabIndex = iTab;
          }
       }
    }
 
    Resize(size);
+   fInitialWidth  = size.fWidth;
+   fInitialHeight = size.fHeight;
+
+   // Adjust size of the sub window so that the main frame has the
+   // same size as the parent's. This is not done if the parent window
+   // is tab-view, because the size of the main frame is not trivial.
+   if (!fTabWindow) {
+      if (gROME->GetWindow()->IsListTreeView()) {
+         TGDimension size1 = gROME->GetWindow()->GetInitialSize();
+         TGDimension size3 = gROME->GetWindow()->GetUserInfoFrame()->GetSize();
+         TGDimension size4 = GetUserInfoFrame()->GetSize();
+
+         // Height shall be the same as the parent, but width might be
+         // different because of different width of info frame.
+         Resize(size1.fWidth - size3.fWidth + size4.fWidth, size1.fHeight)
+      }
+   }
+
    gSystem->Sleep(500);
    MapWindow();
 
@@ -669,12 +686,6 @@ Bool_t ArgusWindow::CreateTabs()
                   tab->SetID(newID);
                   tabFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
                }
-            } else {
-               tab->ReparentWindow(fMainFrame, 60, 20);
-               tab->ArgusInit();
-               tab->SetID(0);
-               fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
-               return kTRUE;
             }
          } else {
             newID = parentTab->GetNumberOfTabs() + ( (fParentIndex[iTab]==-1) ? 0 : 1000*fParentIndex[iTab] );
@@ -697,14 +708,12 @@ Bool_t ArgusWindow::CreateTabs()
          if (fNumberOfChildren[iTab]<=0) {
             tab->ReparentWindow(fMainFrame, 60, 20);
             tab->ArgusInit();
-            tab->SetID(iTab);
             fMainFrame->AddFrame(tab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));
             if (!fTabWindow) {
                return kTRUE;
             }
          } else {
             tab->ArgusInit();
-            tab->SetID(iTab);
          }
       }
    }
@@ -890,7 +899,7 @@ Bool_t ArgusWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 
             subWindow = CreateSubWindow();
             subWindow->SetStatusBarSwitch(fStatusBarSwitch);
-            subWindow->SetListTreeView(kTRUE);
+            subWindow->SetListTreeView(kTRUE); // sub-windows are always in list-tree mode, which uses fMainFrame rather than fTab.
             subWindow->SetWindowScale(fWindowScale);
             subWindow->SetWindowName(newTitle.Data());
             subWindow->SetWindowId(fSubWindows->GetEntriesFast());
