@@ -3097,11 +3097,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                                                tabSingleObjectTaskHierarchyIndex[iTab][j],
                                                tabSingleObjectObjectIndex[iTab][j]);
                         if (second)
-                           buffer.AppendFormatted("      f%sSingleObject%d->Draw(\"SAME\");\n",tabSingleObjectName[iTab][j].Data(),
-                                                  j);
+                           buffer.AppendFormatted("      f%sSingleObject%d->Draw(fDrawOption->At(%d)+\"SAME\");\n",tabSingleObjectName[iTab][j].Data(),
+                                                  j,j);
                         else
-                           buffer.AppendFormatted("      f%sSingleObject%d->Draw();\n",tabSingleObjectName[iTab][j].Data(),
-                                                  j);
+                           buffer.AppendFormatted("      f%sSingleObject%d->Draw(fDrawOption->At(%d).Data());\n",tabSingleObjectName[iTab][j].Data(),
+                                                  j,j);
                      } else {
                         for (k = tabSingleObjectArrayIndexStart[iTab][j]; k <= tabSingleObjectArrayIndexEnd[iTab][j];
                              k++) {
@@ -3124,11 +3124,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                                                   tabSingleObjectTaskHierarchyIndex[iTab][j],
                                                   tabSingleObjectObjectIndex[iTab][j],k);
                            if (second)
-                              buffer.AppendFormatted("      f%sSingleObject%d_%d->Draw(\"SAME\");\n",
-                                                     tabSingleObjectName[iTab][j].Data(),j,k);
+                              buffer.AppendFormatted("      f%sSingleObject%d_%d->Draw(fDrawOption->At(%d)+\"SAME\");\n",
+                                                     tabSingleObjectName[iTab][j].Data(),j,k,j);
                            else
-                              buffer.AppendFormatted("      f%sSingleObject%d_%d->Draw();\n",
-                                                     tabSingleObjectName[iTab][j].Data(),j,k);
+                              buffer.AppendFormatted("      f%sSingleObject%d_%d->Draw(fDrawOption->At(%d).Data());\n",
+                                                     tabSingleObjectName[iTab][j].Data(),j,k,j);
                         }
                      }
                   } else if (tabSingleObjectType[iTab][j] == "Graph") {
