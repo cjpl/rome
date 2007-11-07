@@ -216,6 +216,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMECompositeFrame.o \
               obj/ROMEHisto.o \
               obj/ROMETGraph.o \
+              obj/ROMETGraphErrors.o \
               obj/ROMETCutG.o \
               obj/TNetFolder.o \
               obj/TNetFolderServer.o \
@@ -267,6 +268,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMEHisto.h \
                   include/ROMEConfigHisto.h \
                   include/ROMETGraph.h \
+                  include/ROMETGraphErrors.h \
                   include/ROMETCutG.h \
                   include/TNetFolder.h \
                   include/TNetFolderServer.h \
