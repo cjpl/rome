@@ -1,7 +1,7 @@
 /********************************************************************
   ROMETGraphErrors.h, M. Schneebeli PSI
 
-  $Id: ROMETGraphErrors.h 2033 2007-08-05 22:58:11Z sawada $
+  $Id$
 
 ********************************************************************/
 #ifndef ROMETGraphErrors_H
@@ -12,7 +12,7 @@
 class ROMETGraphErrors : public TGraphErrors
 {
 public:
-   ROMETGraphErrors():TGraphErrors(){}
+   ROMETGraphErrors():TGraphErrors(){};
    ROMETGraphErrors(Int_t n):TGraphErrors(n){}
    ROMETGraphErrors(Int_t n, const Float_t *x, const Float_t *y, const Float_t* ex = 0, const Float_t* ey = 0):TGraphErrors(n,x,y,ex,ey){}
    ROMETGraphErrors(Int_t n, const Double_t *x, const Double_t *y, const Double_t* ex = 0, const Double_t* ey = 0):TGraphErrors(n,x,y,ex,ey){}
