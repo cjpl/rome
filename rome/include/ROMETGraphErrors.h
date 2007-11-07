@@ -24,6 +24,7 @@ public:
    ROMETGraphErrors(const TH1 *h):TGraphErrors(h){}
    ROMETGraphErrors(const char *filename, const char *format="%lg %lg", Option_t *option=""):TGraphErrors(filename,format,option){}
    ROMETGraphErrors& operator=(const ROMETGraphErrors&);
+   virtual ~ROMETGraphErrors() {}
 
    void  SetPoint(Int_t i, Double_t x, Double_t y);
    TH1F* GetHistogramHandle() const { return fHistogram; }

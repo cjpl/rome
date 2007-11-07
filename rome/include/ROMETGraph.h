@@ -26,6 +26,7 @@ public:
    ROMETGraph(const TF1 *f, Option_t *option=""):TGraph(f,option){}
    ROMETGraph(const char *filename, const char *format="%lg %lg", Option_t *option=""):TGraph(filename,format,option){}
    ROMETGraph& operator=(const ROMETGraph&);
+   virtual ~ROMETGraph() {}
 
    void  SetPoint(Int_t i, Double_t x, Double_t y);
    TH1F* GetHistogramHandle() const { return fHistogram; }
