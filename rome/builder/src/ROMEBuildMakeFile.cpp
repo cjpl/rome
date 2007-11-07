@@ -785,10 +785,6 @@ void ROMEBuilder::AddDictionaryHeaders()
       dictionaryHeaders->Add(generatedTabDictHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(generatedTabLinkDefSuffix->At(i).Data());
    }
-   for (i = 0; i < nROME; i++) {
-      dictionaryHeaders->Add(romeDictHeaders->At(i).Data());
-      dictionaryLinkDefSuffix->Add(romeLinkDefSuffix->At(i).Data());
-   }
    for (i = 0; i < nArgus; i++) {
       dictionaryHeaders->Add(argusHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(argusLinkDefSuffix->At(i).Data());
@@ -828,6 +824,10 @@ void ROMEBuilder::AddDictionaryHeaders()
    for (i = 0; i < nAdd; i++) {
       dictionaryHeaders->Add(additionalDictHeaders->At(i).Data());
       dictionaryLinkDefSuffix->Add(additionalDictLinkDefSuffix->At(i).Data());
+   }
+   for (i = 0; i < nROME; i++) {
+      dictionaryHeaders->Add(romeDictHeaders->At(i).Data());
+      dictionaryLinkDefSuffix->Add(romeLinkDefSuffix->At(i).Data());
    }
 }
 
