@@ -940,7 +940,7 @@ Bool_t ROMEEventLoop::Update()
          fUpdateWindowLastEvent = newUpdateWindowEvent;
          if ((fUpdateWindow &&
               static_cast<ULong_t>(gSystem->Now()) >
-              static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdateFrequency())) ||
+              static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdatePeriod())) ||
              gROME->GetWindow()->IsEventHandlingRequested() ||
              (gROME->GetEventID() != 1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
             if (!this->isStopped()) {

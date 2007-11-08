@@ -35,7 +35,7 @@ protected:
    Long64_t            fLastRunNumber;
    Long64_t            fEventNumber;
    Int_t               fEventStep;
-   Int_t               fEventInterval;
+   Int_t               fUpdatePeriod;
    TGPictureButton    *fPlayButton;
    TGPictureButton    *fPreviousButton;
    TGPictureButton    *fNextButton;
@@ -45,9 +45,9 @@ protected:
    TGNumberEntry      *fRunNumberEntry;
    TGNumberEntry      *fEventNumberEntry;
    TGNumberEntry      *fEventStepEntry;
-   TGNumberEntry      *fEventIntervalEntry;
+   TGNumberEntry      *fUpdatePeriodEntry;
 
-   enum CommandIdentifiers{
+   enum CommandIdentifiers {
       B_Dock = 1,
       B_Hide,
       B_Play,
@@ -59,7 +59,7 @@ protected:
       T_RunNumber,
       T_EventNumber,
       T_EventStep,
-      T_EventInterval
+      T_UpdatePeriod
    };
 
 private:

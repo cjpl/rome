@@ -49,7 +49,7 @@ ArgusAnalyzerController::ArgusAnalyzerController()
 ,fLastRunNumber(0)
 ,fEventNumber(0)
 ,fEventStep(1)
-,fEventInterval(1)
+,fUpdatePeriod(1)
 ,fPlayButton(0)
 ,fPreviousButton(0)
 ,fNextButton(0)
@@ -58,7 +58,7 @@ ArgusAnalyzerController::ArgusAnalyzerController()
 ,fRunNumberEntry(0)
 ,fEventNumberEntry(0)
 ,fEventStepEntry(0)
-,fEventIntervalEntry(0)
+,fUpdatePeriodEntry(0)
 {
 }
 
@@ -70,7 +70,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, Int_t id, RO
 ,fLastRunNumber(0)
 ,fEventNumber(0)
 ,fEventStep(1)
-,fEventInterval(1)
+,fUpdatePeriod(1)
 ,fPlayButton(0)
 ,fPreviousButton(0)
 ,fNextButton(0)
@@ -79,13 +79,13 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, Int_t id, RO
 ,fRunNumberEntry(0)
 ,fEventNumberEntry(0)
 ,fEventStepEntry(0)
-,fEventIntervalEntry(0)
+,fUpdatePeriodEntry(0)
 {
    fRunNumber = gROME->GetCurrentRunNumber();
    fLastRunNumber = fRunNumber;
    fEventNumber = gROME->GetCurrentEventNumber();
    fEventStep = 1;
-   fEventInterval = gROME->GetWindowUpdateFrequency();
+   fUpdatePeriod = gROME->GetWindowUpdatePeriod();
 
 #if 0 // fSocket is protected
    if (!fNetFolder->fSocket || !fNetFolder->fSocket->IsValid())
@@ -190,37 +190,37 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, Int_t id, RO
 
    // Vertical frame which contains labels
    vFrame[0] = new TGVerticalFrame(hFrame[1], 10, 10);
-   TGLabel *fRunNumberLabel     = new TGLabel(vFrame[0], "Run : ");
-   TGLabel *fEventNumberLabel   = new TGLabel(vFrame[0], "Event : ");
-   TGLabel *fEventStepLabel     = new TGLabel(vFrame[0], "Event step");
-   TGLabel *fEventIntervalLabel = new TGLabel(vFrame[0], "Update freq.");
+   TGLabel *fRunNumberLabel    = new TGLabel(vFrame[0], "Run : ");
+   TGLabel *fEventNumberLabel  = new TGLabel(vFrame[0], "Event : ");
+   TGLabel *fEventStepLabel    = new TGLabel(vFrame[0], "Event step");
+   TGLabel *fUpdatePeriodLabel = new TGLabel(vFrame[0], "Update period");
 
-   vFrame[0]->AddFrame(fRunNumberLabel,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   vFrame[0]->AddFrame(fEventNumberLabel,   new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   vFrame[0]->AddFrame(fEventStepLabel,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   vFrame[0]->AddFrame(fEventIntervalLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fRunNumberLabel,    new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fEventNumberLabel,  new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fEventStepLabel,    new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[0]->AddFrame(fUpdatePeriodLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
 
    // Vertical frame which contains text entries
    vFrame[1]   = new TGVerticalFrame(hFrame[1], 60, 20);
-   fRunNumberEntry     = new TGNumberEntry(vFrame[1], 0., kDigitWidth, T_RunNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventNumberEntry   = new TGNumberEntry(vFrame[1], 0., kDigitWidth, T_EventNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventStepEntry     = new TGNumberEntry(vFrame[1], fEventStep, kDigitWidth, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventIntervalEntry = new TGNumberEntry(vFrame[1], fEventInterval, kDigitWidth, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fRunNumberEntry    = new TGNumberEntry(vFrame[1], 0., kDigitWidth, T_RunNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fEventNumberEntry  = new TGNumberEntry(vFrame[1], 0., kDigitWidth, T_EventNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fEventStepEntry    = new TGNumberEntry(vFrame[1], fEventStep, kDigitWidth, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fUpdatePeriodEntry = new TGNumberEntry(vFrame[1], fUpdatePeriod, kDigitWidth, T_UpdatePeriod, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
 
    fRunNumberEntry    ->SetButtonToNum(kFALSE);
    fEventNumberEntry  ->SetButtonToNum(kFALSE);
    fEventStepEntry    ->SetButtonToNum(kFALSE);
-   fEventIntervalEntry->SetButtonToNum(kFALSE);
+   fUpdatePeriodEntry->SetButtonToNum(kFALSE);
 
    fRunNumberEntry    ->Associate(this);
    fEventNumberEntry  ->Associate(this);
    fEventStepEntry    ->Associate(this);
-   fEventIntervalEntry->Associate(this);
+   fUpdatePeriodEntry->Associate(this);
 
-   vFrame[1]->AddFrame(fRunNumberEntry,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   vFrame[1]->AddFrame(fEventNumberEntry,   new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   vFrame[1]->AddFrame(fEventStepEntry,     new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
-   vFrame[1]->AddFrame(fEventIntervalEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fRunNumberEntry,    new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fEventNumberEntry,  new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fEventStepEntry,    new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
+   vFrame[1]->AddFrame(fUpdatePeriodEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
 
    hFrame[1]->AddFrame(vFrame[0], new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 5, 5, 0, 0));
    hFrame[1]->AddFrame(vFrame[1], new TGLayoutHints(kLHintsRight | kLHintsExpandY, 0, 0, 0, 0));
@@ -382,10 +382,10 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t 
                   ->IncreaseNumber((TGNumberFormat::EStepSize)(parm2%100), parm2/10000?-1:1, (parm2%10000/100));
             fEventStep = fEventStepEntry->GetIntNumber();
             break;
-         case T_EventInterval:
-            fEventIntervalEntry->GetNumberEntry()
+         case T_UpdatePeriod:
+            fUpdatePeriodEntry->GetNumberEntry()
                   ->IncreaseNumber((TGNumberFormat::EStepSize)(parm2%100), parm2/10000?-1:1, (parm2%10000/100));
-            fEventInterval = fEventIntervalEntry->GetIntNumber();
+            fUpdatePeriod = fUpdatePeriodEntry->GetIntNumber();
             break;
          default:
             break;
@@ -408,7 +408,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t 
          case T_EventStep:
             /* do nothing until ENTER is presses */
             break;
-         case T_EventInterval:
+         case T_UpdatePeriod:
             /* do nothing until ENTER is presses */
             break;
          default:
@@ -435,9 +435,9 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t 
          case T_EventStep:
             fEventStep = fEventStepEntry->GetIntNumber();
             break;
-         case T_EventInterval:
-            fEventInterval = fEventIntervalEntry->GetIntNumber();
-            gROME->SetWindowUpdateFrequency(fEventInterval);
+         case T_UpdatePeriod:
+            fUpdatePeriod = fUpdatePeriodEntry->GetIntNumber();
+            gROME->SetWindowUpdatePeriod(fUpdatePeriod);
             break;
          default:
             break;

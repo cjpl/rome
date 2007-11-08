@@ -190,7 +190,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fNetFolderHost(0)
 ,fNetFolderRoot(0)
 ,fWindow(0)
-,fWindowUpdateFrequency(1)
+,fWindowUpdatePeriod(1)
 ,fMidasOnlineDataBase(0)
 {
 // Initialisations
