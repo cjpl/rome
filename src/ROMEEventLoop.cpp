@@ -410,6 +410,19 @@ Int_t ROMEEventLoop::RunEvent()
       return kBreak;
    }
 
+   // Check Event Numbers
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : CheckEventNumber\n");
+   if (gROME->isOffline() && !gROME->IsROMEMonitor()) {
+      int status = gROME->CheckEventNumber(fCurrentEvent);
+      if (status == 0) {
+         return kContinue;
+      } else if (status == -1) {
+         this->SetStopped();
+         this->SetEndOfRun();
+         return kBreak;
+      }
+   }
+
    // User Input
    if ((!this->isContinue() || gROME->isOnline()) && !gROME->IsROMEMonitor()) {
       if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
@@ -456,18 +469,6 @@ Int_t ROMEEventLoop::RunEvent()
          gROME->SetTerminationFlag();
          ROMEPrint::Print("\n\nTerminating Program !\n");
          return kReturn;
-      }
-      // Check Event Numbers
-      ROMEPrint::Debug("ROMEEventLoop::RunEvent() : CheckEventNumber\n");
-      if (gROME->isOffline() /* && !gROME->IsROMEMonitor() */) {
-         int status = gROME->CheckEventNumber(gROME->GetCurrentEventNumber());
-         if (status == 0) {
-            return kContinue;
-         } else if (status == -1) {
-            this->SetStopped();
-            this->SetEndOfRun();
-            return kBreak;
-         }
       }
       if (fHaveBeginOfEventMacro) {
          gROME->GetApplication()->ProcessFile(fBeginOfEventMacro.Data());
