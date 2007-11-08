@@ -245,7 +245,7 @@ protected:
 
    // Monitor
    ArgusWindow   *fWindow;                       //! Handle to Argus Window
-   Int_t          fWindowUpdateFrequency;        //! The update frequency of the Argus window
+   Int_t          fWindowUpdatePeriod;           //! Update period of Argus window, in ms
 
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
@@ -627,8 +627,8 @@ public:
    // Monitor
    ArgusWindow    *GetWindow() const { return fWindow; }
    Bool_t          StartWindow();
-   Int_t           GetWindowUpdateFrequency() const { return fWindowUpdateFrequency; };
-   void            SetWindowUpdateFrequency(Int_t frequency) { fWindowUpdateFrequency = frequency; };
+   Int_t           GetWindowUpdatePeriod() const { return fWindowUpdatePeriod; };
+   void            SetWindowUpdatePeriod(Int_t period) { fWindowUpdatePeriod = period; };
    Bool_t          IsWindowBusy() const;
 
    // Program Steering

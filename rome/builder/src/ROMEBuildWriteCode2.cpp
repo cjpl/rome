@@ -1221,11 +1221,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
          subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetStatusBarSwitch(## != \"false\");");
          subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->GetStatusBarSwitch()?1:0];");
-         // UpdateFrequency
+         // UpdatePeriod
+         // For the moment "UpdateFrequency" is used as the configuration parameter, although its value is inverse of the frequency indeed.
          subsubGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
+//         subsubGroup->AddParameter(new ROMEConfigParameter("UpdatePeriod"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdateFrequency(##.ToInteger());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdateFrequency());");
+         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdatePeriod(##.ToInteger());");
+         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdatePeriod());");
          // ListTreeView
          subsubGroup->AddParameter(new ROMEConfigParameter("ListTreeView","1","CheckButton"));
          subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
