@@ -217,6 +217,11 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, Int_t id, RO
    fEventStepEntry    ->Associate(this);
    fUpdatePeriodEntry->Associate(this);
 
+   fEventNumberEntry ->GetButtonUp()  ->SetToolTipText("Go to next event");
+   fEventNumberEntry ->GetButtonDown()->SetToolTipText("Go to previous event");
+   fUpdatePeriodEntry->GetButtonUp()  ->SetToolTipText("Update period of the window in ms");
+   fUpdatePeriodEntry->GetButtonDown()->SetToolTipText("Update period of the window in ms");
+
    vFrame[1]->AddFrame(fRunNumberEntry,    new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
    vFrame[1]->AddFrame(fEventNumberEntry,  new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
    vFrame[1]->AddFrame(fEventStepEntry,    new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 0, 0, 0, 0));
