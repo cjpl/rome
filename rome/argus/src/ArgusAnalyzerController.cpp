@@ -391,6 +391,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t 
             fUpdatePeriodEntry->GetNumberEntry()
                   ->IncreaseNumber((TGNumberFormat::EStepSize)(parm2%100), parm2/10000?-1:1, (parm2%10000/100));
             fUpdatePeriod = fUpdatePeriodEntry->GetIntNumber();
+            gROME->SetWindowUpdatePeriod(fUpdatePeriod);
             break;
          default:
             break;
