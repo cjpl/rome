@@ -19,6 +19,7 @@ private:
    ROMEString            fComment;
    Int_t                 fCommentLevel;
    ROMEStrArray*         fReadModifiedTrueLines;
+   ROMEString            fDeclaration;
    ROMEStrArray*         fSetLines;
    ROMEStrArray*         fWriteLines;
    ROMEStrArray*         fAdditionalWriteLines;
@@ -44,6 +45,9 @@ public:
    Int_t          GetNumberOfReadModifiedTrueLines() { return fReadModifiedTrueLines->GetEntriesFast(); }
    const char*    GetReadModifiedTrueLineAt(Int_t i) { return fReadModifiedTrueLines->At(i).Data(); }
    void           AddReadModifiedTrueLine(const char* line) { fReadModifiedTrueLines->AddLast(line); }
+
+   void           SetDeclaration(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
+   const char*    GetDeclaration() const { return fDeclaration.Data(); }
 
    Int_t          GetNumberOfSetLines() { return fSetLines->GetEntriesFast(); }
    const char*    GetSetLineAt(Int_t i) { return fSetLines->At(i).Data(); }

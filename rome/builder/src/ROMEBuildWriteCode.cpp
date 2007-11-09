@@ -5316,29 +5316,35 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                                          "static_cast<" + shortCut + "NetFolderServer*>(fNetFolderServer)->Get" + folderName[i] +
                                          "FolderActive(i)", true);
          }
+         buffer.AppendFormatted("\n");
       }
    }
    for (i = 0; i < numOfTaskHierarchy; i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
+      if (!taskUsed[taskHierarchyClassIndex[i]]) {
          continue;
+      }
       if (numOfGraphs[taskHierarchyClassIndex[i]] > 0) {
-         buffer.AppendFormatted("   if (GetTaskObjectAt(%d)->IsActive()",i);
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("      ROMETask *task = GetTaskObjectAt(%d);\n", i);
+         buffer.AppendFormatted("      if (task->IsActive()");
          idx = taskHierarchyParentIndex[i];
          while (idx != -1) {
-            buffer.AppendFormatted(" && GetTaskObjectAt(%d)->IsActive()",i);
+            buffer.AppendFormatted(" && task->IsActive()");
             idx = taskHierarchyParentIndex[idx];
          }
          buffer.AppendFormatted(") {\n");
       }
       for (j = 0; j < numOfGraphs[taskHierarchyClassIndex[i]]; j++) {
          ROMEString temp1,temp2,temp3;
-         temp1.SetFormatted("GetTaskObjectAt(%d)->GetGraphAt(%d)",i,j); 
-         temp2.SetFormatted("GetTaskObjectAt(%d)->GetGraphStorageAt(%d)",i,j); 
+         temp1.SetFormatted("task->GetGraphAt(%d)", j); 
+         temp2.SetFormatted("task->GetGraphStorageAt(%d)", j); 
          temp3.SetFormatted("static_cast<%sNetFolderServer*>(fNetFolderServer)->Get%s%s_%sGraphActive(i)",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data()); 
          WriteFillObjectStorageObject(buffer,temp1.Data(),temp2.Data(),temp3.Data(), false);
       }
-      if (numOfGraphs[taskHierarchyClassIndex[i]] > 0)
+      if (numOfGraphs[taskHierarchyClassIndex[i]] > 0) {
+         buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
+      }
    }
    buffer.AppendFormatted("   gFile = filsav;\n");
    buffer.AppendFormatted("   delete buffer;\n");
