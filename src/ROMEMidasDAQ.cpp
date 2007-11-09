@@ -249,7 +249,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEMidasDAQ::Event(Long64_t /* event */)
+Bool_t ROMEMidasDAQ::Event(Long64_t event)
 {
    // Switch Raw Data Buffer
    if (!fReadExistingRawData) {
@@ -401,6 +401,11 @@ Bool_t ROMEMidasDAQ::Event(Long64_t /* event */)
       if (pevent->data_size < reinterpret_cast<BANK_HEADER*>(pevent + 1)->data_size) {
          this->SetContinue();
          fByteSwapFlagMightBeWrong = kTRUE;
+         return kTRUE;
+      }
+
+      if (pevent->event_id == kTriggerEventID &&pevent->serial_number < event ) {
+         this->SetContinue();
          return kTRUE;
       }
 
