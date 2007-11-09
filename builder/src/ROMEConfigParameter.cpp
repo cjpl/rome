@@ -54,6 +54,16 @@ void ROMEConfigParameter::ReadComment(Int_t level, const char* parentName, const
 }
 
 //______________________________________________________________________________
+void ROMEConfigParameter::SetDeclaration(const char* va_(fmt),...) {
+   if (va_(fmt)==NULL)
+      return;
+   va_list ap;
+   va_start(ap,va_(fmt));
+   fDeclaration = ROMEString::Format(va_(fmt), ap);
+   va_end(ap);
+}
+
+//______________________________________________________________________________
 void ROMEConfigParameter::AddSetLine(const char* va_(fmt),...) {
    if (va_(fmt)==NULL)
       return;
