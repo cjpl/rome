@@ -5855,9 +5855,10 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
-
    ROMEString bankname;
    ROMEString tmp;
+   ROMEConfigParameterGroup *subGroup, *subsubGroup;
+
    if (makeOutput) cout<<"\n   Output H-File:"<<endl;
    // max folder name length
    int nameLen = -1;
@@ -6187,27 +6188,30 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   Bool_t   LoadFolders(const char* filename, Bool_t only_database = kFALSE);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   Bool_t   ShowConfigurationFile();\n");
+
    // Config to form save
-   buffer.AppendFormatted("   Bool_t   SaveHisto(%sConfigToForm *dialog,const char* path,ROMEHisto* histo,ROMEConfigHisto* configHisto,Int_t histoDimension);\n",shortCut.Data());
+   buffer.AppendFormatted("   Bool_t   SaveHisto(%sConfigToForm *dialog,const char* path,ROMEHisto* histo,ROMEConfigHisto* configHisto,Int_t histoDimension);\n",
+                          shortCut.Data());
    for (i = 0; i < mainParGroup->GetNumberOfSubGroups(); i++) {
+      subGroup = mainParGroup->GetSubGroupAt(i);
+
       buffer.AppendFormatted("   Bool_t   Save%s(%sConfigToForm *dialog);\n",
-                             mainParGroup->GetSubGroupAt(i)->GetGroupName().Data(),shortCut.Data());
-      if (mainParGroup->GetSubGroupAt(i)->GetGroupName() == "Common") {
-         for (j = 0; j < mainParGroup->GetSubGroupAt(i)->GetNumberOfSubGroups(); j++) {
+                             subGroup->GetGroupName().Data(),shortCut.Data());
+      if (subGroup->GetGroupName() == "Common") {
+         for (j = 0; j < subGroup->GetNumberOfSubGroups(); j++) {
+            subsubGroup = subGroup->GetSubGroupAt(j);
+
             buffer.AppendFormatted("   Bool_t   Save%s(%sConfigToForm *dialog);\n",
-                                   mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data(),
-                                   shortCut.Data());
-            if (mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName() == "Folders") {
-               for (k = 0; k < mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetNumberOfSubGroups(); k++)
+                                   subsubGroup->GetGroupName().Data(), shortCut.Data());
+            if (subsubGroup->GetGroupName() == "Folders") {
+               for (k = 0; k < subsubGroup->GetNumberOfSubGroups(); k++)
                   buffer.AppendFormatted("   Bool_t   Save%s(%sConfigToForm *dialog);\n",
-                                         mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetSubGroupAt(k)->GetGroupName().Data(),
-                                         shortCut.Data());
+                                         subsubGroup->GetSubGroupAt(k)->GetGroupName().Data(), shortCut.Data());
             }
          }
       }
    }
    buffer.AppendFormatted("\n");
-
 
    buffer.AppendFormatted("   %sWindow *GetWindow() const { return reinterpret_cast<%sWindow*>(fWindow); }\n",shortCut.Data(),shortCut.Data());
    // Private
@@ -7175,6 +7179,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
+   ROMEConfigParameterGroup *subGroup, *subsubGroup;
 
    // File name
    hFile.SetFormatted("%sinclude/generated/%sConfigToForm.h",outDir.Data(),shortCut.Data());
@@ -7214,16 +7219,18 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
    buffer.AppendFormatted("   void AddHisto(XMLToFormFrame *frame,ROMEHisto* histo,Int_t histoDimension);\n");
    buffer.AppendFormatted("   void AddGraph(XMLToFormFrame *frame,ROMEGraph* graph);\n");
    for (i = 0; i < mainParGroup->GetNumberOfSubGroups(); i++) {
+      subGroup = mainParGroup->GetSubGroupAt(i);
       buffer.AppendFormatted("   void Add%sFrame(XMLToFormFrame *frame);\n",
-                             mainParGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      if (mainParGroup->GetSubGroupAt(i)->GetGroupName() == "Common") {
-         for (j = 0; j < mainParGroup->GetSubGroupAt(i)->GetNumberOfSubGroups(); j++) {
+                             subGroup->GetGroupName().Data());
+      if (subGroup->GetGroupName() == "Common") {
+         for (j = 0; j < subGroup->GetNumberOfSubGroups(); j++) {
+            subsubGroup = subGroup->GetSubGroupAt(j);
             buffer.AppendFormatted("   void Add%sFrame(XMLToFormFrame *frame);\n",
-                                   mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
-            if (mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName() == "Folders") {
-               for (k = 0; k < mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetNumberOfSubGroups(); k++)
+                                   subsubGroup->GetGroupName().Data());
+            if (subsubGroup->GetGroupName() == "Folders") {
+               for (k = 0; k < subsubGroup->GetNumberOfSubGroups(); k++)
                   buffer.AppendFormatted("   void Add%sFrame(XMLToFormFrame *frame);\n",
-                                         mainParGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetSubGroupAt(k)->GetGroupName().Data());
+                                         subsubGroup->GetSubGroupAt(k)->GetGroupName().Data());
             }
          }
       }
