@@ -77,6 +77,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
 {
    int i,j,histoDimension;
    Bool_t histosWritten,graphsWritten;
+   ROMEConfigParameterGroup *subGroup;
+
    ROMEString sTab = "";
    for (i = 0; i < tab; i++) {
       sTab += "   ";
@@ -133,17 +135,18 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
    histosWritten = false;
    graphsWritten= false;
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
+      subGroup = parGroup->GetSubGroupAt(i);
       // Special case histogram
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Histogram") {
+      if (subGroup->GetGroupIdentifier()=="Histogram") {
          if (!histosWritten) {
             histosWritten = true;
             buffer.AppendFormatted("\n%s// %sHistograms\n",sTab.Data(),tabPointer.Data());
             buffer.AppendFormatted("%sfor (i=0;i<%sTask->GetNumberOfHistos();i++) {\n",sTab.Data(),parGroup->GetGroupName().Data());
-            comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+            comment = ProcessCommentString(subGroup->GetComment(),temp).Data();
             buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
             if (comment.Length() > 0) {
                buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTab.Data(),
-                                      parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                      subGroup->GetCommentLevel());
                buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
                buffer.AppendFormatted("%s   }\n",sTab.Data());
             }
@@ -155,16 +158,16 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          continue;
       }
       // Special case graph
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Graph") {
+      if (subGroup->GetGroupIdentifier()=="Graph") {
          if (!graphsWritten) {
             graphsWritten = true;
             buffer.AppendFormatted("\n%s// %sGraphs\n",sTab.Data(),tabPointer.Data());
             buffer.AppendFormatted("%sfor (i=0;i<%sTask->GetNumberOfGraphs();i++) {\n",sTab.Data(),parGroup->GetGroupName().Data());
-            comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+            comment = ProcessCommentString(subGroup->GetComment(),temp).Data();
             buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
             if (comment.Length() > 0) {
                buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTab.Data(),
-                                      parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                      subGroup->GetCommentLevel());
                buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
                buffer.AppendFormatted("%s   }\n", sTab.Data());
             }
@@ -180,7 +183,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
           (level == 2 && parGroup->GetGroupName() == "Folders")) {
          buffer.Append(kMethodLine);
          buffer.AppendFormatted("void %sConfigToForm::Add%sFrame(XMLToFormFrame *frame)\n",shortCut.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   int ind,dimension;\n");
          buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
@@ -205,44 +208,44 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          buffer.AppendFormatted("   tempFrame[%d] = frame;\n",level);
       } else {
          buffer.AppendFormatted("\n%s// %s%s\n",sTab.Data(),tabPointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
       }
       // Special case task
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Task") {
-         buffer.AppendFormatted("%s%sT%s_Base* %sTask;\n",sTab.Data(),shortCut.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         buffer.AppendFormatted("%s%sTask = gAnalyzer->Get%sTaskBase();\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      if (subGroup->GetGroupIdentifier()=="Task") {
+         buffer.AppendFormatted("%s%sT%s_Base* %sTask;\n",sTab.Data(),shortCut.Data(),subGroup->GetTagName().Data(),subGroup->GetGroupName().Data());
+         buffer.AppendFormatted("%s%sTask = gAnalyzer->Get%sTaskBase();\n",sTab.Data(),subGroup->GetGroupName().Data(),subGroup->GetGroupName().Data());
       }
-      comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+      comment = ProcessCommentString(subGroup->GetComment(),temp).Data();
       buffer.AppendFormatted("%scomment = \"\";\n",sTab.Data());
       if (comment.Length() > 0) {
          buffer.AppendFormatted("%sif (fCommentLevel >= %d) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                subGroup->GetCommentLevel());
          buffer.AppendFormatted("%s   comment = \"%s\";\n",sTab.Data(),comment.Data());
          buffer.AppendFormatted("%s}\n", sTab.Data());
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "1" || parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown")
+      if (subGroup->GetArraySize() == "1" || subGroup->GetArraySize() == "unknown")
          buffer.AppendFormatted("%stempFrame[%d]->AddSubFrame(new XMLToFormFrame(tempFrame[%d],\"%s\",\"\",true,XMLToFormFrame::kListTreeItem,true,%d,comment.Data()));\n",
-                                sTab.Data(),level,level,parGroup->GetSubGroupAt(i)->GetGroupName().Data(),i);
-      newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      if (!(level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") &&
-          !(level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
-         if (parGroup->GetSubGroupAt(i)->GetArraySize() == "1") {
+                                sTab.Data(),level,level,subGroup->GetGroupName().Data(),i);
+      newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),subGroup->GetGroupName().Data());
+      if (!(level == 0 && subGroup->GetGroupName() == "Common") &&
+          !(level == 1 && subGroup->GetGroupName() == "Folders")) {
+         if (subGroup->GetArraySize() == "1") {
             buffer.AppendFormatted("%stempFrame[%d] = tempFrame[%d]->GetSubFrameAt(%d);\n",sTab.Data(),level + 1,level,
                                    i);
-            WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),
-                                        tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+            WriteConfigToFormSubMethods(buffer,subGroup,
+                                        tabPointer+subGroup->GetGroupName().Data()+"/",
                                         newConfigPointer.Data(),level + 1,tab);
-         } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+         } else if (subGroup->GetArraySize() == "unknown") {
             buffer.AppendFormatted("%sfor (i = 0; i < static_cast<%sConfig*>(gAnalyzer->GetConfiguration())->fConfigData[0]->%sf%sArraySize; i++) {\n",
                                    sTab.Data(),shortCut.Data(),configPointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
             buffer.AppendFormatted("%s   str.SetFormatted(\"%s %%d\",i);\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-            comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+                                   subGroup->GetGroupName().Data());
+            comment = ProcessCommentString(subGroup->GetComment(),temp).Data();
             buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
             if (comment.Length() > 0) {
                buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTab.Data(),
-                                      parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                      subGroup->GetCommentLevel());
                buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
                buffer.AppendFormatted("%s   }\n", sTab.Data());
             }
@@ -250,51 +253,51 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
                                    sTab.Data(),level,i,level,i);
             buffer.AppendFormatted("%s   tempFrame[%d] = tempFrame[%d]->GetSubFrameAt(%d)->GetSubFrameAt(i);\n",
                                    sTab.Data(),level + 1,level,i);
-            WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),
-                                        tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+            WriteConfigToFormSubMethods(buffer,subGroup,
+                                        tabPointer+subGroup->GetGroupName().Data()+"/",
                                         newConfigPointer.Data(),level + 1,tab + 1);
             buffer.AppendFormatted("%s}\n",sTab.Data());
          } else {
             buffer.AppendFormatted("%sfor (ii[%d] = 0; ii[%d] < %s; ii[%d]++) {\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                   parGroup->GetSubGroupAt(i)->GetArraySize().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                   subGroup->GetHierarchyLevel(),
+                                   subGroup->GetHierarchyLevel(),
+                                   subGroup->GetArraySize().Data(),
+                                   subGroup->GetHierarchyLevel());
             buffer.AppendFormatted("%s   str.SetFormatted(\"%s %%d\",ii[%d]);\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-            comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
+                                   subGroup->GetGroupName().Data(),
+                                   subGroup->GetHierarchyLevel());
+            comment = ProcessCommentString(subGroup->GetComment(),temp).Data();
             buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
             if (comment.Length() > 0) {
                buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTab.Data(),
-                                      parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                      subGroup->GetCommentLevel());
                buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
                buffer.AppendFormatted("%s   }\n", sTab.Data());
             }
             buffer.AppendFormatted("%s   tempFrame[%d]->AddSubFrame(new XMLToFormFrame(tempFrame[%d],str.Data(),\"\",true,XMLToFormFrame::kListTreeItem,true, 0, comment.Data()));\n",
                                    sTab.Data(),level,level);
             buffer.AppendFormatted("%s   tempFrame[%d] = tempFrame[%d]->GetSubFrameAt(ii[%d]);\n",sTab.Data(),
-                                   level + 1, level,parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-            WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),
-                                        tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+                                   level + 1, level,subGroup->GetHierarchyLevel());
+            WriteConfigToFormSubMethods(buffer,subGroup,
+                                        tabPointer+subGroup->GetGroupName().Data()+"/",
                                         newConfigPointer.Data(),level + 1,tab + 1);
             buffer.AppendFormatted("%s}\n",sTab.Data());
          }
       }
       if (level == 0 || (level == 1 && parGroup->GetGroupName() == "Common") ||
           (level == 2 && parGroup->GetGroupName() == "Folders")) {
-         if ((level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") ||
-             (level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
-            for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups(); j++)
+         if ((level == 0 && subGroup->GetGroupName() == "Common") ||
+             (level == 1 && subGroup->GetGroupName() == "Folders")) {
+            for (j = 0; j < subGroup->GetNumberOfSubGroups(); j++)
                buffer.AppendFormatted("%sAdd%sFrame(tempFrame[%d]->GetSubFrameAt(%d));\n",sTab.Data(),
-                                      parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data(),level,i);
+                                      subGroup->GetSubGroupAt(j)->GetGroupName().Data(),level,i);
          }
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         if ((level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") ||
-             (level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
-            WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),
-                                        tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+         if ((level == 0 && subGroup->GetGroupName() == "Common") ||
+             (level == 1 && subGroup->GetGroupName() == "Folders")) {
+            WriteConfigToFormSubMethods(buffer,subGroup,
+                                        tabPointer+subGroup->GetGroupName().Data()+"/",
                                         newConfigPointer.Data(),level + 1,tab);
          }
       }
@@ -320,6 +323,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
    ROMEString temp;
    ROMEString temp2;
    ROMEConfigParameter* parameter;
+   ROMEConfigParameterGroup *subGroup;
    Int_t histoDimension; 
 
    if (parGroup->GetGroupIdentifier() == "Histogram") {
@@ -387,11 +391,12 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
    }
 
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
+      subGroup = parGroup->GetSubGroupAt(i);
       if (level == 0 || (level == 1 && parGroup->GetGroupName() == "Common") ||
           (level == 2 && parGroup->GetGroupName() == "Folders")) {
          buffer.Append(kMethodLine);
          buffer.AppendFormatted("Bool_t %sAnalyzer::Save%s(%sConfigToForm *dialog)\n",shortCut.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),shortCut.Data());
+                                subGroup->GetGroupName().Data(),shortCut.Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   int i,ii[100];\n");
          buffer.AppendFormatted("   i = 0; ii[0] = 0;\n"); // to suppress unused warning
@@ -414,46 +419,46 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          sTab = "";
       }
       newIndexes = indexes;
-      newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      newPointer.SetFormatted("%s%s/",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      if (!(level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") &&
-          !(level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
-         if (parGroup->GetSubGroupAt(i)->GetArraySize() == "1") {
-            newPointer.SetFormatted("%s%s/",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-            WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),
-                                  tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+      newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),subGroup->GetGroupName().Data());
+      newPointer.SetFormatted("%s%s/",pointer.Data(),subGroup->GetGroupName().Data());
+      if (!(level == 0 && subGroup->GetGroupName() == "Common") &&
+          !(level == 1 && subGroup->GetGroupName() == "Folders")) {
+         if (subGroup->GetArraySize() == "1") {
+            newPointer.SetFormatted("%s%s/",pointer.Data(),subGroup->GetGroupName().Data());
+            WriteConfigToFormSave(buffer,subGroup,newPointer.Data(),
+                                  tabPointer+subGroup->GetGroupName().Data()+"/",
                                   newConfigPointer.Data(),level + 1,tab,newIndexes);
-         } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+         } else if (subGroup->GetArraySize() == "unknown") {
             buffer.AppendFormatted("%s   for (i = 0; i < static_cast<%sConfig*>(gAnalyzer->GetConfiguration())->fConfigData[0]->%sf%sArraySize; i++) {\n",
                                    sTab.Data(),shortCut.Data(),configPointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-            newPointer.SetFormatted("%s%s/%s",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-            WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),
-                                  tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+                                   subGroup->GetGroupName().Data());
+            newPointer.SetFormatted("%s%s/%s",pointer.Data(),subGroup->GetGroupName().Data(),
+                                    subGroup->GetGroupName().Data());
+            WriteConfigToFormSave(buffer,subGroup,newPointer.Data(),
+                                  tabPointer+subGroup->GetGroupName().Data()+"/",
                                   newConfigPointer.Data(),level + 1,tab + 1,newIndexes);
             buffer.AppendFormatted("%s   }\n",sTab.Data());
          } else {
             buffer.AppendFormatted("%s   for (ii[%d] = 0; ii[%d] < %s; ii[%d]++) {\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                   parGroup->GetSubGroupAt(i)->GetArraySize().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-            newPointer.SetFormatted("%s%s %%d/",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-            newIndexes.AppendFormatted(",ii[%d]",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-            WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),
-                                  tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+                                   subGroup->GetHierarchyLevel(),
+                                   subGroup->GetHierarchyLevel(),
+                                   subGroup->GetArraySize().Data(),
+                                   subGroup->GetHierarchyLevel());
+            newPointer.SetFormatted("%s%s %%d/",pointer.Data(),subGroup->GetGroupName().Data());
+            newIndexes.AppendFormatted(",ii[%d]",subGroup->GetHierarchyLevel());
+            WriteConfigToFormSave(buffer,subGroup,newPointer.Data(),
+                                  tabPointer+subGroup->GetGroupName().Data()+"/",
                                   newConfigPointer.Data(),level + 1,tab + 1,newIndexes);
             buffer.AppendFormatted("%s   }\n",sTab.Data());
          }
       }
       if (level == 0 || (level == 1 && parGroup->GetGroupName() == "Common") ||
           (level == 2 && parGroup->GetGroupName() == "Folders")) {
-         if ((level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") ||
-             (level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
-            for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups(); j++) {
+         if ((level == 0 && subGroup->GetGroupName() == "Common") ||
+             (level == 1 && subGroup->GetGroupName() == "Folders")) {
+            for (j = 0; j < subGroup->GetNumberOfSubGroups(); j++) {
                buffer.AppendFormatted("%s   if (!Save%s(dialog)) return false;\n",sTab.Data(),
-                                      parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
+                                      subGroup->GetSubGroupAt(j)->GetGroupName().Data());
             }
          }
          buffer.AppendFormatted("   return true;\n");
@@ -461,10 +466,10 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         if ((level == 0 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Common") ||
-             (level == 1 && parGroup->GetSubGroupAt(i)->GetGroupName() == "Folders")) {
-            WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),
-                                  tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",
+         if ((level == 0 && subGroup->GetGroupName() == "Common") ||
+             (level == 1 && subGroup->GetGroupName() == "Folders")) {
+            WriteConfigToFormSave(buffer,subGroup,newPointer.Data(),
+                                  tabPointer+subGroup->GetGroupName().Data()+"/",
                                   newConfigPointer.Data(),level + 1,tab,newIndexes);
          }
       }
@@ -480,12 +485,6 @@ Bool_t ROMEBuilder::AddConfigParameters()
    int nIndex = 1;
    int *indx = new int[nIndex];
    ROMEString str;
-   ROMEConfigParameterGroup* subGroup;
-   ROMEConfigParameterGroup* subSubGroup;
-   ROMEConfigParameterGroup* subSubSubGroup;
-   ROMEConfigParameterGroup* subsubGroup;
-   ROMEConfigParameterGroup* subsubSubGroup;
-   ROMEConfigParameterGroup* subsubSubSubGroup;
    ROMEString tmp;
    for (i = 0; i < nIndex; i++)
       indx[i] = -1;
@@ -605,7 +604,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
    // Modes
    {
-      subGroup = new ROMEConfigParameterGroup("Modes");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Modes");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // Modes/AnalyzingMode
@@ -673,7 +672,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
    // Offline
    {
-      subGroup = new ROMEConfigParameterGroup("Offline");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Offline");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // RunNumbers
@@ -697,7 +696,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
    // Online
    {
-      subGroup = new ROMEConfigParameterGroup("Online");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Online");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // Host
@@ -727,7 +726,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
    // Paths
    {
-      subGroup = new ROMEConfigParameterGroup("Paths");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Paths");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // InputFilePath
@@ -745,552 +744,562 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputDir(##);");
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputDir();");
    }
+
    // Common
    {
-      subGroup = new ROMEConfigParameterGroup("Common");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Common");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // Settings
       {
-         subsubGroup = new ROMEConfigParameterGroup("Settings");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Settings");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
          // VerboseLevel
-         subsubGroup->AddParameter(new ROMEConfigParameter("VerboseLevel","1","ComboBox"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("inttmp = strtol(##,&cstop, 10);");
-         subsubGroup->GetLastParameter()->AddSetLine("if (## == \"mute\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kMute)) {");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);");
-         subsubGroup->GetLastParameter()->AddSetLine("} else if (## == \"error\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kError)) {");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kError);");
-         subsubGroup->GetLastParameter()->AddSetLine("} else if (## == \"warning\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kWarning)) {");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);");
-         subsubGroup->GetLastParameter()->AddSetLine("} else if (## == \"normal\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kNormal)) {");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);");
-         subsubGroup->GetLastParameter()->AddSetLine("} else if (## == \"verbose\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kVerbose)) {");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);");
-         subsubGroup->GetLastParameter()->AddSetLine("} else if (## == \"debug\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kDebug)) {");
-         subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);");
-         subsubGroup->GetLastParameter()->AddSetLine("}");
-         subsubGroup->GetLastParameter()->AddWriteLine("if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kMute) {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"mute\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kError) {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"error\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kWarning) {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"warning\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kNormal) {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kVerbose) {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"verbose\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kDebug) {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"debug\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("} else {");
-         subsubGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
-         subsubGroup->GetLastParameter()->AddWriteLine("}");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("mute");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("error");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("warning");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("normal");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("verbose");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("debug");
+         subSubGroup->AddParameter(new ROMEConfigParameter("VerboseLevel","1","ComboBox"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("inttmp = strtol(##,&cstop, 10);");
+         subSubGroup->GetLastParameter()->AddSetLine("if (## == \"mute\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kMute)) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);");
+         subSubGroup->GetLastParameter()->AddSetLine("} else if (## == \"error\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kError)) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kError);");
+         subSubGroup->GetLastParameter()->AddSetLine("} else if (## == \"warning\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kWarning)) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kWarning);");
+         subSubGroup->GetLastParameter()->AddSetLine("} else if (## == \"normal\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kNormal)) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);");
+         subSubGroup->GetLastParameter()->AddSetLine("} else if (## == \"verbose\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kVerbose)) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kVerbose);");
+         subSubGroup->GetLastParameter()->AddSetLine("} else if (## == \"debug\" || ((!cstop || !strlen(cstop)) && inttmp == ROMEPrint::kDebug)) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);");
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddWriteLine("if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kMute) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"mute\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kError) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"error\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kWarning) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"warning\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kNormal) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kVerbose) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"verbose\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("} else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kDebug) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"debug\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("} else {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("}");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("mute");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("error");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("warning");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("normal");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("verbose");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("debug");
          // ReportMaxCount
-         subsubGroup->AddParameter(new ROMEConfigParameter("ReportMaxCount"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("ROMEPrint::SetReportMaxCount(strtol(##,&cstop, 10));");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", ROMEPrint::GetReportMaxCount());");
+         subSubGroup->AddParameter(new ROMEConfigParameter("ReportMaxCount"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("ROMEPrint::SetReportMaxCount(strtol(##,&cstop, 10));");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", ROMEPrint::GetReportMaxCount());");
          // ConfigCommentLevel
-         subsubGroup->AddParameter(new ROMEConfigParameter("ConfigCommentLevel","1","ComboBox"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetConfiguration()->SetCommentLevel(strtol(##,&cstop, 10));");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetConfiguration()->GetCommentLevel());");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("0");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("1");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("2");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("3");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("4");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("5");
+         subSubGroup->AddParameter(new ROMEConfigParameter("ConfigCommentLevel","1","ComboBox"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetConfiguration()->SetCommentLevel(strtol(##,&cstop, 10));");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetConfiguration()->GetCommentLevel());");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("0");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("1");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("2");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("3");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("4");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("5");
          // QuitMode
-         subsubGroup->AddParameter(new ROMEConfigParameter("QuitMode","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetQuitMode(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isQuitMode()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("QuitMode","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetQuitMode(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isQuitMode()?1:0];");
          // ShowSplashScreen
-         subsubGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSplashScreen(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isSplashScreen()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSplashScreen(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isSplashScreen()?1:0];");
          // GraphicalConfigEdit
-         subsubGroup->AddParameter(new ROMEConfigParameter("GraphicalConfigEdit","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetGraphicalConfigEdit(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isGraphicalConfigEdit()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("GraphicalConfigEdit","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetGraphicalConfigEdit(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isGraphicalConfigEdit()?1:0];");
          // PreserveConfig
-         subsubGroup->AddParameter(new ROMEConfigParameter("PreserveConfig","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetPreserveConfig(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isPreserveConfig()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("PreserveConfig","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetPreserveConfig(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isPreserveConfig()?1:0];");
       }
 
       // Floating point exception trap
       {
-         subsubGroup = new ROMEConfigParameterGroup("FloatingPointExceptionTrap");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("FloatingPointExceptionTrap");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
          // Invalid
-         subsubGroup->AddParameter(new ROMEConfigParameter("Invalid","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEInvalid(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEInvalid()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Invalid","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEInvalid(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEInvalid()?1:0];");
          // DivByZero
-         subsubGroup->AddParameter(new ROMEConfigParameter("DivByZero","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEDivByZero(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEDivByZero()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("DivByZero","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEDivByZero(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEDivByZero()?1:0];");
          // Overflow
-         subsubGroup->AddParameter(new ROMEConfigParameter("Overflow","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEOverflow(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEOverflow()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Overflow","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEOverflow(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEOverflow()?1:0];");
          // Underflow
-         subsubGroup->AddParameter(new ROMEConfigParameter("Underflow","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEUnderflow(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEUnderflow()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Underflow","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEUnderflow(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEUnderflow()?1:0];");
          // Inexact
-         subsubGroup->AddParameter(new ROMEConfigParameter("Inexact","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEInexact(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEInexact()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Inexact","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->SetFPEInexact(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetApplication()->EnableFPETrap();");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetApplication()->GetFPEInexact()?1:0];");
       }
 
       // SocketServer
       {
-         subsubGroup = new ROMEConfigParameterGroup("SocketServer");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("SocketServer");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
          // Active
-         subsubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketServerActive(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isSocketServerActive()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketServerActive(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isSocketServerActive()?1:0];");
          // PortNumber
-         subsubGroup->AddParameter(new ROMEConfigParameter("PortNumber"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketServerPortNumber(##.Data());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetSocketServerPortNumber());");
+         subSubGroup->AddParameter(new ROMEConfigParameter("PortNumber"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketServerPortNumber(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetSocketServerPortNumber());");
       }
       // DataBases
       {
-         subsubGroup = new ROMEConfigParameterGroup("DataBase","unknown");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subsubGroup->AddReadGroupArrayInitLine("gAnalyzer->InitDataBases(configData->fCommon->fDataBaseArraySize);");
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("DataBase","unknown");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subSubGroup->AddReadGroupArrayInitLine("gAnalyzer->InitDataBases(configData->fCommon->fDataBaseArraySize);");
+         subGroup->AddSubGroup(subSubGroup);
          // DataBase/Name
-         subsubGroup->AddParameter(new ROMEConfigParameter("Name"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseName(i,##.Data());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseName(i);");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Name"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseName(i,##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseName(i);");
          // DataBase/Connection
-         subsubGroup->AddParameter(new ROMEConfigParameter("Connection"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseConnection(i,##.Data());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseConnection(i);");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Connection"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseConnection(i,##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseConnection(i);");
          // DataBase/Type
-         subsubGroup->AddParameter(new ROMEConfigParameter("Type","1","ComboBox"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("if (## == \"sql\") {");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Type","1","ComboBox"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("if (## == \"sql\") {");
          if (sql) {
-            subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMESQLDataBase());");
-            subsubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i))) {");
-            subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-            subsubGroup->GetLastParameter()->AddSetLine("   }");
+            subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMESQLDataBase());");
+            subSubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i))) {");
+            subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+            subSubGroup->GetLastParameter()->AddSetLine("   }");
          } else {
-            subsubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::Error(\"%%s is not linked with sql support.\\n\", gAnalyzer->GetProgramName())\n;");
-            subsubGroup->GetLastParameter()->AddSetLine("   return false;");
+            subSubGroup->GetLastParameter()->AddSetLine("   ROMEPrint::Error(\"%%s is not linked with sql support.\\n\", gAnalyzer->GetProgramName())\n;");
+            subSubGroup->GetLastParameter()->AddSetLine("   return false;");
          }
-         subsubGroup->GetLastParameter()->AddSetLine("}");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"none\" ||");
-         subsubGroup->GetLastParameter()->AddSetLine("         ## == \"\") {");
-         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMENoDataBase());");
-         subsubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",\"\")) {");
-         subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("}");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"xml\") {");
-         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMEXMLDataBase());");
-         subsubGroup->GetLastParameter()->AddSetLine("   str = gAnalyzer->GetDataBaseConnection(i);");
-         subsubGroup->GetLastParameter()->AddSetLine("   if ((ind=str.Index(\";\", 1, 0, TString::kExact)) == -1) {");
-         subsubGroup->GetLastParameter()->AddSetLine("      ROMEPrint::Error(\"Invalid database connection\\n\");");
-         subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("   path = str(0, ind);");
-         subsubGroup->GetLastParameter()->AddSetLine("   if (path[path.Length() - 1] != '/' && path[path.Length() - 1] != '\\\\') {");
-         subsubGroup->GetLastParameter()->AddSetLine("      path += \"/\";");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDir(i,path.Data());");
-         subsubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),gAnalyzer->GetDataBaseDir(i),static_cast<TString>(str(ind + 1,str.Length()-ind - 1)).Data())) {");
-         subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("}");
-         subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"text\") {");
-         subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMETextDataBase());");
-         subsubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),gAnalyzer->GetDataBaseConnection(i),\"\")) {");
-         subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("}");
-         subsubGroup->GetLastParameter()->AddSetLine("if (## == \"odb\") {");
-         subsubGroup->GetLastParameter()->AddSetLine("   if (gAnalyzer->isOffline()) {");
-         subsubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetDataBase(i,new ROMEODBOfflineDataBase());");
-         subsubGroup->GetLastParameter()->AddSetLine("   } else {");
-         subsubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetDataBase(i,new ROMEODBOnlineDataBase());");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",\"\")) {");
-         subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-         subsubGroup->GetLastParameter()->AddSetLine("   }");
-         subsubGroup->GetLastParameter()->AddSetLine("}");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("none");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("sql");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("xml");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("text");
-         subsubGroup->GetLastParameter()->AddComboBoxEntry("odb");
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddSetLine("else if (## == \"none\" ||");
+         subSubGroup->GetLastParameter()->AddSetLine("         ## == \"\") {");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMENoDataBase());");
+         subSubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",\"\")) {");
+         subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddSetLine("else if (## == \"xml\") {");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMEXMLDataBase());");
+         subSubGroup->GetLastParameter()->AddSetLine("   str = gAnalyzer->GetDataBaseConnection(i);");
+         subSubGroup->GetLastParameter()->AddSetLine("   if ((ind=str.Index(\";\", 1, 0, TString::kExact)) == -1) {");
+         subSubGroup->GetLastParameter()->AddSetLine("      ROMEPrint::Error(\"Invalid database connection\\n\");");
+         subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("   path = str(0, ind);");
+         subSubGroup->GetLastParameter()->AddSetLine("   if (path[path.Length() - 1] != '/' && path[path.Length() - 1] != '\\\\') {");
+         subSubGroup->GetLastParameter()->AddSetLine("      path += \"/\";");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDir(i,path.Data());");
+         subSubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),gAnalyzer->GetDataBaseDir(i),static_cast<TString>(str(ind + 1,str.Length()-ind - 1)).Data())) {");
+         subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddSetLine("else if (## == \"text\") {");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMETextDataBase());");
+         subSubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),gAnalyzer->GetDataBaseConnection(i),\"\")) {");
+         subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddSetLine("if (## == \"odb\") {");
+         subSubGroup->GetLastParameter()->AddSetLine("   if (gAnalyzer->isOffline()) {");
+         subSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetDataBase(i,new ROMEODBOfflineDataBase());");
+         subSubGroup->GetLastParameter()->AddSetLine("   } else {");
+         subSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetDataBase(i,new ROMEODBOnlineDataBase());");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",\"\")) {");
+         subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+         subSubGroup->GetLastParameter()->AddSetLine("   }");
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("none");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("sql");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("xml");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("text");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("odb");
          for (i = 0; i < numOfDB; i++) {
-            subsubGroup->GetLastParameter()->AddSetLine("else if (## == \"%s\") {\n",dbName[i].Data());
-            subsubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new %s%sDataBase());\n",shortCut.Data(),dbName[i].Data());
-            subsubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i))) {");
-            subsubGroup->GetLastParameter()->AddSetLine("      return false;");
-            subsubGroup->GetLastParameter()->AddSetLine("   }");
-            subsubGroup->GetLastParameter()->AddSetLine("}");
-            subsubGroup->GetLastParameter()->AddComboBoxEntry(dbName[i].Data());
+            subSubGroup->GetLastParameter()->AddSetLine("else if (## == \"%s\") {\n",dbName[i].Data());
+            subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new %s%sDataBase());\n",shortCut.Data(),dbName[i].Data());
+            subSubGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i))) {");
+            subSubGroup->GetLastParameter()->AddSetLine("      return false;");
+            subSubGroup->GetLastParameter()->AddSetLine("   }");
+            subSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubGroup->GetLastParameter()->AddComboBoxEntry(dbName[i].Data());
          }
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBase(i)->GetType();");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBase(i)->GetType();");
          // DataBase/EventBased
-         subsubGroup->AddParameter(new ROMEConfigParameter("EventBased","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetEventBasedDataBase(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsEventBasedDataBase()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("EventBased","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetEventBasedDataBase(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsEventBasedDataBase()?1:0];");
       }
+
       // Folders
       {
-         subsubGroup = new ROMEConfigParameterGroup("Folders");
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Folders");
+         subGroup->AddSubGroup(subSubGroup);
          for (i = 0; i < numOfFolder; i++) {
-            if (!folderUsed[i])
+            if (!folderUsed[i]) {
                continue;
+            }
             if (folderDataBase[i] && !folderSupport[i]) {
-               subsubSubGroup = new ROMEConfigParameterGroup(folderName[i],"1","Folder");
-               subsubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, folderShortDescription[i]);
-               subsubGroup->AddSubGroup(subsubSubGroup);
+               ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup(folderName[i],"1","Folder");
+               subSubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, folderShortDescription[i]);
+               subSubGroup->AddSubGroup(subSubSubGroup);
                for (j = 0; j < numOfValue[i]; j++) {
-                  if (valueDimension[i][j]>1)
+                  if (valueDimension[i][j]>1) {
                      continue;
-                  subsubSubSubGroup = new ROMEConfigParameterGroup(valueName[i][j],"1","Field");
-                  subsubSubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, valueComment[i][j]);
-                  subsubSubGroup->AddSubGroup(subsubSubSubGroup);
+                  }
+                  ROMEConfigParameterGroup* subSubSubSubGroup = new ROMEConfigParameterGroup(valueName[i][j],"1","Field");
+                  subSubSubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, valueComment[i][j]);
+                  subSubSubGroup->AddSubGroup(subSubSubSubGroup);
                   // DataBaseName
-                  subsubSubSubGroup->AddParameter(new ROMEConfigParameter("DataBaseName"));
-                  subsubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Field");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetDBAccess()->SetDBNameAt(%d,%d,##.Data());",
+                  subSubSubSubGroup->AddParameter(new ROMEConfigParameter("DataBaseName"));
+                  subSubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Field");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetDBAccess()->SetDBNameAt(%d,%d,##.Data());",
                                                                     i,j);
-                  subsubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDBAccess()->GetDBNameAt(%d,%d);",
+                  subSubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDBAccess()->GetDBNameAt(%d,%d);",
                                                                       i,j);
                   // DataBasePath
-                  subsubSubSubGroup->AddParameter(new ROMEConfigParameter("DataBasePath"));
-                  subsubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Field");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("path = ##.Data();");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("ind = path.Last('\"');");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("if (ind == -1 || ind == path.Length() - 1) {");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   subPath = path.ReplaceAll(\"\\\"\",\"\");");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetDBAccess()->SetDBPathAt(%d,%d,subPath.Data());",
+                  subSubSubSubGroup->AddParameter(new ROMEConfigParameter("DataBasePath"));
+                  subSubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Field");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("path = ##.Data();");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("ind = path.Last('\"');");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("if (ind == -1 || ind == path.Length() - 1) {");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   subPath = path.ReplaceAll(\"\\\"\",\"\");");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetDBAccess()->SetDBPathAt(%d,%d,subPath.Data());",
                                                                     i,j);
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("} else {");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   subPath = path(1,ind - 1);");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetDBAccess()->SetDBPathAt(%d,%d,subPath.Data());",
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("} else {");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   subPath = path(1,ind - 1);");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetDBAccess()->SetDBPathAt(%d,%d,subPath.Data());",
                                                                     i,j);
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   path = path(ind+2,path.Length()-ind+2);");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   int num = path.CountChar(',') + 1;");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   for (i = 0; i < num; i++) {");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      if (i < num - 1) {");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("         ind = path.First(',');");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      } else {");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("         ind = path.Length();");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      }");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      subPath = path(0, ind);");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetDBAccess()->SetDBCodeAt(%d,%d,i,gAnalyzer->GetObjectInterpreterCode(subPath.Data()));",
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   path = path(ind+2,path.Length()-ind+2);");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   int num = path.CountChar(',') + 1;");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   for (i = 0; i < num; i++) {");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("      if (i < num - 1) {");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("         ind = path.First(',');");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("      } else {");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("         ind = path.Length();");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("      }");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("      subPath = path(0, ind);");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetDBAccess()->SetDBCodeAt(%d,%d,i,gAnalyzer->GetObjectInterpreterCode(subPath.Data()));",
                                                                     i,j);
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("      path = path(ind + 1,path.Length()-ind + 1);");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("   }");
-                  subsubSubSubGroup->GetLastParameter()->AddSetLine("}");
-                  subsubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("tmp = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("      path = path(ind + 1,path.Length()-ind + 1);");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("   }");
+                  subSubSubSubGroup->GetLastParameter()->AddSetLine("}");
+                  subSubSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("tmp = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",
                                                                       i,j);
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetDBPathWriteFlag(tmp.Data())) {");
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetDBPathWriteFlag(tmp.Data())) {");
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetDBAccess()->GetDBPathOriginalAt(%d,%d);",
                                                                       i,j);
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("} else {");
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"\";");
-                  subsubSubSubGroup->GetLastParameter()->AddWriteLine("}");
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("} else {");
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"\";");
+                  subSubSubSubGroup->GetLastParameter()->AddWriteLine("}");
                }
             }
          }
       }
+
       // Trees
       if (numOfTree > 0) {
-         subsubGroup = new ROMEConfigParameterGroup("Trees");
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Trees");
+         subGroup->AddSubGroup(subSubGroup);
          // Accumulate
-         subsubGroup->AddParameter(new ROMEConfigParameter("Accumulate","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName(),"/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Trees']/xs:annotation/xs:documentation");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetTreeAccumulation(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isTreeAccumulation()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Accumulate","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName(),"/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Trees']/xs:annotation/xs:documentation");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetTreeAccumulation(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isTreeAccumulation()?1:0];");
          // Tree
          for (i = 0; i < numOfTree; i++) {
-            subsubSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
-            subsubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, treeDescription[i]);
-            subsubGroup->AddSubGroup(subsubSubGroup);
+            ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
+            subSubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, treeDescription[i]);
+            subSubGroup->AddSubGroup(subSubSubGroup);
             // Read
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(## == \"true\");",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(## == \"true\");",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddSetLine("}");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isRead()?1:0];",
+            subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isRead()?1:0];",
                                                              i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("}");
             // Write
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("Write","1","CheckButton"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(## == \"true\");",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("Write","1","CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(## == \"true\");",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddSetLine("}");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isWrite()?1:0];",
+            subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isWrite()?1:0];",
                                                              i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("}");
             // Fill
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("Fill","1","CheckButton"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill((## == \"true\") || gAnalyzer->GetTreeObjectAt(%d)->isWrite());",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("Fill","1","CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill((## == \"true\") || gAnalyzer->GetTreeObjectAt(%d)->isWrite());",
                                                            i, i);
-            subsubSubGroup->GetLastParameter()->AddSetLine("}");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isFill()?1:0];",
+            subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isFill()?1:0];",
                                                              i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("}");
             // CompressionLevel
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("CompressionLevel"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(##.ToInteger());",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("CompressionLevel"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(##.ToInteger());",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",
                                                              i);
             // MaxNumberOfEntries
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(static_cast<Long_t>(##.ToInteger()));",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(static_cast<Long_t>(##.ToInteger()));",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%"R_LLD"\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%"R_LLD"\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",
                                                              i);
             // TreeInputFileName
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("TreeInputFileName"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigInputFileName(##);",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("TreeInputFileName"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigInputFileName(##);",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigInputFileName().Data();",
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigInputFileName().Data();",
                                                              i);
 
             // TreeOutputFileName
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigOutputFileName(##);",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetConfigOutputFileName(##);",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigOutputFileName().Data();",
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigOutputFileName().Data();",
                                                              i);
 
             // SaveConfiguration
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("SaveConfiguration", "1", "CheckButton"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
-            subsubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetSaveConfig(## == \"true\");",
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("SaveConfiguration", "1", "CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetSaveConfig(## == \"true\");",
                                                            i);
-            subsubSubGroup->GetLastParameter()->AddSetLine("}");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isSaveConfig()?1:0];",
+            subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->isSaveConfig()?1:0];",
                                                              i);
-            subsubSubGroup->GetLastParameter()->AddWriteLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("}");
 
             // Branch
             for (j = 0; j < numOfBranch[i]; j++) {
                tmp = branchName[i][j];
-               if (tmp.EndsWith("."))
+               if (tmp.EndsWith(".")) {
                   tmp.Resize(tmp.Length() - 1);
-               subsubSubSubGroup = new ROMEConfigParameterGroup(tmp,"1","Branch");
-               subsubSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Branch");
-               subsubSubSubGroup->SetWriteEmptyLine(kFALSE);
-               subsubSubGroup->AddSubGroup(subsubSubSubGroup);
+               }
+               ROMEConfigParameterGroup* subSubSubSubGroup = new ROMEConfigParameterGroup(tmp,"1","Branch");
+               subSubSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Branch");
+               subSubSubSubGroup->SetWriteEmptyLine(kFALSE);
+               subSubSubGroup->AddSubGroup(subSubSubSubGroup);
                // Active
-               subsubSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-               subsubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Branch");
-               subsubSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
-               subsubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchActiveAt(%d, ## != \"false\");",
+               subSubSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+               subSubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Branch");
+               subSubSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+               subSubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchActiveAt(%d, ## != \"false\");",
                                                                  i, j);
-               subsubSubSubGroup->GetLastParameter()->AddSetLine("}");
-               subsubSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
-               subsubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)?1:0];",
+               subSubSubSubGroup->GetLastParameter()->AddSetLine("}");
+               subSubSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
+               subSubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)?1:0];",
                                                                    i, j);
-               subsubSubSubGroup->GetLastParameter()->AddWriteLine("}");
+               subSubSubSubGroup->GetLastParameter()->AddWriteLine("}");
             }
          }
       }
+
       // Global Steering Parameters
-      {
-         if (readGlobalSteeringParameters) {
-            subsubGroup = new ROMEConfigParameterGroup("GlobalSteeringParameters");
-            subGroup->AddSubGroup(subsubGroup);
-            AddSteeringConfigParameters(subsubGroup, 0, numOfTask,"gAnalyzer->GetGSP()","gAnalyzer");
-         }
+      if (readGlobalSteeringParameters) {
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("GlobalSteeringParameters");
+         subGroup->AddSubGroup(subSubGroup);
+         AddSteeringConfigParameters(subSubGroup, 0, numOfTask,"gAnalyzer->GetGSP()","gAnalyzer");
       }
    }
+
    // Analyzer
    {
-      subGroup = new ROMEConfigParameterGroup("Analyzer");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Analyzer");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // HistogramRead
       {
-         subsubGroup = new ROMEConfigParameterGroup("HistogramRead");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("HistogramRead");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
          // Read
-         subsubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRead(## == \"true\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosRead()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRead(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosRead()?1:0];");
          // RunNumber
-         subsubGroup->AddParameter(new ROMEConfigParameter("RunNumber"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.Data());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosRun();");
+         subSubGroup->AddParameter(new ROMEConfigParameter("RunNumber"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosRun();");
          // Path
-         subsubGroup->AddParameter(new ROMEConfigParameter("Path"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosPath(##.Data());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosPath();");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Path"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosPath(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosPath();");
       }
+
       // Macros
       {
-         subsubGroup = new ROMEConfigParameterGroup("Macros");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Macros");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
          // Macros/BeginOfRun
-         subsubGroup->AddParameter(new ROMEConfigParameter("BeginOfRun"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetBeginOfRunMacro(##.Data());",
+         subSubGroup->AddParameter(new ROMEConfigParameter("BeginOfRun"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetBeginOfRunMacro(##.Data());",
                                                      shortCut.Data());
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetBeginOfRunMacro();",
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetBeginOfRunMacro();",
                                                        shortCut.Data());
          // Macros/BeginOfEvent
-         subsubGroup->AddParameter(new ROMEConfigParameter("BeginOfEvent"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetBeginOfEventMacro(##.Data());",
+         subSubGroup->AddParameter(new ROMEConfigParameter("BeginOfEvent"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetBeginOfEventMacro(##.Data());",
                                                      shortCut.Data());
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetBeginOfEventMacro();",
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetBeginOfEventMacro();",
                                                        shortCut.Data());
          // Macros/EndOfEvent
-         subsubGroup->AddParameter(new ROMEConfigParameter("EndOfEvent"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetEndOfEventMacro(##.Data());",
+         subSubGroup->AddParameter(new ROMEConfigParameter("EndOfEvent"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetEndOfEventMacro(##.Data());",
                                                      shortCut.Data());
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetEndOfEventMacro();",
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetEndOfEventMacro();",
                                                        shortCut.Data());
          // Macros/EndOfRun
-         subsubGroup->AddParameter(new ROMEConfigParameter("EndOfRun"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetEndOfRunMacro(##.Data());",
+         subSubGroup->AddParameter(new ROMEConfigParameter("EndOfRun"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetEndOfRunMacro(##.Data());",
                                                      shortCut.Data());
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetEndOfRunMacro();",
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetEndOfRunMacro();",
                                                        shortCut.Data());
       }
+
       // Tasks
       if (numOfTask > 0) {
-         subsubGroup = new ROMEConfigParameterGroup("Tasks");
-         subGroup->AddSubGroup(subsubGroup);
-         AddTaskConfigParameters(subsubGroup, -1);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Tasks");
+         subGroup->AddSubGroup(subSubGroup);
+         AddTaskConfigParameters(subSubGroup, -1);
       }
    }
+
    // Monitor
    {
-      subGroup = new ROMEConfigParameterGroup("Monitor");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Monitor");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
       // Display
       if (numOfTab > 0) {
-         subsubGroup = new ROMEConfigParameterGroup("Display");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Display");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
          // WindowScale
-         subsubGroup->AddParameter(new ROMEConfigParameter("WindowScale"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetWindowScale(##.ToFloat());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gAnalyzer->GetWindow()->GetWindowScale());");
+         subSubGroup->AddParameter(new ROMEConfigParameter("WindowScale"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetWindowScale(##.ToFloat());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gAnalyzer->GetWindow()->GetWindowScale());");
          // StatusBar
-         subsubGroup->AddParameter(new ROMEConfigParameter("StatusBar","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetStatusBarSwitch(## != \"false\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->GetStatusBarSwitch()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("StatusBar","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetStatusBarSwitch(## != \"false\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->GetStatusBarSwitch()?1:0];");
          // UpdatePeriod
          // For the moment "UpdateFrequency" is used as the configuration parameter, although its value is inverse of the frequency indeed.
-         subsubGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
-//         subsubGroup->AddParameter(new ROMEConfigParameter("UpdatePeriod"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdatePeriod(##.ToInteger());");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdatePeriod());");
+         subSubGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
+//         subSubGroup->AddParameter(new ROMEConfigParameter("UpdatePeriod"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdatePeriod(##.ToInteger());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdatePeriod());");
          // ListTreeView
-         subsubGroup->AddParameter(new ROMEConfigParameter("ListTreeView","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subsubGroup->GetGroupName());
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetListTreeView(## != \"false\");");
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsListTreeView()?1:0];");
+         subSubGroup->AddParameter(new ROMEConfigParameter("ListTreeView","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetListTreeView(## != \"false\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsListTreeView()?1:0];");
          // AnalyzerController
          {
-            subsubSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
-            subsubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
-            subsubGroup->AddSubGroup(subsubSubGroup);
+            ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
+            subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+            subSubGroup->AddSubGroup(subSubSubGroup);
             // Active
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,
-                                                            subsubSubGroup->GetGroupName());
-            subsubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerActive(## == \"true\");");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsControllerActive()?1:0];");
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,
+                                                            subSubSubGroup->GetGroupName());
+            subSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerActive(## == \"true\");");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsControllerActive()?1:0];");
             // NetFolderName
-            subsubSubGroup->AddParameter(new ROMEConfigParameter("NetFolderName"));
-            subsubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,
-                                                            subsubSubGroup->GetGroupName());
-            subsubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder() != 0)");
-            subsubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetWindow()->GetControllerNetFolder()->GetName();");
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("NetFolderName"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,
+                                                            subSubSubGroup->GetGroupName());
+            subSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder() != 0)");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetWindow()->GetControllerNetFolder()->GetName();");
          }
       }
+
       // SocketClient
       {
-         subSubGroup = new ROMEConfigParameterGroup("SocketClient");
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("SocketClient");
          subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
          subGroup->AddSubGroup(subSubGroup);
          // Host
@@ -1304,51 +1313,52 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketClientPort(##.Data());");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetSocketClientPort());");
       }
+
       // NetFolder
       for (i = 0; i < numOfNetFolder; i++) {
-         subsubGroup = new ROMEConfigParameterGroup(netFolderName[i],"1","NetFolder");
-         subsubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"NetFolder");
-         subGroup->AddSubGroup(subsubGroup);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup(netFolderName[i],"1","NetFolder");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"NetFolder");
+         subGroup->AddSubGroup(subSubGroup);
          // Active
-         subsubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "NetFolder");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderActive(%d, ## == \"true\");",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetNetFolderActive(%d)?1:0];",
+         subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "NetFolder");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderActive(%d, ## == \"true\");",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetNetFolderActive(%d)?1:0];",
                                                        i);
          // Reconnect
-         subsubGroup->AddParameter(new ROMEConfigParameter("Reconnect","1","CheckButton"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderReconnect(%d,## == \"true\");",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetNetFolderReconnect(%d)?1:0];",
+         subSubGroup->AddParameter(new ROMEConfigParameter("Reconnect","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderReconnect(%d,## == \"true\");",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetNetFolderReconnect(%d)?1:0];",
                                                        i);
          // Root
-         subsubGroup->AddParameter(new ROMEConfigParameter("Root"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderRoot(%d,const_cast<char*>(##.Data()));",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
+         subSubGroup->AddParameter(new ROMEConfigParameter("Root"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderRoot(%d,const_cast<char*>(##.Data()));",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
          // Host
-         subsubGroup->AddParameter(new ROMEConfigParameter("Host"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderHost(%d,const_cast<char*>(##.Data()));",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",gAnalyzer->GetNetFolderHost(%d));",
+         subSubGroup->AddParameter(new ROMEConfigParameter("Host"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderHost(%d,const_cast<char*>(##.Data()));",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%s\",gAnalyzer->GetNetFolderHost(%d));",
                                                        i);
          // Port
-         subsubGroup->AddParameter(new ROMEConfigParameter("Port"));
-         subsubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
-         subsubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderPort(%d,const_cast<char*>(##.Data()));",i);
-         subsubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetNetFolderPort(%d));",i);
+         subSubGroup->AddParameter(new ROMEConfigParameter("Port"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderPort(%d,const_cast<char*>(##.Data()));",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetNetFolderPort(%d));",i);
       }
       // Tabs
       if (numOfTab > 0) {
-         subsubGroup = new ROMEConfigParameterGroup("Tabs");
-         subGroup->AddSubGroup(subsubGroup);
-         AddTabConfigParameters(subsubGroup, -1);
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("Tabs");
+         subGroup->AddSubGroup(subSubGroup);
+         AddTabConfigParameters(subSubGroup, -1);
       }
    }
 
    // midas banks
    if (numOfEvent > 0) {
-      subGroup = new ROMEConfigParameterGroup("Midas");
+      ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Midas");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Midas","/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:annotation/xs:documentation");
       mainParGroup->AddSubGroup(subGroup);
 
@@ -1401,48 +1411,49 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
       subGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = kMidasInitialOnlineLoopPeriod;");
       subGroup->GetLastParameter()->AddAdditionalWriteLine("}");
-   }
-   for (i = 0; i < numOfEvent; i++) {
-      subSubGroup = new ROMEConfigParameterGroup(eventName[i],"1","Event");
-      subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Event");
-      subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-      subGroup->AddSubGroup(subSubGroup);
-      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Event");
-      subSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sEventActive(## == \"true\");",
-                                                  eventName[i].Data());
-      subSubGroup->GetLastParameter()->AddSetLine("}");
-      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->is%sEventActive()?1:0];",
-                                                    eventName[i].Data());
-      subSubGroup->GetLastParameter()->AddWriteLine("}");
-      subSubGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
-      subSubGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");
-      subSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = ##;");
-      subSubGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
-      subSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"true\";");
-      subSubGroup->GetLastParameter()->AddAdditionalWriteLine("}");
-      for (j = 0; j < numOfBank[i]; j++) {
-         subSubSubGroup = new ROMEConfigParameterGroup(bankAlias[i][j],"1","Bank");
-         subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Bank");
-         subSubSubGroup->SetWriteEmptyLine(kFALSE);
-         subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-         subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Bank");
-         subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
-         subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sBankActive(## == \"true\");",
-                                                        bankAlias[i][j].Data());
-         subSubSubGroup->GetLastParameter()->AddSetLine("}");
-         subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
-         subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->is%sBankActive()?1:0];",
-                                                          bankAlias[i][j].Data());
-         subSubSubGroup->GetLastParameter()->AddWriteLine("}");
-         subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
-         subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");
-         subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = ##;");
-         subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
-         subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"true\";");
-         subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("}");
-         subSubGroup->AddSubGroup(subSubSubGroup);
+
+      for (i = 0; i < numOfEvent; i++) {
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup(eventName[i],"1","Event");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Event");
+         subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+         subGroup->AddSubGroup(subSubGroup);
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Event");
+         subSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sEventActive(## == \"true\");",
+                                                     eventName[i].Data());
+         subSubGroup->GetLastParameter()->AddSetLine("}");
+         subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->is%sEventActive()?1:0];",
+                                                       eventName[i].Data());
+         subSubGroup->GetLastParameter()->AddWriteLine("}");
+         subSubGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
+         subSubGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");
+         subSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = ##;");
+         subSubGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
+         subSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddAdditionalWriteLine("}");
+         for (j = 0; j < numOfBank[i]; j++) {
+            ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup(bankAlias[i][j],"1","Bank");
+            subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Bank");
+            subSubSubGroup->SetWriteEmptyLine(kFALSE);
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Bank");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sBankActive(## == \"true\");",
+                                                           bankAlias[i][j].Data());
+            subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetMidasDAQ()->is%sBankActive()?1:0];",
+                                                             bankAlias[i][j].Data());
+            subSubSubGroup->GetLastParameter()->AddWriteLine("}");
+            subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("else {");
+            subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("   if (##Modified)");
+            subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = ##;");
+            subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("   else");
+            subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("      writeString = \"true\";");
+            subSubSubGroup->GetLastParameter()->AddAdditionalWriteLine("}");
+            subSubGroup->AddSubGroup(subSubSubGroup);
+         }
       }
    }
    return true;
@@ -1987,8 +1998,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
    int i;
    ROMEString steerPointerT;
    ROMEString decodedValue;
-   ROMEConfigParameterGroup* subGroup;
-   ROMEConfigParameterGroup* subSubGroup;
+   ROMEConfigParameterGroup* subGroup, *subSubGroup;
    ROMEString tmp;
    for (i = 0; i < numOfSteerFields[numTask][numSteer]; i++) {
       if (!steerFieldUsed[numTask][numSteer][i])
@@ -2120,21 +2130,24 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
       }
    }
    for (i = 0; i < numOfSteerChildren[numTask][numSteer]; i++) {
-      if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
+      if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]]) {
          continue;
+      }
       subGroup = new ROMEConfigParameterGroup(steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"1",
                                               "SteeringParameterGroup","SPGroupName");
       parGroup->AddSubGroup(subGroup);
-      if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
+      if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel) {
          maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel();
+      }
       subSubGroup = subGroup;
       if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]] != "1") {
          subSubGroup = new ROMEConfigParameterGroup("SPGroupArray",
                                                     steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),
                                                     "","","SPGroupArrayIndex");
          subGroup->AddSubGroup(subSubGroup);
-         if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
+         if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel) {
             maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel();
+         }
          steerPointerT.SetFormatted("%s->Get%sAt(ii[%d])",steerPointer.Data(),
                                     steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),
                                     subSubGroup->GetHierarchyLevel());
@@ -2152,6 +2165,7 @@ Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
 {
    int i;
    ROMEConfigParameter *parameter;
+   ROMEConfigParameterGroup *subGroup;
    for (i = 0; i < parGroup->GetNumberOfParameters(); i++) {
       parameter = parGroup->GetParameterAt(i);
       if (parameter->IsWriteLinesAlways() && parameter->GetNumberOfWriteLines() > 0) {
@@ -2160,8 +2174,9 @@ Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
       }
    }
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
-      CheckConfigParameters(parGroup->GetSubGroupAt(i));
-      if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
+      subGroup = parGroup->GetSubGroupAt(i);
+      CheckConfigParameters(subGroup);
+      if (subGroup->IsWriteAlways())
          parGroup->SetWriteAlways();
    }
    return true;
@@ -2173,6 +2188,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
    int i;
    bool found = false;
    ROMEConfigParameter *parameter;
+   ROMEConfigParameterGroup *subGroup;
 
    ROMEString sTab = "";
    for (i = 0; i < tab; i++)
@@ -2214,6 +2230,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
       WriteConfigClass(buffer,parGroup->GetSubGroupAt(i),tab + 1);
    }
+
    // Constructor
    buffer.AppendFormatted("%sprivate:\n",sTab.Data());
    buffer.AppendFormatted("%s   %s(const %s &c); // not implemented\n",sTab.Data(),
@@ -2244,50 +2261,45 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
       }
    }
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram") {
-         buffer.AppendFormatted("%s   %sf%s(new ROMEConfigHisto())\n",sTab.Data(),separator.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         buffer.AppendFormatted("%s   ,f%sModified(kFALSE)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      subGroup = parGroup->GetSubGroupAt(i);
+      if (subGroup->GetGroupIdentifier() == "Histogram") {
+         buffer.AppendFormatted("%s   %sf%s(new ROMEConfigHisto())\n", sTab.Data(), separator.Data(), subGroup->GetGroupName().Data());
+         buffer.AppendFormatted("%s   ,f%sModified(kFALSE)\n",sTab.Data(), subGroup->GetGroupName().Data());
          separator = ",";
-      } else if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph") {
-         buffer.AppendFormatted("%s   %sf%s(new ROMEConfigGraph())\n",sTab.Data(),separator.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         buffer.AppendFormatted("%s   ,f%sModified(kFALSE)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      } else if (subGroup->GetGroupIdentifier() == "Graph") {
+         buffer.AppendFormatted("%s   %sf%s(new ROMEConfigGraph())\n", sTab.Data(), separator.Data(), subGroup->GetGroupName().Data());
+         buffer.AppendFormatted("%s   ,f%sModified(kFALSE)\n", sTab.Data(), subGroup->GetGroupName().Data());
          separator = ",";
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "1") {
-         buffer.AppendFormatted("%s   %sf%s(new %s())\n",sTab.Data(),separator.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         buffer.AppendFormatted("%s   ,f%sModified(kFALSE)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      } else if (subGroup->GetArraySize() == "1") {
+         buffer.AppendFormatted("%s   %sf%s(new %s())\n", sTab.Data(), separator.Data(), subGroup->GetGroupName().Data(), subGroup->GetGroupName().Data());
+         buffer.AppendFormatted("%s   ,f%sModified(kFALSE)\n", sTab.Data(), subGroup->GetGroupName().Data());
          separator = ",";
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      } else if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s   %sf%s(0)\n",sTab.Data(),separator.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         buffer.AppendFormatted("%s   ,f%sModified(0)\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
+         buffer.AppendFormatted("%s   ,f%sModified(0)\n",sTab.Data(),subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s   ,f%sArrayModified(kFALSE)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s   ,f%sArraySize(0)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          separator = ",";
       } else {
          buffer.AppendFormatted("%s   %sf%s(new %s*[%s])\n",sTab.Data(),separator.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data());
+                                subGroup->GetGroupName().Data(),
+                                subGroup->GetGroupName().Data(),
+                                subGroup->GetArraySize().Data());
          buffer.AppendFormatted("%s   ,f%sModified(new Bool_t[%s])\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data());
+                                subGroup->GetGroupName().Data(),
+                                subGroup->GetArraySize().Data());
          buffer.AppendFormatted("%s   ,f%sArrayModified(kFALSE)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s   ,f%sArraySize(%s)\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data());
+                                subGroup->GetGroupName().Data(),
+                                subGroup->GetArraySize().Data());
          separator = ",";
       }
    }
+
    buffer.AppendFormatted("%s   {\n",sTab.Data());
    for (i = 0; i < parGroup->GetNumberOfParameters(); i++) {
       parameter = parGroup->GetParameterAt(i);
@@ -2297,9 +2309,11 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
          break;
       }
    }
+
    for (i = 0; i < parGroup->GetNumberOfSubGroups() && !found; i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1" &&
-          parGroup->GetSubGroupAt(i)->GetArraySize() != "unknown") {
+      subGroup = parGroup->GetSubGroupAt(i);
+      if (subGroup->GetArraySize() != "1" &&
+          subGroup->GetArraySize() != "unknown") {
          buffer.AppendFormatted("%s      int i;\n",sTab.Data());
          break;
       }
@@ -2315,18 +2329,19 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
       }
    }
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram") {
-      } else if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph") {
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "1") {
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      subGroup = parGroup->GetSubGroupAt(i);
+      if (subGroup->GetGroupIdentifier() == "Histogram") {
+      } else if (subGroup->GetGroupIdentifier() == "Graph") {
+      } else if (subGroup->GetArraySize() == "1") {
+      } else if (subGroup->GetArraySize() == "unknown") {
       } else {
          buffer.AppendFormatted("%s      for (i = 0; i < %s; i++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data());
+                                subGroup->GetArraySize().Data());
          buffer.AppendFormatted("%s         f%s[i] = new %s();\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data(),
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s         f%sModified[i] = false;\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
       }
    }
@@ -2349,31 +2364,32 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
       }
    }
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram" ||
-          parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph" ||
-          parGroup->GetSubGroupAt(i)->GetArraySize() == "1") {
+      subGroup = parGroup->GetSubGroupAt(i);
+      if (subGroup->GetGroupIdentifier() == "Histogram" ||
+          subGroup->GetGroupIdentifier() == "Graph" ||
+          subGroup->GetArraySize() == "1") {
          buffer.AppendFormatted("%s      SafeDelete(f%s);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+                                subGroup->GetGroupName().Data());
+      } else if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s      for (i = 0; i < f%sArraySize; i++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s         SafeDelete(f%s[i]);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
          buffer.AppendFormatted("%s      SafeDeleteArray(f%sModified);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      SafeDeleteArray(f%s);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
       } else {
          buffer.AppendFormatted("%s      for (i = 0; i < %s; i++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data());
+                                subGroup->GetArraySize().Data());
          buffer.AppendFormatted("%s         SafeDelete(f%s[i]);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
          buffer.AppendFormatted("%s      SafeDeleteArray(f%s);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      SafeDeleteArray(f%sModified);\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
       }
    }
    buffer.AppendFormatted("%s   }\n",sTab.Data());
@@ -2411,6 +2427,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
    ROMEString sTabT = "";
    ROMEString sTab = "";
    ROMEConfigParameter *parameter;
+   ROMEConfigParameterGroup *subGroup;
 
    for (i = 0; i < tab; i++) {
       sTab += "   ";
@@ -2455,101 +2472,103 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
          buffer.AppendFormatted("%s}\n",sTab.Data());
       }
    }
+
    // Sub Groups
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      subGroup = parGroup->GetSubGroupAt(i);
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%sif (indx == 0) {\n",sTab.Data());
          buffer.AppendFormatted("%s   %sf%sArraySize = xml->NumberOfOccurrenceOfPath(path+\"/%s%ss/%s\");\n",
-                                sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfReadGroupArrayInitLines(); j++) {
-            buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetReadGroupArrayInitLineAt(j));
+                                sTab.Data(),pointer.Data(),subGroup->GetGroupName().Data(),
+                                groupName.Data(),subGroup->GetGroupName().Data(),
+                                subGroup->GetGroupName().Data());
+         for (j = 0; j < subGroup->GetNumberOfReadGroupArrayInitLines(); j++) {
+            buffer.AppendFormatted("%s   %s\n",sTab.Data(),subGroup->GetReadGroupArrayInitLineAt(j));
          }
          buffer.AppendFormatted("%s   %sf%s = new ConfigData::%s%s*[%sf%sArraySize];\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),className.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data(),className.Data(),
+                                subGroup->GetGroupName().Data(),pointer.Data(),
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s   %sf%sModified = new bool[%sf%sArraySize];\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data(),pointer.Data(),
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s   for (i = 0; i < %sf%sArraySize; i++) {\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      %sf%s[i] = new ConfigData::%s%s();\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data(),className.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+                                subGroup->GetGroupName().Data(),className.Data(),
+                                subGroup->GetGroupName().Data());
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%sfor (ii[%d] = 0; ii[%d] < %s; ii[%d]++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetArraySize().Data(),
+                                subGroup->GetHierarchyLevel());
       }
       indexesT = indexes;
-      classNameT.SetFormatted("%s%s::",className.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      classNameT.SetFormatted("%s%s::",className.Data(),subGroup->GetGroupName().Data());
       sTabT = sTab.Data();
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      if (subGroup->GetArraySize() == "unknown") {
          sTabT += "      ";
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+      } else if (subGroup->GetArraySize() != "1") {
          sTabT += "   ";
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
-         groupNameT.SetFormatted("%s%ss[%d]/%s[%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                 parGroup->GetSubGroupAt(i)->GetMultiplicity(),
-                                 parGroup->GetSubGroupAt(i)->GetTagName().Data());
+      if (subGroup->GetArraySize() == "unknown") {
+         groupNameT.SetFormatted("%s%ss[%d]/%s[%%d]/",groupName.Data(),subGroup->GetTagName().Data(),
+                                 subGroup->GetMultiplicity(),
+                                 subGroup->GetTagName().Data());
          indexesT.AppendFormatted(",i + 1");
-         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab+2,groupNameT,classNameT,pointerT,indexesT,iSub);
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
+         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),subGroup->GetGroupName().Data());
+         WriteConfigRead(buffer,subGroup,tab+2,groupNameT,classNameT,pointerT,indexesT,iSub);
+      } else if (subGroup->GetArraySize() != "1") {
+         if (subGroup->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),
-                                    parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+                                    subGroup->GetGroupIdentifier().Data(),
+                                    subGroup->GetNameIdentifier().Data(),
+                                    subGroup->GetTagName().Data(),
+                                    subGroup->GetArrayIdentifier().Data());
          } else {
-            groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+            groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),subGroup->GetTagName().Data(),
+                                    subGroup->GetArrayIdentifier().Data());
          }
-         indexesT.AppendFormatted(",ii[%d]",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                               parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab + 1,groupNameT,classNameT,pointerT,indexesT,iSub);
+         indexesT.AppendFormatted(",ii[%d]",subGroup->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),subGroup->GetGroupName().Data(),
+                               subGroup->GetHierarchyLevel());
+         WriteConfigRead(buffer,subGroup,tab + 1,groupNameT,classNameT,pointerT,indexesT,iSub);
       } else {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
+         if (subGroup->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%d]/",groupName.Data(),
-                                    parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetMultiplicity());
+                                    subGroup->GetGroupIdentifier().Data(),
+                                    subGroup->GetNameIdentifier().Data(),
+                                    subGroup->GetTagName().Data(),
+                                    subGroup->GetMultiplicity());
          } else {
-            groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetMultiplicity());
+            groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),subGroup->GetTagName().Data(),
+                                    subGroup->GetMultiplicity());
          }
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram") {
+         if (subGroup->GetGroupIdentifier() == "Histogram") {
             buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d = %sf%s;\n", sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
-                                   pointer.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         } else if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph") {
+                                   subGroup->GetGroupName().Data(), *iSub,
+                                   pointer.Data(), subGroup->GetGroupName().Data());
+         } else if (subGroup->GetGroupIdentifier() == "Graph") {
             buffer.AppendFormatted("%sROMEConfigGraph* tmp%s%d = %sf%s;\n", sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
-                                   pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data(), *iSub,
+                                   pointer.Data(),subGroup->GetGroupName().Data());
          } else {
             temp = classNameT(0, classNameT.Length() - 2);
             buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n", sTab.Data(), // for suppresion compiler warning
-                                   temp.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub);
+                                   temp.Data(), subGroup->GetGroupName().Data(), *iSub);
             buffer.AppendFormatted("%stmp%s%d = %sf%s;\n", sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(), *iSub,
-                                   pointer.Data(), parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data(), *iSub,
+                                   pointer.Data(), subGroup->GetGroupName().Data());
          }
-         pointerT.SetFormatted("tmp%s%d->",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
+         pointerT.SetFormatted("tmp%s%d->",subGroup->GetGroupName().Data(),*iSub);
          (*iSub)++;
-         WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab,groupNameT,classNameT,pointerT,indexes,iSub);
+         WriteConfigRead(buffer,subGroup,tab,groupNameT,classNameT,pointerT,indexes,iSub);
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s   }\n",sTab.Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%s}\n",sTab.Data());
       }
    }
@@ -2569,169 +2588,172 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
    ROMEString temp;
    ROMEString sTabT = "";
    ROMEString sTab = "";
+   ROMEConfigParameterGroup *subGroup, *subsubGroup;
    int iSubSave = 0;
    for (i = 0; i < tab; i++)
       sTab += "   ";
 
    // Sub Groups
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      subGroup = parGroup->GetSubGroupAt(i);
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%sif (indx == 0) {\n",sTab.Data());
          buffer.AppendFormatted("%s   for (i = 0; i < %sf%sArraySize; i++) {\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+                                subGroup->GetGroupName().Data());
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%sfor (ii[%d] = 0; ii[%d] < %s; ii[%d]++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetArraySize().Data(),
+                                subGroup->GetHierarchyLevel());
       }
       indexesT = indexes;
-      classNameT.SetFormatted("%s%s::",className.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      classNameT.SetFormatted("%s%s::",className.Data(),subGroup->GetGroupName().Data());
       sTabT = sTab.Data();
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      if (subGroup->GetArraySize() == "unknown") {
          sTabT += "      ";
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+      } else if (subGroup->GetArraySize() != "1") {
          sTabT += "   ";
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
-         groupNameT.SetFormatted("%s%ss[%d]/%s[%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                 parGroup->GetSubGroupAt(i)->GetMultiplicity(),
-                                 parGroup->GetSubGroupAt(i)->GetTagName().Data());
+      if (subGroup->GetArraySize() == "unknown") {
+         groupNameT.SetFormatted("%s%ss[%d]/%s[%%d]/",groupName.Data(),subGroup->GetTagName().Data(),
+                                 subGroup->GetMultiplicity(),
+                                 subGroup->GetTagName().Data());
          indexesT.AppendFormatted(",i + 1");
-         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab+2,groupNameT,classNameT,pointerT,indexesT,iSub);
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
+         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),subGroup->GetGroupName().Data());
+         WriteConfigCheckModified(buffer,subGroup,tab+2,groupNameT,classNameT,pointerT,indexesT,iSub);
+      } else if (subGroup->GetArraySize() != "1") {
+         if (subGroup->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),
-                                    parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+                                    subGroup->GetGroupIdentifier().Data(),
+                                    subGroup->GetNameIdentifier().Data(),
+                                    subGroup->GetTagName().Data(),
+                                    subGroup->GetArrayIdentifier().Data());
          } else {
-            groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+            groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),subGroup->GetTagName().Data(),
+                                    subGroup->GetArrayIdentifier().Data());
          }
-         indexesT.AppendFormatted(",ii[%d]",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                               parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab + 1,groupNameT,classNameT,
+         indexesT.AppendFormatted(",ii[%d]",subGroup->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),subGroup->GetGroupName().Data(),
+                               subGroup->GetHierarchyLevel());
+         WriteConfigCheckModified(buffer,subGroup,tab + 1,groupNameT,classNameT,
                                   pointerT,indexesT,iSub);
       } else {
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
+         if (subGroup->GetGroupIdentifier().Length() > 0) {
             groupNameT.SetFormatted("%s%s[%s='%s'][%d]/",groupName.Data(),
-                                    parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetMultiplicity());
+                                    subGroup->GetGroupIdentifier().Data(),
+                                    subGroup->GetNameIdentifier().Data(),
+                                    subGroup->GetTagName().Data(),
+                                    subGroup->GetMultiplicity());
          } else {
-            groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),
-                                    parGroup->GetSubGroupAt(i)->GetMultiplicity());
+            groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),subGroup->GetTagName().Data(),
+                                    subGroup->GetMultiplicity());
          }
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram") {
+         if (subGroup->GetGroupIdentifier() == "Histogram") {
             buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d;\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   *iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         } else if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph") {
+                                   subGroup->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
+                                   *iSub,pointer.Data(),subGroup->GetGroupName().Data());
+         } else if (subGroup->GetGroupIdentifier() == "Graph") {
             buffer.AppendFormatted("%sROMEConfigGraph* tmp%s%d;\n",sTab.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   *iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
+                                   *iSub,pointer.Data(),subGroup->GetGroupName().Data());
          } else {
             temp = classNameT(0, classNameT.Length()-2);
             buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n",sTab.Data(),temp.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   *iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
+                                   *iSub,pointer.Data(),subGroup->GetGroupName().Data());
          }
-         pointerT.SetFormatted("tmp%s%d->",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
+         pointerT.SetFormatted("tmp%s%d->",subGroup->GetGroupName().Data(),*iSub);
          iSubSave = *iSub;
          (*iSub)++;
-         WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab,groupNameT,classNameT,pointerT,indexes,iSub);
+         WriteConfigCheckModified(buffer,subGroup,tab,groupNameT,classNameT,pointerT,indexes,iSub);
       }
-      if (parGroup->GetSubGroupAt(i)->GetNumberOfParameters()+parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups() > 0) {
+      if (subGroup->GetNumberOfParameters()+subGroup->GetNumberOfSubGroups() > 0) {
          buffer.AppendFormatted("%s// %s%s--\n",sTabT.Data(),groupName.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%sif (",sTabT.Data());
-         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Histogram") {
+         if (subGroup->GetGroupIdentifier() == "Histogram") {
             buffer.AppendFormatted("CheckHistoConfigurationModified(%sf%s)",pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         } else if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier() == "Graph") {
+                                   subGroup->GetGroupName().Data());
+         } else if (subGroup->GetGroupIdentifier() == "Graph") {
             buffer.AppendFormatted("CheckGraphConfigurationModified(%sf%s)",pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          } else {
-            for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfParameters(); j++) {
-               if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+            for (j = 0; j < subGroup->GetNumberOfParameters(); j++) {
+               if (subGroup->GetArraySize() == "unknown") {
                   buffer.AppendFormatted("%sf%s[i]->f%sModified",pointer.Data(),
-                                         parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                         parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
-               } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+                                         subGroup->GetGroupName().Data(),
+                                         subGroup->GetParameterAt(j)->GetName());
+               } else if (subGroup->GetArraySize() != "1") {
                   buffer.AppendFormatted("%sf%s[ii[%d]]->f%sModified",pointer.Data(),
-                                         parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                         parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                         parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
+                                         subGroup->GetGroupName().Data(),
+                                         subGroup->GetHierarchyLevel(),
+                                         subGroup->GetParameterAt(j)->GetName());
                } else {
-                  buffer.AppendFormatted("tmp%s%d->f%sModified",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                         iSubSave,parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
+                  buffer.AppendFormatted("tmp%s%d->f%sModified",subGroup->GetGroupName().Data(),
+                                         iSubSave,subGroup->GetParameterAt(j)->GetName());
                }
-               if (j < parGroup->GetSubGroupAt(i)->GetNumberOfParameters() - 1 ||
-                   parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups() != 0)
+               if (j < subGroup->GetNumberOfParameters() - 1 ||
+                   subGroup->GetNumberOfSubGroups() != 0)
                   buffer.AppendFormatted(" ||\n%s    ",sTabT.Data());
             }
-            for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups(); j++) {
-               if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+            for (j = 0; j < subGroup->GetNumberOfSubGroups(); j++) {
+               subsubGroup = subGroup->GetSubGroupAt(j);
+               if (subGroup->GetArraySize() == "unknown") {
                   buffer.AppendFormatted("%sf%s[i]->f%sModified",pointer.Data(),
-                                         parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                         parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
-               } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+                                         subGroup->GetGroupName().Data(),
+                                         subsubGroup->GetGroupName().Data());
+               } else if (subGroup->GetArraySize() != "1") {
                   buffer.AppendFormatted("%sf%s[ii[%d]]->f%sModified",pointer.Data(),
-                                         parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                         parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                         parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
+                                         subGroup->GetGroupName().Data(),
+                                         subGroup->GetHierarchyLevel(),
+                                         subsubGroup->GetGroupName().Data());
                } else {
-                  buffer.AppendFormatted("tmp%s%d->f%sModified",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                         iSubSave,parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
+                  buffer.AppendFormatted("tmp%s%d->f%sModified",subGroup->GetGroupName().Data(),
+                                         iSubSave,subsubGroup->GetGroupName().Data());
                }
-               if (j < parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups() - 1)
+               if (j < subGroup->GetNumberOfSubGroups() - 1)
                   buffer.AppendFormatted(" ||\n%s    ",sTabT.Data());
             }
          }
          buffer.AppendFormatted(") {\n");
-         if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+         if (subGroup->GetArraySize() == "unknown") {
             buffer.AppendFormatted("%s   %sf%sModified[i] = true;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
             buffer.AppendFormatted("%s   %sf%sArrayModified = true;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+                                   subGroup->GetGroupName().Data());
+         } else if (subGroup->GetArraySize() != "1") {
             buffer.AppendFormatted("%s   %sf%sModified[ii[%d]] = true;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                   subGroup->GetGroupName().Data(),
+                                   subGroup->GetHierarchyLevel());
             buffer.AppendFormatted("%s   %sf%sArrayModified = true;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          } else {
             buffer.AppendFormatted("%s   %sf%sModified = true;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          }
          buffer.AppendFormatted("%s}\n",sTabT.Data());
          buffer.AppendFormatted("%selse {\n",sTabT.Data());
-         if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+         if (subGroup->GetArraySize() == "unknown") {
             buffer.AppendFormatted("%s   %sf%sModified[i] = false;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+                                   subGroup->GetGroupName().Data());
+         } else if (subGroup->GetArraySize() != "1") {
             buffer.AppendFormatted("%s   %sf%sModified[ii[%d]] = false;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                   subGroup->GetGroupName().Data(),
+                                   subGroup->GetHierarchyLevel());
          } else {
             buffer.AppendFormatted("%s   %sf%sModified = false;\n",sTabT.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          }
          buffer.AppendFormatted("%s}\n",sTabT.Data());
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s   }\n",sTab.Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%s}\n",sTab.Data());
       }
    }
@@ -2749,6 +2771,7 @@ Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *
    ROMEString pointerT;
    ROMEString sTab = "";
    ROMEConfigParameter *parameter;
+   ROMEConfigParameterGroup *subGroup;
 
    for (i = 0; i < tab; i++) {
       sTab += "   ";
@@ -2787,38 +2810,40 @@ Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *
          buffer.AppendFormatted("%s}\n",sTab.Data());
       }
    }
+
    // Sub Groups
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
+      subGroup = parGroup->GetSubGroupAt(i);
       tabT = tab;
-      groupNameT.SetFormatted("%s%s/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      pointerT.SetFormatted("%sf%s->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      groupNameT.SetFormatted("%s%s/",groupName.Data(),subGroup->GetGroupName().Data());
+      pointerT.SetFormatted("%sf%s->",pointer.Data(),subGroup->GetGroupName().Data());
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%sif (indx == 0) {\n",sTab.Data());
          buffer.AppendFormatted("%s   if (modConfigData->%sf%sArrayModified) {\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      for (i = 0; i < configData->%sf%sArraySize; i++) {\n",sTab.Data(),
-                                pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                pointer.Data(),subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s         if (modConfigData->%sf%sModified[i]) {\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          tabT += 4;
-         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),subGroup->GetGroupName().Data());
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%sfor (ii[%d] = 0; ii[%d] < %s; ii[%d]++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetArraySize().Data(),
+                                subGroup->GetHierarchyLevel());
          tabT += 1;
-         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                               parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),subGroup->GetGroupName().Data(),
+                               subGroup->GetHierarchyLevel());
       }
-      WriteConfigSet(buffer,parGroup->GetSubGroupAt(i),tabT,groupNameT,pointerT,iSub);
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      WriteConfigSet(buffer,subGroup,tabT,groupNameT,pointerT,iSub);
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s         }\n",sTab.Data());
          buffer.AppendFormatted("%s      }\n",sTab.Data());
          buffer.AppendFormatted("%s   }\n",sTab.Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%s}\n",sTab.Data());
       }
    }
@@ -2837,6 +2862,7 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
    ROMEString sTabT;
    ROMEString sTab = "";
    ROMEConfigParameter *parameter;
+   ROMEConfigParameterGroup *subGroup;
    for (i = 0; i < tab; i++) {
       sTab += "   ";
    }
@@ -2902,122 +2928,124 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
                              parameter->GetName());
       buffer.AppendFormatted("%s}\n",sTab.Data());
    }
+
    // Sub Groups
    for (i = 0; i < parGroup->GetNumberOfSubGroups(); i++) {
+      subGroup = parGroup->GetSubGroupAt(i);
       sTabT = sTab;
       tabT = tab;
-      groupNameT.SetFormatted("%s%s/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      pointerT.SetFormatted("%sf%s->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      groupNameT.SetFormatted("%s%s/",groupName.Data(),subGroup->GetGroupName().Data());
+      pointerT.SetFormatted("%sf%s->",pointer.Data(),subGroup->GetGroupName().Data());
       buffer.AppendFormatted("\n%s// %s%s\n",sTab.Data(),groupName.Data(),
-                             parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
-         if (parGroup->GetSubGroupAt(i)->IsWriteAlways()) {
+                             subGroup->GetGroupName().Data());
+      if (subGroup->GetArraySize() == "unknown") {
+         if (subGroup->IsWriteAlways()) {
             buffer.AppendFormatted("%sif (configData->%sf%sArrayModified || indx == 0) {\n",sTab.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          } else {
             buffer.AppendFormatted("%sif (configData->%sf%sArrayModified) {\n",sTab.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          }
-         if (i != 0 && parGroup->GetSubGroupAt(i)->GetWriteEmptyLine()) {
+         if (i != 0 && subGroup->GetWriteEmptyLine()) {
             buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTab.Data());
          }
          buffer.AppendFormatted("%s   xml->StartElement(\"%ss\");\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetTagName().Data());
+                                subGroup->GetTagName().Data());
          buffer.AppendFormatted("%s   for (i = 0; i < configData->%sf%sArraySize; i++) {\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          buffer.AppendFormatted("%s      if (configData->%sf%sModified[i]) {\n",sTab.Data(),pointer.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                subGroup->GetGroupName().Data());
          sTabT += "      ";
          tabT += 2;
-         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),subGroup->GetGroupName().Data());
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%sfor (ii[%d] = 0; ii[%d] < %s; ii[%d]++) {\n",sTab.Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),
-                                parGroup->GetSubGroupAt(i)->GetArraySize().Data(),
-                                parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         if (parGroup->GetSubGroupAt(i)->IsWriteAlways()) {
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetHierarchyLevel(),
+                                subGroup->GetArraySize().Data(),
+                                subGroup->GetHierarchyLevel());
+         if (subGroup->IsWriteAlways()) {
             buffer.AppendFormatted("%s   if (configData->%sf%sModified[ii[%d]] || indx == 0) {\n",sTab.Data(),
-                                   pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                   pointer.Data(),subGroup->GetGroupName().Data(),
+                                   subGroup->GetHierarchyLevel());
          } else {
             buffer.AppendFormatted("%s   if (configData->%sf%sModified[ii[%d]]) {\n",sTab.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                   subGroup->GetGroupName().Data(),
+                                   subGroup->GetHierarchyLevel());
          }
          tabT += 1;
          sTabT += "   ";
-         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),
-                               parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),subGroup->GetGroupName().Data(),
+                               subGroup->GetHierarchyLevel());
       } else {
-         if (parGroup->GetSubGroupAt(i)->IsWriteAlways()) {
+         if (subGroup->IsWriteAlways()) {
             buffer.AppendFormatted("%sif (configData->%sf%sModified || indx == 0) {\n",sTab.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          } else {
             buffer.AppendFormatted("%sif (configData->%sf%sModified) {\n",sTab.Data(),pointer.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+                                   subGroup->GetGroupName().Data());
          }
       }
-      for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfWriteStartLines(); j++) {
-         buffer.AppendFormatted("%s   %s\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetWriteStartLineAt(j));
+      for (j = 0; j < subGroup->GetNumberOfWriteStartLines(); j++) {
+         buffer.AppendFormatted("%s   %s\n",sTabT.Data(),subGroup->GetWriteStartLineAt(j));
       }
-      if (i != 0 && parGroup->GetSubGroupAt(i)->GetWriteEmptyLine()) {
+      if (i != 0 && subGroup->GetWriteEmptyLine()) {
          buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTabT.Data());
       }
-      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length() > 0) {
+      if (subGroup->GetGroupIdentifier().Length() > 0) {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),
-                                parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data());
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
+                                subGroup->GetGroupIdentifier().Data());
+         if (subGroup->GetComment().Length()) {
             buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTabT.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                   subGroup->GetCommentLevel());
             buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),
-                                   ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+                                   ProcessCommentString(subGroup->GetComment(),temp).Data());
             buffer.AppendFormatted("%s   }\n", sTabT.Data());
          }
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",\"%s\");\n",sTabT.Data(),
-                                parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),
-                                parGroup->GetSubGroupAt(i)->GetTagName().Data());
+                                subGroup->GetNameIdentifier().Data(),
+                                subGroup->GetTagName().Data());
       } else {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),
-                                parGroup->GetSubGroupAt(i)->GetTagName().Data());
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
+                                subGroup->GetTagName().Data());
+         if (subGroup->GetComment().Length()) {
             buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTabT.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                   subGroup->GetCommentLevel());
             buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),
-                                   ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+                                   ProcessCommentString(subGroup->GetComment(),temp).Data());
             buffer.AppendFormatted("%s   }\n", sTabT.Data());
          }
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1" &&
-          parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Length()) {
-         if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      if (subGroup->GetArraySize() != "1" &&
+          subGroup->GetArrayIdentifier().Length()) {
+         if (subGroup->GetArraySize() == "unknown") {
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i);\n",sTabT.Data());
          } else {
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",ii[%d]);\n",sTabT.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+                                   subGroup->GetHierarchyLevel());
          }
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
+         if (subGroup->GetComment().Length()) {
             buffer.AppendFormatted("%s   if (fCommentLevel >= %d) {\n",sTabT.Data(),
-                                   parGroup->GetSubGroupAt(i)->GetCommentLevel());
+                                   subGroup->GetCommentLevel());
             buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),
-                                   ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+                                   ProcessCommentString(subGroup->GetComment(),temp).Data());
             buffer.AppendFormatted("%s   }", sTabT.Data());
          }
-         temp = parGroup->GetSubGroupAt(i)->GetArrayIdentifier();
+         temp = subGroup->GetArrayIdentifier();
          if (temp.EndsWith("="))
             temp.Resize(temp.Length() - 1);
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",str.Data());\n",sTabT.Data(),temp.Data());
       }
-      WriteConfigWrite(buffer,parGroup->GetSubGroupAt(i),tabT + 1,groupNameT,pointerT,iSub);
+      WriteConfigWrite(buffer,subGroup,tabT + 1,groupNameT,pointerT,iSub);
       buffer.AppendFormatted("%s   xml->EndElement();\n",sTabT.Data());
-      for (j = 0; j < parGroup->GetSubGroupAt(i)->GetNumberOfWriteEndLines(); j++) {
-         buffer.AppendFormatted("%s   %s\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetWriteEndLineAt(j));
+      for (j = 0; j < subGroup->GetNumberOfWriteEndLines(); j++) {
+         buffer.AppendFormatted("%s   %s\n",sTabT.Data(),subGroup->GetWriteEndLineAt(j));
       }
-      if (parGroup->GetSubGroupAt(i)->GetArraySize() == "unknown") {
+      if (subGroup->GetArraySize() == "unknown") {
          buffer.AppendFormatted("%s      }\n",sTab.Data());
          buffer.AppendFormatted("%s   }\n",sTab.Data());
          buffer.AppendFormatted("%s   xml->EndElement();\n",sTab.Data());
-      } else if (parGroup->GetSubGroupAt(i)->GetArraySize() != "1") {
+      } else if (subGroup->GetArraySize() != "1") {
          buffer.AppendFormatted("%s   }\n",sTab.Data());
       }
       buffer.AppendFormatted("%s}\n",sTab.Data());
