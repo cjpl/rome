@@ -1230,9 +1230,9 @@ void ROMEAnalyzer::Cleaning()
    ss_getchar(1);
    restoreOutput();
 #if defined( HAVE_MIDAS )
-   if (gROME && gROME->GetActiveDAQ() && gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
-      static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ())->
-            StopOnlineCommunication(static_cast<ROMEMidasDAQ*>(gROME->GetActiveDAQ()));
+   if (gROME && gROME->fActiveDAQ && gROME->isOnline() && gROME->IsActiveDAQ("midas")) {
+      static_cast<ROMEMidasDAQ*>(gROME->fActiveDAQ)->
+            StopOnlineCommunication(static_cast<ROMEMidasDAQ*>(gROME->fActiveDAQ));
    }
 #endif
 }
