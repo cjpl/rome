@@ -70,7 +70,7 @@ ArgusHistoDisplay::ArgusHistoDisplay(ArgusWindow* window, const char* title, ROM
 ,fNumberOfCurrentDisplayTypes(0)
 ,fCurrentDisplayType(0)
 ,fNumberOfDisplayTypes(nDisplayType)
-,fDisplayTypeOld(0)
+,fDisplayTypeOld(-1)
 ,fDisplayObjIndex(0)
 ,fDisplayObjLoaded(0)
 ,fInherited(kFALSE)
@@ -351,8 +351,6 @@ void ArgusHistoDisplay::BaseInit()
 
    AddFrame(fCanvas, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
-   fChannelNumber = 0;
-   fDisplayTypeOld = -1;
    SetupPads(fNumberOfPadsX, fNumberOfPadsY, true);
 }
 
@@ -490,7 +488,6 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
    ROMEString str;
 
    fStyle->cd();
-   fDisplayTypeOld = fCurrentDisplayType->At(0);
 
    fChannelNumber = fChannelNumber+gPad->GetNumber()-1;
    if (fChannelNumber < 0) {
@@ -503,6 +500,7 @@ void ArgusHistoDisplay::BaseSetupPads(Int_t nx, Int_t ny, Bool_t redraw)
       fNumberOfPads = nx*ny;
       fNumberOfPadsX = nx;
       fNumberOfPadsY = ny;
+      fDisplayTypeOld = fCurrentDisplayType->At(0);
 
       for (i=0 ; i<fNumberOfPads ; i++) {
          fPad[i] = static_cast<TPad*>(fCanvas->GetCanvas()->GetPad(i+1));
