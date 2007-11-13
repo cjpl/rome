@@ -614,6 +614,11 @@ Bool_t ROMEEventLoop::DAQInit()
       return false;
    }
 
+   // Set run number
+   if (gROME->isOffline() && (gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
+      gROME->SetCurrentRunNumber(gROME->GetNextRunNumber(gROME->GetCurrentRunNumber()));
+   }
+
    // Init Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {
       ROMEPrint::Error("\nError while reading the data base !\n");
