@@ -98,7 +98,7 @@ Dict.o : Dict.cpp Dict.h
 	$(CXX) -c $(CFlags) $(Includes) -MMD -MP -MF $(@:.o=.d) -MT $@ $< -o $@
 
 Dict.h Dict.cpp: $(DICTHEADERS) Makefile
-	$(ROOTCINT) -f Dict.cpp -c -p $(Includes) $(DICTHEADERS) LinkDef.h
+	$(ROOTCINT) -f Dict.cpp -c -p $(Includes) $(CINTFLAGS) $(DICTHEADERS) LinkDef.h
 
 ## Cleaning rules
 clean:
