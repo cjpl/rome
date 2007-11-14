@@ -625,6 +625,11 @@ Bool_t ROMEEventLoop::DAQInit()
       return false;
    }
 
+   // Reset run number
+   if (gROME->isOffline() && (gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
+      gROME->SetCurrentRunNumber(-1);
+   }
+
    // Open Output Files for accumulative output tree files
    ROMEString filename;
    ROMETree *romeTree;
