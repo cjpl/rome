@@ -836,7 +836,8 @@ Bool_t ROMEEventLoop::DAQEvent()
    if (!gROME->GetActiveDAQ()->EventDAQ(fCurrentEvent)) {
       return false;
    }
-   if (gROME->IsActiveDAQ("midas") && gROME->GetEventID() != 1) {
+   if ((gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) &&
+       gROME->IsActiveDAQ("midas") && gROME->GetEventID() != 1) {
       // event number is not incremented when non-trigger events.
       fCurrentEvent--;
    }
