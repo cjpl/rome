@@ -680,7 +680,9 @@ Bool_t ROMEMidasDAQ::EndOfRun()
          ROMEPrint::Warning("\nWarning : A flag <MidasByteSwap> in your config XML file might be wrong.\n\n");
       }
    } else { // online
-      SetContinue();
+      if (!isTerminate()) {
+         SetContinue();
+      }
    }
    return kTRUE;
 }
