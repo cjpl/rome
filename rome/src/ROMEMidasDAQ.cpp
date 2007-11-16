@@ -404,7 +404,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
          return kTRUE;
       }
 
-      if (pevent->event_id == kTriggerEventID &&pevent->serial_number < event ) {
+      if (pevent->event_id == kTriggerEventID && pevent->serial_number < event ) {
          this->SetContinue();
          return kTRUE;
       }

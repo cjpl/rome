@@ -272,9 +272,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       gROME->SetCurrentEventNumber(0);
 
       for (; !this->isTerminate() && !this->isEndOfRun();) {
-         gROME->GetApplication()->DisableFPETrap();
-         gSystem->ProcessEvents();
-         gROME->GetApplication()->EnableFPETrap();
          int status = this->RunEvent();
          if (status == kReturn) {
             return;
@@ -840,7 +837,7 @@ Bool_t ROMEEventLoop::DAQEvent()
       return false;
    }
    if ((gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) &&
-       gROME->IsActiveDAQ("midas") && gROME->GetEventID() != 1) {
+       gROME->isOffline() && gROME->IsActiveDAQ("midas") && gROME->GetEventID() != 1) {
       // event number is not incremented when non-trigger events.
       fCurrentEvent--;
    }
