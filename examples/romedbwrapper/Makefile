@@ -37,6 +37,7 @@ sqllibs   :=  -lsqlite3
 sqlcflags := -DHAVE_SQL -DHAVE_SQLITE3
 
 CFlags    := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags) -g -Wall -W
+FFlags    := -g -Wall -W
 Libraries :=
 Libraries += $(oslibs) $(sqllibs) $(rootlibs)
 LDFLAGS   := $(osldflags)
@@ -51,13 +52,14 @@ endif
 objects += ROMESQLite3.o \
            ROMESQL.o \
            ROMESQLDataBase.o \
-           ROMESQLDataBaseWrapper.o \
+           ROMETextDataBase.o \
+           ROMEDataBaseWrapper.o \
            ROMEStr2DArray.o \
            ROMEStrArray.o \
            ROMEString.o \
            ROMEPrint.o \
            ROMEPath.o \
-           Dict.o \
+           Dict.o
 
 DICTHEADERS = $(ROMESYS)/include/ROMEString.h \
               $(ROMESYS)/include/ROMEStrArray.h \
@@ -66,7 +68,8 @@ DICTHEADERS = $(ROMESYS)/include/ROMEString.h \
               $(ROMESYS)/include/ROMESQL.h \
               $(ROMESYS)/include/ROMESQLite3.h \
               $(ROMESYS)/include/ROMESQLDataBase.h \
-              $(ROMESYS)/include/ROMEDataBase.h \
+              $(ROMESYS)/include/ROMETextDataBase.h \
+              $(ROMESYS)/include/ROMEDataBase.h
 
 ifeq ($(OSTYPE), darwin)
 CXX_LIBS = -L$(dir $(shell $(CXX) -print-libgcc-file-name)) \

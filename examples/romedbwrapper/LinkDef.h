@@ -12,5 +12,6 @@
 #pragma link C++ class ROMESQL;
 #pragma link C++ class ROMESQLite3;
 #pragma link C++ class ROMESQLDataBase;
+#pragma link C++ class ROMETextDataBase;
 #pragma link C++ class ROMEDataBase;
 #endif

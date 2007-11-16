@@ -35,6 +35,7 @@
 //   In text files, C like comment is available.
 //
 //////////////////////////////////////////////////////////////////////////
+#include <algorithm>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
@@ -72,10 +73,12 @@ ROMETextDataBase::~ROMETextDataBase() {
 Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* /*connection*/) {
    // set directory
    // "connection" has no mean for this class.
+   if (!path) {
+      return kFALSE;
+   }
    if(strlen(path)){
       fDirectoryPath = path;
-   }
-   else{
+   } else {
       fDirectoryPath = ".";
    }
    fDirectoryPath += "/";
@@ -114,8 +117,7 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,
    }
    if(!pe){
       valueName = "Value";
-   }
-   else{
+   } else {
       valueName = fileName(pe,fileName.Length()-pe);
       fileName.Remove(pe-1);
    }
@@ -147,8 +149,7 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,
          lineBuffer.StripSpaces();
          if (lineEndsWithComma) {
             lineEndsWithComma = false;
-         }
-         else {
+         } else {
             iCol=0;
          }
          ps = pe = 0;
@@ -219,8 +220,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,
    }
    if(!pe){
       valueName = "Value";
-   }
-   else{
+   } else {
       valueName = fileName(pe,fileName.Length()-pe);
       fileName.Remove(pe-1);
    }
@@ -230,8 +230,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,
    if(append || prepend){
       if(!(fileStream = new fstream(fileName.Data(),ios::in))){
          append = prepend = false;
-      }
-      else{
+      } else {
          fileBuffer.ReadFile(*fileStream);
          delete fileStream;
       }
@@ -259,19 +258,18 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,
    for(iRow=0;iRow<values->GetEntries();iRow++){
       for(iCol=0;iCol<fieldLen.GetSize();iCol++){
          format.SetFormatted(" %%%ds",fieldLen.At(iCol%kColPerLine));
-         if(iCol<values->GetEntriesAt(iRow))
+         if(iCol<values->GetEntriesAt(iRow)) {
             buffer.AppendFormatted(format.Data(),values->At(iRow,iCol).Data());
-         else
+         } else {
             buffer.AppendFormatted(format.Data(),"");
+         }
          if(iCol == fieldLen.GetSize()-1){
             if(values->GetEntries()>numbering)
                buffer.AppendFormatted("        //%5d",iRow);
             buffer += "\n";
-         }
-         else if ((iCol+1) % kColPerLine == 0) {
+         } else if ((iCol+1) % kColPerLine == 0) {
             buffer += ",\n";
-         }
-         else{
+         } else {
             buffer += ",";
          }
       }
@@ -283,10 +281,11 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,
 
    RemoveHeader(fileBuffer);
 
-   if(append)
+   if(append) {
       buffer.Prepend(fileBuffer);
-   else if(prepend)
+   } else if (prepend) {
       buffer.Append(fileBuffer);
+   }
 
    AddHeader(buffer,fileName.Data());
 
@@ -307,21 +306,21 @@ void ROMETextDataBase::RemoveComment(ROMEString &buffer,Bool_t initialize) const
    static Bool_t inComment;
    Ssiz_t ps,pe;
 
-   if(initialize)
+   if(initialize) {
       inComment = false;
+   }
 
-// remove after "//"
+   // remove after "//"
    if((ps = buffer.Index("//",2,0,TString::kExact)) != -1){
       buffer.Remove(ps);
    }
 
-// remove between "/*" and "*/"
+   // remove between "/*" and "*/"
    if(inComment){
       if((pe = buffer.Index("*/",2,0,TString::kExact)) != -1){
          buffer.Remove(0,pe+strlen("*/"));
          inComment = false;
-      }
-      else{
+      } else {
          buffer.Resize(0);
       }
    }
@@ -332,13 +331,13 @@ void ROMETextDataBase::RemoveComment(ROMEString &buffer,Bool_t initialize) const
          buffer.Remove(ps,pe-ps+strlen("*/"));
          inComment = false;
          pe = ps;
-      }
-      else{
+      } else {
          pe = ps + strlen("/*");
       }
    }
-   if(inComment)
-      buffer.Remove(pe-strlen("/*"));
+   if(inComment) {
+      buffer.Remove(max(0, static_cast<int>(pe - strlen("/*"))));
+   }
 
    return;
 }
