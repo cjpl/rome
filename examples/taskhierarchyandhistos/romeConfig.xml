@@ -166,6 +166,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <StatusBar>true</StatusBar>
         <!-- Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0. -->
         <UpdateFrequency>200</UpdateFrequency>
+        <ListTreeView>false</ListTreeView>
         <AnalyzerController>
           <!-- Description of the Analyzer Contoller Settings. -->
           <!-- Activate flag. -->

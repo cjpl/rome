@@ -37,10 +37,6 @@ extern      "C" {
                                        const char *val);
    const char *romedb_get_type(void *romedb);
    const char *romedb_get_description(void *romedb);
-   int         romedb_get_number_of_rows(void *romedb);
-   int         romedb_next_row(void *romedb);
-   int         romedb_get_number_of_fields(void *romedb);
-   const char *romedb_get_field(void *romedb, int fieldNumber);
 
    void       *romesqldb_init(const char *name, const char *connection);
    void        romesqldb_disconnect(void *romedb);
@@ -101,10 +97,6 @@ extern      "C" {
                                            const char *val);
    const char *rometextdb_get_type(void *romedb);
    const char *rometextdb_get_description(void *romedb);
-   int         rometextdb_get_number_of_rows(void *romedb);
-   int         rometextdb_next_row(void *romedb);
-   int         rometextdb_get_number_of_fields(void *romedb);
-   const char *rometextdb_get_field(void *romedb, int fieldNumber);
 
 /* for Fortran */
    void        romedb_init__(char *name, int *type, char *connection,
@@ -140,11 +132,6 @@ extern      "C" {
                                  const int ret_len);
    void        romedb_get_description__(long long *romedb, char *ret,
                                         const int ret_len);
-   void        romedb_get_number_of_rows__(long long *romedb, int *ret);
-   void        romedb_next_row__(long long *romedb, int *ret);
-   void        romedb_get_number_of_fields__(long long *romedb, int *ret);
-   void        romedb_get_field__(long long *romedb, int *fieldNumber,
-                                  char *ret, const int ret_len);
 
    void        romesqldb_init__(char *name, char *connection, long long *ret,
                                 const int name_len, const int connection_len);
@@ -235,11 +222,6 @@ extern      "C" {
                                      const int ret_len);
    void        rometextdb_get_description__(long long *romedb, char *ret,
                                             const int ret_len);
-   void        rometextdb_get_number_of_rows__(long long *romedb, int *ret);
-   void        rometextdb_next_row__(long long *romedb, int *ret);
-   void        rometextdb_get_number_of_fields__(long long *romedb, int *ret);
-   void        rometextdb_get_field__(long long *romedb, int *fieldNumber,
-                                      char *ret, const int ret_len);
 
    void        romedb_init_(char *name, int *type, char *connection,
                             long long *ret, const int namelen,
@@ -274,11 +256,6 @@ extern      "C" {
                                 const int ret_len);
    void        romedb_get_description_(long long *romedb, char *ret,
                                        const int ret_len);
-   void        romedb_get_number_of_rows_(long long *romedb, int *ret);
-   void        romedb_next_row_(long long *romedb, int *ret);
-   void        romedb_get_number_of_fields_(long long *romedb, int *ret);
-   void        romedb_get_field_(long long *romedb, int *fieldNumber, char *ret,
-                                 const int ret_len);
 
    void        romesqldb_init_(char *name, char *connection, long long *ret,
                                const int name_len, const int connection_len);
@@ -368,11 +345,6 @@ extern      "C" {
                                     const int ret_len);
    void        rometextdb_get_description_(long long *romedb, char *ret,
                                            const int ret_len);
-   void        rometextdb_get_number_of_rows_(long long *romedb, int *ret);
-   void        rometextdb_next_row_(long long *romedb, int *ret);
-   void        rometextdb_get_number_of_fields_(long long *romedb, int *ret);
-   void        rometextdb_get_field_(long long *romedb, int *fieldNumber,
-                                     char *ret, const int ret_len);
 
    void        _romedb_init_(char *name, int *type, char *connection,
                              long long *ret, const int namelen,
@@ -407,11 +379,6 @@ extern      "C" {
                                  const int ret_len);
    void        _romedb_get_description_(long long *romedb, char *ret,
                                         const int ret_len);
-   void        _romedb_get_number_of_rows_(long long *romedb, int *ret);
-   void        _romedb_next_row_(long long *romedb, int *ret);
-   void        _romedb_get_number_of_fields_(long long *romedb, int *ret);
-   void        _romedb_get_field_(long long *romedb, int *fieldNumber,
-                                  char *ret, const int ret_len);
 
    void        _romesqldb_init_(char *name, char *connection, long long *ret,
                                 const int name_len, const int connection_len);
@@ -502,11 +469,6 @@ extern      "C" {
                                      const int ret_len);
    void        _rometextdb_get_description_(long long *romedb, char *ret,
                                             const int ret_len);
-   void        _rometextdb_get_number_of_rows_(long long *romedb, int *ret);
-   void        _rometextdb_next_row_(long long *romedb, int *ret);
-   void        _rometextdb_get_number_of_fields_(long long *romedb, int *ret);
-   void        _rometextdb_get_field_(long long *romedb, int *fieldNumber,
-                                      char *ret, const int ret_len);
 #ifdef __cplusplus
 }
 #endif

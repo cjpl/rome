@@ -92,6 +92,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     <Midas>
       <MidasByteSwap>false</MidasByteSwap>
       <MidasOnlineCommunicationThread>false</MidasOnlineCommunicationThread>
+      <MidasOnlineLoopPeriod>10</MidasOnlineLoopPeriod>
       <Event>
         <EventName>Trigger</EventName>
         <Active>true</Active>

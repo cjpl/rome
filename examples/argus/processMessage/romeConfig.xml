@@ -80,6 +80,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <WindowScale>1.0</WindowScale>
         <StatusBar>true</StatusBar>
         <UpdateFrequency>0</UpdateFrequency>
+        <ListTreeView>false</ListTreeView>
         <AnalyzerController>
           <Active>false</Active>
           <NetFolderName></NetFolderName>
