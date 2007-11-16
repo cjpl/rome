@@ -272,6 +272,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       gROME->SetCurrentEventNumber(0);
 
       for (; !this->isTerminate() && !this->isEndOfRun();) {
+         gROME->GetApplication()->DisableFPETrap();
+         gSystem->ProcessEvents();
+         gROME->GetApplication()->EnableFPETrap();
          int status = this->RunEvent();
          if (status == kReturn) {
             return;
