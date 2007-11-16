@@ -23,7 +23,6 @@ public:
 
    ROMETextDataBase *textdb;
    ROMEStr2DArray   *textvalues;
-   Int_t             textCurRow;
 
 public:
    ROMEDataBaseWorkSpace()
@@ -32,7 +31,6 @@ public:
    ,sqlvalues(0)
    ,textdb(0)
    ,textvalues(0)
-   ,textCurRow(-1)
    {
    }
 
@@ -261,69 +259,6 @@ const char *romedb_get_description(void *romedb)
    return 0;
 }
 
-int romedb_get_number_of_rows(void *romedb)
-{
-   if (!romedb) {
-      return 0;
-   } 
-   switch (static_cast<ROMEDataBaseWorkSpace*>(romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      return romesqldb_get_number_of_rows(romedb);
-   case kROMEDBWrapperDBTypeText:
-      return rometextdb_get_number_of_rows(romedb);
-   default:
-      break;
-   }
-   return 0;
-}
-
-int romedb_next_row(void *romedb)
-{
-   if (!romedb) {
-      return 0;
-   }
-   switch (static_cast<ROMEDataBaseWorkSpace*>(romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      return romesqldb_next_row(romedb);
-   case kROMEDBWrapperDBTypeText:
-      return rometextdb_next_row(romedb);
-   default:
-      break;
-   }
-   return 0;
-}
-
-int romedb_get_number_of_fields(void *romedb)
-{
-   if (!romedb) {
-      return 0;
-   }
-   switch (static_cast<ROMEDataBaseWorkSpace*>(romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      return romesqldb_get_number_of_fields(romedb);
-   case kROMEDBWrapperDBTypeText:
-      return rometextdb_get_number_of_fields(romedb);
-   default:
-      break;
-   }
-   return 0;
-}
-
-const char *romedb_get_field(void *romedb, int fieldNumber)
-{
-   if (!romedb) {
-      return 0;
-   }
-   switch (static_cast<ROMEDataBaseWorkSpace*>(romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      return romesqldb_get_field(romedb, fieldNumber);
-   case kROMEDBWrapperDBTypeText:
-      return rometextdb_get_field(romedb, fieldNumber);
-   default:
-      break;
-   }
-   return 0;
-}
 
 void *romesqldb_init(const char *name, const char *connection)
 {
@@ -611,7 +546,6 @@ int rometextdb_read(void *romedb, const char *dataBasePath, long long int runNum
    if (!work || work->type != kROMEDBWrapperDBTypeText) {
       return 0;
    }
-   work->textCurRow = work->textCurRow = -1;
    return work->textdb->Read(work->textvalues, dataBasePath, runNumber, eventNumber);
 }
 
@@ -722,43 +656,6 @@ const char *rometextdb_get_description(void *romedb)
       return 0;
    }
    return work->textdb->GetDescription();
-}
-
-int rometextdb_get_number_of_rows(void *romedb)
-{
-   ROMEDataBaseWorkSpace *work = static_cast<ROMEDataBaseWorkSpace*>(romedb);
-   if (!work || work->type != kROMEDBWrapperDBTypeText) {
-      return 0;
-   }
-   return work->textvalues->GetEntriesFast();
-}
-
-int rometextdb_next_row(void *romedb)
-{
-   ROMEDataBaseWorkSpace *work = static_cast<ROMEDataBaseWorkSpace*>(romedb);
-   if (!work || work->type != kROMEDBWrapperDBTypeText) {
-      return 0;
-   }
-   work->textCurRow++;
-   return 1;
-}
-
-int rometextdb_get_number_of_fields(void *romedb)
-{
-   ROMEDataBaseWorkSpace *work = static_cast<ROMEDataBaseWorkSpace*>(romedb);
-   if (!work || work->type != kROMEDBWrapperDBTypeText) {
-      return 0;
-   }
-   return work->textvalues->GetEntriesFastAt(work->textCurRow);
-}
-
-const char *rometextdb_get_field(void *romedb, int fieldNumber)
-{
-   ROMEDataBaseWorkSpace *work = static_cast<ROMEDataBaseWorkSpace*>(romedb);
-   if (!work || work->type != kROMEDBWrapperDBTypeText) {
-      return 0;
-   }
-   return work->textvalues->At(fieldNumber, work->textCurRow);
 }
 
 
@@ -1042,87 +939,6 @@ void romedb_get_description__(long long *romedb, char *ret, const int ret_len)
    }
 }
 
-void romedb_get_number_of_rows__(long long *romedb, int *ret)
-{
-   if (!romedb || !(*romedb)) {
-      *ret = 0;
-      return;
-   }
-   switch (reinterpret_cast<ROMEDataBaseWorkSpace*>(*romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      romesqldb_get_number_of_rows__(romedb,  ret);
-      break;
-   case kROMEDBWrapperDBTypeText:
-      rometextdb_get_number_of_rows__(romedb, ret);
-      break;
-   default:
-      *ret = 0;
-      break;
-   }
-}
-
-void romedb_next_row__(long long *romedb, int *ret)
-{
-   if (!romedb || !(*romedb)) {
-      *ret = 0;
-      return;
-   }
-   switch (reinterpret_cast<ROMEDataBaseWorkSpace*>(*romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      romesqldb_next_row__(romedb,  ret);
-      break;
-   case kROMEDBWrapperDBTypeText:
-      rometextdb_next_row__(romedb, ret);
-      break;
-   default:
-      *ret = 0;
-      break;
-   }
-}
-
-void romedb_get_number_of_fields__(long long *romedb, int *ret)
-{
-   if (!romedb || !(*romedb)) {
-      *ret = 0;
-      return;
-   }
-   switch (reinterpret_cast<ROMEDataBaseWorkSpace*>(*romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      romesqldb_get_number_of_fields__(romedb,  ret);
-      break;
-   case kROMEDBWrapperDBTypeText:
-      rometextdb_get_number_of_fields__(romedb, ret);
-      break;
-   default:
-      *ret = 0;
-      break;
-   }
-}
-
-void romedb_get_field__(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
-{
-   if (!romedb || !(*romedb)) {
-      if (ret_len > 0) {
-         strcpy(ret, "");
-         cstr2fstr(ret, ret_len);
-      }
-      return;
-   }
-   switch (reinterpret_cast<ROMEDataBaseWorkSpace*>(*romedb)->type) {
-   case kROMEDBWrapperDBTypeSQL:
-      romesqldb_get_field__(romedb, fieldNumber, ret, ret_len);
-      break;
-   case kROMEDBWrapperDBTypeText:
-      rometextdb_get_field__(romedb, fieldNumber, ret, ret_len);
-      break;
-   default:
-      if (ret_len > 0) {
-         strcpy(ret, "");
-         cstr2fstr(ret, ret_len);
-      }
-      break;
-   }
-}
 
 void romesqldb_init__(char *name, char *connection, long long *ret, const int name_len, const int connection_len)
 {
@@ -1540,37 +1356,6 @@ void rometextdb_get_description__(long long *romedb, char *ret, const int ret_le
    }
 }
 
-void rometextdb_get_number_of_rows__(long long *romedb, int *ret)
-{
-   *ret = rometextdb_get_number_of_rows(reinterpret_cast<void*>(*romedb));
-}
-
-void rometextdb_next_row__(long long *romedb, int *ret)
-{
-   *ret = rometextdb_next_row(reinterpret_cast<void*>(*romedb));
-}
-
-void rometextdb_get_number_of_fields__(long long *romedb, int *ret)
-{
-   *ret = rometextdb_get_number_of_fields(reinterpret_cast<void*>(*romedb));
-}
-
-void rometextdb_get_field__(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
-{
-   const char *p = rometextdb_get_field(reinterpret_cast<void*>(*romedb), *fieldNumber - 1);
-   if (!p) {
-      if (ret_len > 0) {
-         strcpy(ret, "");
-         cstr2fstr(ret, ret_len);
-      }
-      return;
-   }
-   if (strlen(p) <= static_cast<unsigned int>(ret_len)) {
-      strcpy(ret, p);
-      cstr2fstr(ret, ret_len);
-   }
-}
-
 
 void romedb_init_(char *name, int *type, char *connection, long long *ret, const int name_len, const int connection_len)
 {
@@ -1644,25 +1429,6 @@ void romedb_get_description_(long long *romedb, char *ret, const int ret_len)
    romedb_get_description__(romedb, ret, ret_len);
 }
 
-void romedb_get_number_of_rows_(long long *romedb, int *ret)
-{
-   romedb_get_number_of_rows__(romedb, ret);
-}
-
-void romedb_next_row_(long long *romedb, int *ret)
-{
-   romedb_next_row__(romedb, ret);
-}
-
-void romedb_get_number_of_fields_(long long *romedb, int *ret)
-{
-   romedb_get_number_of_fields__(romedb, ret);
-}
-
-void romedb_get_field_(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
-{
-   romedb_get_field__(romedb, fieldNumber, ret, ret_len);
-}
 
 void romesqldb_init_(char *name, char *connection, long long *ret, const int name_len, const int connection_len)
 {
@@ -1878,26 +1644,6 @@ void rometextdb_get_description_(long long *romedb, char *ret, const int ret_len
    rometextdb_get_description__(romedb, ret, ret_len);
 }
 
-void rometextdb_get_number_of_rows_(long long *romedb, int *ret)
-{
-   rometextdb_get_number_of_rows__(romedb, ret);
-}
-
-void rometextdb_next_row_(long long *romedb, int *ret)
-{
-   rometextdb_next_row__(romedb, ret);
-}
-
-void rometextdb_get_number_of_fields_(long long *romedb, int *ret)
-{
-   rometextdb_get_number_of_fields__(romedb, ret);
-}
-
-void rometextdb_get_field_(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
-{
-   rometextdb_get_field__(romedb, fieldNumber, ret, ret_len);
-}
-
 
 void _romedb_init_(char *name, int *type, char *connection, long long *ret, const int name_len, const int connection_len)
 {
@@ -1971,25 +1717,6 @@ void _romedb_get_description_(long long *romedb, char *ret, const int ret_len)
    romedb_get_description__(romedb, ret, ret_len);
 }
 
-void _romedb_get_number_of_rows_(long long *romedb, int *ret)
-{
-   romedb_get_number_of_rows__(romedb, ret);
-}
-
-void _romedb_next_row_(long long *romedb, int *ret)
-{
-   romedb_next_row__(romedb, ret);
-}
-
-void _romedb_get_number_of_fields_(long long *romedb, int *ret)
-{
-   romedb_get_number_of_fields__(romedb, ret);
-}
-
-void _romedb_get_field_(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
-{
-   romedb_get_field__(romedb, fieldNumber, ret, ret_len);
-}
 
 void _romesqldb_init_(char *name, char *connection, long long *ret, const int name_len, const int connection_len)
 {
@@ -2203,24 +1930,4 @@ void _rometextdb_get_type_(long long *romedb, char *ret, const int ret_len)
 void _rometextdb_get_description_(long long *romedb, char *ret, const int ret_len)
 {
    rometextdb_get_description__(romedb, ret, ret_len);
-}
-
-void _rometextdb_get_number_of_rows_(long long *romedb, int *ret)
-{
-   rometextdb_get_number_of_rows__(romedb, ret);
-}
-
-void _rometextdb_next_row_(long long *romedb, int *ret)
-{
-   rometextdb_next_row__(romedb, ret);
-}
-
-void _rometextdb_get_number_of_fields_(long long *romedb, int *ret)
-{
-   rometextdb_get_number_of_fields__(romedb, ret);
-}
-
-void _rometextdb_get_field_(long long *romedb, int *fieldNumber, char *ret, const int ret_len)
-{
-   rometextdb_get_field__(romedb, fieldNumber, ret, ret_len);
 }

@@ -87,6 +87,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <WindowScale>1.0</WindowScale>
         <StatusBar>true</StatusBar>
         <UpdateFrequency>100</UpdateFrequency>
+        <ListTreeView>false</ListTreeView>
         <AnalyzerController>
           <Active>false</Active>
           <NetFolderName></NetFolderName>
@@ -120,6 +121,14 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
           <SingleObject>
             <SingleObjectName>MyGraph</SingleObjectName>
+            <DrawOption></DrawOption>
+            <LogScaleX>false</LogScaleX>
+            <LogScaleY>false</LogScaleY>
+            <LogScaleZ>false</LogScaleZ>
+          </SingleObject>
+
+          <SingleObject>
+            <SingleObjectName>MyGraphError</SingleObjectName>
             <DrawOption></DrawOption>
             <LogScaleX>false</LogScaleX>
             <LogScaleY>false</LogScaleY>
