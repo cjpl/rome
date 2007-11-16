@@ -104,9 +104,9 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fRequestAll(kFALSE)
 ,fOdbOffline(0)
 ,fTimeStamp(0)
-,fSeqNumToFilePos(new TArrayL(kFilePositionsResizeIncrement))
-,fSeqNumToEventNum(new TArrayL(kFilePositionsResizeIncrement))
-,fEventNumToSeqNum(new TArrayL(kFilePositionsResizeIncrement))
+,fSeqNumToFilePos(new TArrayL64(kFilePositionsResizeIncrement))
+,fSeqNumToEventNum(new TArrayL64(kFilePositionsResizeIncrement))
+,fEventNumToSeqNum(new TArrayL64(kFilePositionsResizeIncrement))
 ,fValidSeqNumber(0)
 ,fValidEventNumber(0)
 ,fCurrentSeqNumber(0)
@@ -615,7 +615,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       return -1;
    } else if (gROME->isOffline()) {
       Int_t readSeqNumber;
-      Int_t readPosition;
+      Long64_t readPosition;
       Long64_t oldEventNumber = gROME->GetCurrentEventNumber();
 
       if (event < fValidEventNumber) {
@@ -918,7 +918,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
    if (gROME->isOffline()) {
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
       bool readError = kFALSE;
-      Long_t posOld = -1;
+      Long64_t posOld = -1;
 
       // store current position
       if(!fGZippedMidasFile) {
