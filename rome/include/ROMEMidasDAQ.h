@@ -9,7 +9,7 @@
 
 #include <zlib.h>
 #include <RConfig.h>
-#include <TArrayL.h>
+#include <TArrayL64.h>
 #include "ROMEDAQSystem.h"
 
 #if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
@@ -124,9 +124,9 @@ protected:
 
    Int_t         fTimeStamp;                               //! Current time stamp
 
-   TArrayL*      fSeqNumToFilePos;                         //! Sequential number => file position
-   TArrayL*      fSeqNumToEventNum;                        //! Sequential number => trigger event number
-   TArrayL*      fEventNumToSeqNum;                        //! Trigger event number => sequential number
+   TArrayL64*    fSeqNumToFilePos;                         //! Sequential number => file position
+   TArrayL64*    fSeqNumToEventNum;                        //! Sequential number => trigger event number
+   TArrayL64*    fEventNumToSeqNum;                        //! Trigger event number => sequential number
    Long64_t      fValidSeqNumber;                          //! Max number of valid index of fSeqNumToXXX
    Long64_t      fValidEventNumber;                        //! Max number of valid index of fEventNumToSeqNum
    Long64_t      fCurrentSeqNumber;                        //! Current position in file
