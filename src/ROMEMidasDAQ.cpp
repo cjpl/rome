@@ -365,8 +365,12 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
       this->InitMidasBanks();
 #endif
    } else if (gROME->isOffline()) {
-      if (StepEvent() < 0) {
-         return kFALSE;
+      if (!fReadExistingRawData) {
+         if (StepEvent() < 0) {
+            return kFALSE;
+         }
+      } else {
+         fReadExistingRawData = kFALSE;
       }
 
       EVENT_HEADER *pevent = reinterpret_cast<EVENT_HEADER*>(this->GetRawDataEvent());
@@ -637,7 +641,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       }
 
       // seek event
-      while (event >= fValidEventNumber) {
+      while (event > gROME->GetCurrentEventNumber()) {
          if (StepEvent() < 0) {
             Seek(oldEventNumber);
             return -1;
@@ -646,16 +650,26 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
             Seek(oldEventNumber);
             return -1;
          }
+         if (gROME->GetCurrentEventNumber() % 100 == 0) {
+            ROMEPrint::Print("Stepping to "R_LLD" ("R_LLD
+                             ")                                                  \r",
+                             event, gROME->GetCurrentEventNumber());
+         }
       }
+      ROMEPrint::Print("                                                                      \r");
       readSeqNumber = fEventNumToSeqNum->At(static_cast<Int_t>(event));
       readPosition = fSeqNumToFilePos->At(readSeqNumber);
       // use stored position
       if(readPosition != -1) {
+#if 0 // seeking gzipped file is slow
          if(!fGZippedMidasFile) {
             lseek(fMidasFileHandle, readPosition, SEEK_SET);
          } else {
             gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
          }
+#else
+         fReadExistingRawData = kTRUE;
+#endif
          fCurrentSeqNumber = readSeqNumber;
          gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
          return fSeqNumToEventNum->At(readSeqNumber);
