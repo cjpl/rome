@@ -837,6 +837,11 @@
 					<xs:documentation>Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ListTreeView" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Use ListTree to select displays rather than tabs.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
