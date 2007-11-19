@@ -37,6 +37,7 @@
 			<xs:enumeration value="TGraph"/>
 			<xs:enumeration value="TGraph2D"/>
 			<xs:enumeration value="TCutG"/>
+			<xs:enumeration value="TGraphErrors"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="ValueTypeDesc">
@@ -147,17 +148,17 @@
 			<xs:documentation>Description of steering parameter fields. A steering parameter field represents one steer value.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="SPFieldName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the steering parameter field. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SPFieldType" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SPFieldName" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The name of the steering parameter field. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="SPFieldType" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="SPFieldFormat" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Format string to be used when converting to text. (e.g. %08x, %16.16f)</xs:documentation>
@@ -264,17 +265,17 @@
 			<xs:documentation>Description of folder fields. A field is a single value or an array of values inside a folder.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="FieldName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the field. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="FieldType" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="FieldName" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The name of the field. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="FieldType" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="FieldComment" type="xs:string" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>A comment about the field. (optional)</xs:documentation>
@@ -301,7 +302,7 @@
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="DataBaseIfStatement" type="xs:string" minOccurs="0">
-					<xs:annotation>s
+					<xs:annotation>
 						<xs:documentation>Add condition if reading database or not. This value will be ignored if 'DataBaseAccess' is not true in the this folder. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
@@ -318,7 +319,7 @@
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="FolderDesc">
+	<xs:complexType name="FolderDesc" mixed="true">
 		<xs:annotation>
 			<xs:documentation>Description of folders. Folders are objects which can store data. All data in the project should be stored in folders.</xs:documentation>
 		</xs:annotation>
@@ -352,6 +353,11 @@
 				<xs:element name="IgnoreTObjectStreamer" type="xs:boolean" default="false" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>If this value is 'true', generated Streamer of the class will not call TObject::Streamer. This option saves the TObject space overhead on the file. However, the information(fBits, fUniqueID) of TObject is lost. If the class is referenced from TRef or TRefArray, this option should not be 'true'. This option does not make sense when the folder class is not directly inherited from TObject. Default is 'true'</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Inherit" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Name of folder from which this folder will be derived.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="NoResetByFramework" type="xs:boolean" default="false" minOccurs="0">
@@ -490,12 +496,17 @@
 			<xs:documentation>Description of histograms.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="HistName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the histogram. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="HistName" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The name of the histogram. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="HistType" type="HistTypeDesc">
+					<xs:annotation>
+						<xs:documentation>The type of the histogram. Can be any ROOT histogram type. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="HistTitle" type="xs:string" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The title of the histogram. Displayed in the ROOT browser. This value can be overwritten in the configuration file. (optional)</xs:documentation>
@@ -511,13 +522,6 @@
 						<xs:documentation>The title of the ROOT folder in which the histogram is stored. This value can be overwritten in the configuration file. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-			</xs:choice>
-			<xs:element name="HistType" type="HistTypeDesc">
-				<xs:annotation>
-					<xs:documentation>The type of the histogram. Can be any ROOT histogram type. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
 				<xs:element name="HistArraySize" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The array size of the histogram. If the value is 1 the histogram is a single histogram. If the histogram is an array they are named HistName_001 and so on. With HistArrayStartIndex you can specify with which number the enumeration starts. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
@@ -709,7 +713,7 @@
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
-	<xs:complexType name="TaskDesc">
+	<xs:complexType name="TaskDesc" mixed="true">
 		<xs:annotation>
 			<xs:documentation>Description of tasks.</xs:documentation>
 		</xs:annotation>
@@ -958,7 +962,7 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TabDesc">
+	<xs:complexType name="TabDesc" mixed="true">
 		<xs:annotation>
 			<xs:documentation>Description of Tabs. Only used for ARGUS displays.</xs:documentation>
 		</xs:annotation>
@@ -1067,12 +1071,12 @@
 			<xs:documentation>Description of run headers.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="RelatedFolder" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the folder, whose data is stored to the run header. This folder has to be defined in the folder definition section of the xml file. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="RelatedFolder" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The name of the folder, whose data is stored to the run header. This folder has to be defined in the folder definition section of the xml file. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="RunHeaderName" type="xs:string">
 					<xs:annotation>
 						<xs:documentation>The name of the run header. (optional)</xs:documentation>
@@ -1256,7 +1260,7 @@
 					<xs:documentation>The name of the bank. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="BankAlias" type="xs:string">
+			<xs:element name="BankAlias" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Bank name appears in the code. This can be different from midas bank name. This may be used when you have different banks with identical names in several event ids.</xs:documentation>
 				</xs:annotation>
@@ -1465,7 +1469,7 @@
 					<xs:documentation>Name of the header file.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="LinkDefSuffix" type="xs:string">
+			<xs:element name="LinkDefSuffix" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Suffix for rootcint dictionary generation. Default is +. (optional)</xs:documentation>
 				</xs:annotation>
@@ -1569,7 +1573,7 @@
 					<xs:documentation>Name and path of the header file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="ObjectDirectory" type="xs:string">
+			<xs:element name="ObjectDirectory" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Directory to put object file after compile.</xs:documentation>
 				</xs:annotation>
