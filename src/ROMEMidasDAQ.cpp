@@ -657,25 +657,26 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
          }
       }
       ROMEPrint::Print("                                                                      \r");
+#if 0 // seeking gzipped file is slow
       readSeqNumber = fEventNumToSeqNum->At(static_cast<Int_t>(event));
       readPosition = fSeqNumToFilePos->At(readSeqNumber);
       // use stored position
       if(readPosition != -1) {
-#if 0 // seeking gzipped file is slow
          if(!fGZippedMidasFile) {
             lseek(fMidasFileHandle, readPosition, SEEK_SET);
          } else {
             gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
          }
-#else
-         fReadExistingRawData = kTRUE;
-#endif
          fCurrentSeqNumber = readSeqNumber;
          gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
          return fSeqNumToEventNum->At(readSeqNumber);
       } else {
          return -1;
       }
+#else
+      fReadExistingRawData = kTRUE;
+      return gROME->GetCurrentEventNumber();
+#endif
    }
    return -1;
 }
