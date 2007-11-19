@@ -534,6 +534,11 @@
 					<xs:documentation>Run number of the required histogram/graph file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Path" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>directory path to read histogram/graph file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="MacrosDesc">
