@@ -11664,6 +11664,7 @@ void ROMEBuilder::WriteHTMLDoku()
    // Tasks
    ROMEString cppFile;
    ROMEString str;
+   ROMEString tmp;
    for (i = 0; i < numOfTask; i++) {
       if (!taskUsed[i])
          continue;
@@ -11734,12 +11735,18 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<p>\n");
       if (numOfHistos[i]>0) {
          buffer.AppendFormatted("This task containes the following histograms :\n");
-         buffer.AppendFormatted("<ul>\n");
+         buffer.AppendFormatted("<table>\n");
+         bool trodd = true;
+         buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Description</td></tr>\n");
          for (j = 0; j < numOfHistos[i]; j++) {
-            buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",histoName[i][j].Data());
+            buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",
+                                   trodd ? "odd" : "even",
+                                   histoName[i][j].Data(),
+                                   ProcessCommentHTML(histoComment[i][j],tmp).Data());
+            trodd = !trodd;
          }
-         buffer.AppendFormatted("</ul>\n");
-         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("</table>\n");
+         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
@@ -11980,7 +11987,6 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<hr size=\"1\">\n");
    buffer.AppendFormatted("<p>\n\n");
-   ROMEString tmp;
    // Folders
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
