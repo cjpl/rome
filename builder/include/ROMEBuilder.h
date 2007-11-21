@@ -240,6 +240,7 @@ protected:
    Int_t        *numOfTaskConnectedFrom;
    ROMEString  **taskConnectedFrom;
    Int_t        *numOfHistos;
+   ROMEString  **histoComment;
    ROMEString  **histoName;
    ROMEString  **histoTitle;
    ROMEString  **histoFolderName;

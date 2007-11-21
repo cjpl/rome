@@ -166,6 +166,7 @@ ROMEBuilder::ROMEBuilder()
 ,numOfTaskConnectedFrom(0)
 ,taskConnectedFrom(0)
 ,numOfHistos(0)
+,histoComment(0)
 ,histoName(0)
 ,histoTitle(0)
 ,histoFolderName(0)
@@ -560,6 +561,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] numOfTaskConnectedFrom;
    delete [] taskConnectedFrom;
    delete [] numOfHistos;
+   delete [] histoComment;
    delete [] histoName;
    delete [] histoTitle;
    delete [] histoFolderName;

@@ -228,6 +228,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfTaskConnectedFrom = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    taskConnectedFrom = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfTasks));
    numOfHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   histoComment = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoFolderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
@@ -1908,6 +1909,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
       // task histogram
       if (type == 1 && !strcmp(name,"Histogram")) {
          // histogram initialisation
+         histoComment[numOfTask][numOfHistos[numOfTask]] = "";
          histoName[numOfTask][numOfHistos[numOfTask]] = "";
          histoTitle[numOfTask][numOfHistos[numOfTask]] = "";
          histoFolderName[numOfTask][numOfHistos[numOfTask]] = "";
@@ -1936,6 +1938,12 @@ Bool_t ROMEBuilder::ReadXMLTask()
                xml->GetValue(histoName[numOfTask][numOfHistos[numOfTask]],
                              histoName[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoName[numOfTask][numOfHistos[numOfTask]], kTRUE, " ");
+            }
+            // histo comment
+            if (type == 1 && !strcmp(name,"HistComment")) {
+               xml->GetValue(histoComment[numOfTask][numOfHistos[numOfTask]],
+                             histoComment[numOfTask][numOfHistos[numOfTask]]);
+               FormatText(histoComment[numOfTask][numOfHistos[numOfTask]], kFALSE);
             }
             // histo title
             if (type == 1 && !strcmp(name,"HistTitle")) {
