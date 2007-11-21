@@ -134,6 +134,7 @@ protected:
    ROMEString     fOutputDir;                    //! General Output Directory
    ROMEString    *fDataBaseDir;                  //! Data Base File Directories
    ROMEString     fConfigDir;                    //! Configuration File Directory
+   Bool_t         fMakeOutputDirectory;          //! Flag if create directory for output file
 
    // Run Numbers
    Long64_t       fCurrentRunNumber;             //! Currently Analyzed Run Number
@@ -349,6 +350,8 @@ public:
    void            SetDataBaseDir(Int_t i,ROMEString &dir) { fDataBaseDir[i] = dir; }
    void            SetConfigDir(const char *dir) { fConfigDir = dir; }
    void            SetConfigDir(ROMEString &dir) { fConfigDir = dir; }
+   void            SetMakeOutputDirectory(Bool_t flag) { fMakeOutputDirectory = flag; }
+   Bool_t          isMakeOutputDirectory() const { return fMakeOutputDirectory; }
 
    // Fill Event Flag
    Bool_t          isFillEvent() const { return fFillEvent; }

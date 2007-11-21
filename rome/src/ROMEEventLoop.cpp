@@ -656,7 +656,11 @@ Bool_t ROMEEventLoop::DAQInit()
                }
             }
             if (!identicalFileNameFound) { // file is not open yet
-               // perhaps it's better to mkdir() in case the directory for output file is absence
+               if (gROME->isMakeOutputDirectory()) {
+                  ROMEString path = gSystem->DirName(filename.Data());
+                  path += "/"; // trailing "/" is needed to work mkdir() correctly.
+                  gSystem->mkdir(path.Data(), kTRUE);
+               }
                file = new TFile(filename.Data(), "RECREATE");
                if (!file || file->IsZombie()) {
                   return false;
@@ -784,7 +788,11 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
                   }
                }
                if (!identicalFileNameFound) { // file is not open yet
-                  // perhaps it's better to mkdir() in case the directory for output file is absence
+                  if (gROME->isMakeOutputDirectory()) {
+                     ROMEString path = gSystem->DirName(filename.Data());
+                     path += "/"; // trailing "/" is needed to work mkdir() correctly.
+                     gSystem->mkdir(path.Data(), kTRUE);
+                  }
                   file = new TFile(filename.Data(), "RECREATE");
                   if (!file || file->IsZombie()) {
                      return false;
