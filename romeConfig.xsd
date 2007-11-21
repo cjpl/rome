@@ -112,6 +112,11 @@
 					<xs:documentation>The path of all output files. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="MakeOutputDirectory" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Make file system directories for output files.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SettingsDesc">

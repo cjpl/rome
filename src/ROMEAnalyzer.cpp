@@ -122,6 +122,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fOutputDir("./")
 ,fDataBaseDir(0)
 ,fConfigDir("./")
+,fMakeOutputDirectory(kFALSE)
 ,fCurrentRunNumber(0)
 ,fRunNumber()
 ,fRunNumberString("")

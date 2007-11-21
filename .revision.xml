@@ -252,3 +252,9 @@
   <Directory>/data/disk3/users/sawada/rome</Directory>
   <LastCompile>Thu, 08 Nov 2007 22:35:54 +0001 (GMT) +651157000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>yamada</User>
+  <Host>lcmeg00</Host>
+  <Directory>/data/disk3/users/yamada/rome/gcc346</Directory>
+  <LastCompile>Wed, 21 Nov 2007 18:51:56 +0000 (GMT) +950510000 nsec</LastCompile>
+</Entry>
