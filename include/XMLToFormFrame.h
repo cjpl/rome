@@ -64,7 +64,6 @@ private:
 public:
    // GUI Frame Fields
    TGLayoutHints      *fLFrame;           //!
-   TGLayoutHints      *fLFrameExpand;     //!
    TGLayoutHints      *fLInnerFrame;      //!
    TGLayoutHints      *fLInnerCheckButtonFrame;  //!
    TGLayoutHints      *fLInnerRadioButtonFrame;  //!

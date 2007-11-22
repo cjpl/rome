@@ -46,7 +46,6 @@ XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame, const char* title, c
 ,fSubFrames()
 ,fNumberOfSubFrames(0)
 ,fLFrame(0)
-,fLFrameExpand(0)
 ,fLInnerFrame(0)
 ,fLInnerCheckButtonFrame(0)
 ,fLInnerRadioButtonFrame(0)
@@ -84,7 +83,6 @@ XMLToFormFrame::~XMLToFormFrame()
 {
 #if 0 // deleting GUI objects may cause error
    SafeDelete(fLFrame);
-   SafeDelete(fLFrameExpand);
    SafeDelete(fLInnerFrame);
    SafeDelete(fLInnerCheckButtonFrame);
    SafeDelete(fFrame);

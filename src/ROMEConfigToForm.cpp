@@ -48,8 +48,9 @@ int ROMEConfigToForm::Show(const TGWindow * p, const TGWindow * main)
 bool ROMEConfigToForm::Init()
 {
    // read xml
-   if (!XMLToRootClass())
+   if (!XMLToRootClass()) {
       return false;
+   }
 
    XMLToClass(fMainFrame);
    return true;

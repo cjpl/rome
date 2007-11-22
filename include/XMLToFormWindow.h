@@ -58,7 +58,6 @@ protected:
 
    void   CheckSignals(XMLToFormFrame *frame);
    void   PlaceWindow(const TGWindow * main);
-   Bool_t CreateForm(XMLToFormFrame *frame);
    void   BuildForm(XMLToFormFrame *frame);
    void   CreateFrame(XMLToFormFrame *frame);
    void   BuildFrame(XMLToFormFrame *frame);
