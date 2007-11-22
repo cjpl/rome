@@ -164,10 +164,14 @@ XMLToFormElement::XMLToFormElement(const char* type, const char* title, const ch
 void XMLToFormElement::Init(const char* value, ROMEStrArray *entries)
 {
    if (entries!=NULL) {
-      for (Int_t i=0;i<entries->GetEntriesFast();i++) {
-         if (entries->At(i)==value)
+      const Int_t n = entries->GetEntriesFast();
+      TString str;
+      for (Int_t i=0;i<n;i++) {
+         str = entries->At(i);
+         if (str==value) {
             fSelectedEntry = i;
-         fEntry.AddLast(entries->At(i).Data());
+         }
+         fEntry.AddLast(str.Data());
       }
    }
    if (!strcmp(value,"true"))

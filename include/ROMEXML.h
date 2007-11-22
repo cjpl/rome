@@ -59,49 +59,48 @@ public:
    Int_t       GetType() const { return fNodeType; }
    Int_t       GetDepth() const { return fNodeDepth; }
    Bool_t      isEmpty() const { return fCurrentNode->value[0]==0; }
-   Bool_t      GetAttribute(ROMEString& name, ROMEString& value, ROMEString& defaultValue) const;
-   Bool_t      GetAttribute(const char* name, ROMEString& value, ROMEString& defaultValue) const;
-   Bool_t      GetAttribute(ROMEString& name, ROMEString& value, const char* defaultValue="") const;
-   Bool_t      GetAttribute(const char* name, ROMEString& value, const char* defaultValue="") const;
-   Bool_t      GetValue(ROMEString& value, ROMEString& defaultValue) const;
+   Bool_t      GetValue(ROMEString& value, ROMEString& defaultValue) const { return GetValue(value, defaultValue.Data()); }
    Bool_t      GetValue(ROMEString& value, const char* defaultValue="") const;
 
    // write
    Bool_t      OpenFileForWrite(const char* file);
-   Int_t       SetTranslate(Int_t flag) const;
-   Bool_t      StartElement(const char* name) const;
-   Bool_t      EndElement() const;
-   Bool_t      EndDocument() const;
-   Bool_t      WriteAttribute(const char* name, const char* value) const;
+   Int_t       SetTranslate(Int_t flag) const { return mxml_set_translate(fWriter, flag); }
+   Bool_t      StartElement(const char* name) const { return mxml_start_element(fWriter, name); }
+   Bool_t      EndElement() const { return mxml_end_element(fWriter); }
+   Bool_t      EndDocument() const { return mxml_close_file(fWriter); }
+   Bool_t      WriteAttribute(const char* name, const char* value) const { return mxml_write_attribute(fWriter, name, value); }
    Bool_t      WriteElement(const char* name, const char* value) const;
-   Bool_t      WriteValue(const char* value) const;
-   Bool_t      WriteComment(const char* text) const;
+   Bool_t      WriteValue(const char* value) const { return mxml_write_value(fWriter, value); }
+   Bool_t      WriteComment(const char* text) const { return mxml_write_comment(fWriter, text); }
    static void SuppressWritingDate(Bool_t suppress = kTRUE) { mxml_suppress_date(suppress ? 1 : 0); }
-   Bool_t      WriteEmptyLine() const;
+   Bool_t      WriteEmptyLine() const { return mxml_write_empty_line(fWriter) != 0; }
 
    // path
    Bool_t      OpenFileForPath(const char* file);
    Bool_t      OpenBufferForPath(const char* buffer);
    Bool_t      ExistPath(const char* path) const;
    Int_t       NumberOfOccurrenceOfPath(const char* path) const;
-   Bool_t      GetPathAttribute(ROMEString& path, ROMEString& name, ROMEString& value, ROMEString& defaultValue) const;
-   Bool_t      GetPathAttribute(ROMEString& path, ROMEString& name,
-                                ROMEString& value, const char* defaultValue="") const;
-   Bool_t      GetPathAttribute(ROMEString& path, const char* name, ROMEString& value, ROMEString& defaultValue) const;
-   Bool_t      GetPathAttribute(const char* path, ROMEString& name, ROMEString& value, ROMEString& defaultValue) const;
+   Bool_t      GetPathAttribute(ROMEString& path, ROMEString& name, ROMEString& value,
+                                ROMEString& defaultValue) const { return GetPathAttribute(path.Data(), name.Data(), value, defaultValue.Data()); }
+   Bool_t      GetPathAttribute(ROMEString& path, ROMEString& name, ROMEString& value,
+                                const char* defaultValue="") const { return GetPathAttribute(path.Data(), name.Data(), value, defaultValue); }
    Bool_t      GetPathAttribute(ROMEString& path, const char* name, ROMEString& value,
-                                const char* defaultValue="") const;
+                                ROMEString& defaultValue) const { return GetPathAttribute(path.Data(), name, value, defaultValue.Data()); }
    Bool_t      GetPathAttribute(const char* path, ROMEString& name, ROMEString& value,
-                                const char* defaultValue="") const;
+                                ROMEString& defaultValue) const { return GetPathAttribute(path, name.Data(), value, defaultValue.Data()); }
+   Bool_t      GetPathAttribute(ROMEString& path, const char* name, ROMEString& value,
+                                const char* defaultValue="") const { return GetPathAttribute(path.Data(), name, value, defaultValue); }
+   Bool_t      GetPathAttribute(const char* path, ROMEString& name, ROMEString& value,
+                                const char* defaultValue="") const { return GetPathAttribute(path, name.Data(), value, defaultValue); }
    Bool_t      GetPathAttribute(const char* path, const char* name, ROMEString& value,
-                                ROMEString& defaultValue) const;
+                                ROMEString& defaultValue) const { return GetPathAttribute(path, name, value, defaultValue.Data()); }
    Bool_t      GetPathAttribute(const char* path, const char* name, ROMEString& value,
                                 const char* defaultValue="") const;
-   Bool_t      GetPathValue(ROMEString& path, ROMEString& value, ROMEString& defaultValue) const;
-   Bool_t      GetPathValue(ROMEString& path, ROMEString& value, const char* defaultValue="") const;
-   Bool_t      GetPathValue(const char* path, ROMEString& value, ROMEString& defaultValue) const;
+   Bool_t      GetPathValue(ROMEString& path, ROMEString& value, ROMEString& defaultValue) const { return GetPathValue(path.Data(), value, defaultValue.Data()); }
+   Bool_t      GetPathValue(ROMEString& path, ROMEString& value, const char* defaultValue="") const { return GetPathValue(path.Data(), value, defaultValue); }
+   Bool_t      GetPathValue(const char* path, ROMEString& value, ROMEString& defaultValue) const { return GetPathValue(path, value, defaultValue.Data()); }
    Bool_t      GetPathValue(const char* path, ROMEString& value, const char* defaultValue="") const;
-   Bool_t      GetPathValues(ROMEString& path ,ROMEStrArray* values) const;
+   Bool_t      GetPathValues(ROMEString& path ,ROMEStrArray* values) const { return GetPathValues(path.Data(), values); }
    Bool_t      GetPathValues(const char* path, ROMEStrArray* values) const;
    Bool_t      ReplacePathAttributeValue(const char* path, const char* name, const char* value) const;
    Bool_t      ReplacePathAttributeName(const char* path, const char* name, const char* newName) const;
@@ -117,14 +116,14 @@ public:
    Bool_t      HasPathChildren(const char* path) const;
    Bool_t      WritePathFile(const char* file);
    // node
-   PMXML_NODE  GetPathNode(const char* path) const;
-   PMXML_NODE  GetRootNode() const;
-   PMXML_NODE  GetSubNode(PMXML_NODE node, Int_t i) const;
-   const char *GetNodeValue(PMXML_NODE node) const;
+   PMXML_NODE  GetPathNode(const char* path) const { return mxml_find_node(fRootNode, const_cast<char*>(path)); }
+   PMXML_NODE  GetRootNode() const { return fRootNode; }
+   PMXML_NODE  GetSubNode(PMXML_NODE node, Int_t i) const { return mxml_subnode(node, i); }
+   const char *GetNodeValue(PMXML_NODE node) const { return mxml_get_value(node); }
    Int_t       GetNodeIntValue(PMXML_NODE node) const;
    Double_t    GetNodeDoubleValue(PMXML_NODE node) const;
-   const char *GetNodeName(PMXML_NODE node) const;
-   const char *GetNodeAttribute(PMXML_NODE node, const char* name) const;
+   const char *GetNodeName(PMXML_NODE node) const { return mxml_get_name(node); }
+   const char *GetNodeAttribute(PMXML_NODE node, const char* name) const { return mxml_get_attribute(node, const_cast<char*>(name)); }
 
    ClassDef(ROMEXML, 0) // Interface to XML files
 };

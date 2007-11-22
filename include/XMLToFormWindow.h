@@ -64,8 +64,6 @@ protected:
    void   BuildFrame(XMLToFormFrame *frame);
    void   BuildSubFrames(XMLToFormFrame *frame);
    void   SaveCurrentValues(XMLToFormFrame *frame);
-   void   RemoveFrame(XMLToFormFrame *frame);
-   void   RemoveFrame(TGFrame *frame) { TGCompositeFrame::RemoveFrame(frame); }
    void   AddFrame(XMLToFormFrame *frame);
    void   AddSubFrames(XMLToFormFrame *frame);
    void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); };

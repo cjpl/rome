@@ -8,6 +8,7 @@
 #define ROMEStrArray_H
 
 #include <TObjArray.h>
+#include <TObjString.h>
 #include <TString.h>
 #include "ROME.h"
 
@@ -25,14 +26,14 @@ public:
    virtual          ~ROMEStrArray();
 
    virtual void     Delete(Option_t *option="");
-   Int_t            GetEntries() const;
-   Int_t            GetEntriesFast() const;  //only OK when no gaps
-   Int_t            GetLast() const;
-   Bool_t           IsEmpty() const;
+   Int_t            GetEntries() const { return array->GetEntries(); }
+   Int_t            GetEntriesFast() const { return array->GetEntriesFast(); } //only OK when no gaps
+   Int_t            GetLast() const { return array->GetLast(); }
+   Bool_t           IsEmpty() const { return array->IsEmpty(); }
 
    void             AddFormatted(const char* format,...) G_GNUC_PRINTF(2, 3);
-   void             Add(TString &str);
-   void             Add(const char* str);
+   void             Add(TString &str) { AddLast(str); }
+   void             Add(const char* str) { AddLast(str); }
    virtual void     AddFirst(TString &str);
    virtual void     AddFirst(const char* str);
    virtual void     AddLast(TString &str);
@@ -46,12 +47,12 @@ public:
    virtual void     RemoveAt(Int_t idx);
    virtual void     RemoveAll();
 
-   TString          At(Int_t idx) const;
-   TString          UncheckedAt(Int_t i) const;
-   TString          First() const;
-   TString          Last() const;
+   TString          At(Int_t idx) const { return static_cast<TObjString*>(array->At(idx))->GetString(); }
+   TString          UncheckedAt(Int_t i) const { return static_cast<TObjString*>(array->UncheckedAt(i))->GetString(); }
+   TString          First() const { return static_cast<TObjString*>(array->First())->GetString(); }
+   TString          Last() const { return static_cast<TObjString*>(array->Last())->GetString(); }
    virtual TString  operator[](Int_t i) const;
-   Int_t            LowerBound() const;
+   Int_t            LowerBound() const { return array->LowerBound(); }
    virtual void     Expand(Int_t newSize);
    Int_t            IndexOf(const char *text) const;
    Int_t            IndexOf(const TString &text) const { return IndexOf(text.Data()); }
