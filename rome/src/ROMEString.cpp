@@ -62,24 +62,6 @@ ROMEString& ROMEString::SetFormatted(const char* va_(fmt), ...)
 }
 
 //______________________________________________________________________________
-void ROMEString::Write() const
-{
-   cout << Data();
-}
-
-//______________________________________________________________________________
-void ROMEString::WriteLine() const
-{
-   cout << Data() << endl;
-}
-
-//______________________________________________________________________________
-Int_t ROMEString::NumberOfOccurrence(ROMEString& subString) const
-{
-   return NumberOfOccurrence(subString.Data());
-}
-
-//______________________________________________________________________________
 Int_t ROMEString::NumberOfOccurrence(const char* subString) const
 {
    Int_t numberOfOccurrence = 0;
@@ -228,23 +210,11 @@ Bool_t ROMEString::ToBool() const
 }
 
 //______________________________________________________________________________
-void ROMEString::ToLower()
-{
-   static_cast<TString*>(this)->ToLower();
-}
-
-//______________________________________________________________________________
 const char* ROMEString::ToLower(ROMEString& destination) const
 {
    destination = Data();
    destination.ToLower();
    return destination.Data();
-}
-
-//______________________________________________________________________________
-void ROMEString::ToUpper()
-{
-   static_cast<TString*>(this)->ToUpper();
 }
 
 //______________________________________________________________________________

@@ -8,8 +8,8 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+
 #include "ROMEiostream.h"
-#include <TObjString.h>
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 
@@ -52,30 +52,6 @@ void ROMEStrArray::Delete(Option_t * /*option*/)
 }
 
 //______________________________________________________________________________
-Int_t ROMEStrArray::GetEntries() const
-{
-   return array->GetEntries();
-}
-
-//______________________________________________________________________________
-Int_t ROMEStrArray::GetEntriesFast() const
-{
-   return array->GetEntriesFast();
-}
-
-//______________________________________________________________________________
-Int_t ROMEStrArray::GetLast() const
-{
-   return array->GetLast();
-}
-
-//______________________________________________________________________________
-Bool_t ROMEStrArray::IsEmpty() const
-{
-   return array->IsEmpty();
-}
-
-//______________________________________________________________________________
 void ROMEStrArray::AddFormatted(const char* va_(fmt),...)
 {
    if (va_(fmt)==NULL) {
@@ -85,18 +61,6 @@ void ROMEStrArray::AddFormatted(const char* va_(fmt),...)
    va_start(ap,va_(fmt));
    this->AddLast(ROMEString::Format(va_(fmt), ap));
    va_end(ap);
-}
-
-//______________________________________________________________________________
-void ROMEStrArray::Add(TString &str)
-{
-   this->AddLast(str);
-}
-
-//______________________________________________________________________________
-void ROMEStrArray::Add(const char* str)
-{
-   this->AddLast(str);
 }
 
 //______________________________________________________________________________
@@ -188,40 +152,10 @@ void ROMEStrArray::RemoveAll()
 }
 
 //______________________________________________________________________________
-TString ROMEStrArray::At(Int_t idx) const
-{
-   return static_cast<TObjString*>(array->At(idx))->GetString();
-}
-
-//______________________________________________________________________________
-TString ROMEStrArray::UncheckedAt(Int_t i) const
-{
-   return static_cast<TObjString*>(array->UncheckedAt(i))->GetString();
-}
-
-//______________________________________________________________________________
-TString ROMEStrArray::First() const
-{
-   return static_cast<TObjString*>(array->First())->GetString();
-}
-
-//______________________________________________________________________________
-TString ROMEStrArray::Last() const
-{
-   return static_cast<TObjString*>(array->Last())->GetString();
-}
-
-//______________________________________________________________________________
 TString ROMEStrArray::operator[](Int_t i) const
 {
    TObjString* objstr = static_cast<TObjString*>(array->At(i));
    return objstr->GetString();
-}
-
-//______________________________________________________________________________
-Int_t ROMEStrArray::LowerBound() const
-{
-   return array->LowerBound();
 }
 
 //______________________________________________________________________________
