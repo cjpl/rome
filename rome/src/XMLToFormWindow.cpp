@@ -67,7 +67,10 @@ XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLT
 ,fTreeListActiveFrame(0)
 ,fXML(xml)
 {
-   CreateForm(fMainFrame);
+   // build up main frame
+   BuildForm(fMainFrame);
+
+   CreateFrame(fMainFrame);
 
    PlaceWindow(main);
    SetWindowName("Please wait while the mask is building up ...");
@@ -421,13 +424,12 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
          // create subframe
          currentSubFrame->fIndex = i+1;
          currentSubFrame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
-         currentSubFrame->fLFrameExpand = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
          currentSubFrame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          currentSubFrame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          currentSubFrame->fLInnerRadioButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          if (currentSubFrame->IsFrameListTree()) {
             currentSubFrame->fHFrame = new TGHorizontalFrame(frame->fFrame,0,0,kRaisedFrame);
-            frame->fFrame->AddFrame(currentSubFrame->fHFrame,currentSubFrame->fLFrameExpand);
+            frame->fFrame->AddFrame(currentSubFrame->fHFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->framePad, frame->framePad, frame->framePad, frame->framePad));
             currentSubFrame->fListTreeCanvas = new TGCanvas(currentSubFrame->fHFrame,fListTreeWidth,fListTreeHeight);
             currentSubFrame->fHFrame->AddFrame(currentSubFrame->fListTreeCanvas,new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
             currentSubFrame->fListTree = new TGListTree(currentSubFrame->fListTreeCanvas, kHorizontalFrame);
@@ -484,7 +486,6 @@ void XMLToFormWindow::AddFrame(XMLToFormFrame *frame)
    }
 
    // create elements
-
    if (frame->GetNumberOfElements()>0) {
       frame->fFrame->AddFrame(frame->fHFrame, frame->fLInnerFrame);
       for (j=0;j<frame->fNumberOfVFrames;j++) {
@@ -570,9 +571,9 @@ void XMLToFormWindow::AddSubFrames(XMLToFormFrame *frame)
       }
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
-      if (frame->GetSubFrameAt(i)->IsFrameVisible()) {
+      currentSubFrame = frame->GetSubFrameAt(i);
+      if (currentSubFrame->IsFrameVisible()) {
          // create subframe
-         currentSubFrame = frame->GetSubFrameAt(i);
          if (!currentSubFrame->IsFrameTab() && !currentSubFrame->IsFrameListTree() && !currentSubFrame->IsFrameListTreeItem()) {
             frame->fFrame->AddFrame(currentSubFrame->fFrame,currentSubFrame->fLFrame);
          }
@@ -599,15 +600,7 @@ void XMLToFormWindow::CreateFrame(XMLToFormFrame *frame)
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
       subframe = frame->GetSubFrameAt(i);
       if (subframe->IsFrameVisible()) {
-         if (subframe->IsFrameListTree()) {
-            CreateFrame(subframe);
-         }
-         else if (subframe->IsFrameListTreeItem()) {
-            CreateFrame(subframe);
-         }
-         else {
-            CreateFrame(subframe);
-         }
+         CreateFrame(subframe);
       }
    }
 }
@@ -652,17 +645,6 @@ void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
    frame->fLInnerRadioButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    AddFrame(frame->fFrame,frame->fLFrame);
    frame->fIndex = 1;
-}
-
-//______________________________________________________________________________
-bool XMLToFormWindow::CreateForm(XMLToFormFrame *frame)
-{
-   // build up main frame
-   BuildForm(frame);
-
-   CreateFrame(frame);
-
-   return true;
 }
 
 //______________________________________________________________________________

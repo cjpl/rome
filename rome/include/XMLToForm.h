@@ -45,11 +45,11 @@ public:
 
    void        SaveForm();
    const char* GetValue(const char* label) const;
-   Bool_t      GetBoolValue(const char* label) const;
+   Bool_t      GetBoolValue(const char* label) const { return (!strcmp(GetValue(label),"true")); }
    Int_t       GetIntValue(const char* label) const;
    double      GetDoubleValue(const char* label) const;
-   Int_t       GetSelectedIndex(const char* label) const;
-   Bool_t      IsChecked(const char* label) const;
+   Int_t       GetSelectedIndex(const char* label) const { return GetIndex(label); }
+   Bool_t      IsChecked(const char* label) const { return (!strcmp(GetValue(label),"true")); }
 
 protected:
    Bool_t      Init(const char* xmlFileName,ROMEStrArray* substitutes=NULL);

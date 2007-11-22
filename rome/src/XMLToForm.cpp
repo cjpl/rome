@@ -468,15 +468,6 @@ void XMLToForm::SaveForm()
 }
 
 //______________________________________________________________________________
-Bool_t XMLToForm::GetBoolValue(const char* label) const
-{
-   if (!strcmp(GetValue(label),"true")) {
-      return true;
-   }
-   return false;
-}
-
-//______________________________________________________________________________
 Int_t XMLToForm::GetIntValue(const char* label) const
 {
    char *cstop;
@@ -488,21 +479,6 @@ double XMLToForm::GetDoubleValue(const char* label) const
 {
    char *cstop;
    return strtod(GetValue(label),&cstop);
-}
-
-//______________________________________________________________________________
-Int_t XMLToForm::GetSelectedIndex(const char* label) const
-{
-   return GetIndex(label);
-}
-
-//______________________________________________________________________________
-Bool_t XMLToForm::IsChecked(const char* label) const
-{
-   if (!strcmp(GetValue(label),"true")) {
-      return true;
-   }
-   return false;
 }
 
 //______________________________________________________________________________
