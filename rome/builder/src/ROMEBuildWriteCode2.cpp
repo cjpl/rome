@@ -630,6 +630,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 
       subGroup->GetLastParameter()->AddComboBoxEntry("offline");
       subGroup->GetLastParameter()->AddComboBoxEntry("online");
+
       // Modes/DAQSystem
       subGroup->AddParameter(new ROMEConfigParameter("DAQSystem","1","ComboBox"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
@@ -731,26 +732,30 @@ Bool_t ROMEBuilder::AddConfigParameters()
       mainParGroup->AddSubGroup(subGroup);
       // InputFilePath
       subGroup->AddParameter(new ROMEConfigParameter("InputFilePath"));
-      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, subGroup->GetGroupName());
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
       subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetInputDir(##);");
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetInputDir();");
       // OutputFilePath
       subGroup->AddParameter(new ROMEConfigParameter("OutputFilePath"));
-      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, subGroup->GetGroupName());
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
       subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputDir(##);");
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputDir();");
       // OutputFileOption
-      subGroup->AddParameter(new ROMEConfigParameter("OutputFileOption"));
-      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, subGroup->GetGroupName());
+      subGroup->AddParameter(new ROMEConfigParameter("OutputFileOption","1","ComboBox"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputFileOption(##);");
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputFileOption();");
+      subGroup->GetLastParameter()->AddComboBoxEntry("RECREATE");
+      subGroup->GetLastParameter()->AddComboBoxEntry("UPDATE");
+      subGroup->GetLastParameter()->AddComboBoxEntry("NUMBERED");
+
       // MakeOutputDirectory
       subGroup->AddParameter(new ROMEConfigParameter("MakeOutputDirectory","1","CheckButton"));
-      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, subGroup->GetGroupName());
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetMakeOutputDirectory(## == \"true\");");
       subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isMakeOutputDirectory()?1:0];");
    }
@@ -1162,7 +1167,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
                subSubSubGroup->AddSubGroup(subSubSubSubGroup);
                // Active
                subSubSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-               subSubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Branch");
+               subSubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Branch");
                subSubSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
                subSubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchActiveAt(%d, ## != \"false\");",
                                                                  i, j);
@@ -1292,7 +1297,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubGroup->AddSubGroup(subSubSubGroup);
             // Active
             subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,
                                                             subSubSubGroup->GetGroupName());
             subSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerActive(## == \"true\");");
             subSubSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsControllerActive()?1:0];");
@@ -1331,7 +1336,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subGroup->AddSubGroup(subSubGroup);
          // Active
          subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "NetFolder");
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "NetFolder");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderActive(%d, ## == \"true\");",i);
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetNetFolderActive(%d)?1:0];",
                                                        i);
@@ -1427,7 +1432,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Event");
          subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
          subGroup->AddSubGroup(subSubGroup);
-         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Event");
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Event");
          subSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sEventActive(## == \"true\");",
                                                      eventName[i].Data());
@@ -1447,7 +1452,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Bank");
             subSubSubGroup->SetWriteEmptyLine(kFALSE);
             subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Bank");
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Bank");
             subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
             subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetMidasDAQ()->Set%sBankActive(## == \"true\");",
                                                            bankAlias[i][j].Data());
@@ -1489,7 +1494,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
       subGroup->SetComment(ROMEConfig::kCommentLevelObj, taskShortDescription[taskHierarchyClassIndex[i]]);
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Task");
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Task");
       subGroup->GetLastParameter()->SetDeclaration("%sT%s_Base *taskObject%d = static_cast<%sT%s_Base*>(gAnalyzer->GetTaskObjectAt(%d));",
                                                    shortCut.Data(), taskName[taskHierarchyClassIndex[i]].Data(), taskHierarchyObjectIndex[i],
                                                    shortCut.Data(), taskName[taskHierarchyClassIndex[i]].Data(), taskHierarchyObjectIndex[i]);
@@ -1853,7 +1858,7 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
 
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
-      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Tab");
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
       subGroup->GetLastParameter()->SetDeclaration("%sT%s_Base *tabObject%d = static_cast<%sT%s_Base*>(gAnalyzer->GetWindow()->GetTabObjectAt(%d));",
                                                    shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab],
                                                    shortCut.Data(), tabName[iTab].Data(), tabUsedIndex[iTab]);
