@@ -1445,7 +1445,7 @@ void ROMEEventLoop::ReadHistograms()
    ROMEString histDirName;
    Int_t histDirNumber;
    TDirectory *histDirTmp;
-   TDirectory *histDir;
+   TDirectory *histDir = 0;
 
    for (ii = 0; ii < runNumbers.GetSize(); ii++) {
       filename.SetFormatted("%s%s%05d.root", gROME->GetHistosPath(), "histos", static_cast<Int_t>(runNumbers.At(ii)));
