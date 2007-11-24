@@ -661,7 +661,7 @@ Bool_t ROMEEventLoop::DAQInit()
                   path += "/"; // trailing "/" is needed to work mkdir() correctly.
                   gSystem->mkdir(path.Data(), kTRUE);
                }
-               file = new TFile(filename.Data(), "RECREATE");
+               file = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
                if (!file || file->IsZombie()) {
                   return false;
                }
@@ -793,7 +793,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
                      path += "/"; // trailing "/" is needed to work mkdir() correctly.
                      gSystem->mkdir(path.Data(), kTRUE);
                   }
-                  file = new TFile(filename.Data(), "RECREATE");
+                  file = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
                   if (!file || file->IsZombie()) {
                      return false;
                   }
@@ -1258,15 +1258,22 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    gROME->GetCurrentRunNumberString(runNumberString);
    filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
    gROME->ReplaceWithRunAndEventNumber(filename);
-   fHistoFile = new TFile(filename.Data(), "RECREATE");
+   fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
    ROMEString histoDirectoryName;
+
+   ROMEString histDirName = "histos";
+   Int_t histDirNumber = 1;
 
    if (fHistoFile && !fHistoFile->IsZombie()) {
       fHistoFile->cd();
+
+      while (fHistoFile->Get(histDirName.Data())) {
+         histDirName.SetFormatted("histos-%d", histDirNumber++);
+      }
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
-      TDirectory *directory = new TDirectory("histos", "Histogram Directory");
+      TDirectory *directory = new TDirectory(histDirName.Data(), "Histogram Directory");
 #else
-      TDirectory *directory = new TDirectoryFile("histos", "Histogram Directory");
+      TDirectory *directory = new TDirectoryFile(histDirName.Data(), "Histogram Directory");
 #endif
       TObjArray *directories = new TObjArray();
       gROME->ConstructHistoDirectories(directory,directories);
@@ -1309,7 +1316,7 @@ delete [] directories;
             if (romeTree->isSaveConfig()) {
                gROME->SaveConfigParametersFolder();
             }
-            if (tree->Write(0, TObject::kOverwrite) == 0) {
+            if (tree->Write() == 0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
@@ -1366,7 +1373,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             ROMEPrint::Print("\nWriting Root-File %s\n", romeTree->GetFileName().Data());
-            if (tree->Write(0, TObject::kOverwrite) == 0) {
+            if (tree->Write()) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
@@ -1435,6 +1442,11 @@ void ROMEEventLoop::ReadHistograms()
 
    histoRuns = gROME->GetHistosRun();
    gROME->DecodeNumbers(histoRuns, runNumbers);
+   ROMEString histDirName;
+   Int_t histDirNumber;
+   TDirectory *histDirTmp;
+   TDirectory *histDir;
+
    for (ii = 0; ii < runNumbers.GetSize(); ii++) {
       filename.SetFormatted("%s%s%05d.root", gROME->GetHistosPath(), "histos", static_cast<Int_t>(runNumbers.At(ii)));
       gROME->ReplaceWithRunAndEventNumber(filename);
@@ -1445,7 +1457,15 @@ void ROMEEventLoop::ReadHistograms()
           ROMEPrint::Warning("No Histogram loaded!\n\n");
           return;
       }
-      file->FindObjectAny("histos");
+
+      histDirName = "histos";
+      histDirNumber = 1;
+      histDirNumber = 0;
+      while ((histDirTmp = static_cast<TDirectory*>(fHistoFile->Get(histDirName.Data())))) {
+         histDir = histDirTmp;
+         histDirName.SetFormatted("histos-%d", histDirNumber++);
+      }
+
       for (i = 0; i < gROME->GetTaskObjectEntries(); i++) {
          task = gROME->GetTaskObjectAt(i);
          if (task->IsActive()) {
@@ -1457,7 +1477,7 @@ void ROMEEventLoop::ReadHistograms()
                      if (histoPar->GetArraySize() > 1) {
                         name.AppendFormatted("_%0*d", 3, k + histoPar->GetArrayStartIndex());
                      }
-                     tempHisto = static_cast<TObject*>(file->FindObjectAny(name.Data()));
+                     tempHisto = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
                      if (tempHisto == 0) {
                         ROMEPrint::Warning("Histogram '%s' not available in run "R_LLD"!\n", task->GetHistoNameAt(j)->Data(),
                                            runNumbers.At(ii));
@@ -1482,4 +1502,53 @@ void ROMEEventLoop::ReadHistograms()
          }
       }
    }
+}
+
+//______________________________________________________________________________
+TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const char *ftitle, Int_t compress)
+{
+   Int_t num = 1;
+   Int_t extPos ,pos;
+
+   ROMEString filename = fname;
+   TString opt = option;
+   opt.ToLower();
+
+   if (opt.Contains("numbered")) {
+      ROMEString filenameOrg = filename;
+
+      // Find extension
+      extPos = 0;
+      pos = filenameOrg.Length() - 1;
+      while (pos > 0) {
+         if (filenameOrg[pos] == '.') {
+            extPos = pos;
+            break;
+         }
+         if (filenameOrg[pos] == '/'
+#if defined( R__VISUAL_CPLUSPLUS )
+             || filenameOrg[pos] == '\\'
+#endif
+             ) {
+            extPos = -1;
+            break;
+         }
+         pos--;
+      }
+
+      // Try to find a suitable file name that does not already exist.
+      while (!gSystem->AccessPathName(filename.Data())) {
+         if (extPos > 0) {
+            ROMEString tmp1 = filenameOrg(0, extPos);
+            ROMEString tmp2 = filenameOrg(extPos + 1, filenameOrg.Length());
+            filename.SetFormatted("%s-%d.%s", tmp1.Data() , num, tmp2.Data());
+         } else {
+            filename.SetFormatted("%s-%d", filenameOrg.Data(), num);
+         }
+         num++;
+      }
+      opt = "RECREATE";
+   }
+
+   return new TFile(filename.Data(), opt.Data(), ftitle, compress);
 }
