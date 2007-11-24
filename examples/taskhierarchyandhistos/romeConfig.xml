@@ -47,6 +47,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <InputFilePath>./</InputFilePath>
       <!-- The path of all output files. (optional) -->
       <OutputFilePath>./</OutputFilePath>
+      <!-- Specify option to open output files for trees and histograms. This should be RECREATE, UPDATE or NUMBERED. When this is NUMBERED, the program will create a new file with appending a number at the end of file name, when it finds existing file. (optional) -->
+      <OutputFileOption>RECREATE</OutputFileOption>
+      <!-- Make file system directories for output files. -->
+      <MakeOutputDirectory>false</MakeOutputDirectory>
     </Paths>
 
     <Common>
@@ -102,6 +106,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Read>false</Read>
         <!-- Run number of the required histogram/graph file. (required) -->
         <RunNumber>0</RunNumber>
+        <!-- directory path to read histogram/graph file. (optional) -->
         <Path></Path>
       </HistogramRead>
 
@@ -166,6 +171,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <StatusBar>true</StatusBar>
         <!-- Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0. -->
         <UpdateFrequency>200</UpdateFrequency>
+        <!-- Use ListTree to select displays rather than tabs. -->
         <ListTreeView>false</ListTreeView>
         <AnalyzerController>
           <!-- Description of the Analyzer Contoller Settings. -->

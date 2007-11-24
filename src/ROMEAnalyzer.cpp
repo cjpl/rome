@@ -120,6 +120,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fSkipEvent(kFALSE)
 ,fInputDir("./")
 ,fOutputDir("./")
+,fOutputFileOption("RECREATE")
 ,fDataBaseDir(0)
 ,fConfigDir("./")
 ,fMakeOutputDirectory(kFALSE)

@@ -743,6 +743,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputDir(##);");
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputDir();");
+      // OutputFileOption
+      subGroup->AddParameter(new ROMEConfigParameter("OutputFileOption"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, subGroup->GetGroupName());
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputFileOption(##);");
+      subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputFileOption();");
       // MakeOutputDirectory
       subGroup->AddParameter(new ROMEConfigParameter("MakeOutputDirectory","1","CheckButton"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, subGroup->GetGroupName());

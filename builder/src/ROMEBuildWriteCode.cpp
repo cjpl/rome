@@ -5276,7 +5276,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sAnalyzer::SaveConfigParametersFolder() const\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   f%sConfigParametersFolder->Write(\"%sConfigParameters\", TObject::kOverwrite);\n",
+   buffer.AppendFormatted("   f%sConfigParametersFolder->Write(\"%sConfigParameters\");\n",
                           mainProgName.Data(),mainProgName.Data());
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -10743,10 +10743,10 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
             if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
-               buffer.AppendFormatted("            gAnalyzer->Get%s()->Write(\"%s\", TObject::kOverwrite);\n",
+               buffer.AppendFormatted("            gAnalyzer->Get%s()->Write(\"%s\");\n",
                                       runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
             } else {
-               buffer.AppendFormatted("            gAnalyzer->Get%ss()->Write(\"%s\", TObject::kOverwrite | TObject::kSingleKey);\n",
+               buffer.AppendFormatted("            gAnalyzer->Get%ss()->Write(\"%s\", TObject::kSingleKey);\n",
                                       runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
             }
          }
