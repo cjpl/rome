@@ -1316,7 +1316,7 @@ delete [] directories;
             if (romeTree->isSaveConfig()) {
                gROME->SaveConfigParametersFolder();
             }
-            if (tree->Write() == 0) {
+            if (tree->Write(0, gROME->GetOutputObjOption()) == 0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
@@ -1373,7 +1373,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             ROMEPrint::Print("\nWriting Root-File %s\n", romeTree->GetFileName().Data());
-            if (tree->Write()) {
+            if (tree->Write(0, gROME->GetOutputObjOption())) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
@@ -1511,10 +1511,9 @@ TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const cha
    Int_t extPos ,pos;
 
    ROMEString filename = fname;
-   TString opt = option;
-   opt.ToLower();
+   ROMEString opt = option;
 
-   if (opt.Contains("numbered")) {
+   if (opt.Contains("NUMBERED")) {
       ROMEString filenameOrg = filename;
 
       // Find extension

@@ -133,6 +133,7 @@ protected:
    ROMEString     fInputDir;                     //! General Input Directory
    ROMEString     fOutputDir;                    //! General Output Directory
    ROMEString     fOutputFileOption;             //! General Output File Option
+   Int_t          fOutputObjOption;              //! General Write Option
    ROMEString    *fDataBaseDir;                  //! Data Base File Directories
    ROMEString     fConfigDir;                    //! Configuration File Directory
    Bool_t         fMakeOutputDirectory;          //! Flag if create directory for output file
@@ -337,6 +338,7 @@ public:
    const char     *GetInputDir() const            { return fInputDir.Data(); }
    const char     *GetOutputDir() const           { return fOutputDir.Data(); }
    const char     *GetOutputFileOption() const    { return fOutputFileOption.Data(); }
+   Int_t           GetOutputObjOption() const     { return fOutputObjOption; }
    const char     *GetDataBaseDir(Int_t i) const  { return fDataBaseDir[i].Data(); }
    const char     *GetConfigDir() const           { return fConfigDir.Data(); }
    const ROMEString &GetInputDirString() const           { return fInputDir; }
@@ -348,8 +350,17 @@ public:
    void            SetInputDir(ROMEString &dir) { fInputDir = dir; }
    void            SetOutputDir(const char *dir) { fOutputDir = dir; }
    void            SetOutputDir(ROMEString &dir) { fOutputDir = dir; }
-   void            SetOutputFileOption(const char *opt) { fOutputFileOption = opt; }
-   void            SetOutputFileOption(ROMEString &opt) { fOutputFileOption = opt; }
+   void            SetOutputFileOption(const char *opt) { SetOutputFileOption(ROMEString(opt)); }
+   void            SetOutputFileOption(ROMEString &opt)
+   {
+      opt.ToUpper();
+      if (opt == "UPDATE") {
+         fOutputObjOption = 0;
+      } else {
+         fOutputObjOption = TObject::kOverwrite;
+      }
+      fOutputFileOption = opt;
+   }
    void            SetDataBaseDir(Int_t i,const char *dir) { fDataBaseDir[i] = dir; }
    void            SetDataBaseDir(Int_t i,ROMEString &dir) { fDataBaseDir[i] = dir; }
    void            SetConfigDir(const char *dir) { fConfigDir = dir; }
