@@ -1102,11 +1102,11 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
          directory->cd();
          if (!fHistoArray[i]) {
             ROMEPrint::Debug("Writing histo %s:%s\n", GetName(), fHisto->At(i)->GetName());
-            fHisto->At(i)->Write();
+            fHisto->At(i)->Write(0, gROME->GetOutputObjOption());
          } else {
             for (j = 0; j < static_cast<TObjArray*>(fHisto->At(i))->GetEntries(); j++) {
                ROMEPrint::Debug("Writing histo %s:%s\n", GetName(), static_cast<TObjArray*>(fHisto->At(i))->At(j)->GetName());
-               static_cast<TObjArray*>(fHisto->At(i))->At(j)->Write();
+               static_cast<TObjArray*>(fHisto->At(i))->At(j)->Write(0, gROME->GetOutputObjOption());
             }
          }
       }
@@ -1133,11 +1133,11 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
          directory->cd();
          if (!fGraphArray[i]) {
             ROMEPrint::Debug("Writing graph %s:%s\n", GetName(), fGraph->At(i)->GetName());
-            fGraph->At(i)->Write();
+            fGraph->At(i)->Write(0, gROME->GetOutputObjOption());
          } else {
             for (j = 0; j < static_cast<TObjArray*>(fGraph->At(i))->GetEntries(); j++) {
                ROMEPrint::Debug("Writing graph %s:%s\n", GetName(), static_cast<TObjArray*>(fGraph->At(i))->At(j)->GetName());
-               static_cast<TObjArray*>(fGraph->At(i))->At(j)->Write();
+               static_cast<TObjArray*>(fGraph->At(i))->At(j)->Write(0, gROME->GetOutputObjOption());
             }
          }
       }
