@@ -11736,7 +11736,7 @@ void ROMEBuilder::WriteHTMLDoku()
       if (numOfHistos[i]>0) {
          buffer.AppendFormatted("This task containes the following histograms :\n");
          buffer.AppendFormatted("<table>\n");
-         bool trodd = true;
+         trodd = true;
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Description</td></tr>\n");
          for (j = 0; j < numOfHistos[i]; j++) {
             buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",
