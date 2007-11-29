@@ -1,4 +1,4 @@
-// Author: Matthias Schneebeli
+i// Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
 //
 //  ROMEMidasDAQ
@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <io.h>
 #   include <SYS\STAT.H>
@@ -212,10 +214,13 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
          gzfilename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), gzfileExtension.Data());
          gROME->ReplaceWithRunAndEventNumber(gzfilename);
          fMidasFileHandle = open(filename.Data(), O_RDONLY_BINARY);
+         Int_t ret =  errno;
          if (fMidasFileHandle == -1) {
             fMidasGzFileHandle = gzopen(gzfilename.Data(), "rb");
+            Int_t gzret =  errno;
             if (fMidasGzFileHandle == 0) {
-               ROMEPrint::Error("Failed to open input file '%s[.gz]'.\n", filename.Data());
+               ROMEPrint::Error("Failed to open input file '%s' : %s \n", filename.Data(), strerror(ret));
+               ROMEPrint::Error("Failed to open input file '%s' : %s \n", gzfilename.Data(), strerror(gzret));
                return kFALSE;
             }
             fGZippedMidasFile = kTRUE;
