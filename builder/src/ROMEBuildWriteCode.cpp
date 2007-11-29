@@ -12822,9 +12822,11 @@ Bool_t ROMEBuilder::WritePrecompiledHeaders()
       WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
       headerDescription.AppendFormatted("Header including headers to be precompiled.\n\n");
       WriteDescription(buffer, gSystem->BaseName(hFile.Data()), headerDescription.Data(), false);
-      buffer.AppendFormatted("\n\n");
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("#ifndef %s_H\n",fileName.Data());
       buffer.AppendFormatted("#define %s_H\n",fileName.Data());
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("#define _FILE_OFFSET_BITS 64\n");
       buffer.AppendFormatted("\n");
       for (j = 0; j < strarray[i]->GetEntriesFast(); j++)
          buffer.AppendFormatted("#include \"%s\"\n", strarray[i]->At(j).Data());
