@@ -1,4 +1,4 @@
-i// Author: Matthias Schneebeli
+// Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
 //
 //  ROMEMidasDAQ
@@ -8,6 +8,9 @@ i// Author: Matthias Schneebeli
 //  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
+
+#define _FILE_OFFSET_BITS 64
+
 #include <RConfig.h>
 #include <stdlib.h>
 #include <errno.h>
