@@ -12,7 +12,7 @@
 Includes = /I$(ROOTSYS)/include/ /I$(ROMESYS)/include/ /I$(ROMESYS)/builder/include/
 DictIncludes = -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/
 Libraries = $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libCint.lib
-Flags = /GX /GR 
+Flags = /EHsc /GR /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 
 BldObjects = obj/ROMEBuilder.obj \
 	  obj/ROMEBuildReadXML.obj \

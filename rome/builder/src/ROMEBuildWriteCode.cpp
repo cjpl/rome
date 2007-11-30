@@ -2998,7 +2998,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                }
             }
          }
-         for (j = 0; j < numOfMenu[tabHeredityIndex[iTab]]; j++) {
+         for (j = 0; j < numOfMenu[iTab]; j++) {
             if (menuDepth[iTab][j] == 1) {
                if (!AddMenuItems(buffer, iTab, j, iTab, j, 0)) {
                   return kFALSE;
@@ -3851,7 +3851,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                }
             }
          }
-         for (j = 0; j < numOfMenu[tabHeredityIndex[iTab]]; j++) {
+         for (j = 0; j < numOfMenu[iTab]; j++) {
             if (menuDepth[iTab][j] == 1) {
                buffer.AppendFormatted("   fWindow->GetMenuBar()->AddPopup(\"%s\", GetUserPopupMenuAt(%d),\n", menuTitle[iTab][j].Data(), j);
                buffer.AppendFormatted("                                   new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");

@@ -43,7 +43,7 @@ protected:
       kNumberOfDisplayViewSelections0 = 30,
       kNumberOfDisplayViewSelections1 = 10,
       kNumberOfDisplayViewSelections2 = 10,
-      kMaxNumberOfLines = 20
+      kMaxNumberOfLines = 41
    };
    enum MenuEnumeration {
       M_ROOT = 900,

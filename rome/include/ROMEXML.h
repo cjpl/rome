@@ -65,13 +65,13 @@ public:
    // write
    Bool_t      OpenFileForWrite(const char* file);
    Int_t       SetTranslate(Int_t flag) const { return mxml_set_translate(fWriter, flag); }
-   Bool_t      StartElement(const char* name) const { return mxml_start_element(fWriter, name); }
-   Bool_t      EndElement() const { return mxml_end_element(fWriter); }
-   Bool_t      EndDocument() const { return mxml_close_file(fWriter); }
-   Bool_t      WriteAttribute(const char* name, const char* value) const { return mxml_write_attribute(fWriter, name, value); }
+   Bool_t      StartElement(const char* name) const { return mxml_start_element(fWriter, name)!=0; }
+   Bool_t      EndElement() const { return mxml_end_element(fWriter)!=0; }
+   Bool_t      EndDocument() const { return mxml_close_file(fWriter)!=0; }
+   Bool_t      WriteAttribute(const char* name, const char* value) const { return mxml_write_attribute(fWriter, name, value)!=0; }
    Bool_t      WriteElement(const char* name, const char* value) const;
-   Bool_t      WriteValue(const char* value) const { return mxml_write_value(fWriter, value); }
-   Bool_t      WriteComment(const char* text) const { return mxml_write_comment(fWriter, text); }
+   Bool_t      WriteValue(const char* value) const { return mxml_write_value(fWriter, value)!=0; }
+   Bool_t      WriteComment(const char* text) const { return mxml_write_comment(fWriter, text)!=0; }
    static void SuppressWritingDate(Bool_t suppress = kTRUE) { mxml_suppress_date(suppress ? 1 : 0); }
    Bool_t      WriteEmptyLine() const { return mxml_write_empty_line(fWriter) != 0; }
 
