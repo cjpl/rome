@@ -42,11 +42,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #else
-#   if defined( R__SEEK64 )
-#      define O_RDONLY_BINARY O_RDONLY | O_LARGEFILE
-#   else
-#      define O_RDONLY_BINARY O_RDONLY
-#   endif
+#   define O_RDONLY_BINARY O_RDONLY
 #endif
 
 const Int_t kFilePositionsResizeIncrement = 100000;
