@@ -55,6 +55,8 @@ protected:
    ROMEString    *fGraphType;          //!
    Int_t         *fGraphDimension;     //!
    Bool_t        *fGraphArray;         //!
+   Int_t          fInitTerminateState; //!
+   Int_t          fBorEorState;        //!
 
 private:
    ROMETask(const ROMETask &task); // not implemented

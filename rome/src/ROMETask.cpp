@@ -73,6 +73,8 @@ ROMETask::ROMETask()
 ,fGraphType(0)
 ,fGraphDimension(0)
 ,fGraphArray(0)
+,fInitTerminateState(0)
+,fBorEorState(0)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
@@ -103,6 +105,8 @@ ROMETask::ROMETask(const char *name, const char *title, Int_t level, Int_t versi
 ,fGraph(new TObjArray(numberOfGraphs))
 ,fGraphStorage(new TObjArray(numberOfGraphs))
 ,fGraphParameter(new TObjArray(numberOfGraphs))
+,fInitTerminateState(0)
+,fBorEorState(0)
 {
    fWatchAll.Reset();
    fWatchUserEvent.Reset();
@@ -124,64 +128,94 @@ void ROMETask::Exec(Option_t *option)
    Int_t usedMemoryDifference;
 #endif
    if (!strncmp(option, "Terminate", 9)) {
-      fCurrentEventMethod = "Terminate";
-      ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
-      Terminate();
+      if (fInitTerminateState != 1) {
+         ROMEPrint::Warning("Terminate is called twice, or called before Init");
+      } else {
+         fInitTerminateState--;
+         fCurrentEventMethod = "Terminate";
+         ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
+         Terminate();
+      }
    }
    if (gROME->isTerminationFlag() || gROME->IsSkipEvent()) {
       return;
    }
    fWatchAll.Start(false);
    if (!strncmp(option, "Init", 4)) {
-      fCurrentEventMethod = "Init";
-      BookHisto();
-      BookGraph();
-      ROMEPrint::Debug("Executing %s::Init\n", ClassName());
-      Init();
+      if (fInitTerminateState != 0) {
+         ROMEPrint::Warning("Init is called twice, or called before Terminate");
+      } else {
+         fInitTerminateState++;
+         fCurrentEventMethod = "Init";
+         BookHisto();
+         BookGraph();
+         ROMEPrint::Debug("Executing %s::Init\n", ClassName());
+         Init();
+      }
    } else if (!strncmp(option, "BeginOfRun", 10)) {
-      fCurrentEventMethod = "BeginOfRun";
-      fSkippedEvents = 0;
+      if (fBorEorState != 0 || fInitTerminateState != 1) {
+         if (fBorEorState != 0) {
+            ROMEPrint::Warning("BeginOfRun is called twice, or called before EndOfRun");
+         } else {
+            ROMEPrint::Warning("BeginOfRun is called before Init or after Terminate.");
+         }
+      } {
+         fBorEorState++;
+         fCurrentEventMethod = "BeginOfRun";
+         fSkippedEvents = 0;
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
-      fMemoryAccumulated = 0;
-      if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
-         gSystem->GetMemInfo(&mem);
-         usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
-      }
+         fMemoryAccumulated = 0;
+         if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
+            gSystem->GetMemInfo(&mem);
+            usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
+         }
 #endif
-      ReBookHisto();
-      ReBookGraph();
-      ResetHisto();
-      ResetGraph();
-      ROMEPrint::Debug("Executing %s::BeginOfRun\n", ClassName());
-      BeginOfRun();
+         ReBookHisto();
+         ReBookGraph();
+         ResetHisto();
+         ResetGraph();
+         ROMEPrint::Debug("Executing %s::BeginOfRun\n", ClassName());
+         BeginOfRun();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
-      if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
-         gSystem->GetMemInfo(&mem);
-         usedMemoryDifference = mem.fMemUsed + mem.fSwapUsed - usedMemoryOld;
-         fMemoryAccumulated += usedMemoryDifference;
-         ROMEPrint::Debug("Memory allocated during %-28s               : %4d MB\n", ClassName(), usedMemoryDifference);
-         ROMEPrint::Debug("Memory allocated during %-28s (Accumulated) : %4d MB\n", ClassName(), fMemoryAccumulated);
-      }
+         if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
+            gSystem->GetMemInfo(&mem);
+            usedMemoryDifference = mem.fMemUsed + mem.fSwapUsed - usedMemoryOld;
+            fMemoryAccumulated += usedMemoryDifference;
+            ROMEPrint::Debug("Memory allocated during %-28s               : %4d MB\n", ClassName(),
+                             usedMemoryDifference);
+            ROMEPrint::Debug("Memory allocated during %-28s (Accumulated) : %4d MB\n", ClassName(),
+                             fMemoryAccumulated);
+         }
 #endif
+      }
    } else if (!strncmp(option, "EndOfRun", 8)) {
-      fCurrentEventMethod = "EndOfRun";
-      ROMEPrint::Debug("Executing %s::EndOfRun\n", ClassName());
+      if (fBorEorState != 1 || fInitTerminateState != 1) {
+         if (fBorEorState != 1) {
+            ROMEPrint::Warning("EndOfRun is called twice, or called before BeginOfRun");
+         } else {
+            ROMEPrint::Warning("EndOfRun is called before Init or after Terminate.");
+         }
+      } else {
+         fBorEorState--;
+         fCurrentEventMethod = "EndOfRun";
+         ROMEPrint::Debug("Executing %s::EndOfRun\n", ClassName());
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
-      if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
-         gSystem->GetMemInfo(&mem);
-         usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
-      }
+         if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
+            gSystem->GetMemInfo(&mem);
+            usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
+         }
 #endif
-      EndOfRun();
+         EndOfRun();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
-      if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
-         gSystem->GetMemInfo(&mem);
-         usedMemoryDifference = mem.fMemUsed + mem.fSwapUsed - usedMemoryOld;
-         fMemoryAccumulated += usedMemoryDifference;
-         ROMEPrint::Debug("Memory allocated during %-28s               : %4d MB\n", ClassName(), usedMemoryDifference);
-         ROMEPrint::Debug("Memory allocated during %-28s (Accumulated) : %4d MB\n", ClassName(), fMemoryAccumulated);
-      }
+         if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
+            gSystem->GetMemInfo(&mem);
+            usedMemoryDifference = mem.fMemUsed + mem.fSwapUsed - usedMemoryOld;
+            fMemoryAccumulated += usedMemoryDifference;
+            ROMEPrint::Debug("Memory allocated during %-28s               : %4d MB\n", ClassName(), usedMemoryDifference);
+            ROMEPrint::Debug("Memory allocated during %-28s (Accumulated) : %4d MB\n", ClassName(), fMemoryAccumulated);
+         }
 #endif
+      }
    } else if (!strncmp(option, "Time", 4)) {
       Int_t i;
       ROMEString name;
@@ -227,29 +261,39 @@ void ROMETask::Exec(Option_t *option)
       }
    } else if (!strncmp(option, "Event", 5) && (strtol(option + 5, &cstop, 10) == fEventID ||
                                                fEventID == -1 || strtol(option + 5, &cstop, 10) == -1)) {
-      fCurrentEventMethod = "Event";
-      ROMEPrint::Debug("Executing %s::Event\n", ClassName());
-      Bool_t fillEventOld = gROME->isFillEvent();
+      if (fBorEorState != 1 || fInitTerminateState != 1) {
+         if (fBorEorState != 1) {
+            ROMEPrint::Warning("Event is called before BeginOfRun or after EndOfRun.");
+         } else {
+            ROMEPrint::Warning("Event is called before Init or after Terminate.");
+         }
+      } else {
+         fCurrentEventMethod = "Event";
+         ROMEPrint::Debug("Executing %s::Event\n", ClassName());
+         Bool_t fillEventOld = gROME->isFillEvent();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
-      if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
-         gSystem->GetMemInfo(&mem);
-         usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
-      }
+         if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
+            gSystem->GetMemInfo(&mem);
+            usedMemoryOld = mem.fMemUsed + mem.fSwapUsed;
+         }
 #endif
-      fWatchUserEvent.Start(false);
-      Event();
-      fWatchUserEvent.Stop();
+         fWatchUserEvent.Start(false);
+         Event();
+         fWatchUserEvent.Stop();
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,14,0))
-      if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
-         gSystem->GetMemInfo(&mem);
-         usedMemoryDifference = mem.fMemUsed + mem.fSwapUsed - usedMemoryOld;
-         fMemoryAccumulated += usedMemoryDifference;
-         ROMEPrint::Debug("Memory allocated during %-28s               : %4d MB\n", ClassName(), usedMemoryDifference);
-         ROMEPrint::Debug("Memory allocated during %-28s (Accumulated) : %4d MB\n", ClassName(), fMemoryAccumulated);
-      }
+         if (ROMEPrint::GetVerboseLevel() >= ROMEPrint::kDebug) {
+            gSystem->GetMemInfo(&mem);
+            usedMemoryDifference = mem.fMemUsed + mem.fSwapUsed - usedMemoryOld;
+            fMemoryAccumulated += usedMemoryDifference;
+            ROMEPrint::Debug("Memory allocated during %-28s               : %4d MB\n", ClassName(),
+                             usedMemoryDifference);
+            ROMEPrint::Debug("Memory allocated during %-28s (Accumulated) : %4d MB\n", ClassName(),
+                             fMemoryAccumulated);
+         }
 #endif
-      if (fillEventOld && !gROME->isFillEvent()) {
-         fSkippedEvents++;
+         if (fillEventOld && !gROME->isFillEvent()) {
+            fSkippedEvents++;
+         }
       }
    }
    fWatchAll.Stop();
