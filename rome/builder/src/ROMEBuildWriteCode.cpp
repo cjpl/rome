@@ -5822,7 +5822,7 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
       buffer.AppendFormatted("      if (str != writeString) {\n");
       buffer.AppendFormatted("         configHisto->fHist%sModified = true;\n",histoParameters->At(i).Data());
       buffer.AppendFormatted("         configHisto->fHist%s = str;\n",histoParameters->At(i).Data());
-      if (histoParameters->At(i)=="Active" || histoParameters->At(i)=="Write")
+      if (histoParameterTypes->At(i) == "bool")
          buffer.AppendFormatted("         histo->Set%s(str == \"true\");\n",histoParameters->At(i).Data());
       else
          buffer.AppendFormatted("         histo->Set%s(str);\n",histoParameters->At(i).Data());
