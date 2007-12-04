@@ -1461,7 +1461,7 @@ void ROMEEventLoop::ReadHistograms()
       histDirName = "histos";
       histDirNumber = 1;
       histDirNumber = 0;
-      while ((histDirTmp = static_cast<TDirectory*>(fHistoFile->Get(histDirName.Data())))) {
+      while ((histDirTmp = static_cast<TDirectory*>(file->FindObjectAny(histDirName.Data())))) {
          histDir = histDirTmp;
          histDirName.SetFormatted("histos-%d", histDirNumber++);
       }
