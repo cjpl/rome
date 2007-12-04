@@ -129,7 +129,9 @@ void ROMETask::Exec(Option_t *option)
 #endif
    if (!strncmp(option, "Terminate", 9)) {
       if (fInitTerminateState != 1) {
+#if 0
          ROMEPrint::Warning("Terminate is called twice, or called before Init");
+#endif
       } else {
          fInitTerminateState--;
          fCurrentEventMethod = "Terminate";
@@ -143,7 +145,9 @@ void ROMETask::Exec(Option_t *option)
    fWatchAll.Start(false);
    if (!strncmp(option, "Init", 4)) {
       if (fInitTerminateState != 0) {
+#if 0
          ROMEPrint::Warning("Init is called twice, or called before Terminate");
+#endif
       } else {
          fInitTerminateState++;
          fCurrentEventMethod = "Init";
@@ -155,9 +159,11 @@ void ROMETask::Exec(Option_t *option)
    } else if (!strncmp(option, "BeginOfRun", 10)) {
       if (fBorEorState != 0 || fInitTerminateState != 1) {
          if (fBorEorState != 0) {
+#if 0
             ROMEPrint::Warning("BeginOfRun is called twice, or called before EndOfRun");
          } else {
             ROMEPrint::Warning("BeginOfRun is called before Init or after Terminate.");
+#endif
          }
       } {
          fBorEorState++;
@@ -191,9 +197,11 @@ void ROMETask::Exec(Option_t *option)
    } else if (!strncmp(option, "EndOfRun", 8)) {
       if (fBorEorState != 1 || fInitTerminateState != 1) {
          if (fBorEorState != 1) {
+#if 0
             ROMEPrint::Warning("EndOfRun is called twice, or called before BeginOfRun");
          } else {
             ROMEPrint::Warning("EndOfRun is called before Init or after Terminate.");
+#endif
          }
       } else {
          fBorEorState--;
@@ -262,11 +270,13 @@ void ROMETask::Exec(Option_t *option)
    } else if (!strncmp(option, "Event", 5) && (strtol(option + 5, &cstop, 10) == fEventID ||
                                                fEventID == -1 || strtol(option + 5, &cstop, 10) == -1)) {
       if (fBorEorState != 1 || fInitTerminateState != 1) {
+#if 0
          if (fBorEorState != 1) {
             ROMEPrint::Warning("Event is called before BeginOfRun or after EndOfRun.");
          } else {
             ROMEPrint::Warning("Event is called before Init or after Terminate.");
          }
+#endif
       } else {
          fCurrentEventMethod = "Event";
          ROMEPrint::Debug("Executing %s::Event\n", ClassName());
