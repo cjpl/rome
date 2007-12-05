@@ -247,7 +247,9 @@ Bool_t ROMEMidasDAQ::BeginOfRun()
             return kFALSE;
          }
       }
-      SetAnalyze();
+      if (!isEndOfRun()) {
+         SetAnalyze();
+      }
    }
    return kTRUE;
 }
