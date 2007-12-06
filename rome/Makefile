@@ -308,7 +308,7 @@ obj:
 
 dict: $(DICTIONARIES)
 
-bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
+bin/romebuilder.exe: builder/src/main.cpp include/ROMEVersion.h $(BldObjects)
 	$(call romeechoing, "linking   $@")
 	$(Q)$(CXXLD) $(LDFLAGS) $(ROMEBLD_FLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
