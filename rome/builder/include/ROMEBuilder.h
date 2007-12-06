@@ -834,6 +834,7 @@ private:
    ROMEString& ProcessCommentCPP(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentHTML(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentString(ROMEString& org, ROMEString& result);
+   ROMEString& ProcessAddressHTML(ROMEString& org, ROMEString& result);
 
    ROMEString& ParseDependences(ROMEString& org, ROMEString& result);
 };

@@ -4894,6 +4894,37 @@ ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& resul
 }
 
 //______________________________________________________________________________
+ROMEString& ROMEBuilder::ProcessAddressHTML(ROMEString& org, ROMEString& result)
+{
+   result = org;
+#if 0
+   result.ReplaceAll(" ", "%20");
+   result.ReplaceAll("~", "%7E");
+#if 0
+   result.ReplaceAll(":", "%3A");
+   result.ReplaceAll("/", "%2F");
+   result.ReplaceAll("?", "%3F");
+   result.ReplaceAll("#", "%23");
+   result.ReplaceAll("[", "%5B");
+   result.ReplaceAll("]", "%5D");
+   result.ReplaceAll("@", "%40");
+   result.ReplaceAll("!", "%21");
+   result.ReplaceAll("$", "%24");
+   result.ReplaceAll("&", "%26");
+   result.ReplaceAll("'", "%27");
+   result.ReplaceAll("(", "%28");
+   result.ReplaceAll(")", "%29");
+   result.ReplaceAll("*", "%2A");
+   result.ReplaceAll("+", "%2B");
+   result.ReplaceAll(",", "%2C");
+   result.ReplaceAll(";", "%3B");
+   result.ReplaceAll("=", "%3D");
+#endif
+#endif
+   return result;
+}
+
+//______________________________________________________________________________
 ROMEString& ROMEBuilder::GetSteerPath(ROMEString& steerPath,int iTask,int iSteer,int iField,const char* seperator)
 {
    steerPath.SetFormatted("%s",steerFieldName[iTask][iSteer][iField].Data());
