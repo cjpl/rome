@@ -11514,6 +11514,7 @@ void ROMEBuilder::WriteHTMLDoku()
    bool trodd = true;
    ROMEString separator;
    ROMEString tmp;
+   Bool_t first;
 
    // Generate task connection map
    ROMEString mapFileName, mapIconName;
@@ -11638,10 +11639,14 @@ void ROMEBuilder::WriteHTMLDoku()
 
    int ddelta;
    depthold = 1;
-   buffer.AppendFormatted("<ul>\n");
+   first = kTRUE;
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
+      if (first) {
+         first = kFALSE;
+         buffer.AppendFormatted("<ul>\n");
+      }
       depth = taskHierarchyLevel[i];
       ddelta = depth - depthold;
       if (ddelta > 0) for (k = 0; k < ddelta; k++)  buffer.AppendFormatted("<ul>\n");
@@ -11651,7 +11656,9 @@ void ROMEBuilder::WriteHTMLDoku()
       depthold = depth;
    }
    for (i = 1; i < depth; i++) buffer.AppendFormatted("</ul>\n");
-   buffer.AppendFormatted("</ul>\n");
+   if (!first) {
+      buffer.AppendFormatted("</ul>\n");
+   }
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#tasks\">Tasks</a>\n");
    buffer.AppendFormatted("\n\n");
@@ -11659,12 +11666,10 @@ void ROMEBuilder::WriteHTMLDoku()
    // Tasks
    ROMEString cppFile;
    ROMEString str;
-   Bool_t first;
    for (i = 0; i < numOfTask; i++) {
       if (!taskUsed[i])
          continue;
       buffer.AppendFormatted("<h3><a name=%sTask class=\"object\">%s</a></h3>\n",taskName[i].Data(),taskName[i].Data());
-      buffer.AppendFormatted("<p>\n");
       separator = "";
       if (numOfTaskAuthors[i] > 0) {
          buffer.AppendFormatted("contact person :");
@@ -11779,7 +11784,9 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("\n<hr size=\"1\">\n");
    }
-   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   if (buffer.EndsWith("<hr size=\"1\">\n")) {
+      buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   }
    buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Tabs
@@ -11787,13 +11794,19 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<h2><a name=tabs>Tabs</a></h2>\n");
    buffer.AppendFormatted("\n");
    // Index
-   buffer.AppendFormatted("<ul>\n");
+   first = kTRUE;
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
+      if (first) {
+         first = kFALSE;
+         buffer.AppendFormatted("<ul>\n");
+      }
       buffer.AppendFormatted("<li><a href=\"#%sTab\">%s</a>\n",tabName[i].Data(),tabName[i].Data());
    }
-   buffer.AppendFormatted("</ul>\n");
+   if (!first) {
+      buffer.AppendFormatted("</ul>\n");
+   }
    buffer.AppendFormatted("<p>\n\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>\n");
    buffer.AppendFormatted("\n\n");
@@ -11803,7 +11816,6 @@ void ROMEBuilder::WriteHTMLDoku()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("<h3><a name=%sTab class=\"object\">%s</a></h3>\n",tabName[i].Data(),tabName[i].Data());
-      buffer.AppendFormatted("<p>\n");
       separator = "";
       if (numOfTabAuthors[i] > 0) {
          buffer.AppendFormatted("contact person :");
@@ -11866,7 +11878,9 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("<hr size=\"1\">\n");
    }
-   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   if (buffer.EndsWith("<hr size=\"1\">\n")) {
+      buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   }
    buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Folders
@@ -11877,9 +11891,9 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("The %s%s incorporates the following folder structure :\n",shortCut.Data(),
                           mainProgName.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<ul>\n");
    depthold = 0;
    depth = 0;
+   first = kTRUE;
    // Structure
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
@@ -11908,6 +11922,10 @@ void ROMEBuilder::WriteHTMLDoku()
             depth++;
          }
       }
+      if (first) {
+         first = kFALSE;
+         buffer.AppendFormatted("<ul>\n");
+      }
       ddelta = depth-depthold;
       if (ddelta > 0) for (k = 0; k < ddelta; k++)  buffer.AppendFormatted("<ul>\n");
       if (ddelta < 0) for (k = 0; k < -ddelta; k++) buffer.AppendFormatted("</ul>\n");
@@ -11922,7 +11940,9 @@ void ROMEBuilder::WriteHTMLDoku()
    for (i = 0; i < depth; i++) {
       buffer.AppendFormatted("</ul>\n");
    }
-   buffer.AppendFormatted("</ul>\n");
+   if (!first) {
+      buffer.AppendFormatted("</ul>\n");
+   }
    buffer.AppendFormatted("The bold folders are data folders. The others are only used to structure the frame work.\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#folders\">Folders</a>\n");
@@ -11934,22 +11954,28 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("The %s%s incorporates the following support folders :\n",shortCut.Data(),
                           mainProgName.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<ul>\n");
    depthold = 0;
    depth = 0;
+   first = kTRUE;
    // Structure
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
          continue;
       if (!folderSupport[i])
          continue;
+      if (first) {
+         first = kFALSE;
+         buffer.AppendFormatted("<ul>\n");
+      }
       if (FolderToBeGenerated(i)) {
          buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%sFolder\"><b>%s</b></a>\n",folderName[i].Data(),folderName[i].Data());
       } else {
          buffer.AppendFormatted("<li type=\"circle\">%s\n",folderName[i].Data());
       }
    }
-   buffer.AppendFormatted("</ul>\n");
+   if (!first) {
+      buffer.AppendFormatted("</ul>\n");
+   }
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#supportFolders\">Support Folders</a>\n");
    buffer.AppendFormatted("\n\n");
    buffer.AppendFormatted("\n<hr size=\"1\">\n");
@@ -11994,7 +12020,9 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("<hr size=\"1\">\n");
    }
-   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   if (buffer.EndsWith("<hr size=\"1\">\n")) {
+      buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   }
    buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Database
@@ -12046,7 +12074,9 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("<hr size=\"1\">\n");
    }
-   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   if (buffer.EndsWith("<hr size=\"1\">\n")) {
+      buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   }
    buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Trees
@@ -12057,8 +12087,12 @@ void ROMEBuilder::WriteHTMLDoku()
                           mainProgName.Data());
    buffer.AppendFormatted("In brackets are the folders, which are filled to the branch.\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<ul>\n");
+   first = kTRUE;
    for (i = 0; i < numOfTree; i++) {
+      if (first) {
+         first = kFALSE;
+         buffer.AppendFormatted("<ul>\n");
+      }
       buffer.AppendFormatted("<li type=\"disc\">%s\n",treeName[i].Data());
       if (treeDescription[i].Length())
          buffer.AppendFormatted("%s\n",treeDescription[i].Data());
@@ -12068,7 +12102,9 @@ void ROMEBuilder::WriteHTMLDoku()
       }
       buffer.AppendFormatted("</ul>\n");
    }
-   buffer.AppendFormatted("</ul>\n");
+   if (!first) {
+      buffer.AppendFormatted("</ul>\n");
+   }
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#database\">Database Connections</a>\n");
    buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
