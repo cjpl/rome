@@ -11513,6 +11513,7 @@ void ROMEBuilder::WriteHTMLDoku()
    int depth = 0;
    bool trodd = true;
    ROMEString separator;
+   ROMEString tmp;
 
    // Generate task connection map
    ROMEString mapFileName, mapIconName;
@@ -11558,13 +11559,14 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("   ***      Don't make manual changes to this file      ***\n");
    buffer.AppendFormatted("-->\n\n");
 
+   buffer.AppendFormatted("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
    buffer.AppendFormatted("<HTML>\n");
    buffer.AppendFormatted("<HEAD>\n");
-   buffer.AppendFormatted("<a name=top><TITLE>%s%s Manual</TITLE></a>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
    if (styleSheet.Length()) {
       buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
    } else {
-      buffer.AppendFormatted("<STYLE>\n");
+      buffer.AppendFormatted("<STYLE type=\"text/css\">\n");
       WriteHTMLStyle(buffer);
       buffer.AppendFormatted("</STYLE>\n");
    }
@@ -11599,9 +11601,7 @@ void ROMEBuilder::WriteHTMLDoku()
                           shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/ClassIndex.html\">Class Overview</A></li>\n", baseURL.Data());
    buffer.AppendFormatted("</ul>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
    buffer.AppendFormatted("\n");
    // Introduction
    // ------------
@@ -11610,9 +11610,7 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("%s\n",mainDescription.Data());
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Tasks
    // -----
@@ -11629,42 +11627,39 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>\n");
-   buffer.AppendFormatted("<p>\n\n");
-   buffer.AppendFormatted("<hr size=\"1\">\n");
-   buffer.AppendFormatted("<p>\n\n");
+   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n<hr size=\"1\">\n");
    // Task Hierarchy
    buffer.AppendFormatted("<h3><a name=taskhierarchy>Task Hierarchy</a></h3>\n");
    if (mapImageFound) {
-      buffer.AppendFormatted("<a href=\"%s\"><img src=\"%s\"></a>\n", mapFileName.Data(), mapIconName.Data());
+      buffer.AppendFormatted("<a href=\"%s\"><img src=\"%s\" alt=\"Picture of task connection\"></a>\n", mapFileName.Data(), mapIconName.Data());
       buffer.AppendFormatted("This image was generated from &lt;TaskConnectedFrom&gt; tag in task definition.\n");
    }
 
-   buffer.AppendFormatted("<p>\n");
    int ddelta;
    depthold = 1;
    buffer.AppendFormatted("<ul>\n");
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      depth=taskHierarchyLevel[i];
-      ddelta = depth-depthold;
-      if (ddelta>0) for (k = 0; k < ddelta; k++)  buffer.AppendFormatted("<ul>\n");
+      depth = taskHierarchyLevel[i];
+      ddelta = depth - depthold;
+      if (ddelta > 0) for (k = 0; k < ddelta; k++)  buffer.AppendFormatted("<ul>\n");
       if (ddelta < 0) for (k = 0; k < -ddelta; k++) buffer.AppendFormatted("</ul>\n");
-      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%sTask\">%s</a></h4></li>\n",
+      buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%sTask\">%s</a>\n",
                              taskHierarchyName[i].Data(),taskHierarchyName[i].Data());
       depthold = depth;
    }
-   for (i = 0; i < depth; i++) buffer.AppendFormatted("</ul>\n");
+   for (i = 1; i < depth; i++) buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#tasks\">Tasks</a>\n");
-   buffer.AppendFormatted("<p>\n\n");
-   buffer.AppendFormatted("<hr size=\"1\">\n");
-   buffer.AppendFormatted("<p>\n\n");
+   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n<hr size=\"1\">\n");
    // Tasks
    ROMEString cppFile;
    ROMEString str;
-   ROMEString tmp;
+   Bool_t first;
    for (i = 0; i < numOfTask; i++) {
       if (!taskUsed[i])
          continue;
@@ -11678,10 +11673,10 @@ void ROMEBuilder::WriteHTMLDoku()
          if (taskAuthorEmail[i][j].Length()) {
             if (!taskAuthorEmail[i][j].ContainsFast("://")) {
                buffer.AppendFormatted("%s <a href=\"mailto:%s\">%s</a>\n", separator.Data(),
-                                      taskAuthorEmail[i][j].Data(), taskAuthor[i][j].Data());
+                                      ProcessAddressHTML(taskAuthorEmail[i][j], tmp).Data(), taskAuthor[i][j].Data());
             } else {
                buffer.AppendFormatted("%s <a href=\"%s\">%s</a>\n", separator.Data(),
-                                      taskAuthorEmail[i][j].Data(), taskAuthor[i][j].Data());
+                                      ProcessAddressHTML(taskAuthorEmail[i][j], tmp).Data(), taskAuthor[i][j].Data());
             }
          } else {
             buffer.AppendFormatted("%s %s\n", separator.Data(), taskAuthor[i][j].Data());
@@ -11690,52 +11685,44 @@ void ROMEBuilder::WriteHTMLDoku()
       }
       buffer.AppendFormatted("\n");
       if (taskDescription[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Description</h4>\n");
          buffer.Append(taskDescription[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (taskUsage[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Usage</h4>\n");
          buffer.Append(taskUsage[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (taskStatus[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Status</h4>\n");
          buffer.Append(taskStatus[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (taskToDo[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>To Do</h4>\n");
          buffer.Append(taskToDo[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (taskKnownProblems[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Known Problems</h4>\n");
          buffer.Append(taskKnownProblems[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
-      buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Steering Parameters</h4>\n");
-      buffer.AppendFormatted("<p>\n");
-      if (numOfSteerChildren[i][0]>0 || numOfSteerFields[i][0]>0) {
-         buffer.AppendFormatted("<table>\n");
+      if (numOfSteerChildren[i][0] > 0 || numOfSteerFields[i][0] > 0) {
+         buffer.AppendFormatted("<table summary=\"Table showing steering parameters in %s task\">\n", taskName[i].Data());
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
          WriteHTMLSteering(buffer, 0, i,"");
          buffer.AppendFormatted("</table>\n");
       } else {
          buffer.AppendFormatted("This task containes no steering parameters.\n");
       }
-      buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Histograms</h4>\n");
       buffer.AppendFormatted("<p>\n");
       if (numOfHistos[i]>0) {
          buffer.AppendFormatted("This task containes the following histograms :\n");
-         buffer.AppendFormatted("<table>\n");
+         buffer.AppendFormatted("<table summary=\"Table showing histograms in %s task\">\n", taskName[i].Data());
          trodd = true;
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Description</td></tr>\n");
          for (j = 0; j < numOfHistos[i]; j++) {
@@ -11746,7 +11733,6 @@ void ROMEBuilder::WriteHTMLDoku()
             trodd = !trodd;
          }
          buffer.AppendFormatted("</table>\n");
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
@@ -11757,46 +11743,44 @@ void ROMEBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("This task containes the following graphs :\n");
          buffer.AppendFormatted("<ul>\n");
          for (j = 0; j < numOfGraphs[i]; j++) {
-            buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",graphName[i][j].Data());
+            buffer.AppendFormatted("<li type=\"circle\">%s\n",graphName[i][j].Data());
          }
          buffer.AppendFormatted("</ul>\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("\n\n");
       } else {
          buffer.AppendFormatted("This task containes no graphs.\n");
       }
-      buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Folders</h4>\n");
-      buffer.AppendFormatted("<p>\n");
       cppFile.SetFormatted("src/tasks/%sT%s.cpp",shortCut.Data(),taskName[i].Data()); // we are already in outputDir
-      buffer.AppendFormatted("This task accesses data from the following folders :\n");
-      buffer.AppendFormatted("<ul>\n");
+      first = kTRUE;
       for (j = 0; j < numOfFolder; j++) {
          if (!folderUsed[j]) {
             continue;
          }
          if (accessFolder(cppFile.Data(), j, kTRUE)) {
-            buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
+            if (first) {
+               first = kFALSE;
+               buffer.AppendFormatted("<p>\n");
+               buffer.AppendFormatted("This task accesses data from the following folders :\n");
+               buffer.AppendFormatted("<ul>\n");
+            }
+            buffer.AppendFormatted("<li type=\"circle\">%s\n",folderName[j].Data());
          }
       }
-      buffer.AppendFormatted("</ul>\n");
-      buffer.AppendFormatted("<p>\n");
+      if (!first) {
+         buffer.AppendFormatted("</ul>\n");
+      }
       buffer.AppendFormatted("<h4>More Info</h4>\n");
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"%s/%sT%s.html\">class file</a>\n",
                              baseURL.Data(), shortCut.Data(), taskName[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#tasks\">Tasks</a>\n");
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<hr size=\"1\">\n");
-      buffer.AppendFormatted("<p>\n\n");
+      buffer.AppendFormatted("\n\n");
+      buffer.AppendFormatted("\n<hr size=\"1\">\n");
    }
-   buffer = buffer(0, buffer.Length() - 19);
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Tabs
    // -----
@@ -11807,14 +11791,13 @@ void ROMEBuilder::WriteHTMLDoku()
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      buffer.AppendFormatted("<li><a href=\"#%sTab\">%s</a></li>\n",tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("<li><a href=\"#%sTab\">%s</a>\n",tabName[i].Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>\n");
-   buffer.AppendFormatted("<p>\n\n");
-   buffer.AppendFormatted("<hr size=\"1\">\n");
-   buffer.AppendFormatted("<p>\n\n");
+   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n<hr size=\"1\">\n");
    // Tabs
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
@@ -11829,10 +11812,10 @@ void ROMEBuilder::WriteHTMLDoku()
          if (tabAuthorEmail[i][j].Length()) {
             if (!tabAuthorEmail[i][j].ContainsFast("://")) {
                buffer.AppendFormatted("%s <a href=\"mailto:%s\">%s</a>\n", separator.Data(),
-                                      tabAuthorEmail[i][j].Data(), tabAuthor[i][j].Data());
+                                      ProcessAddressHTML(tabAuthorEmail[i][j], tmp).Data(), tabAuthor[i][j].Data());
             } else {
                buffer.AppendFormatted("%s <a href=\"%s\">%s</a>\n", separator.Data(),
-                                      tabAuthorEmail[i][j].Data(), tabAuthor[i][j].Data());
+                                      ProcessAddressHTML(tabAuthorEmail[i][j], tmp).Data(), tabAuthor[i][j].Data());
             }
          } else {
             buffer.AppendFormatted("%s %s\n", separator.Data(), tabAuthor[i][j].Data());
@@ -11841,61 +11824,50 @@ void ROMEBuilder::WriteHTMLDoku()
       }
       buffer.AppendFormatted("\n");
       if (tabDescription[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Description</h4>\n");
          buffer.Append(tabDescription[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (tabUsage[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Usage</h4>\n");
          buffer.Append(tabUsage[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (tabStatus[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Status</h4>\n");
          buffer.Append(tabStatus[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (tabToDo[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>To Do</h4>\n");
          buffer.Append(tabToDo[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
       if (tabKnownProblems[i].Length()) {
-         buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<h4>Known Problems</h4>\n");
          buffer.Append(tabKnownProblems[i]);
-         buffer.AppendFormatted("\n</p>\n");
+         buffer.AppendFormatted("\n\n");
       }
-      buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>Steering Parameters</h4>\n");
-      buffer.AppendFormatted("<p>\n");
       if (numOfSteerChildren[numOfTask + 1 + i][0]>0 || numOfSteerFields[numOfTask + 1 + i][0]>0) {
-         buffer.AppendFormatted("<table>\n");
+         buffer.AppendFormatted("<table summary=\"Table showing steering parameters in %s tab\">\n", tabName[i].Data());
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
          WriteHTMLSteering(buffer, 0, numOfTask + 1 + i,"");
          buffer.AppendFormatted("</table>\n");
       } else {
          buffer.AppendFormatted("This tab containes no steering parameters.\n");
       }
-      buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<h4>More Info</h4>\n");
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"%s/%sT%s.html\">class file</a>\n",
                              baseURL.Data(), shortCut.Data(), tabName[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#tabs\">Tabs</a>\n");
-      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("<hr size=\"1\">\n");
-      buffer.AppendFormatted("<p>\n\n");
    }
-   buffer = buffer(0, buffer.Length() - 19);
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Folders
    // -------
@@ -11940,12 +11912,10 @@ void ROMEBuilder::WriteHTMLDoku()
       if (ddelta > 0) for (k = 0; k < ddelta; k++)  buffer.AppendFormatted("<ul>\n");
       if (ddelta < 0) for (k = 0; k < -ddelta; k++) buffer.AppendFormatted("</ul>\n");
       if (FolderToBeGenerated(i)) {
-         buffer.AppendFormatted("<b>\n");
-         buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%sFolder\">%s</a></li>\n",folderName[i].Data(),
+         buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%sFolder\"><b>%s</b></a>\n",folderName[i].Data(),
                                 folderName[i].Data());
-         buffer.AppendFormatted("</b>\n");
       } else {
-         buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[i].Data());
+         buffer.AppendFormatted("<li type=\"circle\">%s\n",folderName[i].Data());
       }
       depthold = depth;
    }
@@ -11956,9 +11926,8 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("The bold folders are data folders. The others are only used to structure the frame work.\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#folders\">Folders</a>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"1\">\n");
-   buffer.AppendFormatted("<p>\n\n");
+   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n<hr size=\"1\">\n");
    // support folder listing
    buffer.AppendFormatted("<h2><a name=supportFolders>Support Folders</a></h2>\n");
    buffer.AppendFormatted("\n");
@@ -11975,18 +11944,15 @@ void ROMEBuilder::WriteHTMLDoku()
       if (!folderSupport[i])
          continue;
       if (FolderToBeGenerated(i)) {
-         buffer.AppendFormatted("<b>\n");
-         buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%sFolder\">%s</a></li>\n",folderName[i].Data(),folderName[i].Data());
-         buffer.AppendFormatted("</b>\n");
+         buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%sFolder\"><b>%s</b></a>\n",folderName[i].Data(),folderName[i].Data());
       } else {
-         buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[i].Data());
+         buffer.AppendFormatted("<li type=\"circle\">%s\n",folderName[i].Data());
       }
    }
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#supportFolders\">Support Folders</a>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"1\">\n");
-   buffer.AppendFormatted("<p>\n\n");
+   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n<hr size=\"1\">\n");
    // Folders
    for (i = 0; i < numOfFolder; i++) {
       if (!folderUsed[i])
@@ -12002,7 +11968,7 @@ void ROMEBuilder::WriteHTMLDoku()
       }
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
-      buffer.AppendFormatted("<table>\n");
+      buffer.AppendFormatted("<table summary=\"Table showing fields in %s folder\">\n", folderName[i].Data());
       if (folderDataBase[i]) {
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Database</td><td>Description</td></tr>\n");
       } else {
@@ -12025,14 +11991,11 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("</table>\n");
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#folders\">Folders</a>\n");
-      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("<hr size=\"1\">\n");
-      buffer.AppendFormatted("<p>\n\n");
    }
-   buffer = buffer(0, buffer.Length() - 19);
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Database
    // --------
@@ -12053,12 +12016,15 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<h2><a name=database>Database Connections</a></h2>\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("List of defualt database connections. These values can be overwritten by configuration file.\n");
-      buffer.AppendFormatted("<p>\n");
    }
    Int_t iDB;
    for (iDB = 0; iDB < dbList.GetEntriesFast(); iDB++) {
-      buffer.AppendFormatted("<h3>%s</h3>\n", dbList.At(iDB).Data());
-      buffer.AppendFormatted("<table>\n");
+      if (dbList.At(iDB).Length()) {
+         buffer.AppendFormatted("<h3>%s</h3>\n", dbList.At(iDB).Data());
+      } else {
+         buffer.AppendFormatted("<h3>Unnamed</h3>\n");
+      }
+      buffer.AppendFormatted("<table summary=\"Table showing database connections\">\n");
       buffer.AppendFormatted("<tr class=\"cont\"><td>Folder</td><td>Field</td><td>Database name</td><td>Database path</td></tr>\n");
       for (i = 0; i < numOfFolder; i++) {
          if (!folderUsed[i])
@@ -12077,14 +12043,11 @@ void ROMEBuilder::WriteHTMLDoku()
       }
       buffer.AppendFormatted("</table>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#database\">Database Connections</a>\n");
-      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("\n\n");
       buffer.AppendFormatted("<hr size=\"1\">\n");
-      buffer.AppendFormatted("<p>\n\n");
    }
-   buffer = buffer(0, buffer.Length() - 19);
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer = buffer(0, buffer.Length() - sizeof("<hr size=\"1\">\n"));
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Trees
    // -----
@@ -12096,36 +12059,32 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("<ul>\n");
    for (i = 0; i < numOfTree; i++) {
-      buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",treeName[i].Data());
+      buffer.AppendFormatted("<li type=\"disc\">%s\n",treeName[i].Data());
       if (treeDescription[i].Length())
          buffer.AppendFormatted("%s\n",treeDescription[i].Data());
       buffer.AppendFormatted("<ul>\n");
       for (j = 0; j < numOfBranch[i]; j++) {
-         buffer.AppendFormatted("<li type=\"circle\">%s (%s)</li>\n",branchName[i][j].Data(),branchFolder[i][j].Data());
+         buffer.AppendFormatted("<li type=\"circle\">%s (%s)\n",branchName[i][j].Data(),branchFolder[i][j].Data());
       }
       buffer.AppendFormatted("</ul>\n");
    }
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#database\">Database Connections</a>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Global Steering Parameters
    // --------------------------
    buffer.AppendFormatted("<H2><a name=steers>Global Steering Parameters</a> </H2>\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("<a class=\"object\">Global Steering Parameters</a><br>\n");
-   buffer.AppendFormatted("<table>\n");
+   buffer.AppendFormatted("<table summary=\"Table showing global steering parameters\">\n");
    buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
    WriteHTMLSteering(buffer, 0, numOfTask,"");
    buffer.AppendFormatted("</table>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#steers\">Global Steering Parameters</a>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Midas Banks
    // -----------
@@ -12136,55 +12095,52 @@ void ROMEBuilder::WriteHTMLDoku()
       for (i = 0; i < numOfEvent; i++) {
          for (j = 0; j < numOfBank[i]; j++) {
             if (bankType[i][j] == "structure"||bankType[i][j] == "struct") {
-               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("<li type=\"disc\">%s\n",bankAlias[i][j].Data());
                buffer.AppendFormatted("<ul>\n");
                for (k = 0; k < numOfStructFields[i][j]; k++) {
                   if (bankFieldArraySize[i][j][k] == "1") {
-                     buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",structFieldName[i][j][k].Data());
+                     buffer.AppendFormatted("<li type=\"disc\">%s\n",structFieldName[i][j][k].Data());
                   } else {
-                     buffer.AppendFormatted("<li type=\"disc\">%s[%s]</li>\n",structFieldName[i][j][k].Data(),
+                     buffer.AppendFormatted("<li type=\"disc\">%s[%s]\n",structFieldName[i][j][k].Data(),
                                             bankFieldArraySize[i][j][k].Data());
                   }
                }
                buffer.AppendFormatted("</ul>\n");
             } else {
-               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankAlias[i][j].Data());
+               buffer.AppendFormatted("<li type=\"disc\">%s\n",bankAlias[i][j].Data());
             }
          }
       }
       buffer.AppendFormatted("</ul>\n");
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#midasbanks\">Midas Banks</a>\n");
-      buffer.AppendFormatted("<p>\n");
-      buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
    }
 
    // Affiliations
    // ------------
    if (affiliationList.GetEntriesFast() > 0 ) {
       buffer.AppendFormatted("<h2><a name=affiliations>Affiliations</a></h2>\n");
-      buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<ul>\n");
       if (affiliations.GetEntriesFast() == 0) {
-         buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
+         buffer.AppendFormatted("<li>Enabled affiliations<ul>\n");
          for (i = 0; i < affiliationList.GetEntriesFast(); i++)
-            buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(),
+            buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a>\n", affiliationList.At(i, 0).Data(),
                                    affiliationList.At(i, 0).Data());
-         buffer.AppendFormatted("</ul><li>Disabled affiliations</li><ul>\n");
+         buffer.AppendFormatted("</ul><li>Disabled affiliations<ul>\n");
          buffer.AppendFormatted("</ul>\n");
       } else {
-         buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
+         buffer.AppendFormatted("<li>Enabled affiliations<ul>\n");
          for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
             for (j = 0; j < affiliations.GetEntriesFast(); j++) {
                if (affiliationList.At(i, 0) == affiliations.At(j)) {
-                  buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(),
+                  buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a>\n", affiliationList.At(i, 0).Data(),
                                          affiliationList.At(i, 0).Data());
                   break;
                }
             }
          }
-         buffer.AppendFormatted("</ul><li>Disabled affiliations</li><ul>\n");
+         buffer.AppendFormatted("</ul><li>Disabled affiliations<ul>\n");
          if (affiliations.GetEntriesFast()) {
             for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
                for (j = 0; j < affiliations.GetEntriesFast(); j++) {
@@ -12192,7 +12148,7 @@ void ROMEBuilder::WriteHTMLDoku()
                      break;
                }
                if (j == affiliations.GetEntriesFast())
-                  buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(),
+                  buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a>\n", affiliationList.At(i, 0).Data(),
                                          affiliationList.At(i, 0).Data());
             }
          }
@@ -12202,8 +12158,7 @@ void ROMEBuilder::WriteHTMLDoku()
       for (i = 0; i < affiliationList.GetEntriesFast(); i++) {
          buffer.AppendFormatted("<h3><a name=\"%saff\" class=\"object\">%s</a></h3>\n", affiliationList.At(i, 0).Data(),
                                 affiliationList.At(i, 0).Data());
-         buffer.AppendFormatted("<p>\n");
-         buffer.AppendFormatted("<table>\n");
+         buffer.AppendFormatted("<table summary=\"Table showing affiliations\">\n");
          buffer.AppendFormatted("<tr class=\"cont\"><td>Type</td><td>Name</td></tr>\n");
          for (j = 1; j < affiliationList.GetEntriesAt(i); j += 2) {
             buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",
@@ -12214,14 +12169,11 @@ void ROMEBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("</table>\n");
          buffer.AppendFormatted("<p>\n");
          buffer.AppendFormatted("<a href=\"#top\">top</a>, <a href=\"#affiliations\">Affiliations</a>\n");
-         buffer.AppendFormatted("<p>\n");
       }
-      buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
    }
 
    // Access Methods
-   buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<H2><a name=accessmethods>Access Methods to Objects in the %s%s</a> </H2>\n",
                           shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("For a description of all access methods to all types of objects in the %s%s please visit the\n",
@@ -12232,9 +12184,7 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("describes all access methods of frameworks generated with ROME.\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<a href=\"#top\">top</a>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr size=\"4\" noshade>\n");
-   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n<hr size=\"4\" noshade>\n");
 
    // Footer
    buffer.AppendFormatted("<ADDRESS>\n");
@@ -12244,15 +12194,15 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("%s</br>\n",mainInstitute[i].Data());
       buffer.AppendFormatted("%s</br>\n",mainCollaboration[i].Data());
       if (!mainEmail[i].ContainsFast("://")) {
-         buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+         buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a>\n",ProcessAddressHTML(mainEmail[i], tmp).Data(),mainEmail[i].Data());
       } else {
-         buffer.AppendFormatted("link : <a href=\"%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+         buffer.AppendFormatted("link : <a href=\"%s\">%s</a>\n",ProcessAddressHTML(mainEmail[i], tmp).Data(),mainEmail[i].Data());
       }
       buffer.AppendFormatted("</br>\n");
    }
    buffer.AppendFormatted("<u> Contact person from ROME</u></br>\n");
    buffer.AppendFormatted("Matthias Schneebeli (PSI)</br>\n");
-   buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
+   buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a>\n");
    buffer.AppendFormatted("</ADDRESS>\n");
    buffer.AppendFormatted("</BODY>\n");
    buffer.AppendFormatted("</HTML>\n");
@@ -12302,12 +12252,12 @@ void ROMEBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("%s</br>\n",mainAuthor[i].Data());
          buffer.AppendFormatted("%s</br>\n",mainInstitute[i].Data());
          buffer.AppendFormatted("%s</br>\n",mainCollaboration[i].Data());
-         buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail[i].Data(),mainEmail[i].Data());
+         buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a>\n",ProcessAddressHTML(mainEmail[i], tmp).Data(),mainEmail[i].Data());
          buffer.AppendFormatted("</br>\n");
       }
       buffer.AppendFormatted("<u> Contact person from ROME</u></br>\n");
       buffer.AppendFormatted("Matthias Schneebeli (PSI)</br>\n");
-      buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
+      buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a>\n");
       buffer.AppendFormatted("</address>\n");
       buffer.AppendFormatted("</body>\n");
       buffer.AppendFormatted("</html>");
@@ -12534,7 +12484,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                                             folderName[iFold].Data(), valueName[iFold][iValue].Data());
                      for (iDm = 0; iDm < valueDimension[iFold][iValue]; iDm++)
                         buffer.AppendFormatted("0, ");
-                     buffer.Resize(buffer.Length()-2);
+                     buffer.Resize(buffer.Length() - 2);
                      buffer.AppendFormatted(")<<endl;\n");
                   } else {
                      buffer.AppendFormatted("         cout<<left<<setw(50)<<\"   /%s/%s/%s\"<<%s->Get%s()<<endl;\n",
@@ -12557,7 +12507,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                                             folderName[iFold].Data(), valueName[iFold][iValue].Data());
                      for (iDm = 0; iDm < valueDimension[iFold][iValue]; iDm++)
                         buffer.AppendFormatted("0, ");
-                     buffer.Resize(buffer.Length()-2);
+                     buffer.Resize(buffer.Length() - 2);
                      buffer.AppendFormatted(")<<endl;\n");
                   } else {
                      buffer.AppendFormatted("            cout<<left<<setw(50)<<\"   /%s/%s/%s\"<<static_cast<%s%s*>(%s->At(0))->Get%s()<<endl;\n",
