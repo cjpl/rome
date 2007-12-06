@@ -1,4 +1,4 @@
-// Author: Ryu Sawada <mailto:ryu.sawada _AtMark_ psi.ch>
+// Author: Ryu Sawada <http://www.icepp.s.u-tokyo.ac.jp/%7Esawada>
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
