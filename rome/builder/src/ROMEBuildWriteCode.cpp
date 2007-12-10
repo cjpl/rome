@@ -8127,7 +8127,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       for (i = 0; i < numOfTaskHierarchy; i++) {
          if (!taskUsed[taskHierarchyClassIndex[i]])
             continue;
-         buffer.AppendFormatted("   str = \"/%s%s/Tasks/%s%s\";\n",shortCut.Data(),mainProgName.Data(),
+         buffer.AppendFormatted("   str.SetFormatted(\"/%%s/Tasks/%s%s\", gROME->GetOnlineAnalyzerName());\n",
                                 taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
          buffer.AppendFormatted("   hotLinkString =  \"Active = BOOL : 0\\n");
          for (j = 0; j < numOfSteering[i]; j++) {
@@ -8160,7 +8160,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("   }\n");
       }
       bool hasHotLink = false;
-      buffer.AppendFormatted("   str = \"/%s%s/Global Steering Parameters\";\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("   str.SetFormatted(\"/%%s/Global Steering Parameters\", gROME->GetOnlineAnalyzerName());\n");
       buffer.AppendFormatted("   hotLinkString =  \"\\n");
       for (j = 0; j < numOfSteering[numOfTaskHierarchy]; j++) {
          for (k = 0; k < numOfSteerFields[numOfTaskHierarchy][j]; k++) {
@@ -8192,8 +8192,8 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       for (i = 0; i < numOfTab; i++) {
          if (!tabUsed[i])
             continue;
-         buffer.AppendFormatted("   str = \"/%s%s/Tabs/%s%s\";\n",shortCut.Data(),mainProgName.Data(),tabName[i].Data(),
-                                tabSuffix[i].Data());
+         buffer.AppendFormatted("   str.SetFormatted(\"/%%s/Tabs/%s%s\", gROME->GetOnlineAnalyzerName());\n",
+                                tabName[i].Data(), tabSuffix[i].Data());
          buffer.AppendFormatted("   hotLinkString =  \"Active = BOOL : 0\\n");
          for (j = 0; j < numOfSteering[numOfTaskHierarchy + 1 + i]; j++) {
             for (k = 0; k < numOfSteerFields[numOfTaskHierarchy + 1 + i][j]; k++) {
