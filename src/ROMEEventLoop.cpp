@@ -586,7 +586,6 @@ Bool_t ROMEEventLoop::DAQInit()
    int j;
    this->SetRunning();
    this->SetAnalyze();
-   gROME->SetCurrentEventNumber(0);
 
 #if defined( HAVE_MIDAS )
    this->InitHotLinks();
