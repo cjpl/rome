@@ -604,6 +604,12 @@ void ROMETask::BookHisto(void)
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH3C(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax,
                                                                          zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TProfile") {
+                  static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile(histoArrayName.Data(), histoArrayTitle.Data(),
+                                                                         xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TProfile2D") {
+                  static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile2D(histoArrayName.Data(), histoArrayTitle.Data(),
+                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax), j);
                } else {
                   ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                    fHistoType[i].Data());
@@ -790,6 +796,12 @@ void ROMETask::ReBookHisto(void)
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH3C(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax,
                                                                          zNbins, zmin, zmax), j);
+               } else if (fHistoType[i] == "TProfile") {
+                  static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile(histoArrayName.Data(), histoArrayTitle.Data(),
+                                                                         xNbins, xmin, xmax), j);
+               } else if (fHistoType[i] == "TProfile2D") {
+                  static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile2D(histoArrayName.Data(), histoArrayTitle.Data(),
+                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax), j);
                } else {
                   ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                    fHistoType[i].Data());
