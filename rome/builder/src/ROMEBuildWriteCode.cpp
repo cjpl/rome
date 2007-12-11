@@ -6649,6 +6649,9 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
    buffer.AppendFormatted("\n\n");
 
    // Header
+   if (readGlobalSteeringParameters) {
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+   }
    for (i = 0; i < numOfFolder; i++) {
       if (folderUsed[i] && folderDataBase[i] && !folderSupport[i]) {
          if (folderUserCode[i]) {
@@ -6657,9 +6660,6 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
             buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());         
          }
       }
-   }
-   if (readGlobalSteeringParameters) {
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    }
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n", shortCut.Data());
