@@ -12345,13 +12345,15 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    macroDescription.AppendFormatted("   run_num : run number\n");
    macroDescription.AppendFormatted("   ev_1    : the first event number to print\n");
    macroDescription.AppendFormatted("   ev_2    : the last event number to print\n");
-   for (iTree = 0; iTree < numOfTree; iTree++)
+   for (iTree = 0; iTree < numOfTree; iTree++) {
       macroDescription.AppendFormatted("   read%s : switch to read %s tree\n", treeName[iTree].Data(),
                                        treeName[iTree].Data());
+   }
    macroDescription.AppendFormatted("\n");
    macroDescription.AppendFormatted("This macro reads following trees.\n");
-   for (iTree = 0; iTree < numOfTree; iTree++)
+   for (iTree = 0; iTree < numOfTree; iTree++) {
       macroDescription.AppendFormatted("   %s\n", treeName[iTree].Data());
+   }
    macroDescription.AppendFormatted("\n");
    macroDescription.AppendFormatted(" ! This is just an example. This macro does not show all data !\n");
    macroDescription.AppendFormatted("\n");
@@ -12409,16 +12411,19 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    buffer.AppendFormatted("void %sReadTrees(Int_t run_num = 1\n", shortCut.Data());
    buffer.AppendFormatted("                 , Int_t ev_1 = 0\n");
    buffer.AppendFormatted("                 , Int_t ev_2 = 9\n");
-   for (iTree = 0; iTree < numOfTree; iTree++)
+   for (iTree = 0; iTree < numOfTree; iTree++) {
       buffer.AppendFormatted("                 , Bool_t read%s = kTRUE\n", treeName[iTree].Data());
+   }
    buffer.AppendFormatted("                 ) {\n");
 
    // Open files
    buffer.AppendFormatted("   char filename[100];\n");
-   for (iTree = 0; iTree < numOfTree; iTree++)
+   for (iTree = 0; iTree < numOfTree; iTree++) {
       buffer.AppendFormatted("   TFile *%sFile = 0;\n", treeName[iTree].Data());
-   for (iTree = 0; iTree < numOfTree; iTree++)
+   }
+   for (iTree = 0; iTree < numOfTree; iTree++) {
       buffer.AppendFormatted("   TTree *%s = 0;\n", treeName[iTree].Data());
+   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Open files\n");
    for (iTree = 0; iTree < numOfTree; iTree++) {
@@ -12467,10 +12472,16 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    for (iTree = 0; iTree < numOfTree; iTree++) {
       buffer.AppendFormatted("   // %s\n", treeName[iTree].Data());
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
          buffer.AppendFormatted("   TBranch *branch%s = 0;\n", branchNameTmp[iTree][iBranch]->Data());
       }
       buffer.AppendFormatted("   if (read%s) {\n", treeName[iTree].Data());
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
          buffer.AppendFormatted("      branch%s = %s->GetBranch(\"%s\");\n", branchNameTmp[iTree][iBranch]->Data(),
                                 treeName[iTree].Data(), branchName[iTree][iBranch].Data());
          buffer.AppendFormatted("      if(branch%s)\n", branchNameTmp[iTree][iBranch]->Data());
@@ -12494,6 +12505,9 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    buffer.AppendFormatted("      // Read event\n");
    for (iTree = 0; iTree < numOfTree; iTree++) {
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
          buffer.AppendFormatted("      if (read%s && branch%s)\n", treeName[iTree].Data(),
                                 branchNameTmp[iTree][iBranch]->Data());
          buffer.AppendFormatted("         branch%s->GetEntry(i);\n", branchNameTmp[iTree][iBranch]->Data());
@@ -12506,9 +12520,10 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    for (iTree = 0; iTree < numOfTree; iTree++) {
       buffer.AppendFormatted("      if (read%s) {\n", treeName[iTree].Data());
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
-         iFold = branchFolderNum[iTree][iBranch];
-         if (iFold == -1)
+         if (branchFolderNum[iTree][iBranch] == -1) {
             continue;
+         }
+         iFold = branchFolderNum[iTree][iBranch];
          if (folderArray[iFold] == "1") {
             for (iValue = 0; iValue < numOfValue[iFold]; iValue++) {
                if (isFolder(valueType[iFold][iValue].Data())) {
