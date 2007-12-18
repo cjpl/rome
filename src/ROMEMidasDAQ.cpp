@@ -87,12 +87,12 @@ ClassImp(ROMEMidasDAQ)
 //______________________________________________________________________________
 ROMEMidasDAQ::ROMEMidasDAQ()
 :ROMEDAQSystem()
+,fMaxEventSize(MAX_EVENT_SIZE)
 #if defined( R__BYTESWAP )
 ,fByteSwap(kFALSE)
 #else
 ,fByteSwap(kTRUE)
 #endif
-,fMaxEventSize(MAX_EVENT_SIZE)
 ,fRawDataDummy(0)
 ,fNumberOfRawDataEvent(0)
 ,fCurrentRawDataEvent(-1)
