@@ -1821,6 +1821,11 @@
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
+							<xs:element name="MaxEventSize" type="xs:string" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Max. midas event size used in the analyzer. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
 							<xs:element name="EventHeader" type="EventHeaderDesc" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>Describes event header data. (optional)</xs:documentation>

@@ -92,6 +92,7 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 #else
 ,fByteSwap(kTRUE)
 #endif
+,fMaxEventSize(MAX_EVENT_SIZE)
 ,fRawDataDummy(0)
 ,fNumberOfRawDataEvent(0)
 ,fCurrentRawDataEvent(-1)
@@ -130,11 +131,11 @@ ROMEMidasDAQ::ROMEMidasDAQ()
       fNumberOfRawDataEvent = 2;
    } else {
       fNumberOfRawDataEvent = kRawDataEvents;
-      fRawDataDummy = new char[MAX_EVENT_SIZE];
+      fRawDataDummy = new char[fMaxEventSize];
    }
    for (i = 0; i < kRawDataEvents; i++) {
       if (i < fNumberOfRawDataEvent) {
-         fRawDataEvent[i] = new char[MAX_EVENT_SIZE];
+         fRawDataEvent[i] = new char[fMaxEventSize];
       } else {
          fRawDataEvent[i] = 0;
       }
@@ -629,14 +630,14 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       Long64_t oldEventNumber = gROME->GetCurrentEventNumber();
 
       if (event < fValidEventNumber) {
-         readSeqNumber = fEventNumToSeqNum->At(static_cast<Int_t>(event));
+         readSeqNumber = static_cast<Int_t>(fEventNumToSeqNum->At(static_cast<Int_t>(event)));
          readPosition = fSeqNumToFilePos->At(readSeqNumber);
          // use stored position
          if(readPosition != -1) {
             if(!fGZippedMidasFile) {
-               lseek(fMidasFileHandle, readPosition, SEEK_SET);
+               lseek(fMidasFileHandle, static_cast<Long_t>(readPosition), SEEK_SET);
             } else {
-               gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
+               gzseek(fMidasGzFileHandle, static_cast<Long_t>(readPosition), SEEK_SET);
             }
             fCurrentSeqNumber = readSeqNumber;
             gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
@@ -1009,9 +1010,9 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
       } else {
          if(posOld != -1) {
             if(!fGZippedMidasFile) {
-               lseek(fMidasFileHandle, posOld, SEEK_SET);
+               lseek(fMidasFileHandle, static_cast<Long_t>(posOld), SEEK_SET);
             } else {
-               gzseek(fMidasGzFileHandle, posOld, SEEK_SET);
+               gzseek(fMidasGzFileHandle, static_cast<Long_t>(posOld), SEEK_SET);
             }
          }
          fSeqNumToFilePos->AddAt(posOld, static_cast<Int_t>(fCurrentSeqNumber));
@@ -1298,7 +1299,7 @@ Bool_t ROMEMidasDAQ::ConnectExperiment(ROMEMidasDAQ *localThis)
    Int_t i;
 
    // open the "system" buffer, 1M size
-   bm_open_buffer(const_cast<char*>(gROME->GetOnlineMemoryBuffer()), 2 * MAX_EVENT_SIZE, &localThis->fMidasOnlineBuffer);
+   bm_open_buffer(const_cast<char*>(gROME->GetOnlineMemoryBuffer()), 2 * localThis->fMaxEventSize, &localThis->fMidasOnlineBuffer);
 
    // set the buffer cache size
    bm_set_cache_size(localThis->fMidasOnlineBuffer, 100000, 0);

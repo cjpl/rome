@@ -3554,6 +3554,10 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
+      if (type == 1 && !strcmp(name,"MaxEventSize")) {
+         xml->GetValue(maxEventSize,"");
+         FormatText(maxEventSize, kTRUE);
+      }
       if (type == 1 && !strcmp("EventHeader",name)) {
          // output
          if (makeOutput) cout<<"   Header"<<endl;

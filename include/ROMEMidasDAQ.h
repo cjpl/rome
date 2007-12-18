@@ -100,6 +100,7 @@ class ROMEStr2DArray;
 
 class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
+   Long_t        fMaxEventSize;                            //! Max midas event size
    Bool_t        fByteSwap;
    char         *fRawDataEvent[kRawDataEvents];            //! Midas Inputdata Stack
    char         *fRawDataDummy;                            //! Buffer for dummy read
@@ -164,7 +165,7 @@ public:
       if (ev < 0) { ev += fNumberOfRawDataEvent; }
       return fRawDataEvent[ev];
    }
-   size_t         GetRawDataEventSize() const { return MAX_EVENT_SIZE; }
+   size_t         GetRawDataEventSize() const { return fMaxEventSize; }
    void           SwitchRawDataBuffer() { fCurrentRawDataEvent = (fCurrentRawDataEvent + 1) % fNumberOfRawDataEvent; }
 
    // Event Requests

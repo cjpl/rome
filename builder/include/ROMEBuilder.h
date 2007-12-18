@@ -426,6 +426,7 @@ protected:
    ROMEString   *dbDescription;
 
 // midas
+   ROMEString    maxEventSize;
    Int_t         numOfEvent;
    Int_t        *numOfBank;
    Int_t       **numOfStructFields;
