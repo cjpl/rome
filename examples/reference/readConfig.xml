@@ -96,6 +96,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Path></Path>
       </HistogramRead>
 
+      <HistogramWrite>
+        <Write>true</Write>
+      </HistogramWrite>
+
       <Macros>
         <BeginOfRun></BeginOfRun>
         <BeginOfEvent></BeginOfEvent>
