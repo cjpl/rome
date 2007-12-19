@@ -145,6 +145,12 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Path></Path>
       </HistogramRead>
 
+      <HistogramWrite>
+        <!-- Description of the histogram/graph writing. -->
+        <!-- Write flag. (required) -->
+        <Write>true</Write>
+      </HistogramWrite>
+
       <Macros>
         <!-- Description of macros. -->
         <!-- Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional) -->
