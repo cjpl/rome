@@ -196,6 +196,7 @@ protected:
    Bool_t         fHistoRead;                    //! Histogram read flag
    ROMEString     fHistoRun;                     //! Read Histograms of the specified Run Numbers
    ROMEString     fHistoPath;                    //! Path to the Histograms of this Run
+   Bool_t         fHistoWrite;                   //! Histogram write flag
 
    // Program name
    ROMEString     fProgramName;                  //! Name of this Program
@@ -407,10 +408,12 @@ public:
    Bool_t          IsHistosRead() const { return fHistoRead; }
    const char*     GetHistosRun() const { return fHistoRun.Data(); }
    const char*     GetHistosPath() const { return fHistoPath.Data(); }
+   Bool_t          IsHistosWrite() const { return fHistoWrite; }
 
    void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
    void            SetHistosRun(const char* runNumber) { fHistoRun = runNumber; }
    void            SetHistosPath(const char* path) { fHistoPath = path; }
+   void            SetHistosWrite(Bool_t flag) { fHistoWrite = flag; }
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
    ROMEString&     ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);

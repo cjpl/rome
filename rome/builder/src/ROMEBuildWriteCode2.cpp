@@ -1193,6 +1193,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       ROMEConfigParameterGroup* subGroup = new ROMEConfigParameterGroup("Analyzer");
       subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
       mainParGroup->AddSubGroup(subGroup);
+
       // HistogramRead
       {
          ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("HistogramRead");
@@ -1213,6 +1214,18 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosPath(##.Data());");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosPath();");
+      }
+
+      // HistogramWrite
+      {
+         ROMEConfigParameterGroup* subSubGroup = new ROMEConfigParameterGroup("HistogramWrite");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+         subGroup->AddSubGroup(subSubGroup);
+         // Write
+         subSubGroup->AddParameter(new ROMEConfigParameter("Write","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosWrite(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosWrite()?1:0];");
       }
 
       // Macros

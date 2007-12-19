@@ -1253,42 +1253,45 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    Int_t iTask;
    ROMETask *task;
    TDirectory *taskHistoDirectory;
+   Int_t histDirNumber;
 
-   gROME->GetCurrentRunNumberString(runNumberString);
-   filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
-   gROME->ReplaceWithRunAndEventNumber(filename);
-   fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
-   ROMEString histoDirectoryName;
+   if (gROME->IsHistosWrite()) {
+      gROME->GetCurrentRunNumberString(runNumberString);
+      filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
+      gROME->ReplaceWithRunAndEventNumber(filename);
+      fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
+      ROMEString histoDirectoryName;
 
-   ROMEString histDirName = "histos";
-   Int_t histDirNumber = 1;
+      ROMEString histDirName = "histos";
+      histDirNumber = 1;
 
-   if (fHistoFile && !fHistoFile->IsZombie()) {
-      fHistoFile->cd();
+      if (fHistoFile && !fHistoFile->IsZombie()) {
+         fHistoFile->cd();
 
-      while (fHistoFile->Get(histDirName.Data())) {
-         histDirName.SetFormatted("histos-%d", histDirNumber++);
-      }
-#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
-      TDirectory *directory = new TDirectory(histDirName.Data(), "Histogram Directory");
-#else
-      TDirectory *directory = new TDirectoryFile(histDirName.Data(), "Histogram Directory");
-#endif
-      TObjArray *directories = new TObjArray();
-      gROME->ConstructHistoDirectories(directory,directories);
-      for (iTask = 0; iTask < gROME->GetTaskObjectEntries(); iTask++) {
-         task = gROME->GetTaskObjectAt(iTask);
-         taskHistoDirectory = ((TDirectory*)directories->At(iTask));
-         if (task->IsActive() && taskHistoDirectory) {
-            task->CopyHistosAndGraphs(taskHistoDirectory);
+         while (fHistoFile->Get(histDirName.Data())) {
+            histDirName.SetFormatted("histos-%d", histDirNumber++);
          }
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,15,2))
+         TDirectory *directory = new TDirectory(histDirName.Data(), "Histogram Directory");
+#else
+         TDirectory *directory = new TDirectoryFile(histDirName.Data(), "Histogram Directory");
+#endif
+         TObjArray *directories = new TObjArray();
+         gROME->ConstructHistoDirectories(directory,directories);
+         for (iTask = 0; iTask < gROME->GetTaskObjectEntries(); iTask++) {
+            task = gROME->GetTaskObjectAt(iTask);
+            taskHistoDirectory = ((TDirectory*)directories->At(iTask));
+            if (task->IsActive() && taskHistoDirectory) {
+               task->CopyHistosAndGraphs(taskHistoDirectory);
+            }
+         }
+         fHistoFile->Write();
+         fHistoFile->Close();
+         SafeDelete(fHistoFile);
+         SafeDelete(directories);
+         gROOT->cd();
+         delete [] directories;
       }
-      fHistoFile->Write();
-      fHistoFile->Close();
-      SafeDelete(fHistoFile);
-      SafeDelete(directories);
-      gROOT->cd();
-delete [] directories;
    }
 
    // Write trees
