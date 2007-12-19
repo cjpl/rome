@@ -163,6 +163,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fHistoFolders(new TObjArray(0))
 ,fHistoRead(kFALSE)
 ,fHistoRun(0)
+,fHistoWrite(kTRUE)
 ,fProgramName(programName)
 ,fOnlineHost("")
 ,fOnlineExperiment("")

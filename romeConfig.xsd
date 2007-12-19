@@ -551,6 +551,18 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="HistogramWriteDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the histogram/graph writing.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Write" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Write flag. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="MacrosDesc">
 		<xs:annotation>
 			<xs:documentation>Description of macros.</xs:documentation>
@@ -792,6 +804,11 @@
 			<xs:element name="HistogramRead" type="HistogramReadDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the histogram/graph reading. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistogramWrite" type="HistogramWriteDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the histogram/graph writing. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Macros" type="MacrosDesc" minOccurs="0">
