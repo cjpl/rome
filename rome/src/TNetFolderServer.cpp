@@ -271,8 +271,9 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       fclose(gSystem->TempFileName(newFileStr));
       gSystem->Unlink(newFileStr.Data());
 #else
-      GetTempFileName("c:\\", newFileStr.Data(), 0, tmpStr);
-      newFileStr = tmpStr;
+      char tmpPath[MAX_PATH];
+      GetTempFileName("c:\\", newFileStr.Data(), 0, tmpPath);
+      newFileStr = tmpPath;
 #endif
       newNameStr = orgNameStr;
       newNameStr.ReplaceAll(orgFileStr.Data(), newFileStr.Data());

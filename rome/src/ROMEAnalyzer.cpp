@@ -1891,7 +1891,9 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile) const
    fclose(gSystem->TempFileName(tmpFileName));
    gSystem->Unlink(tmpFileName.Data());
 #else
-   GetTempFileName("c:\\", "", 0, (char*)tmpFileName.Data());
+   char buf[MAX_PAth];
+   GetTempFileName("c:\\", "", 0, buf);
+   tmpFileName = buf;
 #endif
    tmpFileName += ".xml";
 
