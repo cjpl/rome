@@ -139,8 +139,10 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   gROME->ConstructFilePath(gROME->GetInputDirString(), romeTree->GetConfigInputFileName(),
                                            filename);
                } else {
-                  filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
-                  gROME->ReplaceWithRunAndEventNumber(filename);
+                  ROMEString tmpfilename;
+                  tmpfilename.SetFormatted("%s%s.root", romeTree->GetName(), runNumberString.Data());
+                  gROME->ConstructFilePath(gROME->GetInputDirString(), tmpfilename,
+                                           filename);
                }
                gSystem->ExpandPathName(filename);
                fRootFiles[j] = new TFile(filename.Data(),"READ");
