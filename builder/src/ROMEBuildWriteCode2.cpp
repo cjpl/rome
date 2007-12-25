@@ -4739,15 +4739,16 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
 #endif
       for (p = 0; p < desc.Length(); p++) {
          if (p == desc.Length() - 1) {
-            strcpy(tmp, desc(pLast, p - pLast).Data());
+            strcpy(tmp, desc(pLast, p - pLast + 1).Data());
             tmp[p - pLast + 1] = '\0';
-            if (tmp[p - pLast] == '\n')
+            if (tmp[p - pLast] == '\n') {
                tmp[p - pLast] = '\0';
+            }
             descs.Add(tmp);
             break;
          } else if (desc[p] == '\n') {
-            strcpy(tmp, desc(pLast, p - 1 - pLast).Data());
-            tmp[ p - 1 - pLast + 1] = '\0';
+            strcpy(tmp, desc(pLast, p - pLast).Data());
+            tmp[p - pLast] = '\0';
             descs.Add(tmp);
             pLast = p + 1;
             continue;
@@ -4762,7 +4763,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
                descs.Add(tmp);
                pLast = p;
             } else {
-               strcpy(tmp, desc(pLast, pSpace - pLast).Data());
+               strcpy(tmp, desc(pLast, pSpace - pLast + 1).Data());
                tmp[pSpace - pLast + 1] = '\0';
                descs.Add(tmp);
                pLast = pSpace + 1;
