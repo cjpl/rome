@@ -742,15 +742,7 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
 {
    const Int_t nRunNumber = fRunNumber.GetSize();
 
-   if (!nRunNumber) {
-      return -1;
-   }
-
-   // normal run number must be greater than 0.
-   if (runNumber <= 0) {
-      return fRunNumber.At(0);
-   }
-
+   // search current run number from the list
    for (Int_t i = 0; i < nRunNumber; i++) {
       if (fRunNumber.At(i) < 0) {
          if (TMath::Abs(fRunNumber.At(i)) <= runNumber && TMath::Abs(fRunNumber.At(i + 1)) > runNumber) {
@@ -761,13 +753,16 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
             return TMath::Abs(fRunNumber.At(i + 1));
          }
       }
-#if 0
-      // this does not allow decreasing order of execution
+   }
+
+   // in case that current run number is not in the list,
+   // return first run number larther than current run number
+   for (Int_t i = 0; i < nRunNumber; i++) {
       if (TMath::Abs(fRunNumber.At(i)) > runNumber) {
          return TMath::Abs(fRunNumber.At(i));
       }
-#endif
    }
+
    return -1;
 }
 
