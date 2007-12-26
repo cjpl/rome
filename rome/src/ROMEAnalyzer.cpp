@@ -741,9 +741,10 @@ Int_t ROMEAnalyzer::CheckNumber(Long64_t number, const TArrayL64 &numbers)
 Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
 {
    const Int_t nRunNumber = fRunNumber.GetSize();
+   Int_t i;
 
    // search current run number from the list
-   for (Int_t i = 0; i < nRunNumber; i++) {
+   for (i = 0; i < nRunNumber; i++) {
       if (fRunNumber.At(i) < 0) {
          if (TMath::Abs(fRunNumber.At(i)) <= runNumber && TMath::Abs(fRunNumber.At(i + 1)) > runNumber) {
             return runNumber + 1;
@@ -757,7 +758,7 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
 
    // in case that current run number is not in the list,
    // return first run number larther than current run number
-   for (Int_t i = 0; i < nRunNumber; i++) {
+   for (i = 0; i < nRunNumber; i++) {
       if (TMath::Abs(fRunNumber.At(i)) > runNumber) {
          return TMath::Abs(fRunNumber.At(i));
       }
