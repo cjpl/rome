@@ -139,6 +139,9 @@ ArgusWindow::~ArgusWindow()
    SafeDelete(fProgress);
 #endif
    SafeDelete(fSubWindowRunning);
+   SafeDeleteArray(fListTreeItem);
+   SafeDeleteArray(fParentIndex);
+   SafeDeleteArray(fNumberOfChildren);
 //   SafeDelete(fController); // fController can be deleted by clicking closed box.
 }
 

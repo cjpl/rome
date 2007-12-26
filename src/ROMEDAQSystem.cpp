@@ -70,11 +70,12 @@ Bool_t ROMEDAQSystem::TimeDAQ()
    for (i=0; i < 35 - 4 - 1 - str.Length(); i++) {
       ROMEPrint::Print(".");
    }
+   ROMEString str1, str2;
    ROMEPrint::Print(" : %s  %s",
-                    fWatchAll.GetRealTimeString(str),
-                    fWatchAll.GetCpuTimeString(str));
+                    fWatchAll.GetRealTimeString(str1),
+                    fWatchAll.GetCpuTimeString(str2));
 //   if (fWatchEvent.CpuTime() > 0) {
-   ROMEPrint::Print("  %s\n", fWatchEvent.GetCpuTimeString(str));
+   ROMEPrint::Print("  %s\n", fWatchEvent.GetCpuTimeString(str1));
 //   } else {
 //      ROMEPrint::Print("\n");
 //   }
