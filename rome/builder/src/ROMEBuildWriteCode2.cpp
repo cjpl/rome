@@ -4771,7 +4771,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
                   tmp[p - pLast + 1] = '\0';
                   descs.Add(tmp);
                } else {
-                  descs.Add(tmp);
+                  descs.Add("");
                }
                pLast = p;
             } else {
@@ -4780,7 +4780,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
                   tmp[pSpace - pLast + 1] = '\0';
                   descs.Add(tmp);
                } else {
-                  descs.Add(tmp);
+                  descs.Add("");
                }
                pLast = pSpace + 1;
             }
