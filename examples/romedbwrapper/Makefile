@@ -36,7 +36,7 @@ rootcflags:= $(shell $(ROOTCONFIG) --cflags)
 sqllibs   :=  -lsqlite3
 sqlcflags := -DHAVE_SQL -DHAVE_SQLITE3
 
-CFlags    := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags) -g -Wall -W
+CFlags    := $(OSCFLAGS) $(rootcflags) $(sqlcflags) -g -Wall -W
 FFlags    := -g -Wall -W
 Libraries :=
 Libraries += $(oslibs) $(sqllibs) $(rootlibs)
