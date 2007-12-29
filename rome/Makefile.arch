@@ -3,7 +3,7 @@
 #  Name:         Makefile.arch
 #  Created by:   Ryu Sawada
 #
-# $Id:$
+# $Id$
 #
 #####################################################################
 OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
@@ -37,6 +37,8 @@ SOFLAGS := -dynamiclib -single_module -undefined dynamic_lookup
 endif
 endif
 SOEXT = dylib
+OSCFLAGS = -fno-common
+OSCXXFLAGS = -fno-common
 # this is temporary fix of dictionary generation on Mac OSX 10.5
 # this can be removed after ROOT group fix the problem related to
 # __builtin_va_list in _types.h
