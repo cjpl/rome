@@ -736,14 +736,14 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
       subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetInputDir(##);");
-      subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetInputDir();");
+      subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetRawInputDir();");
       // OutputFilePath
       subGroup->AddParameter(new ROMEConfigParameter("OutputFilePath"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
       subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputDir(##);");
-      subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputDir();");
+      subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetRawOutputDir();");
       // OutputFileOption
       subGroup->AddParameter(new ROMEConfigParameter("OutputFileOption","1","ComboBox"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());

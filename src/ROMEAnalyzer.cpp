@@ -119,11 +119,15 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fDontReadNextEvent(kFALSE)
 ,fSkipEvent(kFALSE)
 ,fInputDir("./")
+,fInputDirConstructed("")
 ,fOutputDir("./")
+,fOutputDirConstructed("")
 ,fOutputFileOption("RECREATE")
 ,fOutputObjOption(TObject::kOverwrite)
 ,fDataBaseDir(0)
+,fDataBaseDirConstructed(0)
 ,fConfigDir("./")
+,fConfigDirConstructed("")
 ,fMakeOutputDirectory(kFALSE)
 ,fCurrentRunNumber(0)
 ,fRunNumber()
@@ -239,6 +243,7 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDeleteArray(fDataBaseConnection);
    SafeDeleteArray(fDataBaseName);
    SafeDeleteArray(fDataBaseDir);
+   SafeDeleteArray(fDataBaseDirConstructed);
    SafeDeleteArray(fDataBaseHandle);
    SafeDeleteArray(fStatistics);
    gROME = 0;
@@ -1499,6 +1504,7 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
    fDataBaseConnection = new ROMEString[number];
    fDataBaseName = new ROMEString[number];
    fDataBaseDir = new ROMEString[number];
+   fDataBaseDirConstructed = new ROMEString[number];
    fNumberOfDataBases = number;
    for(i = 0; i < fNumberOfDataBases; i++) {
       fDataBaseHandle[i] = 0;
@@ -1944,22 +1950,53 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile) const
 //______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsTaskActive(Int_t taskIndex)
 {
-   if (IsROMEMonitor())
+   if (IsROMEMonitor()) {
       return GetSocketClientNetFolder()->IsTaskActive(taskIndex);
+   }
    return GetTaskObjectAt(taskIndex)->IsActive();
 }
 //______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsHistoActive(Int_t taskIndex,Int_t histoIndex)
 {
-   if (IsROMEMonitor())
+   if (IsROMEMonitor()) {
       return GetSocketClientNetFolder()->IsHistoActive(taskIndex,histoIndex);
+   }
    return GetTaskObjectAt(taskIndex)->GetHistoParameterAt(histoIndex)->IsActive();
 }
+
 //______________________________________________________________________________
 Bool_t ROMEAnalyzer::IsGraphActive(Int_t taskIndex,Int_t graphIndex)
 {
-   if (IsROMEMonitor())
+   if (IsROMEMonitor()) {
       return GetSocketClientNetFolder()->IsGraphActive(taskIndex,graphIndex);
+   }
    return GetTaskObjectAt(taskIndex)->GetGraphParameterAt(graphIndex)->IsActive();
 }
 
+//______________________________________________________________________________
+const ROMEString& ROMEAnalyzer::GetInputDirString()
+{
+   ConstructFilePath(fInputDir, "", fInputDirConstructed);
+   return fInputDirConstructed;
+}
+
+//______________________________________________________________________________
+const ROMEString& ROMEAnalyzer::GetOutputDirString()
+{
+   ConstructFilePath(fOutputDir, "", fOutputDirConstructed);
+   return fOutputDirConstructed;
+}
+
+//______________________________________________________________________________
+const ROMEString& ROMEAnalyzer::GetDataBaseDirString(Int_t i)
+{
+   ConstructFilePath(fDataBaseDir[i], "", fDataBaseDirConstructed[i]);
+   return fDataBaseDirConstructed[i];
+}
+
+//______________________________________________________________________________
+const ROMEString& ROMEAnalyzer::GetConfigDirString()
+{
+   ConstructFilePath(fConfigDir, "", fConfigDirConstructed);
+   return fConfigDirConstructed;
+}

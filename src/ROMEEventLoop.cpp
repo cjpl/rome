@@ -1258,7 +1258,6 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    if (gROME->IsHistosWrite()) {
       gROME->GetCurrentRunNumberString(runNumberString);
       filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
-      gROME->ReplaceWithRunAndEventNumber(filename);
       fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
       ROMEString histoDirectoryName;
 

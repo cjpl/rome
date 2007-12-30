@@ -10965,9 +10965,9 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   if (inputFile) {\n");
-      buffer.AppendFormatted("      gAnalyzer->ConstructFilePath(gAnalyzer->GetInputDirString(), base, buffer);\n");
+      buffer.AppendFormatted("      gAnalyzer->ConstructFilePath(gAnalyzer->GetRawInputDirString(), base, buffer);\n");
       buffer.AppendFormatted("   } else {\n");
-      buffer.AppendFormatted("      gAnalyzer->ConstructFilePath(gAnalyzer->GetOutputDirString(), base, buffer);\n");
+      buffer.AppendFormatted("      gAnalyzer->ConstructFilePath(gAnalyzer->GetRawOutputDirString(), base, buffer);\n");
       buffer.AppendFormatted("   }\n");
    } else {
       buffer.AppendFormatted("   return;\n");
