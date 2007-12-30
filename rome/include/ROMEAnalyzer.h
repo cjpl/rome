@@ -131,11 +131,15 @@ protected:
 
    // Directories
    ROMEString     fInputDir;                     //! General Input Directory
+   ROMEString     fInputDirConstructed;          //! General Input Directory (parsed)
    ROMEString     fOutputDir;                    //! General Output Directory
+   ROMEString     fOutputDirConstructed;         //! General Output Directory (parsed)
    ROMEString     fOutputFileOption;             //! General Output File Option
    Int_t          fOutputObjOption;              //! General Write Option
    ROMEString    *fDataBaseDir;                  //! Data Base File Directories
+   ROMEString    *fDataBaseDirConstructed;       //! Data Base File Directories (parsed)
    ROMEString     fConfigDir;                    //! Configuration File Directory
+   ROMEString     fConfigDirConstructed;         //! Configuration File Directory (parsed)
    Bool_t         fMakeOutputDirectory;          //! Flag if create directory for output file
 
    // Run Numbers
@@ -336,16 +340,25 @@ public:
    void            SetConfigOffline() { fAnalysisModeConfig = kAnalyzeOffline; }
 
    // Directories
-   const char     *GetInputDir() const            { return fInputDir.Data(); }
-   const char     *GetOutputDir() const           { return fOutputDir.Data(); }
-   const char     *GetOutputFileOption() const    { return fOutputFileOption.Data(); }
-   Int_t           GetOutputObjOption() const     { return fOutputObjOption; }
-   const char     *GetDataBaseDir(Int_t i) const  { return fDataBaseDir[i].Data(); }
-   const char     *GetConfigDir() const           { return fConfigDir.Data(); }
-   const ROMEString &GetInputDirString() const           { return fInputDir; }
-   const ROMEString &GetOutputDirString() const          { return fOutputDir; }
-   const ROMEString &GetDataBaseDirString(Int_t i) const { return fDataBaseDir[i]; }
-   const ROMEString &GetConfigDirString() const          { return fConfigDir; }
+   const char     *GetInputDir()                     { return GetInputDirString().Data(); }
+   const char     *GetOutputDir()                    { return GetOutputDirString().Data(); }
+   const char     *GetOutputFileOption() const       { return fOutputFileOption.Data(); }
+   Int_t           GetOutputObjOption() const        { return fOutputObjOption; }
+   const char     *GetDataBaseDir(Int_t i)           { return GetDataBaseDirString(i).Data(); }
+   const char     *GetConfigDir()                    { return GetConfigDirString().Data(); }
+   const char     *GetRawInputDir() const            { return fInputDir.Data(); }
+   const char     *GetRawOutputDir() const           { return fOutputDir.Data(); }
+   const char     *GetRawDataBaseDir(Int_t i) const  { return fDataBaseDir[i].Data(); }
+   const char     *GetRawConfigDir() const           { return fConfigDir.Data(); }
+
+   const ROMEString &GetInputDirString();
+   const ROMEString &GetOutputDirString();
+   const ROMEString &GetDataBaseDirString(Int_t i);
+   const ROMEString &GetConfigDirString();
+   const ROMEString &GetRawInputDirString() const           { return fInputDir; }
+   const ROMEString &GetRawOutputDirString() const          { return fOutputDir; }
+   const ROMEString &GetRawDataBaseDirString(Int_t i) const { return fDataBaseDir[i]; }
+   const ROMEString &GetRawConfigDirString() const          { return fConfigDir; }
 
    void            SetInputDir(const char *dir) { fInputDir = dir; }
    void            SetInputDir(ROMEString &dir) { fInputDir = dir; }
