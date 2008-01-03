@@ -14,7 +14,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
 {
    xml = new ROMEXML();
    xml->OpenFileForPath(xmlFile.Data());
-   xml->GetPathAttribute("ROMEFrameworkDefinition", "xsi:noNamespaceSchemaLocation",xsdFile,"rome.xsd");
+   xml->GetPathAttribute("ROMEFrameworkDefinition", "xsi:noNamespaceSchemaLocation", xsdFile, "rome.xsd");
 
    Int_t nfound;
    Int_t nfound2;
@@ -27,7 +27,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    maxNumberOfFolders = 0;
    path = "ROMEFrameworkDefinition/Folders";
    while(1) {
-      path.AppendFormatted("/Folder");
+      path.Append("/Folder");
       nfound = xml->NumberOfOccurrenceOfPath(path);
       if (nfound) {
          maxNumberOfFolders += nfound;
@@ -37,7 +37,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    }
    path = "ROMEFrameworkDefinition/SupportFolders";
    while(1) {
-      path.AppendFormatted("/SupportFolder");
+      path.Append("/SupportFolder");
       nfound = xml->NumberOfOccurrenceOfPath(path);
       if (nfound) {
          maxNumberOfFolders += nfound;
@@ -51,7 +51,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tmp = 0;
    path = "ROMEFrameworkDefinition/Tasks";
    while(1) {
-      path.AppendFormatted("/Task");
+      path.Append("/Task");
       nfound = xml->NumberOfOccurrenceOfPath(path);
       if (nfound) {
          tmp += nfound;
@@ -62,7 +62,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tmp2 = 0;
    path = "ROMEFrameworkDefinition/TaskHierarchy";
    while(1) {
-      path.AppendFormatted("/Task");
+      path.Append("/Task");
       nfound = xml->NumberOfOccurrenceOfPath(path);
       if (nfound) {
          tmp2 += nfound;
@@ -76,7 +76,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    maxNumberOfTabs = 0;
    path = "ROMEFrameworkDefinition/Tabs";
    while(1) {
-      path.AppendFormatted("/Tab");
+      path.Append("/Tab");
       nfound = xml->NumberOfOccurrenceOfPath(path);
       if (nfound) {
          maxNumberOfTabs += nfound;
@@ -86,9 +86,9 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    }
    path = "ROMEFrameworkDefinition/Tasks";
    while(1) {
-      path.AppendFormatted("/Task");
+      path.Append("/Task");
       path2 = path;
-      path2.AppendFormatted("/Histogram/Argus/Tab");
+      path2.Append("/Histogram/Argus/Tab");
       nfound = xml->NumberOfOccurrenceOfPath(path);
       nfound2 = xml->NumberOfOccurrenceOfPath(path2);
       if (nfound) {
@@ -128,25 +128,35 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
       // Dict headers
       path = "ROMEFrameworkDefinition/UserMakeFile/DictionaryHeaders/Header";
       maxNumberOfMFDictHeaders = xml->NumberOfOccurrenceOfPath(path);
+
       // Dict include directories
       path = "ROMEFrameworkDefinition/UserMakeFile/DictionaryIncludesDirectories/IncludeDirectory";
       maxNumberOfMFDictIncDirs = xml->NumberOfOccurrenceOfPath(path);
+
       // Windows libraries
       path = "ROMEFrameworkDefinition/UserMakeFile/WindowsLibraries/Library";
       maxNumberOfMFWinLibs = xml->NumberOfOccurrenceOfPath(path);
+
       // UNIX libraries
       path = "ROMEFrameworkDefinition/UserMakeFile/UnixLibraries/Library";
       maxNumberOfMFUnixLibs = xml->NumberOfOccurrenceOfPath(path);
+
       // Include directories
       path = "ROMEFrameworkDefinition/UserMakeFile/IncludeDirectories/IncludeDirectory";
       maxNumberOfMFIncDirs = xml->NumberOfOccurrenceOfPath(path);
+
       // Preprocessor
       path = "ROMEFrameworkDefinition/UserMakeFile/PreprocessorDefinition/Name";
       maxNumberOfMFPreDefs = xml->NumberOfOccurrenceOfPath(path);
+
       // Source
       path = "ROMEFrameworkDefinition/UserMakeFile/AdditionalFiles/File";
       maxNumberOfMFSources = xml->NumberOfOccurrenceOfPath(path);
    }
+
+   CountXMLOccurrenceTask(xml, "ROMEFrameworkDefinition/Tasks");
+   CountXMLOccurrenceTab(xml, "ROMEFrameworkDefinition/Tabs");
+   CountXMLOccurrenceGSP(xml);
 
    // Allocate memory
    parent = static_cast<ROMEString*>(AllocateROMEString(TMath::Max(maxNumberOfTasks,maxNumberOfFolders) + 1));
@@ -1908,6 +1918,13 @@ Bool_t ROMEBuilder::ReadXMLTask()
       }
       // task histogram
       if (type == 1 && !strcmp(name,"Histogram")) {
+         if (numOfHistos[numOfTask] >= maxNumberOfHistos) {
+            cout<<"Maximal number of histos in task '"<<taskName[numOfTask].Data()<<"' reached : "
+                <<maxNumberOfHistos<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+
          // histogram initialisation
          histoComment[numOfTask][numOfHistos[numOfTask]] = "";
          histoName[numOfTask][numOfHistos[numOfTask]] = "";
@@ -2133,16 +2150,17 @@ Bool_t ROMEBuilder::ReadXMLTask()
          }
          // count histos
          numOfHistos[numOfTask]++;
-         if (numOfHistos[numOfTask] >= maxNumberOfHistos) {
-            cout<<"Maximal number of histos in task '"<<taskName[numOfTask].Data()<<"' reached : "
-                <<maxNumberOfHistos<<" !"<<endl;
-            cout<<"Terminating program."<<endl;
-            return false;
-         }
          continue;
       }
       // task graph
       if (type == 1 && !strcmp(name,"Graph")) {
+         if (numOfGraphs[numOfTask] >= maxNumberOfGraphs) {
+            cout<<"Maximal number of graphs in task '"<<taskName[numOfTask].Data()<<"' reached : "
+                <<maxNumberOfGraphs<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+
          // graph initialisation
          graphName[numOfTask][numOfGraphs[numOfTask]] = "";
          graphTitle[numOfTask][numOfGraphs[numOfTask]] = "";
@@ -2348,12 +2366,6 @@ Bool_t ROMEBuilder::ReadXMLTask()
          }
          // count graphs
          numOfGraphs[numOfTask]++;
-         if (numOfGraphs[numOfTask] >= maxNumberOfGraphs) {
-            cout<<"Maximal number of graphs in task '"<<taskName[numOfTask].Data()<<"' reached : "
-                <<maxNumberOfGraphs<<" !"<<endl;
-            cout<<"Terminating program."<<endl;
-            return false;
-         }
          continue;
       }
       // task connected from
@@ -2424,12 +2436,11 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabKnownProblems[currentNumberOfTabs] = "";
    tabHeredity[currentNumberOfTabs] = "";
    tabHeredityIndex[currentNumberOfTabs] = 0;
-   numOfSteering[currentNumberOfTabs+numOfTask + 1] = -1;
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
    numOfThreadFunctions[currentNumberOfTabs] = 0;
    numOfTabSingleObjects[currentNumberOfTabs] = 0;
-   numOfSteering[currentNumberOfTabs+numOfTask + 1] = 0;
+   numOfSteering[currentNumberOfTabs+numOfTask + 1] = -1;
    numOfSteerFields[currentNumberOfTabs+numOfTask + 1][0] = 0;
    numOfSteerChildren[currentNumberOfTabs+numOfTask + 1][0] = 0;
    numOfTabObjectDisplays[currentNumberOfTabs] = 0;
@@ -4376,6 +4387,17 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
       }
       // steering parameter field
       if (type == 1 && !strcmp(name,"SteeringParameterField")) {
+         if (numOfSteerFields[iTask][actualSteerIndex] >= maxNumberOfSteeringField) {
+#if 0 /* this does not work. Correct thing from taskName,tabName or GSP must be used. (Anyway this part will not be called) */
+            cout<<"Maximal number of steering parameter fields in task '"<<taskName[iTask].Data()<<"' reached : "
+                <<maxNumberOfSteeringField<<" !"<<endl;
+#else
+            cout<<"Maximal number of steering parameter fields reached : "<<maxNumberOfSteeringField<<" !"<<endl;
+#endif
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+
          // include initialisation
          bool readName = false;
          bool readType = false;
@@ -4581,12 +4603,6 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
          }
          // count includes
          numOfSteerFields[iTask][actualSteerIndex]++;
-         if (numOfSteerFields[iTask][actualSteerIndex] >= maxNumberOfSteeringField) {
-            cout<<"Maximal number of steering parameter fields in task '"<<taskName[iTask].Data()<<"' reached : "
-                <<maxNumberOfSteeringField<<" !"<<endl;
-            cout<<"Terminating program."<<endl;
-            return false;
-         }
          continue;
       }
    }
@@ -4979,4 +4995,109 @@ void ROMEBuilder::FormatText(ROMEString& str, Bool_t stripSpace, const char* inv
          str.ReplaceAll(t, "");
       }
    }
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root)
+{
+   ROMEString path;
+
+   // Histograms
+   path.SetFormatted("%s/Histogram", root);
+   Int_t nHist = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nHist > maxNumberOfHistos) {
+      maxNumberOfHistos = nHist;
+   }
+
+   // Graph
+   path.SetFormatted("%s/Graph", root);
+   Int_t nGraph = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nGraph > maxNumberOfGraphs) {
+      maxNumberOfGraphs = nGraph;
+   }
+
+   // Steering
+   Int_t nSteering = 1;
+   path.SetFormatted("%s/SteeringParameters", root);
+   CountXMLOccurrenceSteering(xmlfile, path.Data(), nSteering);
+   if (nSteering > maxNumberOfSteering) {
+      maxNumberOfSteering = nSteering;
+   }
+
+   // Sub task
+   path.SetFormatted("%s/Task", root);
+   Int_t nSubTask = xmlfile->NumberOfOccurrenceOfPath(path);
+   Int_t iSubTask;
+   for (iSubTask = 0; iSubTask < nSubTask; iSubTask++) {
+      path.SetFormatted("%s/Task[%d]", root, iSubTask + 1);
+      CountXMLOccurrenceTask(xmlfile, path.Data());
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* root)
+{
+   ROMEString path;
+
+   // Steering
+   Int_t nSteering = 1;
+   path.SetFormatted("%s/SteeringParameters", root);
+   CountXMLOccurrenceSteering(xmlfile, path.Data(), nSteering);
+   if (nSteering > maxNumberOfSteering) {
+      maxNumberOfSteering = nSteering;
+   }
+
+   // Sub tab
+   path.SetFormatted("%s/Tab", root);
+   Int_t nSubTab = xmlfile->NumberOfOccurrenceOfPath(path);
+   Int_t iSubTab;
+   for (iSubTab = 0; iSubTab < nSubTab; iSubTab++) {
+      path.SetFormatted("%s/Tab[%d]", root, iSubTab + 1);
+      CountXMLOccurrenceTab(xmlfile, path.Data());
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceGSP(const ROMEXML *xmlfile)
+{
+   ROMEString path;
+
+   // Steering
+   Int_t nSteering = 1;
+   path = "ROMEFrameworkDefinition/GlobalSteeringParameters";
+   CountXMLOccurrenceSteering(xmlfile, path.Data(), nSteering);
+   if (nSteering > maxNumberOfSteering) {
+      maxNumberOfSteering = nSteering;
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceSteering(const ROMEXML *xmlfile, const char* root, Int_t &nSteering)
+{
+   ROMEString path;
+
+   // Steering fields
+   path.SetFormatted("%s/SteeringParameterField", root);
+   Int_t nField = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nField > maxNumberOfSteeringField) {
+      maxNumberOfSteeringField = nField;
+   }
+
+   // Sub steering
+   path.SetFormatted("%s/SteeringParameterGroup", root);
+   Int_t nSubSteering = xmlfile->NumberOfOccurrenceOfPath(path);
+   nSteering += nSubSteering;
+   Int_t iSubSteering;
+   for (iSubSteering = 0; iSubSteering < nSubSteering; iSubSteering++) {
+      path.SetFormatted("%s/SteeringParameterGroup[%d]", root, iSubSteering + 1);
+      CountXMLOccurrenceSteering(xmlfile, path.Data(), nSteering);
+   }
+
+   return kTRUE;
 }

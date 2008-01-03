@@ -64,6 +64,8 @@ ROMEBuilder::ROMEBuilder()
 ,readGlobalSteeringParameters(kFALSE)
 ,hasStructuredBank(kFALSE)
 ,maxNumberOfTasks(0)
+,maxNumberOfHistos(0)
+,maxNumberOfGraphs(0)
 ,maxNumberOfFolders(0)
 ,maxNumberOfTrees(0)
 ,maxNumberOfDAQ(0)
@@ -79,6 +81,8 @@ ROMEBuilder::ROMEBuilder()
 ,maxNumberOfMFSources(0)
 ,maxNumberOfTabs(0)
 ,maxNumberOfNetFolders(0)
+,maxNumberOfSteering(0)
+,maxNumberOfSteeringField(0)
 ,parent(0)
 ,recursiveDepth(0)
 ,recursiveSteerDepth(0)
@@ -796,7 +800,6 @@ ROMEBuilder::~ROMEBuilder()
 //______________________________________________________________________________
 Bool_t ROMEBuilder::StartBuilder()
 {
-
    int i,j,k,l;
    bool found;
    ROMEString str;
@@ -823,9 +826,6 @@ Bool_t ROMEBuilder::StartBuilder()
    tabObjectDisplaySupportedObjects.AddLast("TH3F");
    tabObjectDisplaySupportedObjects.AddLast("TH3D");
 
-   TString::MaxWaste(kTStringResizeIncrement-1);
-   TString::ResizeIncrement(kTStringResizeIncrement);
-
    configXSD = new ROMEXML();
    configXSD->OpenFileForPath(gSystem->ExpandPathName("$(ROMESYS)/romeConfig.xsd"));
 
@@ -834,9 +834,9 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!ReadXMLDefinitionFile())
       return false;
 
-   int tabNumber=numOfTab;
-   int histoNumber=0;
-   int graphNumber=0;
+   int tabNumber   = numOfTab;
+   int histoNumber = 0;
+   int graphNumber = 0;
    int is,ie,ind;
 
    // Assign Single Object Tabs
@@ -1142,6 +1142,10 @@ Bool_t ROMEBuilder::StartBuilder()
    newFile.SetFormatted("%sres/xmltoform/PadConfigDia.xml", outDir.Data());
    CopyFile(oldFile.Data(),newFile.Data());
 
+   // set TString increments
+   TString::MaxWaste(kTStringResizeIncrement - 1);
+   TString::ResizeIncrement(kTStringResizeIncrement);
+
    // write classes
    if (!AddConfigParameters()) return false;
    if (!CheckConfigParameters(mainParGroup)) return false;
@@ -1220,7 +1224,6 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteDOT()) return false;
    if (!WriteVersionH()) return false;
 
-   ROMEString buffer;
    gSystem->ChangeDirectory(outDir.Data());
 
 // Linking
@@ -2146,12 +2149,12 @@ void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, 
    Int_t i;
 
    while(1) {
-      if(x1) n++; else break;
-      if(x2) n++; else break;
-      if(x3) n++; else break;
-      if(x4) n++; else break;
-      if(x5) n++; else break;
-      if(x6) n++; else break;
+      if(x1 >= 0) n++; else break;
+      if(x2 >= 0) n++; else break;
+      if(x3 >= 0) n++; else break;
+      if(x4 >= 0) n++; else break;
+      if(x5 >= 0) n++; else break;
+      if(x6 >= 0) n++; else break;
       break;
    }
 

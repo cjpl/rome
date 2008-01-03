@@ -22,8 +22,6 @@ const Int_t maxNumberOfPathObjectInterpreterCodes = 10;
 const Int_t maxNumberOfInclude = 50;
 const Int_t maxNumberOfValues = 100;
 const Int_t maxNumberOfValueDimension = 3;
-const Int_t maxNumberOfHistos = 100;
-const Int_t maxNumberOfGraphs = 50;
 const Int_t maxNumberOfHistoSingleObjectTabs = 20;
 const Int_t maxNumberOfGraphSingleObjectTabs = 20;
 const Int_t maxNumberOfTabSingleObjects = 40;
@@ -40,8 +38,6 @@ const Int_t maxNumberOfBanks = 50;
 const Int_t maxNumberOfRootBranches = 20;
 const Int_t maxNumberOfRootBranchFields = 20;
 const Int_t maxNumberOfStructFields = 50;
-const Int_t maxNumberOfSteering = 50;
-const Int_t maxNumberOfSteeringField = 100;
 const Int_t maxNumberOfMFWinLibFlags = 10;
 const Int_t maxNumberOfMFUnixLibFlags = 10;
 const Int_t maxNumberOfMFSourceFlags = 10;
@@ -126,6 +122,8 @@ protected:
 
    // max numbers
    Int_t maxNumberOfTasks;
+   Int_t maxNumberOfHistos;
+   Int_t maxNumberOfGraphs;
    Int_t maxNumberOfFolders;
    Int_t maxNumberOfTrees;
    Int_t maxNumberOfDAQ;
@@ -141,6 +139,8 @@ protected:
    Int_t maxNumberOfMFSources;
    Int_t maxNumberOfTabs;
    Int_t maxNumberOfNetFolders;
+   Int_t maxNumberOfSteering;
+   Int_t maxNumberOfSteeringField;
 
    ROMEString   *parent;
    Int_t         recursiveDepth;
@@ -594,6 +594,10 @@ public:
 
 private:
    // XML Read Methods
+   Bool_t  CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root);
+   Bool_t  CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* root);
+   Bool_t  CountXMLOccurrenceGSP(const ROMEXML *xmlfile);
+   Bool_t  CountXMLOccurrenceSteering(const ROMEXML *xmlfile, const char* root, Int_t &nSteering);
    Bool_t  AllocateMemorySpace();
    Bool_t  ReadXMLDefinitionFile();
    Bool_t  ReadXMLFolder();
@@ -826,11 +830,11 @@ private:
    Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
    Bool_t  CopyFile(const char* oldFileName,const char* newFileName);
 
-   template <class T> void* AllocateArray(T* p0, Int_t x1 = 0, Int_t x2 = 0, Int_t x3 = 0, Int_t x4 = 0,
-                                          Int_t x5 = 0, Int_t x6 = 0);
-   void* AllocateInt(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
-   void* AllocateBool(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
-   void* AllocateROMEString(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
+   template <class T> void* AllocateArray(T* p0, Int_t x1 = -1, Int_t x2 = -1, Int_t x3 = -1, Int_t x4 = -1,
+                                          Int_t x5 = -1, Int_t x6 = -1);
+   void* AllocateInt(Int_t x1, Int_t x2= -1, Int_t x3= -1, Int_t x4= -1, Int_t x5= -1, Int_t x6= -1);
+   void* AllocateBool(Int_t x1, Int_t x2= -1, Int_t x3= -1, Int_t x4= -1, Int_t x5= -1, Int_t x6= -1);
+   void* AllocateROMEString(Int_t x1, Int_t x2= -1, Int_t x3= -1, Int_t x4= -1, Int_t x5= -1, Int_t x6= -1);
 
    ROMEString& ProcessCommentCPP(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentHTML(ROMEString& org, ROMEString& result);
