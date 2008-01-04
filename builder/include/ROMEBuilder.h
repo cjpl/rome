@@ -20,7 +20,6 @@ class ROMEConfigParameterGroup;
 
 const Int_t maxNumberOfPathObjectInterpreterCodes = 10;
 const Int_t maxNumberOfInclude = 50;
-const Int_t maxNumberOfValues = 100;
 const Int_t maxNumberOfValueDimension = 3;
 const Int_t maxNumberOfHistoSingleObjectTabs = 20;
 const Int_t maxNumberOfGraphSingleObjectTabs = 20;
@@ -32,7 +31,6 @@ const Int_t maxNumberOfMenus = 20;
 const Int_t maxNumberOfMenuItems = 100;
 const Int_t maxNumberOfThreadFunctions = 10;
 const Int_t maxNumberOfThreadFunctionArguments = 10;
-const Int_t maxNumberOfBranches = 50;
 const Int_t maxNumberOfRunHeaders = 50;
 const Int_t maxNumberOfBanks = 50;
 const Int_t maxNumberOfRootBranches = 20;
@@ -41,10 +39,8 @@ const Int_t maxNumberOfStructFields = 50;
 const Int_t maxNumberOfMFWinLibFlags = 10;
 const Int_t maxNumberOfMFUnixLibFlags = 10;
 const Int_t maxNumberOfMFSourceFlags = 10;
-const Int_t maxNumberOfAffiliations = 20;
 const Int_t maxNumberOfArguments = 40;
 const Int_t maxNumberOfClassesInDictionary = 15;
-const Int_t maxNumberOfAuthors = 20;
 
 const Ssiz_t kTStringResizeIncrement = 1<<15;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
@@ -125,7 +121,9 @@ protected:
    Int_t maxNumberOfHistos;
    Int_t maxNumberOfGraphs;
    Int_t maxNumberOfFolders;
+   Int_t maxNumberOfValues;
    Int_t maxNumberOfTrees;
+   Int_t maxNumberOfBranches;
    Int_t maxNumberOfDAQ;
    Int_t maxNumberOfDB;
    Int_t maxNumberOfEvents;
@@ -141,6 +139,8 @@ protected:
    Int_t maxNumberOfNetFolders;
    Int_t maxNumberOfSteering;
    Int_t maxNumberOfSteeringField;
+   Int_t maxNumberOfAffiliations;
+   Int_t maxNumberOfAuthors;
 
    ROMEString   *parent;
    Int_t         recursiveDepth;
@@ -594,8 +594,11 @@ public:
 
 private:
    // XML Read Methods
-   Bool_t  CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root);
+   Bool_t  CountXMLOccurrenceFolder(const ROMEXML *xmlfile, const char* root);
+   Bool_t  CountXMLOccurrenceTaskHierarchy(const ROMEXML *xmlfile, const char* root, Int_t &nTaskHierarchy);
+   Bool_t  CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root, Int_t &nTask);
    Bool_t  CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* root);
+   Bool_t  CountXMLOccurrenceTree(const ROMEXML *xmlfile, const char* root);
    Bool_t  CountXMLOccurrenceGSP(const ROMEXML *xmlfile);
    Bool_t  CountXMLOccurrenceSteering(const ROMEXML *xmlfile, const char* root, Int_t &nSteering);
    Bool_t  AllocateMemorySpace();

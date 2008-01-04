@@ -22,6 +22,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    Int_t tmp2;
    ROMEString path;
    ROMEString path2;
+   Int_t nAffiliation;
 
    // Folders
    maxNumberOfFolders = 0;
@@ -110,6 +111,15 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    // User DAQ system
    path = "ROMEFrameworkDefinition/UserDAQSystems/UserDAQSystem";
    maxNumberOfDAQ = xml->NumberOfOccurrenceOfPath(path);
+   Int_t iDAQ;
+   for (iDAQ = 0; iDAQ < maxNumberOfDAQ; iDAQ++) {
+      path2 = path;
+      path2.AppendFormatted("[%d]/Affiliation", iDAQ + 1);
+      nAffiliation = xml->NumberOfOccurrenceOfPath(path2);
+      if (nAffiliation > maxNumberOfAffiliations) {
+         maxNumberOfAffiliations = nAffiliation;
+      }
+   }
 
    // Use database
    path = "ROMEFrameworkDefinition/UserDataBasess/UserDataBase";
@@ -128,6 +138,15 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
       // Dict headers
       path = "ROMEFrameworkDefinition/UserMakeFile/DictionaryHeaders/Header";
       maxNumberOfMFDictHeaders = xml->NumberOfOccurrenceOfPath(path);
+      Int_t iMFDictHeader;
+      for (iMFDictHeader = 0; iMFDictHeader < maxNumberOfMFDictHeaders; iMFDictHeader++) {
+         path2 = path;
+         path2.AppendFormatted("[%d]/Affiliation", iMFDictHeader + 1);
+         nAffiliation = xml->NumberOfOccurrenceOfPath(path2);
+         if (nAffiliation > maxNumberOfAffiliations) {
+            maxNumberOfAffiliations = nAffiliation;
+         }
+      }
 
       // Dict include directories
       path = "ROMEFrameworkDefinition/UserMakeFile/DictionaryIncludesDirectories/IncludeDirectory";
@@ -152,10 +171,41 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
       // Source
       path = "ROMEFrameworkDefinition/UserMakeFile/AdditionalFiles/File";
       maxNumberOfMFSources = xml->NumberOfOccurrenceOfPath(path);
+      Int_t iMFSource;
+      for (iMFSource = 0; iMFSource < maxNumberOfMFSources; iMFSource++) {
+         path2 = path;
+         path2.AppendFormatted("[%d]/Affiliation", iMFSource + 1);
+         nAffiliation = xml->NumberOfOccurrenceOfPath(path2);
+         if (nAffiliation > maxNumberOfAffiliations) {
+            maxNumberOfAffiliations = nAffiliation;
+         }
+      }
    }
 
-   CountXMLOccurrenceTask(xml, "ROMEFrameworkDefinition/Tasks");
+   // Authors
+   path = "ROMEFrameworkDefinition/Author";
+   maxNumberOfAuthors = xml->NumberOfOccurrenceOfPath(path); // this will be updated in following functions
+
+   CountXMLOccurrenceFolder(xml, "ROMEFrameworkDefinition/Folders");
+
+   Int_t nTaskHierarchy = 0;
+   CountXMLOccurrenceTaskHierarchy(xml, "ROMEFrameworkDefinition/TaskHierarchy", nTaskHierarchy);
+   if (maxNumberOfValues < nTaskHierarchy + 2) {
+      // this is for ConfigParameterFolder.
+      maxNumberOfValues = nTaskHierarchy + 2;
+   }
+
+   Int_t nTask = 0;
+   CountXMLOccurrenceTask(xml, "ROMEFrameworkDefinition/Tasks", nTask);
+   if (maxNumberOfValues < nTask + 2) {
+      // this is for ConfigParameterFolder.
+      maxNumberOfValues = nTask + 2;
+   }
+
    CountXMLOccurrenceTab(xml, "ROMEFrameworkDefinition/Tabs");
+
+   CountXMLOccurrenceTree(xml, "ROMEFrameworkDefinition/Trees");
+
    CountXMLOccurrenceGSP(xml);
 
    // Allocate memory
@@ -1322,6 +1372,12 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       }
       // folder field
       if (type == 1 && !strcmp(name,"Field")) {
+         if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+            cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+                <<maxNumberOfValues<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
          // field initialisation
          bool readName = false;
          bool readType = false;
@@ -1589,12 +1645,6 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          }
          // count fields
          numOfValue[numOfFolder]++;
-         if (numOfValue[numOfFolder] >= maxNumberOfValues) {
-            cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
-                <<maxNumberOfValues<<" !"<<endl;
-            cout<<"Terminating program."<<endl;
-            return false;
-         }
          continue;
       }
    }
@@ -3268,6 +3318,13 @@ Bool_t ROMEBuilder::ReadXMLTree()
                }
             }
             if (type == 1 && !strcmp(name,"Branch")) {
+               if (numOfBranch[numOfTree] >= maxNumberOfBranches) {
+                  cout<<"Maximal number of branches in tree '"<<treeName[numOfTree].Data()<<"' reached : "
+                      <<maxNumberOfBranches<<" !"<<endl;
+                  cout<<"Terminating program."<<endl;
+                  return false;
+               }
+
                // branch initialisation
                branchName[numOfTree][numOfBranch[numOfTree]] = "";
                branchFolder[numOfTree][numOfBranch[numOfTree]] = "";
@@ -3340,12 +3397,6 @@ Bool_t ROMEBuilder::ReadXMLTree()
                }
                // count branches
                numOfBranch[numOfTree]++;
-               if (numOfBranch[numOfTree] >= maxNumberOfBranches) {
-                  cout<<"Maximal number of branches in tree '"<<treeName[numOfTree].Data()<<"' reached : "
-                      <<maxNumberOfBranches<<" !"<<endl;
-                  cout<<"Terminating program."<<endl;
-                  return false;
-               }
             }
             if (type == 15 && !strcmp(name,"Tree")) {
                // input check
@@ -4998,9 +5049,61 @@ void ROMEBuilder::FormatText(ROMEString& str, Bool_t stripSpace, const char* inv
 }
 
 //______________________________________________________________________________
-Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root)
+Bool_t ROMEBuilder::CountXMLOccurrenceFolder(const ROMEXML *xmlfile, const char* root)
 {
    ROMEString path;
+
+   // Authors
+   path.SetFormatted("%s/Author", root);
+   Int_t nAuthor = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAuthor > maxNumberOfAuthors) {
+      maxNumberOfAuthors = nAuthor;
+   }
+
+   // Affiliations
+   path.SetFormatted("%s/Affiliation", root);
+   Int_t nAffiliation = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAffiliation > maxNumberOfAffiliations) {
+      maxNumberOfAffiliations = nAffiliation;
+   }
+
+   // Fieldss
+   path.SetFormatted("%s/Field", root);
+   Int_t nField = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nField > maxNumberOfValues) {
+      maxNumberOfValues = nField;
+   }
+
+   // Sub folder
+   path.SetFormatted("%s/Folder", root);
+   Int_t nSubFolder = xmlfile->NumberOfOccurrenceOfPath(path);
+   Int_t iSubFolder;
+   for (iSubFolder = 0; iSubFolder < nSubFolder; iSubFolder++) {
+      path.SetFormatted("%s/Folder[%d]", root, iSubFolder + 1);
+      CountXMLOccurrenceFolder(xmlfile, path.Data());
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root, Int_t &nTask)
+{
+   ROMEString path;
+
+   // Authors
+   path.SetFormatted("%s/Author", root);
+   Int_t nAuthor = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAuthor > maxNumberOfAuthors) {
+      maxNumberOfAuthors = nAuthor;
+   }
+
+   // Affiliations
+   path.SetFormatted("%s/Affiliation", root);
+   Int_t nAffiliation = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAffiliation > maxNumberOfAffiliations) {
+      maxNumberOfAffiliations = nAffiliation;
+   }
 
    // Histograms
    path.SetFormatted("%s/Histogram", root);
@@ -5027,10 +5130,28 @@ Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* r
    // Sub task
    path.SetFormatted("%s/Task", root);
    Int_t nSubTask = xmlfile->NumberOfOccurrenceOfPath(path);
+   nTask += nSubTask;
    Int_t iSubTask;
    for (iSubTask = 0; iSubTask < nSubTask; iSubTask++) {
       path.SetFormatted("%s/Task[%d]", root, iSubTask + 1);
-      CountXMLOccurrenceTask(xmlfile, path.Data());
+      CountXMLOccurrenceTask(xmlfile, path.Data(), nTask);
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceTaskHierarchy(const ROMEXML *xmlfile, const char* root, Int_t &nTaskHierarchy)
+{
+   ROMEString path;
+   // Sub task
+   path.SetFormatted("%s/Task", root);
+   Int_t nSubTask = xmlfile->NumberOfOccurrenceOfPath(path);
+   nTaskHierarchy += nSubTask;
+   Int_t iSubTask;
+   for (iSubTask = 0; iSubTask < nSubTask; iSubTask++) {
+      path.SetFormatted("%s/Task[%d]", root, iSubTask + 1);
+      CountXMLOccurrenceTaskHierarchy(xmlfile, path.Data(), nTaskHierarchy);
    }
 
    return kTRUE;
@@ -5040,6 +5161,20 @@ Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* r
 Bool_t ROMEBuilder::CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* root)
 {
    ROMEString path;
+
+   // Authors
+   path.SetFormatted("%s/Author", root);
+   Int_t nAuthor = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAuthor > maxNumberOfAuthors) {
+      maxNumberOfAuthors = nAuthor;
+   }
+
+   // Affiliations
+   path.SetFormatted("%s/Affiliation", root);
+   Int_t nAffiliation = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAffiliation > maxNumberOfAffiliations) {
+      maxNumberOfAffiliations = nAffiliation;
+   }
 
    // Steering
    Int_t nSteering = 1;
@@ -5056,6 +5191,27 @@ Bool_t ROMEBuilder::CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* ro
    for (iSubTab = 0; iSubTab < nSubTab; iSubTab++) {
       path.SetFormatted("%s/Tab[%d]", root, iSubTab + 1);
       CountXMLOccurrenceTab(xmlfile, path.Data());
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::CountXMLOccurrenceTree(const ROMEXML *xmlfile, const char* root)
+{
+   ROMEString path;
+   Int_t iTree;
+
+   // Branch
+   path.SetFormatted("%s/Tree", root);
+   Int_t nTree = xmlfile->NumberOfOccurrenceOfPath(path);
+
+   for (iTree = 0; iTree < nTree; iTree++) {
+      path.SetFormatted("%s/Tree[%d]/Branch", root, iTree + 1);
+      Int_t nBranch = xmlfile->NumberOfOccurrenceOfPath(path);
+      if (nBranch > maxNumberOfBranches) {
+         maxNumberOfBranches = nBranch;
+      }
    }
 
    return kTRUE;
@@ -5082,11 +5238,28 @@ Bool_t ROMEBuilder::CountXMLOccurrenceSteering(const ROMEXML *xmlfile, const cha
 {
    ROMEString path;
 
+   // Affiliations
+   path.SetFormatted("%s/Affiliation", root);
+   Int_t nAffiliation = xmlfile->NumberOfOccurrenceOfPath(path);
+   if (nAffiliation > maxNumberOfAffiliations) {
+      maxNumberOfAffiliations = nAffiliation;
+   }
+
    // Steering fields
    path.SetFormatted("%s/SteeringParameterField", root);
    Int_t nField = xmlfile->NumberOfOccurrenceOfPath(path);
    if (nField > maxNumberOfSteeringField) {
       maxNumberOfSteeringField = nField;
+   }
+
+   // Affiliation in fields
+   Int_t iField;
+   for (iField = 0; iField < nField; iField++) {
+      path.SetFormatted("%s/SteeringParameterField[%d]/Affiliation", root, iField + 1);
+      nAffiliation = xmlfile->NumberOfOccurrenceOfPath(path);
+      if (nAffiliation > maxNumberOfAffiliations) {
+         maxNumberOfAffiliations = nAffiliation;
+      }
    }
 
    // Sub steering

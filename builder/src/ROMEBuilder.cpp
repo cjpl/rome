@@ -67,7 +67,9 @@ ROMEBuilder::ROMEBuilder()
 ,maxNumberOfHistos(0)
 ,maxNumberOfGraphs(0)
 ,maxNumberOfFolders(0)
+,maxNumberOfValues(0)
 ,maxNumberOfTrees(0)
+,maxNumberOfBranches(0)
 ,maxNumberOfDAQ(0)
 ,maxNumberOfDB(0)
 ,maxNumberOfEvents(0)
@@ -83,6 +85,8 @@ ROMEBuilder::ROMEBuilder()
 ,maxNumberOfNetFolders(0)
 ,maxNumberOfSteering(0)
 ,maxNumberOfSteeringField(0)
+,maxNumberOfAffiliations(0)
+,maxNumberOfAuthors(0)
 ,parent(0)
 ,recursiveDepth(0)
 ,recursiveSteerDepth(0)
@@ -1636,6 +1640,12 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    folderSupport[numOfFolder] = false;
 
    // Config file name
+   if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+      cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+          <<maxNumberOfValues<<" !"<<endl;
+      cout<<"Terminating program."<<endl;
+      return false;
+   }
    valueName[numOfFolder][numOfValue[numOfFolder]] = "ConfigFileName";
    valueType[numOfFolder][numOfValue[numOfFolder]] = "TString";
    valueComment[numOfFolder][numOfValue[numOfFolder]] = "File name of configuration file";
@@ -1654,14 +1664,14 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
    // count fields
    numOfValue[numOfFolder]++;
+
+   // Config file content
    if (numOfValue[numOfFolder] >= maxNumberOfValues) {
       cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
           <<maxNumberOfValues<<" !"<<endl;
       cout<<"Terminating program."<<endl;
       return false;
    }
-
-   // Config file content
    valueName[numOfFolder][numOfValue[numOfFolder]] = "ConfigString";
    valueType[numOfFolder][numOfValue[numOfFolder]] = "TString";
    valueComment[numOfFolder][numOfValue[numOfFolder]] = "Content of configuration file";
@@ -1680,18 +1690,18 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
    // count fields
    numOfValue[numOfFolder]++;
-   if (numOfValue[numOfFolder] >= maxNumberOfValues) {
-      cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
-          <<maxNumberOfValues<<" !"<<endl;
-      cout<<"Terminating program."<<endl;
-      return false;
-   }
 
    if (hasDependenceCheck || mainDefinitionVersion != "1") {
       // Task active flag
       for (i = 0; i < numOfTaskHierarchy; i++) {
          if (!taskUsed[taskHierarchyClassIndex[i]])
             continue;
+         if (numOfValue[numOfFolder] >= maxNumberOfValues) {
+            cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
+                <<maxNumberOfValues<<" !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
          tmp.SetFormatted("%s%sTaskActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
          valueName[numOfFolder][numOfValue[numOfFolder]] = tmp;
          valueType[numOfFolder][numOfValue[numOfFolder]] = "Bool_t";
@@ -1712,12 +1722,6 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
          csStr += valueDimension[numOfFolder][numOfValue[numOfFolder]];
          // count fields
          numOfValue[numOfFolder]++;
-         if (numOfValue[numOfFolder] >= maxNumberOfValues) {
-            cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
-                <<maxNumberOfValues<<" !"<<endl;
-            cout<<"Terminating program."<<endl;
-            return false;
-         }
       }
    }
 
