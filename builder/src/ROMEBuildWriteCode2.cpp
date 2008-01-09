@@ -97,6 +97,11 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          histoDimension = 2;
       if (parGroup->GetInfo().Index("3") != -1)
          histoDimension = 3;
+      if (parGroup->GetInfo().Index("TProfile2D") != -1) {
+         histoDimension = 3; // +1 for zmin,zmax
+      } else if (parGroup->GetInfo().Index("TProfile") != -1) {
+         histoDimension = 2; // +1 for ymin,zmax
+      }
       buffer.AppendFormatted("%sAddHisto(tempFrame[%d],%s,%d);\n",sTab.Data(),level,temp.Data(),histoDimension);
    } else if (parGroup->GetGroupIdentifier() == "Graph") {
       temp = parGroup->GetParameterAt(1)->GetSetLineAt(0);
@@ -336,6 +341,11 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          histoDimension = 2;
       if (parGroup->GetInfo().Index("3") != -1)
          histoDimension = 3;
+      if (parGroup->GetInfo().Index("TProfile2D") != -1) {
+         histoDimension = 2;
+      } else if (parGroup->GetInfo().Index("TProfile") != -1) {
+         histoDimension = 1;
+      }
       buffer.AppendFormatted("%s   SaveHisto(dialog,\"%s\",%s,%s,%d);\n",sTab.Data(),pointer.Data(),temp.Data(),
                              temp2.Data(),histoDimension);
    } else {
@@ -490,9 +500,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
       indx[i] = -1;
    maxConfigParameterHierarchyLevel = 0;
 
-   histoParameters = new ROMEStrArray(19);
-   histoParameterTypes = new ROMEStrArray(19);
-   histoParameterWidgetTypes = new ROMEStrArray(19);
+   histoParameters = new ROMEStrArray(20);
+   histoParameterTypes = new ROMEStrArray(20);
+   histoParameterWidgetTypes = new ROMEStrArray(20);
    histoParameters->AddLast("Active");
    histoParameterTypes->AddLast("bool");
    histoParameterWidgetTypes->AddLast("CheckButton");
@@ -546,6 +556,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
    histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Zmax");
    histoParameterTypes->AddLast("%g");
+   histoParameterWidgetTypes->AddLast("EditBox");
+   histoParameters->AddLast("Option");
+   histoParameterTypes->AddLast("%s");
    histoParameterWidgetTypes->AddLast("EditBox");
    histoParameters->AddLast("Accumulate");
    histoParameterTypes->AddLast("bool");
@@ -1689,6 +1702,15 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
                                                      histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%g\",taskObject%d->Get%sHisto()->GetZmax());",
+                                                       taskHierarchyObjectIndex[i],
+                                                       histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->AddParameter(new ROMEConfigParameter("HistOption"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Histogram");
+         subSubGroup->GetLastParameter()->AddSetLine("taskObject%d->Get%sHisto()->SetOption(##.Data());",
+                                                     taskHierarchyObjectIndex[i],
+                                                     histoName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = taskObject%d->Get%sHisto()->GetOption();",
                                                        taskHierarchyObjectIndex[i],
                                                        histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistAccumulate","1","CheckButton"));

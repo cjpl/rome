@@ -49,6 +49,8 @@ public:
    Bool_t       fHistZminModified;
    ROMEString   fHistZmax;
    Bool_t       fHistZmaxModified;
+   ROMEString   fHistOption;
+   Bool_t       fHistOptionModified;
    ROMEString   fHistAccumulate;
    Bool_t       fHistAccumulateModified;
 
@@ -90,6 +92,8 @@ public:
    ,fHistZminModified(kFALSE)
    ,fHistZmax("1")
    ,fHistZmaxModified(kFALSE)
+   ,fHistOption("")
+   ,fHistOptionModified(kFALSE)
    ,fHistAccumulate("false")
    ,fHistAccumulateModified(kFALSE)
    {

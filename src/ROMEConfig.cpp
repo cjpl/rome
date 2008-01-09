@@ -95,6 +95,10 @@ Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConf
    fullPath.SetFormatted("%sHistZmax",path);
    xml->GetPathValue(fullPath.Data(),configHisto->fHistZmax,"");
    configHisto->fHistZmaxModified = (configHisto->fHistZmax!="");
+   // fHistOption
+   fullPath.SetFormatted("%sHistOption",path);
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistOption,"");
+   configHisto->fHistOptionModified = (configHisto->fHistOption!="");
    // fHistAccumulate
    fullPath.SetFormatted("%sHistAccumulate",path);
    xml->GetPathValue(fullPath.Data(),configHisto->fHistAccumulate,"");
@@ -123,6 +127,7 @@ Bool_t ROMEConfig::CheckHistoConfigurationModified(ROMEConfigHisto* configHisto)
            configHisto->fHistZNbinsModified ||
            configHisto->fHistZminModified ||
            configHisto->fHistZmaxModified ||
+           configHisto->fHistOptionModified ||
            configHisto->fHistAccumulateModified);
 }
 
@@ -200,6 +205,10 @@ Bool_t ROMEConfig::SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* confi
    // fHistZmax
    if (configHisto->fHistZmaxModified) {
       histo->SetZmax(configHisto->fHistZmax.Data());
+   }
+   // fHistOption
+   if (configHisto->fHistOptionModified) {
+      histo->SetOption(configHisto->fHistOption.Data());
    }
    // fHistAccumulate
    if (configHisto->fHistAccumulateModified) {
@@ -355,6 +364,14 @@ Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configH
    }
    if (configHisto->fHistZmaxModified) {
       xml->WriteElement("HistZmax",configHisto->fHistZmax.Data());
+   }
+   iComment++;
+   // fHistOption
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configHisto->fHistOptionModified) {
+      xml->WriteComment(comment.At(iComment).Data());
+   }
+   if (configHisto->fHistOptionModified) {
+      xml->WriteElement("HistOption",configHisto->fHistOption.Data());
    }
    iComment++;
    // fHistAccumulate

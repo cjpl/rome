@@ -46,6 +46,8 @@ protected:
    Double_t   fZminOrig;                // Minimum value on the Z axis Original
    ROMEString fZmax;                    // Maximum value on the Z axis
    Double_t   fZmaxOrig;                // Maximum value on the Z axis Original
+   ROMEString fOption;                  // Option for TProfile
+   ROMEString fOptionOrig;              // Option for TProfile Original
    Bool_t     fAccumulate;              // Accumulation Flag
 
 private:
@@ -74,10 +76,11 @@ public:
    void        SetZNbins(const char* value) { fZNbins = value; };
    void        SetZmin(const char* value) { fZmin = value; };
    void        SetZmax(const char* value) { fZmax = value; };
+   void        SetOption(const char* value) { fOption = value; };
    void        SetOriginal(const char* title,const char* folderTitle,Int_t arraySize,Int_t arrayStartIndex,
                            const char* xLabel,const char* yLabel,const char* zLabel,Int_t xNbins,Double_t xmin,
                            Double_t xmax,Int_t yNbins,Double_t ymin,Double_t ymax,Int_t zNbins,Double_t zmin,
-                           Double_t zmax);
+                           Double_t zmax, const char *option);
    void        SetTitleOriginal(const char* value) { fTitleOrig = value; };
    void        SetFolderTitleOriginal(const char* value) { fFolderTitleOrig = value; };
    void        SetArraySizeOriginal(Int_t value) { fArraySizeOrig = value; };
@@ -94,6 +97,7 @@ public:
    void        SetZNbinsOriginal(Int_t value) { fZNbinsOrig = value; };
    void        SetZminOriginal(Double_t value) { fZminOrig = value; };
    void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
+   void        SetOptionOriginal(const char* value) { fOptionOrig = value; };
    bool        IsActive() const { return fActive; };
    bool        IsWrite() const { return fWrite; };
    const char *GetTitle() const;
@@ -123,6 +127,7 @@ public:
    const char *GetZminString(ROMEString &string) const;
    double      GetZmax() const;
    const char *GetZmaxString(ROMEString &string) const;
+   const char *GetOption() const;
 
    Bool_t      IsAccumulate() const { return fAccumulate; };
    void        SetAccumulate(Bool_t flag) { fAccumulate = flag; };

@@ -597,6 +597,11 @@
 						<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+				<xs:element name="HistOption" type="xs:string" default="" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The option for TProfile. This value can be overwritten in the configuration file. Default is &quot;&quot;.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="Argus" type="HistGraphArgusDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Argus display configuration for the histogram/graph.</xs:documentation>
