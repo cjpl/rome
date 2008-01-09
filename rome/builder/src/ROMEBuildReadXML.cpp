@@ -308,6 +308,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    histoZNbins = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoZmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoZmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoOption = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    numOfHistoSingleObjectTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfHistos));
    histoSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,
                                                                             maxNumberOfHistoSingleObjectTabs));
@@ -1976,6 +1977,9 @@ Bool_t ROMEBuilder::ReadXMLTask()
             return false;
          }
 
+         bool histoYminYmaxRead = kFALSE;
+         bool histoZminZmaxRead = kFALSE;
+
          // histogram initialisation
          histoComment[numOfTask][numOfHistos[numOfTask]] = "";
          histoName[numOfTask][numOfHistos[numOfTask]] = "";
@@ -1997,6 +2001,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
          histoZNbins[numOfTask][numOfHistos[numOfTask]] = "1";
          histoZmin[numOfTask][numOfHistos[numOfTask]] = "0";
          histoZmax[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoOption[numOfTask][numOfHistos[numOfTask]] = "";
          numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]] = 0;
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -2093,12 +2098,14 @@ Bool_t ROMEBuilder::ReadXMLTask()
             }
             // histo min value in y
             if (type == 1 && !strcmp(name,"HistYmin")) {
+               histoYminYmaxRead = kTRUE;
                xml->GetValue(histoYmin[numOfTask][numOfHistos[numOfTask]],
                              histoYmin[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoYmin[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo max value in y
             if (type == 1 && !strcmp(name,"HistYmax")) {
+               histoYminYmaxRead = kTRUE;
                xml->GetValue(histoYmax[numOfTask][numOfHistos[numOfTask]],
                              histoYmax[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoYmax[numOfTask][numOfHistos[numOfTask]], kTRUE);
@@ -2111,15 +2118,23 @@ Bool_t ROMEBuilder::ReadXMLTask()
             }
             // histo min value in z
             if (type == 1 && !strcmp(name,"HistZmin")) {
+               histoZminZmaxRead = kTRUE;
                xml->GetValue(histoZmin[numOfTask][numOfHistos[numOfTask]],
                              histoZmin[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoZmin[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // histo max value in z
             if (type == 1 && !strcmp(name,"HistZmax")) {
+               histoZminZmaxRead = kTRUE;
                xml->GetValue(histoZmax[numOfTask][numOfHistos[numOfTask]],
                              histoZmax[numOfTask][numOfHistos[numOfTask]]);
                FormatText(histoZmax[numOfTask][numOfHistos[numOfTask]], kTRUE);
+            }
+            // histo option for TProfile
+            if (type == 1 && !strcmp(name,"HistOption")) {
+               xml->GetValue(histoOption[numOfTask][numOfHistos[numOfTask]],
+                             histoOption[numOfTask][numOfHistos[numOfTask]]);
+               FormatText(histoOption[numOfTask][numOfHistos[numOfTask]], kTRUE);
             }
             // argus
             if (type == 1 && !strcmp(name,"Argus")) {
@@ -2174,8 +2189,17 @@ Bool_t ROMEBuilder::ReadXMLTask()
                }
             }
             // histo end
-            if (type == 15 && !strcmp(name,"Histogram"))
+            if (type == 15 && !strcmp(name,"Histogram")) {
+               if (!histoYminYmaxRead && histoType[numOfTask][numOfHistos[numOfTask]] == "TProfile") {
+                  histoYmin[numOfTask][numOfHistos[numOfTask]] = "0";
+                  histoYmax[numOfTask][numOfHistos[numOfTask]] = "0";
+               }
+               if (!histoZminZmaxRead && histoType[numOfTask][numOfHistos[numOfTask]] == "TProfile2D") {
+                  histoZmin[numOfTask][numOfHistos[numOfTask]] = "0";
+                  histoZmax[numOfTask][numOfHistos[numOfTask]] = "0";
+               }
                break;
+            }
          }
          // check input
          if (histoName[numOfTask][numOfHistos[numOfTask]] == "") {

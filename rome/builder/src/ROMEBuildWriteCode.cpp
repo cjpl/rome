@@ -2026,6 +2026,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
                buffer.AppendFormatted("   fHistoDimension[%d] = 2;\n", i);
             } else if (histoType[iTask][i][2] == '3') {
                buffer.AppendFormatted("   fHistoDimension[%d] = 3;\n", i);
+            } else if (histoType[iTask][i] == "TProfile") {
+               buffer.AppendFormatted("   fHistoDimension[%d] = 2;\n", i); // +1 for ymin,ymax
+            } else if (histoType[iTask][i] == "TProfile2D") {
+               buffer.AppendFormatted("   fHistoDimension[%d] = 3;\n", i); // +1 for zmin,zmax
             }
             if (histoArraySize[iTask][i] == "1") {
                buffer.AppendFormatted("   fHistoArray[%d] = false;\n", i);
@@ -2073,14 +2077,15 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("void %sT%s_Base::SetOriginalHistoParameters()\n{\n", shortCut.Data(), taskName[iTask].Data());
       if (numOfHistos[iTask] > 0) {
          for (i = 0; i < numOfHistos[iTask]; i++) {
-            buffer.AppendFormatted("   ((ROMEHisto*)fHistoParameter->At(%d))->SetOriginal(\"%s\", \"%s\", %s, %s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s);\n",
+            buffer.AppendFormatted("   ((ROMEHisto*)fHistoParameter->At(%d))->SetOriginal(\"%s\", \"%s\", %s, %s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\");\n",
                                    i, histoTitle[iTask][i].Data(),
                                    histoFolderTitle[iTask][i].Data(), histoArraySize[iTask][i].Data(),
                                    histoArrayStartIndex[iTask][i].Data(),
                                    histoXLabel[iTask][i].Data(), histoYLabel[iTask][i].Data(), histoZLabel[iTask][i].Data(),
                                    histoXNbins[iTask][i].Data(), histoXmin[iTask][i].Data(), histoXmax[iTask][i].Data(),
                                    histoYNbins[iTask][i].Data(), histoYmin[iTask][i].Data(), histoYmax[iTask][i].Data(),
-                                   histoZNbins[iTask][i].Data(), histoZmin[iTask][i].Data(), histoZmax[iTask][i].Data());
+                                   histoZNbins[iTask][i].Data(), histoZmin[iTask][i].Data(), histoZmax[iTask][i].Data(),
+                                   histoOption[iTask][i].Data());
          }
       }
       buffer.AppendFormatted("}\n");
@@ -5829,6 +5834,7 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
+#if 0 /* Is it necessary ? */
    buffer.AppendFormatted("   // HistAccumulate;\n");
    buffer.AppendFormatted("   str = dialog->GetValue(path);\n");
    buffer.AppendFormatted("   writeString = kFalseTrueString[histo->IsAccumulate()?1:0];\n");
@@ -5837,6 +5843,7 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
    buffer.AppendFormatted("      configHisto->fHistAccumulate = str;\n");
    buffer.AppendFormatted("      histo->SetAccumulate(str != \"false\");\n");
    buffer.AppendFormatted("   }\n");
+#endif
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
 
@@ -7125,6 +7132,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
                              histoParameterWidgetTypes->At(i).Data(),histoParameters->At(i).Data());
       buffer.AppendFormatted("   }\n");
    }
+#if 0 /* Is it necessary ? */
    buffer.AppendFormatted("   // Accumulate;\n");
    buffer.AppendFormatted("   writeString = kFalseTrueString[histo->IsAccumulate()?1:0];\n");
    buffer.AppendFormatted("   comment = \"\";\n");
@@ -7133,6 +7141,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    configXSD->GetPathValue(path, str, "");
    buffer.AppendFormatted("      comment = \"%s\";\n",str.Data());
    buffer.AppendFormatted("   frame->AddElement(new XMLToFormElement(\"CheckButton\",\"HistAccumulate\",writeString.Data(),\"\", 0, &entries,comment.Data()));\n");
+#endif
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 

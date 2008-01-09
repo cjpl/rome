@@ -423,6 +423,7 @@ void ROMETask::BookHisto(void)
    ROMEString zminStr;
    Double_t   zmax;
    ROMEString zmaxStr;
+   ROMEString option;
    TH1       *histoPtr = 0;
 
    for (i = 0; i < fNumberOfHistos; i++) {
@@ -456,6 +457,7 @@ void ROMETask::BookHisto(void)
          zminStr            = histoHandle->GetZminString(zminStr);
          zmax               = histoHandle->GetZmax();
          zmaxStr            = histoHandle->GetZmaxString(zmaxStr);
+         option             = histoHandle->GetOption();
 
          histoTitle      = GetObjectInterpreterCharValue  (GetObjectInterpreterCode(histoTitle.Data()),  histoTitle,  histoTitle);
          folderTitle     = GetObjectInterpreterCharValue  (GetObjectInterpreterCode(folderTitle),        folderTitle, folderTitle);
@@ -473,6 +475,7 @@ void ROMETask::BookHisto(void)
          zNbins          = GetObjectInterpreterIntValue   (GetObjectInterpreterCode(zNbinsStr),          zNbins);
          zmin            = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr),            zmin);
          zmax            = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr),            zmax);
+         option          = GetObjectInterpreterCharValue  (GetObjectInterpreterCode(option.Data()),      option,      option);
 
          // create histos
          if (!fHistoArray[i]) {
@@ -525,10 +528,10 @@ void ROMETask::BookHisto(void)
                fHisto->AddAt(new TH3C(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax,
                                       zNbins, zmin, zmax), i);
             } else if (fHistoType[i] == "TProfile") {
-               fHisto->AddAt(new TProfile(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, ymin, ymax), i);
+               fHisto->AddAt(new TProfile(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, ymin, ymax, option), i);
             } else if (fHistoType[i] == "TProfile2D") {
                fHisto->AddAt(new TProfile2D(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax,
-                                            zmin, zmax), i);
+                                            zmin, zmax, option), i);
             } else {
                ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                 fHistoType[i].Data());
@@ -618,10 +621,10 @@ void ROMETask::BookHisto(void)
                                                                          zNbins, zmin, zmax), j);
                } else if (fHistoType[i] == "TProfile") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile(histoArrayName.Data(), histoArrayTitle.Data(),
-                                                                         xNbins, xmin, xmax), j);
+                                                                         xNbins, xmin, xmax, ymin, ymax, option), j);
                } else if (fHistoType[i] == "TProfile2D") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile2D(histoArrayName.Data(), histoArrayTitle.Data(),
-                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax, option), j);
                } else {
                   ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                    fHistoType[i].Data());
@@ -678,6 +681,7 @@ void ROMETask::ReBookHisto(void)
    ROMEString zminStr;
    Double_t   zmax;
    ROMEString zmaxStr;
+   ROMEString option;
    TH1       *histoPtr = 0;
 
    for (i = 0; i < fNumberOfHistos; i++) {
@@ -711,6 +715,7 @@ void ROMETask::ReBookHisto(void)
          zminStr            = histoHandle->GetZminString(zminStr);
          zmax               = histoHandle->GetZmax();
          zmaxStr            = histoHandle->GetZmaxString(zmaxStr);
+         option             = histoHandle->GetOption();
 
          histoTitle      = GetObjectInterpreterCharValue  (GetObjectInterpreterCode(histoTitle),         histoTitle,  histoTitle);
          folderTitle     = GetObjectInterpreterCharValue  (GetObjectInterpreterCode(folderTitle),        folderTitle, folderTitle);
@@ -728,6 +733,7 @@ void ROMETask::ReBookHisto(void)
          zNbins          = GetObjectInterpreterIntValue   (GetObjectInterpreterCode(zNbinsStr),          zNbins);
          zmin            = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zminStr),            zmin);
          zmax            = GetObjectInterpreterDoubleValue(GetObjectInterpreterCode(zmaxStr),            zmax);
+         option          = GetObjectInterpreterCharValue  (GetObjectInterpreterCode(option.Data()),      option,      option);
 
          // expand histos
          if (!fHistoArray[i]) {
@@ -810,10 +816,10 @@ void ROMETask::ReBookHisto(void)
                                                                          zNbins, zmin, zmax), j);
                } else if (fHistoType[i] == "TProfile") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile(histoArrayName.Data(), histoArrayTitle.Data(),
-                                                                         xNbins, xmin, xmax), j);
+                                                                         xNbins, xmin, xmax, ymin, ymax, option), j);
                } else if (fHistoType[i] == "TProfile2D") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile2D(histoArrayName.Data(), histoArrayTitle.Data(),
-                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax, option), j);
                } else {
                   ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                    fHistoType[i].Data());

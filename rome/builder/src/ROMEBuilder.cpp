@@ -194,6 +194,7 @@ ROMEBuilder::ROMEBuilder()
 ,histoZNbins(0)
 ,histoZmin(0)
 ,histoZmax(0)
+,histoOption(0)
 ,numOfHistoSingleObjectTabs(0)
 ,histoSingleObjectTabName(0)
 ,histoSingleObjectTabIndex(0)
@@ -589,6 +590,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] histoZNbins;
    delete [] histoZmin;
    delete [] histoZmax;
+   delete [] histoOption;
    delete [] numOfHistoSingleObjectTabs;
    delete [] histoSingleObjectTabName;
    delete [] histoSingleObjectTabIndex;

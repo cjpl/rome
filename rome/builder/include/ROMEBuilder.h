@@ -260,6 +260,7 @@ protected:
    ROMEString  **histoZNbins;
    ROMEString  **histoZmin;
    ROMEString  **histoZmax;
+   ROMEString  **histoOption;
    Int_t       **numOfHistoSingleObjectTabs;
    ROMEString ***histoSingleObjectTabName;
    ROMEString ***histoSingleObjectTabIndex;
