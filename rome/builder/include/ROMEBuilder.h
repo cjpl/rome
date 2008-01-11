@@ -46,7 +46,7 @@ const Ssiz_t kTStringResizeIncrement = 1<<15;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
 
 const char  valueCounter[] = {'i','j','k'};
-const char* const ROMECommandLineOptions = ":i:r:e:m:p:o:b:D:q:v:ng:c:nc:ns:docu:h:I:R:";
+const char* const ROMECommandLineOptions = ":i:r:e:m:p:o:b:D:q:v:ng:c:nc:ns:docu:h:I:R:rh:pi:po:ph";
 const char* const cloSeparator = ":";
 #if defined( R__VISUAL_CPLUSPLUS )
 const char* const kEqualSign = "=";
