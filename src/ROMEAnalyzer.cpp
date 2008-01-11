@@ -354,9 +354,10 @@ void ROMEAnalyzer::ParameterUsage() const
    ROMEPrint::Print("  -i       Configuration file\n");
    ROMEPrint::Print("  -r       Runnumbers\n");
    ROMEPrint::Print("  -e       Eventnumbers\n");
+   ROMEPrint::Print("  -rh      Histogram Runnumbers\n");
    ROMEPrint::Print("  -pi      Inputpath\n");
    ROMEPrint::Print("  -po      Outputpath\n");
-   ROMEPrint::Print("  -ph      Histospath\n");
+   ROMEPrint::Print("  -ph      Histogram Path\n");
    ROMEPrint::Print("  -m       Analysing Mode : (online/[offline])\n");
    ROMEPrint::Print("  -p       Program Mode : (0 : analyzer\n");
    ROMEPrint::Print("                           1 : monitor\n");
@@ -681,6 +682,12 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (i + 1 >= argc) {
             break;
          }
+         i++;
+      } else if (!strcmp(argv[i], "-rh") && i < argc - 1) {
+         if (i + 1 >= argc) {
+            break;
+         }
+         this->SetHistosRun(argv[i + 1]);
          i++;
       } else if (!strcmp(argv[i], "-pi") && i < argc - 1) {
          if (i + 1 >= argc) {
