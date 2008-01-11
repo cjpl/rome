@@ -354,6 +354,9 @@ void ROMEAnalyzer::ParameterUsage() const
    ROMEPrint::Print("  -i       Configuration file\n");
    ROMEPrint::Print("  -r       Runnumbers\n");
    ROMEPrint::Print("  -e       Eventnumbers\n");
+   ROMEPrint::Print("  -pi      Inputpath\n");
+   ROMEPrint::Print("  -po      Outputpath\n");
+   ROMEPrint::Print("  -ph      Histospath\n");
    ROMEPrint::Print("  -m       Analysing Mode : (online/[offline])\n");
    ROMEPrint::Print("  -p       Program Mode : (0 : analyzer\n");
    ROMEPrint::Print("                           1 : monitor\n");
@@ -678,6 +681,24 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (i + 1 >= argc) {
             break;
          }
+         i++;
+      } else if (!strcmp(argv[i], "-pi") && i < argc - 1) {
+         if (i + 1 >= argc) {
+            break;
+         }
+         this->SetInputDir(argv[i + 1]);
+         i++;
+      } else if (!strcmp(argv[i], "-po") && i < argc - 1) {
+         if (i + 1 >= argc) {
+            break;
+         }
+         this->SetOutputDir(argv[i + 1]);
+         i++;
+      } else if (!strcmp(argv[i], "-ph") && i < argc - 1) {
+         if (i + 1 >= argc) {
+            break;
+         }
+         this->SetHistosPath(argv[i + 1]);
          i++;
       } else if (!strcmp(argv[i], "-b")) {
          fBatchMode = kTRUE;
@@ -1906,7 +1927,7 @@ Bool_t ROMEAnalyzer::WriteConfigurationFile(ROMEString &configFile) const
    fclose(gSystem->TempFileName(tmpFileName));
    gSystem->Unlink(tmpFileName.Data());
 #else
-   char buf[MAX_PAth];
+   char buf[1000];
    GetTempFileName("c:\\", "", 0, buf);
    tmpFileName = buf;
 #endif
