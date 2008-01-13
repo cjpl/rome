@@ -75,7 +75,8 @@ void SBSHTPrintADCValues::BeginOfRun()
 void SBSHTPrintADCValues::Event()
 {
    gAnalyzer->GetPMTData()->SetADC((int)gRandom->Gaus(50,10));
-   GetADC()->Fill(gAnalyzer->GetPMTData()->GetADC());
+   if (IsADCActive())
+      GetADC()->Fill(gAnalyzer->GetPMTData()->GetADC());
 
    if (gAnalyzer->GetGSP()->GetOutputOnOff()) {
       cout << gAnalyzer->GetPMTData()->GetADC() << endl;
@@ -93,7 +94,8 @@ void SBSHTPrintADCValues::EndOfRun()
    fitFcn->SetParName(2, "m");
    fitFcn->SetParName(3, "x_offset");
 
-   GetADC()->Fit(fitFcn,"r");
+   if (IsADCActive())
+      GetADC()->Fit(fitFcn,"r");
    Double_t par[4];
    fitFcn->GetParameters(par);
 

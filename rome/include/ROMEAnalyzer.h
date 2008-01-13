@@ -211,6 +211,7 @@ protected:
    ROMEString     fHistoOutputFileName;          //! Output filename to the Histograms of this Run
    ROMEString     fHistoOutputFileNameConstructed; //! Output filename to the Histograms of this Run after replacing #,##...
    Bool_t         fHistoAccumulateAll;           //! Accmulate all histograms and graphs
+   Bool_t         fHistoDeactivateAll;           //! Deactivate all histograms and graphs
    ULong_t        fHistoAutoSavePeriod;          //! Period for auto save
 
    // Program name
@@ -442,6 +443,7 @@ public:
    const char*     GetHistosOutputRawFileName() { return fHistoOutputFileName; }
    const char*     GetHistosOutputFileName();
    Bool_t          IsHistosAccumulateAll() const { return fHistoAccumulateAll; }
+   Bool_t          IsHistosDeactivateAll() const { return fHistoDeactivateAll; }
    ULong_t         GetHistosAutoSavePeriod() const { return fHistoAutoSavePeriod; }
 
    void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
@@ -453,6 +455,7 @@ public:
    void            SetHistosOutputPath(const char* path) { fHistoOutputPath = path; }
    void            SetHistosOutputFileName(const char* file) { fHistoOutputFileName = file; }
    void            SetHistosAccumulateAll(Bool_t flag) { fHistoAccumulateAll = flag; }
+   void            SetHistosDeactivateAll(Bool_t flag) { fHistoDeactivateAll = flag; }
    void            SetHistosAutoSavePeriod(ULong_t period) { fHistoAutoSavePeriod = period; }
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);

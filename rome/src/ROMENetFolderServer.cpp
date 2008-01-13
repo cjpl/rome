@@ -158,8 +158,10 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str)
 
       Bool_t ret;
       ret = kFALSE;
-      if (gROME->GetTaskObjectAt(iTask)->GetHistoParameterAt(iHisto)->IsActive())
+      if (gROME->GetTaskObjectAt(iTask)->GetHistoParameterAt(iHisto)->IsActive() &&
+          !gROME->IsHistosDeactivateAll()) {
          ret = kTRUE;
+      }
 
       TMessage message(kMESS_ANY);
       message<<ret;
