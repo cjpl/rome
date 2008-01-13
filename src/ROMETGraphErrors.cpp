@@ -114,17 +114,20 @@ ROMETGraphErrors& ROMETGraphErrors::operator=(const ROMETGraphErrors &gr)
 //______________________________________________________________________________
 void ROMETGraphErrors::SetLimits()
 {
-   Double_t rwxmin,rwxmax, rwymin, rwymax, maximum, minimum, dx, dy;
+   Double_t rwxmin,rwxmax, rwymin, rwymax, dx, dy;
    ComputeRange(rwxmin, rwymin, rwxmax, rwymax);
 
    if (rwxmin == rwxmax) rwxmax += 1.;
    if (rwymin == rwymax) rwymax += 1.;
    dx = 0.1 * (rwxmax - rwxmin);
    dy = 0.1 * (rwymax - rwymin);
-   minimum  = rwymin - dy;
-   maximum  = rwymax + dy;
-   fMinimum = minimum;
-   fMaximum = maximum;
+   fMinimum = rwymin - dy;
+   fMaximum = rwymax + dy;
+   TAxis *axis = GetXaxis();
+
+   if(axis) {
+      axis->SetLimits(rwxmin - dx, rwxmax + dx);
+   }
 }
 
 //______________________________________________________________________________

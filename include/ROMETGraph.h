@@ -32,6 +32,9 @@ public:
    TH1F* GetHistogramHandle() const { return fHistogram; }
    void  DeleteHistogram() { SafeDelete(fHistogram); }
 
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,17,6))
+   virtual void ComputeRange(Double_t& xmin, Double_t& ymin, Double_t& xmax, Double_t& ymax) const;
+#endif
    virtual void SetLimits();
    virtual void Add(const TObject *obj);
    virtual void Copy(TObject &gnew) const;
