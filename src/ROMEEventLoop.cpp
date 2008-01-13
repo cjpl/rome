@@ -935,7 +935,7 @@ Bool_t ROMEEventLoop::Update()
    // Histograms auto save
    static ULong_t histoSaveLastTime = 0;
    if (gROME->GetHistosAutoSavePeriod() > 0 &&
-       currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() &&
+       currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() * 1000 &&
        !strcmp(gROME->GetOutputFileOption(), "RECREATE")) {
       histoSaveLastTime = currentTime;
       WriteHistograms();
