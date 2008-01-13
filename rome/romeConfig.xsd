@@ -571,9 +571,9 @@
 					<xs:documentation>directory path to write histogram/graph file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="OutputFileName" type="xs:string" minOccurs="0">
+			<xs:element name="FileName" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The name of the histogram output file. (optional)</xs:documentation>
+					<xs:documentation>The name of the histogram output file. (e.g. histos#.root, # will be replaced by run number) (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="AccumulateAll" type="xs:boolean" default="false" minOccurs="0">
