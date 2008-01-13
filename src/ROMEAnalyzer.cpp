@@ -177,6 +177,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fHistoOutputFileName("")
 ,fHistoOutputFileNameConstructed("")
 ,fHistoAccumulateAll(kFALSE)
+,fHistoDeactivateAll(kFALSE)
 ,fHistoAutoSavePeriod(0)
 ,fProgramName(programName)
 ,fOnlineHost("")

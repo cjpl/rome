@@ -372,6 +372,7 @@ void ROMETask::ResetHisto()
    Int_t i, j;
    for (i = 0; i < GetNumberOfHistos(); i++) {
       if (static_cast<ROMEHisto*>(fHistoParameter->At(i))->IsActive() &&
+          !gROME->IsHistosDeactivateAll() &&
           !static_cast<ROMEHisto*>(fHistoParameter->At(i))->IsAccumulate() &&
           !gROME->IsHistosAccumulateAll()) {
          if (!fHistoArray[i]) {
@@ -430,7 +431,8 @@ void ROMETask::BookHisto(void)
    for (i = 0; i < fNumberOfHistos; i++) {
       histoHandle = static_cast<ROMEHisto*>(fHistoParameter->At(i));
 
-      if (histoHandle->IsActive()) {
+      if (histoHandle->IsActive() &&
+          !gROME->IsHistosDeactivateAll()) {
          histoTitle         = histoHandle->GetTitle();
          folderTitle        = histoHandle->GetFolderTitle();
          xLabel             = histoHandle->GetXLabel();
@@ -689,7 +691,8 @@ void ROMETask::ReBookHisto(void)
    for (i = 0; i < fNumberOfHistos; i++) {
       histoHandle = static_cast<ROMEHisto*>(fHistoParameter->At(i));
 
-      if (histoHandle->IsActive()) {
+      if (histoHandle->IsActive() &&
+          !gROME->IsHistosDeactivateAll()) {
          histoTitle         = histoHandle->GetTitle();
          folderTitle        = histoHandle->GetFolderTitle();
          xLabel             = histoHandle->GetXLabel();
@@ -843,7 +846,8 @@ void ROMETask::ReBookHisto(void)
 //______________________________________________________________________________
 Bool_t ROMETask::CheckHistoActive(Int_t histoIndex)
 {
-   if (!static_cast<ROMEHisto*>(fHistoParameter->At(histoIndex))->IsActive()) {
+   if (!static_cast<ROMEHisto*>(fHistoParameter->At(histoIndex))->IsActive() ||
+       gROME->IsHistosDeactivateAll()) {
       ROMEPrint::Error("histogram %s is deactivated. Please check the state with Is%sActive() in your code.",
                        fHistoName[histoIndex].Data(), fHistoName[histoIndex].Data());
       return false;
@@ -873,6 +877,7 @@ void ROMETask::ResetGraph()
    Int_t i, j;
    for (i = 0; i < GetNumberOfGraphs(); i++) {
       if (static_cast<ROMEGraph*>(fGraphParameter->At(i))->IsActive() &&
+          !gROME->IsHistosDeactivateAll() &&
           !static_cast<ROMEGraph*>(fGraphParameter->At(i))->IsAccumulate() &&
           !gROME->IsHistosAccumulateAll()) {
          if (!fGraphArray[i]) {
@@ -924,7 +929,8 @@ void ROMETask::BookGraph()
    for (i = 0; i < fNumberOfGraphs; i++) {
       graphHandle = static_cast<ROMEGraph*>(fGraphParameter->At(i));
 
-      if (graphHandle->IsActive()) {
+      if (graphHandle->IsActive() &&
+          !gROME->IsHistosDeactivateAll()) {
          graphTitle         = graphHandle->GetTitle();
          folderTitle        = graphHandle->GetFolderTitle();
          xLabel             = graphHandle->GetXLabel();
@@ -1067,7 +1073,8 @@ void ROMETask::ReBookGraph()
    for (i = 0; i < fNumberOfGraphs; i++) {
       graphHandle = static_cast<ROMEGraph*>(fGraphParameter->At(i));
 
-      if (graphHandle->IsActive()) {
+      if (graphHandle->IsActive() &&
+          !gROME->IsHistosDeactivateAll()) {
          graphTitle         = graphHandle->GetTitle();
          folderTitle        = graphHandle->GetFolderTitle();
          xLabel             = graphHandle->GetXLabel();
@@ -1154,7 +1161,8 @@ void ROMETask::ReBookGraph()
 //______________________________________________________________________________
 Bool_t ROMETask::CheckGraphActive(Int_t graphIndex)
 {
-   if (!static_cast<ROMEGraph*>(fGraphParameter->At(graphIndex))->IsActive()) {
+   if (!static_cast<ROMEGraph*>(fGraphParameter->At(graphIndex))->IsActive() ||
+       gROME->IsHistosDeactivateAll()) {
       ROMEPrint::Error("graph %s is deactivated. Please check the state with Is%sActive() in your code.",
                        fGraphName[graphIndex].Data(), fGraphName[graphIndex].Data());
       return false;
@@ -1173,7 +1181,8 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
    for (i = 0; i < fNumberOfHistos; i++) {
       ROMEHisto *histoHandle = 0;
       histoHandle = static_cast<ROMEHisto*>(fHistoParameter->At(i));
-      if (fHisto->At(i) && histoHandle->IsActive() && histoHandle->IsWrite()) {
+      if (fHisto->At(i) && histoHandle->IsActive() && !gROME->IsHistosDeactivateAll() &&
+          histoHandle->IsWrite()) {
          folderName = fRootFolder->At(i)->GetName();
          folderTitle = fRootFolder->At(i)->GetTitle();
          if (folderName != fHistoFolder->GetName()) {
@@ -1204,7 +1213,8 @@ void ROMETask::CopyHistosAndGraphs(TDirectory *d) const
   for (i = 0; i < fNumberOfGraphs; i++) {
       ROMEGraph *graphHandle = 0;
       graphHandle = static_cast<ROMEGraph*>(fGraphParameter->At(i));
-      if (fGraph->At(i) && graphHandle->IsActive() && graphHandle->IsWrite()) {
+      if (fGraph->At(i) && graphHandle->IsActive() && !gROME->IsHistosDeactivateAll() &&
+          graphHandle->IsWrite()) {
          folderName = fRootFolder->At(i + fNumberOfHistos)->GetName();
          folderTitle = fRootFolder->At(i + fNumberOfHistos)->GetTitle();
          if (folderName != fHistoFolder->GetName()) {

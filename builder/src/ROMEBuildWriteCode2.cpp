@@ -1266,6 +1266,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosAccumulateAll(## == \"true\");");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosAccumulateAll()?1:0];");
+         // DeactivateAll
+         subSubGroup->AddParameter(new ROMEConfigParameter("DeactivateAll","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosDeactivateAll(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosDeactivateAll()?1:0];");
          // AutoSavePeriod
          subSubGroup->AddParameter(new ROMEConfigParameter("AutoSavePeriod"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());

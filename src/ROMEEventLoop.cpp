@@ -1262,7 +1262,7 @@ Bool_t ROMEEventLoop::WriteHistograms()
    TDirectory *taskHistoDirectory;
    Int_t histDirNumber;
 
-   if (gROME->IsHistosWrite()) {
+   if (gROME->IsHistosWrite() && !gROME->IsHistosDeactivateAll()) {
       gROME->GetCurrentRunNumberString(runNumberString);
       filename.SetFormatted("%s%s", gROME->GetHistosOutputPath(), gROME->GetHistosOutputFileName());
       fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
@@ -1501,7 +1501,8 @@ void ROMEEventLoop::ReadHistograms()
          if (task->IsActive()) {
             for (j = 0; j < task->GetNumberOfHistos(); j++) {
                histoPar = task->GetHistoParameterAt(j);
-               if (histoPar->IsActive() && (histoPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
+               if (histoPar->IsActive() && !gROME->IsHistosDeactivateAll() &&
+                   (histoPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
                   for (k = 0; k < histoPar->GetArraySize(); k++) {
                      name.SetFormatted("%s%s", task->GetHistoNameAt(j)->Data(), task->GetTaskSuffix()->Data());
                      if (histoPar->GetArraySize() > 1) {
@@ -1531,7 +1532,8 @@ void ROMEEventLoop::ReadHistograms()
             }
             for (j = 0; j < task->GetNumberOfGraphs(); j++) {
                graphPar = task->GetGraphParameterAt(j);
-               if (graphPar->IsActive() && (graphPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
+               if (graphPar->IsActive() && !gROME->IsHistosDeactivateAll()
+                   && (graphPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
                   for (k = 0; k < graphPar->GetArraySize(); k++) {
                      name.SetFormatted("%s%s", task->GetGraphNameAt(j)->Data(), task->GetTaskSuffix()->Data());
                      if (graphPar->GetArraySize() > 1) {
