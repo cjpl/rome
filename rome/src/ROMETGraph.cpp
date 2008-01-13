@@ -111,20 +111,43 @@ ROMETGraph& ROMETGraph::operator=(const ROMETGraph &gr)
    return *this;
 }
 
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,17,6))
+//______________________________________________________________________________
+void ROMETGraph::ComputeRange(Double_t& xmin, Double_t& ymin, Double_t& xmax, Double_t& ymax) const
+{
+   // Compute the x/y range of the points in this graph
+   if (fNpoints <= 0) {
+      xmin = xmax = ymin = ymax = 0;
+      return;
+   }
+   xmin = xmax = fX[0];
+   ymin = ymax = fY[0];
+   for (Int_t i=1;i<fNpoints;i++) {
+      if (fX[i] < xmin) xmin = fX[i];
+      if (fX[i] > xmax) xmax = fX[i];
+      if (fY[i] < ymin) ymin = fY[i];
+      if (fY[i] > ymax) ymax = fY[i];
+   }
+}
+#endif
+
 //______________________________________________________________________________
 void ROMETGraph::SetLimits()
 {
-   Double_t rwxmin,rwxmax, rwymin, rwymax, maximum, minimum, dx, dy;
+   Double_t rwxmin,rwxmax, rwymin, rwymax, dx, dy;
    ComputeRange(rwxmin, rwymin, rwxmax, rwymax);
 
    if (rwxmin == rwxmax) rwxmax += 1.;
    if (rwymin == rwymax) rwymax += 1.;
    dx = 0.1 * (rwxmax - rwxmin);
    dy = 0.1 * (rwymax - rwymin);
-   minimum  = rwymin - dy;
-   maximum  = rwymax + dy;
-   fMinimum = minimum;
-   fMaximum = maximum;
+   fMinimum = rwymin - dy;
+   fMaximum = rwymax + dy;
+
+   TAxis *axis = GetXaxis();
+   if(axis) {
+      axis->SetLimits(rwxmin - dx, rwxmax + dx);
+   }
 }
 
 //______________________________________________________________________________
