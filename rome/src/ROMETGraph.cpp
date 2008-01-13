@@ -153,6 +153,10 @@ void ROMETGraph::SetLimits()
 //______________________________________________________________________________
 void ROMETGraph::Add(const TObject *obj)
 {
+   if (!obj) {
+      return;
+   }
+
    const ROMETGraph *g1 = static_cast<const ROMETGraph*>(obj);
    Int_t n = g1->GetN();
    Int_t oldN = fNpoints;

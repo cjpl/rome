@@ -133,6 +133,10 @@ void ROMETGraphErrors::SetLimits()
 //______________________________________________________________________________
 void ROMETGraphErrors::Add(const TObject *obj)
 {
+   if (!obj) {
+      return;
+   }
+
    const ROMETGraphErrors *g1 = static_cast<const ROMETGraphErrors*>(obj);
    Int_t n = g1->GetN();
    Int_t oldN = fNpoints;
