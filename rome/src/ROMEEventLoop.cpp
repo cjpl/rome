@@ -915,20 +915,30 @@ Bool_t ROMEEventLoop::Update()
 
    ROMEString text;
    Long64_t newUpdateWindowEvent;
+   ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
 
    // Progress Display
    ROMEPrint::Debug("ROMEEventLoop::Update() Progress Display");
    if (fProgressDelta > 1) {
       if (static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5) >=
           fProgressLastEvent + fProgressDelta) {
-         fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+         fProgressTimeOfLastEvent = currentTime;
          fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5);
          fProgressWrite = true;
       } else {
-         if (static_cast<ULong_t>(gSystem->Now()) > static_cast<ULong_t>(fProgressTimeOfLastEvent + 1000)) {
+         if (currentTime > static_cast<ULong_t>(fProgressTimeOfLastEvent + 1000)) {
             fProgressDelta /= 10;
          }
       }
+   }
+
+   // Histograms auto save
+   static ULong_t histoSaveLastTime = 0;
+   if (gROME->GetHistosAutoSavePeriod() > 0 &&
+       currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() &&
+       !strcmp(gROME->GetOutputFileOption(), "RECREATE")) {
+      histoSaveLastTime = currentTime;
+      WriteHistograms();
    }
 
    ROMEPrint::Debug("ROMEEventLoop::Update() TriggerEventHandler");
@@ -963,7 +973,7 @@ Bool_t ROMEEventLoop::Update()
           gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID() != 1) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
          if ((fUpdateWindow &&
-              static_cast<ULong_t>(gSystem->Now()) >
+              currentTime >
               static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdatePeriod())) ||
              gROME->GetWindow()->IsEventHandlingRequested() ||
              (gROME->GetEventID() != 1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
@@ -971,7 +981,7 @@ Bool_t ROMEEventLoop::Update()
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
             }
-            fLastUpdateTime = static_cast<ULong_t>(gSystem->Now());
+            fLastUpdateTime = currentTime;
          }
       }
       gROME->GetApplication()->DisableFPETrap();

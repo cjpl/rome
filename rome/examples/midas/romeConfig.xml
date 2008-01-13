@@ -170,6 +170,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <FileName></FileName>
         <!-- If this value is true all the histograms and graphs are not reset by framework. Default is false. -->
         <AccumulateAll>false</AccumulateAll>
+        <AutoSavePeriod>0</AutoSavePeriod>
       </HistogramWrite>
 
       <Macros>

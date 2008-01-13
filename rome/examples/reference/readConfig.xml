@@ -102,6 +102,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Path>./</Path>
         <FileName></FileName>
         <AccumulateAll>false</AccumulateAll>
+        <AutoSavePeriod>0</AutoSavePeriod>
       </HistogramWrite>
 
       <Macros>
