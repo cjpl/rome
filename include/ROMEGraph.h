@@ -39,6 +39,7 @@ protected:
    Double_t   fZminOrig;                // Minimum value on the Z axis Original
    ROMEString fZmax;                    // Maximum value on the Z axis
    Double_t   fZmaxOrig;                // Maximum value on the Z axis Original
+   Bool_t     fAccumulate;              // Accumulation Flag
 
 private:
    ROMEGraph(const ROMEGraph &graph); // not implemented
@@ -102,6 +103,9 @@ public:
    const char *GetZminString(ROMEString &string) const;
    double      GetZmax() const;
    const char *GetZmaxString(ROMEString &string) const;
+
+   Bool_t      IsAccumulate() const { return fAccumulate; };
+   void        SetAccumulate(Bool_t flag) { fAccumulate = flag; };
 
    ClassDef(ROMEGraph,0) // ROMEGraph
 };

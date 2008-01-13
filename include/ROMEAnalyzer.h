@@ -197,10 +197,20 @@ protected:
    // Histogram Folders
    TFolder       *fMainHistoFolder;              //! Handle to Main Histogram Folder (histos)
    TObjArray     *fHistoFolders;                 //! Handle to Histogram Folder Objects
+
    Bool_t         fHistoRead;                    //! Histogram read flag
    ROMEString     fHistoRun;                     //! Read Histograms of the specified Run Numbers
-   ROMEString     fHistoPath;                    //! Path to the Histograms of this Run
+   ROMEString     fHistoInputPath;               //! Input path to the Histograms of this Run
+   ROMEString     fHistoInputPathConstructed;    //! Input path to the Histograms of this Run after replacing #,##...
+   ROMEString     fHistoInputFileName;           //! Input filename to the Histograms of this Run
+   ROMEString     fHistoInputFileNameConstructed; //! Input filename to the Histograms of this Run after replacing #,##...
+
    Bool_t         fHistoWrite;                   //! Histogram write flag
+   ROMEString     fHistoOutputPath;              //! Output path to the Histograms of this Run
+   ROMEString     fHistoOutputPathConstructed;   //! Output path to the Histograms of this Run after replacing #,##...
+   ROMEString     fHistoOutputFileName;          //! Output filename to the Histograms of this Run
+   ROMEString     fHistoOutputFileNameConstructed; //! Output filename to the Histograms of this Run after replacing #,##...
+   Bool_t         fHistoAccumulateAll;           //! Accmulate all histograms and graphs
 
    // Program name
    ROMEString     fProgramName;                  //! Name of this Program
@@ -420,13 +430,27 @@ public:
    TFolder        *GetHistoFolderAt(int index) const { return static_cast<TFolder*>(fHistoFolders->At(index)); }
    Bool_t          IsHistosRead() const { return fHistoRead; }
    const char*     GetHistosRun() const { return fHistoRun.Data(); }
-   const char*     GetHistosPath() const { return fHistoPath.Data(); }
+   const char*     GetHistosPath() const { return fHistoInputPath.Data(); } // for backward compatibility
+   const char*     GetHistosInputRawPath() { return fHistoInputPath; }
+   const char*     GetHistosInputPath();
+   const char*     GetHistosInputRawFileName() { return fHistoInputFileName; }
+   const char*     GetHistosInputFileName(Long64_t run);
    Bool_t          IsHistosWrite() const { return fHistoWrite; }
+   const char*     GetHistosOutputRawPath() { return fHistoOutputPath; }
+   const char*     GetHistosOutputPath();
+   const char*     GetHistosOutputRawFileName() { return fHistoOutputFileName; }
+   const char*     GetHistosOutputFileName();
+   Bool_t          IsHistosAccumulateAll() const { return fHistoAccumulateAll; }
 
    void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
    void            SetHistosRun(const char* runNumber) { fHistoRun = runNumber; }
-   void            SetHistosPath(const char* path) { fHistoPath = path; }
+   void            SetHistosPath(const char* path) { fHistoInputPath = path; } // for backward compatibility
+   void            SetHistosInputPath(const char* path) { fHistoInputPath = path; }
+   void            SetHistosInputFileName(const char* file) { fHistoInputFileName = file; }
    void            SetHistosWrite(Bool_t flag) { fHistoWrite = flag; }
+   void            SetHistosOutputPath(const char* path) { fHistoOutputPath = path; }
+   void            SetHistosOutputFileName(const char* file) { fHistoOutputFileName = file; }
+   void            SetHistosAccumulateAll(Bool_t flag) { fHistoAccumulateAll = flag; }
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
    ROMEString&     ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);

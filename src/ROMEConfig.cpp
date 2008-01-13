@@ -424,6 +424,10 @@ Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConf
    fullPath.SetFormatted("%sGraphZLabel",path);
    xml->GetPathValue(fullPath.Data(),configGraph->fGraphZLabel,"");
    configGraph->fGraphZLabelModified = (configGraph->fGraphZLabel!="");
+   // fGraphAccumulate
+   fullPath.SetFormatted("%sGraphAccumulate",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphAccumulate,"");
+   configGraph->fGraphAccumulateModified = (configGraph->fGraphAccumulate!="");
    return true;
 }
 
@@ -438,7 +442,8 @@ Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
            configGraph->fGraphArrayStartIndexModified ||
            configGraph->fGraphXLabelModified ||
            configGraph->fGraphYLabelModified ||
-           configGraph->fGraphZLabelModified);
+           configGraph->fGraphZLabelModified ||
+           configGraph->fGraphAccumulateModified);
 }
 
 //______________________________________________________________________________
@@ -479,6 +484,10 @@ Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* confi
    // fGraphZLabel
    if (configGraph->fGraphZLabelModified) {
       graph->SetZLabel(configGraph->fGraphZLabel.Data());
+   }
+   // fGraphAccumulate
+   if (configGraph->fGraphAccumulateModified) {
+      graph->SetAccumulate((configGraph->fGraphAccumulate=="true"));
    }
    return true;
 }
@@ -559,6 +568,15 @@ Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configG
    if (configGraph->fGraphZLabelModified) {
       xml->WriteElement("GraphZLabel",configGraph->fGraphZLabel.Data());
    }
+   iComment++;
+   // fGraphAccumulate
+   if (commentLevel >= ROMEConfig::kCommentLevelParam && configGraph->fGraphAccumulateModified) {
+      xml->WriteComment(comment.At(iComment).Data());
+   }
+   if (configGraph->fGraphAccumulateModified) {
+      xml->WriteElement("GraphAccumulate",configGraph->fGraphAccumulate.Data());
+   }
+
    return true;
 }
 

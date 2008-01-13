@@ -564,9 +564,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
    histoParameterTypes->AddLast("bool");
    histoParameterWidgetTypes->AddLast("CheckButton");
 
-   graphParameters = new ROMEStrArray(9);
-   graphParameterTypes = new ROMEStrArray(9);
-   graphParameterWidgetTypes = new ROMEStrArray(9);
+   graphParameters = new ROMEStrArray(10);
+   graphParameterTypes = new ROMEStrArray(10);
+   graphParameterWidgetTypes = new ROMEStrArray(10);
    graphParameters->AddLast("Active");
    graphParameterTypes->AddLast("bool");
    graphParameterWidgetTypes->AddLast("CheckButton");
@@ -612,6 +612,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
    graphParameters->AddLast("Zmax");
    graphParameterTypes->AddLast("%g");
    graphParameterWidgetTypes->AddLast("EditBox");
+   graphParameters->AddLast("Accumulate");
+   graphParameterTypes->AddLast("bool");
+   graphParameterWidgetTypes->AddLast("CheckButton");
 
    mainParGroup = new ROMEConfigParameterGroup("ConfigData");
 
@@ -1225,8 +1228,15 @@ Bool_t ROMEBuilder::AddConfigParameters()
          // Path
          subSubGroup->AddParameter(new ROMEConfigParameter("Path"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
-         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosPath(##.Data());");
-         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosPath();");
+         subSubGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
+         subSubGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosInputPath(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosInputRawPath();");
+         // FileName
+         subSubGroup->AddParameter(new ROMEConfigParameter("FileName"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosInputFileName(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosInputRawFileName();");
       }
 
       // HistogramWrite
@@ -1239,6 +1249,23 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosWrite(## == \"true\");");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosWrite()?1:0];");
+         // Path
+         subSubGroup->AddParameter(new ROMEConfigParameter("Path"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
+         subSubGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosOutputPath(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosOutputRawPath();");
+         // FileName
+         subSubGroup->AddParameter(new ROMEConfigParameter("FileName"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosOutputFileName(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosOutputRawFileName();");
+         // AccumulateAll
+         subSubGroup->AddParameter(new ROMEConfigParameter("AccumulateAll","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosAccumulateAll(## == \"true\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosAccumulateAll()?1:0];");
       }
 
       // Macros
@@ -1857,6 +1884,16 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
                                                      graphName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%g\",taskObject%d->Get%sGraph()->GetZmax());",
+                                                       taskHierarchyObjectIndex[i],
+                                                       graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->AddParameter(new ROMEConfigParameter("GraphAccumulate","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Graph");
+         subSubGroup->GetLastParameter()->AddSetLine("taskObject%d->Get%sGraph()->SetAccumulate(## != \"false\");",
+                                                     taskHierarchyObjectIndex[i],
+                                                     graphName[taskHierarchyClassIndex[i]][j].Data());
+         subSubGroup->GetLastParameter()->AddSetLine(" ");
+         subSubGroup->GetLastParameter()->DontWriteLinesAlways();
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[taskObject%d->Get%sGraph()->IsAccumulate()?1:0];",
                                                        taskHierarchyObjectIndex[i],
                                                        graphName[taskHierarchyClassIndex[i]][j].Data());
          subGroup->AddSubGroup(subSubGroup);

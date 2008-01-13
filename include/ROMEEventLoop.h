@@ -134,7 +134,8 @@ public:
    virtual void AddTreeBranches() = 0;
 
    // Histos
-   void ReadHistograms();
+   void   ReadHistograms();
+   Bool_t WriteHistograms();
 
 protected:
    // Run Status

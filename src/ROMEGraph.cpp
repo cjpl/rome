@@ -45,6 +45,7 @@ ROMEGraph::ROMEGraph()
 ,fZminOrig(0)
 ,fZmax("")
 ,fZmaxOrig(0)
+,fAccumulate(kFALSE)
 {
 }
 
