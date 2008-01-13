@@ -1266,6 +1266,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosAccumulateAll(## == \"true\");");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->IsHistosAccumulateAll()?1:0];");
+         // AutoSavePeriod
+         subSubGroup->AddParameter(new ROMEConfigParameter("AutoSavePeriod"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosAutoSavePeriod(strtoul(##,&cstop, 10));");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%lu\", gAnalyzer->GetHistosAutoSavePeriod());");
       }
 
       // Macros
