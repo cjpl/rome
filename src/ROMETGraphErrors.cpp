@@ -136,8 +136,11 @@ void ROMETGraphErrors::Add(const TObject *obj)
    if (!obj) {
       return;
    }
+   if (!obj->InheritsFrom("TGraphErrors")) {
+      return;
+   }
 
-   const ROMETGraphErrors *g1 = static_cast<const ROMETGraphErrors*>(obj);
+   const TGraphErrors *g1 = static_cast<const TGraphErrors*>(obj);
    Int_t n = g1->GetN();
    Int_t oldN = fNpoints;
    Int_t newN = fNpoints + n;
