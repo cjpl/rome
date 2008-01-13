@@ -110,3 +110,44 @@ ROMETGraphErrors& ROMETGraphErrors::operator=(const ROMETGraphErrors &gr)
    }
    return *this;
 }
+
+//______________________________________________________________________________
+void ROMETGraphErrors::SetLimits()
+{
+   Double_t rwxmin,rwxmax, rwymin, rwymax, maximum, minimum, dx, dy;
+   ComputeRange(rwxmin, rwymin, rwxmax, rwymax);
+
+   if (rwxmin == rwxmax) rwxmax += 1.;
+   if (rwymin == rwymax) rwymax += 1.;
+   dx = 0.1 * (rwxmax - rwxmin);
+   dy = 0.1 * (rwymax - rwymin);
+   minimum  = rwymin - dy;
+   maximum  = rwymax + dy;
+   fMinimum = minimum;
+   fMaximum = maximum;
+}
+
+//______________________________________________________________________________
+void ROMETGraphErrors::Add(const TObject *obj)
+{
+   const ROMETGraphErrors *g1 = static_cast<const ROMETGraphErrors*>(obj);
+   Int_t n = g1->GetN();
+   Int_t oldN = fNpoints;
+   Int_t newN = fNpoints + n;
+
+   Set(newN);
+   memcpy(fX + oldN,  g1->GetX(), sizeof(Double_t) * n);
+   memcpy(fY + oldN,  g1->GetY(), sizeof(Double_t) * n);
+   memcpy(fEX + oldN, g1->GetEX(), sizeof(Double_t) * n);
+   memcpy(fEY + oldN, g1->GetEY(), sizeof(Double_t) * n);
+
+   SetLimits();
+}
+
+//______________________________________________________________________________
+void ROMETGraphErrors::Copy(TObject &gnew) const
+{
+   ROMETGraphErrors *gnew1 = static_cast<ROMETGraphErrors*>(&gnew);
+   gnew1->Set(0);
+   gnew1->Add(this);
+}

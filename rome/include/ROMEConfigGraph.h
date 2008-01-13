@@ -43,6 +43,8 @@ public:
    Bool_t       fGraphZminModified;
    ROMEString   fGraphZmax;
    Bool_t       fGraphZmaxModified;
+   ROMEString   fGraphAccumulate;
+   Bool_t       fGraphAccumulateModified;
 
    ROMEConfigGraph()
    :TObject()
@@ -76,6 +78,8 @@ public:
    ,fGraphZminModified(kFALSE)
    ,fGraphZmax("1")
    ,fGraphZmaxModified(kFALSE)
+   ,fGraphAccumulate("false")
+   ,fGraphAccumulateModified(kFALSE)
    {
    }
    virtual ~ROMEConfigGraph() {}

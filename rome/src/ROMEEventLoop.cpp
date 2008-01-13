@@ -43,6 +43,8 @@
 
 #include "ROMEUtilities.h"
 #include "ROMETreeInfo.h"
+#include "ROMETGraph.h"
+#include "ROMETGraphErrors.h"
 #include "ROMERint.h"
 #include "ROMEConfig.h"
 #include "ArgusWindow.h"
@@ -1240,13 +1242,8 @@ Bool_t ROMEEventLoop::UserInput()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEEventLoop::DAQEndOfRun()
+Bool_t ROMEEventLoop::WriteHistograms()
 {
-   // Disconnects the current run. Called after the EndOfRun tasks.
-   // Write non accumulative output tree files
-   ROMEPrint::Debug("Executing DAQ EndOfRun\n");
-   gROME->SetCurrentEventNumber(kEventNumberEndOfRun);
-
    // Write Histos
    ROMEString filename;
    ROMEString runNumberString;
@@ -1257,7 +1254,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
 
    if (gROME->IsHistosWrite()) {
       gROME->GetCurrentRunNumberString(runNumberString);
-      filename.SetFormatted("%s%s%s.root", gROME->GetOutputDir(), "histos", runNumberString.Data());
+      filename.SetFormatted("%s%s", gROME->GetHistosOutputPath(), gROME->GetHistosOutputFileName());
       fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
       ROMEString histoDirectoryName;
 
@@ -1291,6 +1288,21 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
          gROOT->cd();
          delete [] directories;
       }
+   }
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEEventLoop::DAQEndOfRun()
+{
+   // Disconnects the current run. Called after the EndOfRun tasks.
+   // Write non accumulative output tree files
+   ROMEPrint::Debug("Executing DAQ EndOfRun\n");
+   gROME->SetCurrentEventNumber(kEventNumberEndOfRun);
+
+   // Write histograms
+   if (!gROME->IsHistosAccumulateAll()) {
+      WriteHistograms();
    }
 
    // Write trees
@@ -1359,6 +1371,12 @@ Bool_t ROMEEventLoop::DAQTerminate()
    ROMEPrint::Debug("Executing DAQ Terminate\n");
    gROME->SetCurrentEventNumber(kEventNumberTerminate);
 
+   // Write histograms
+   if (gROME->IsHistosAccumulateAll()) {
+      WriteHistograms();
+   }
+
+   // Write trees
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
@@ -1436,10 +1454,11 @@ void ROMEEventLoop::ReadHistograms()
    ROMEString  name;
    ROMETask   *task;
    ROMEHisto  *histoPar;
+   ROMEGraph  *graphPar;
    ROMEString  histoRuns;
    TArrayL64   runNumbers;
    TFile      *file;
-   TObject    *tempHisto;
+   TObject    *tempObj;
 
    histoRuns = gROME->GetHistosRun();
    gROME->DecodeNumbers(histoRuns, runNumbers);
@@ -1449,7 +1468,7 @@ void ROMEEventLoop::ReadHistograms()
    TDirectory *histDir = 0;
 
    for (ii = 0; ii < runNumbers.GetSize(); ii++) {
-      filename.SetFormatted("%s%s%05d.root", gROME->GetHistosPath(), "histos", static_cast<Int_t>(runNumbers.At(ii)));
+      filename.SetFormatted("%s%s", gROME->GetHistosInputPath(), gROME->GetHistosInputFileName(runNumbers.At(ii)));
       gROME->ReplaceWithRunAndEventNumber(filename);
       file = new TFile(filename.Data(), "READ");
       if (file->IsZombie()) {
@@ -1472,28 +1491,66 @@ void ROMEEventLoop::ReadHistograms()
          if (task->IsActive()) {
             for (j = 0; j < task->GetNumberOfHistos(); j++) {
                histoPar = task->GetHistoParameterAt(j);
-               if (histoPar->IsActive() && histoPar->IsAccumulate()) {
+               if (histoPar->IsActive() && (histoPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
                   for (k = 0; k < histoPar->GetArraySize(); k++) {
                      name.SetFormatted("%s%s", task->GetHistoNameAt(j)->Data(), task->GetTaskSuffix()->Data());
                      if (histoPar->GetArraySize() > 1) {
                         name.AppendFormatted("_%0*d", 3, k + histoPar->GetArrayStartIndex());
                      }
-                     tempHisto = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
-                     if (tempHisto == 0) {
+                     tempObj = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
+                     if (tempObj == 0) {
                         ROMEPrint::Warning("Histogram '%s' not available in run "R_LLD"!\n", task->GetHistoNameAt(j)->Data(),
                                            runNumbers.At(ii));
                      } else {
                         if (ii == 0) {
                            if (histoPar->GetArraySize() > 1) {
-                              tempHisto->Copy(*static_cast<TObjArray*>(task->GetHistoAt(j))->At(k));
+                              tempObj->Copy(*static_cast<TObjArray*>(task->GetHistoAt(j))->At(k));
                            } else {
-                              tempHisto->Copy(*task->GetHistoAt(j));
+                              tempObj->Copy(*task->GetHistoAt(j));
                            }
                         } else {
                            if (histoPar->GetArraySize() > 1) {
-                              static_cast<TH1*>(static_cast<TObjArray*>(task->GetHistoAt(j))->At(k))->Add(static_cast<TH1*>(tempHisto));
+                              static_cast<TH1*>(static_cast<TObjArray*>(task->GetHistoAt(j))->At(k))->Add(static_cast<TH1*>(tempObj));
                            } else {
-                              static_cast<TH1*>(task->GetHistoAt(j))->Add(static_cast<TH1*>(tempHisto));
+                              static_cast<TH1*>(task->GetHistoAt(j))->Add(static_cast<TH1*>(tempObj));
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+            for (j = 0; j < task->GetNumberOfGraphs(); j++) {
+               graphPar = task->GetGraphParameterAt(j);
+               if (graphPar->IsActive() && (graphPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
+                  for (k = 0; k < graphPar->GetArraySize(); k++) {
+                     name.SetFormatted("%s%s", task->GetGraphNameAt(j)->Data(), task->GetTaskSuffix()->Data());
+                     if (graphPar->GetArraySize() > 1) {
+                        name.AppendFormatted("_%0*d", 3, k + graphPar->GetArrayStartIndex());
+                     }
+                     tempObj = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
+                     if (tempObj == 0) {
+                        ROMEPrint::Warning("Graphgram '%s' not available in run "R_LLD"!\n", task->GetGraphNameAt(j)->Data(),
+                                           runNumbers.At(ii));
+                     } else {
+                        if (ii == 0) {
+                           if (graphPar->GetArraySize() > 1) {
+                              tempObj->Copy(*static_cast<TObjArray*>(task->GetGraphAt(j))->At(k));
+                           } else {
+                              tempObj->Copy(*task->GetGraphAt(j));
+                           }
+                        } else {
+                           if (graphPar->GetArraySize() > 1) {
+                              if (static_cast<TObjArray*>(task->GetGraphAt(j))->At(k)->InheritsFrom("ROMETGraph")) {
+                                 static_cast<ROMETGraph*>(static_cast<TObjArray*>(task->GetGraphAt(j))->At(k))->Add(tempObj);
+                              } else if (static_cast<TObjArray*>(task->GetGraphAt(j))->At(k)->InheritsFrom("ROMETGraphErrors")) {
+                                 static_cast<ROMETGraphErrors*>(static_cast<TObjArray*>(task->GetGraphAt(j))->At(k))->Add(tempObj);
+                              }
+                           } else {
+                              if (static_cast<TObjArray*>(task->GetGraphAt(j))->At(k)->InheritsFrom("ROMETGraph")) {
+                                 static_cast<ROMETGraph*>(task->GetGraphAt(j))->Add(tempObj);
+                              } else if (static_cast<TObjArray*>(task->GetGraphAt(j))->At(k)->InheritsFrom("ROMETGraphErrors")) {
+                                 static_cast<ROMETGraphErrors*>(task->GetGraphAt(j))->Add(tempObj);
+                              }
                            }
                         }
                      }

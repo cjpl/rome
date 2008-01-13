@@ -191,7 +191,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
       romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
@@ -211,7 +211,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETGraphErrors.h");
       romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETCutG.h");
-      romeLinkDefSuffix->Add("");
+      romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
       romeLinkDefSuffix->Add("+");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");

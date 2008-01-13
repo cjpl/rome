@@ -541,12 +541,17 @@
 			</xs:element>
 			<xs:element name="RunNumber" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>Run number of the required histogram/graph file. (required)</xs:documentation>
+					<xs:documentation>Run numbers of the required histogram/graph file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Path" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>directory path to read histogram/graph file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FileName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the histogram input file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -559,6 +564,21 @@
 			<xs:element name="Write" type="xs:boolean">
 				<xs:annotation>
 					<xs:documentation>Write flag. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Path" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>directory path to write histogram/graph file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OutputFileName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the histogram output file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AccumulateAll" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is true all the histograms and graphs are not reset by framework. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -755,6 +775,11 @@
 			<xs:element name="GraphZLabel" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The label text of the z axis. Text has to be placed in quotes. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphAccumulate" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is true the graphs are not reset by framework. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

@@ -372,7 +372,8 @@ void ROMETask::ResetHisto()
    Int_t i, j;
    for (i = 0; i < GetNumberOfHistos(); i++) {
       if (static_cast<ROMEHisto*>(fHistoParameter->At(i))->IsActive() &&
-          !static_cast<ROMEHisto*>(fHistoParameter->At(i))->IsAccumulate()) {
+          !static_cast<ROMEHisto*>(fHistoParameter->At(i))->IsAccumulate() &&
+          !gROME->IsHistosAccumulateAll()) {
          if (!fHistoArray[i]) {
             static_cast<TH1*>(fHisto->At(i))->Reset();
          } else {
@@ -624,7 +625,8 @@ void ROMETask::BookHisto(void)
                                                                          xNbins, xmin, xmax, ymin, ymax, option), j);
                } else if (fHistoType[i] == "TProfile2D") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile2D(histoArrayName.Data(), histoArrayTitle.Data(),
-                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax, option), j);
+                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax, option),
+                                                                j);
                } else {
                   ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                    fHistoType[i].Data());
@@ -819,7 +821,8 @@ void ROMETask::ReBookHisto(void)
                                                                          xNbins, xmin, xmax, ymin, ymax, option), j);
                } else if (fHistoType[i] == "TProfile2D") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TProfile2D(histoArrayName.Data(), histoArrayTitle.Data(),
-                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax, option), j);
+                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax, zmin, zmax, option),
+                                                                j);
                } else {
                   ROMEPrint::Error("\nYou have tried to use unimplemented histogram %s.\n\nShutting down the program.\n",
                                    fHistoType[i].Data());
@@ -869,7 +872,9 @@ void ROMETask::ResetGraph()
 {
    Int_t i, j;
    for (i = 0; i < GetNumberOfGraphs(); i++) {
-      if (static_cast<ROMEGraph*>(fGraphParameter->At(i))->IsActive()) {
+      if (static_cast<ROMEGraph*>(fGraphParameter->At(i))->IsActive() &&
+          !static_cast<ROMEGraph*>(fGraphParameter->At(i))->IsAccumulate() &&
+          !gROME->IsHistosAccumulateAll()) {
          if (!fGraphArray[i]) {
             static_cast<TGraph*>(fGraph->At(i))->Set(0);
          } else {

@@ -152,7 +152,7 @@ protected:
    virtual void EndOfRun() = 0;
    virtual void Terminate() = 0;
 
-   ClassDef(ROMETask,0) // Customized TTask for ROME
+   ClassDef(ROMETask,1) // Customized TTask for ROME
 };
 
 #endif   // ROMETask_H

@@ -10965,7 +10965,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       for (i = 0; i < numOfTree; i++) {
          buffer.AppendFormatted("      case %d:\n",i);
          if (treeFileName[i].Length() == 0) {
-            buffer.AppendFormatted("         base.SetFormatted(\"%s#.root\");\n",treeName[i].Data());
+            buffer.AppendFormatted("         if (gROME->isTreeAccumulation()) {\n");
+            buffer.AppendFormatted("            base.SetFormatted(\"%s.root\");\n",treeName[i].Data());
+            buffer.AppendFormatted("         } else {\n");
+            buffer.AppendFormatted("            base.SetFormatted(\"%s#.root\");\n",treeName[i].Data());
+            buffer.AppendFormatted("         }\n");
          } else {
             buffer.AppendFormatted("         base.SetFormatted(%s);\n",treeFileName[i].Data());
          }

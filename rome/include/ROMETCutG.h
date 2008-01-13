@@ -27,7 +27,7 @@ public:
    ROMETCutG(const char *filename, const char *format="%lg %lg", Option_t *option=""):ROMETGraph(filename,format,option){}
    ROMETCutG& operator=(const ROMETCutG&);
 
-   ClassDef(ROMETCutG, 0) // TGraph class for rome
+   ClassDef(ROMETCutG, 1) // TGraph class for rome
 };
 
 #endif   // ROMETCutG_H

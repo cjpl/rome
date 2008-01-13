@@ -30,7 +30,11 @@ public:
    TH1F* GetHistogramHandle() const { return fHistogram; }
    void  DeleteHistogram() { SafeDelete(fHistogram); }
 
-   ClassDef(ROMETGraphErrors, 0) // TGraphErrors class for rome
+   virtual void SetLimits();
+   virtual void Add(const TObject *obj);
+   virtual void Copy(TObject &gnew) const;
+
+   ClassDef(ROMETGraphErrors, 1) // TGraphErrors class for rome
 };
 
 #endif   // ROMETGraphErrors_H

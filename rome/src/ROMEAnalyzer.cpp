@@ -167,7 +167,16 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fHistoFolders(new TObjArray(0))
 ,fHistoRead(kFALSE)
 ,fHistoRun(0)
+,fHistoInputPath("./")
+,fHistoInputPathConstructed("")
+,fHistoInputFileName("")
+,fHistoInputFileNameConstructed("")
 ,fHistoWrite(kTRUE)
+,fHistoOutputPath("./")
+,fHistoOutputPathConstructed("")
+,fHistoOutputFileName("")
+,fHistoOutputFileNameConstructed("")
+,fHistoAccumulateAll(kFALSE)
 ,fProgramName(programName)
 ,fOnlineHost("")
 ,fOnlineExperiment("")
@@ -705,7 +714,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          if (i + 1 >= argc) {
             break;
          }
-         this->SetHistosPath(argv[i + 1]);
+         this->SetHistosInputPath(argv[i + 1]);
          i++;
       } else if (!strcmp(argv[i], "-b")) {
          fBatchMode = kTRUE;
@@ -2027,4 +2036,49 @@ const ROMEString& ROMEAnalyzer::GetConfigDirString()
 {
    ConstructFilePath(fConfigDir, "", fConfigDirConstructed);
    return fConfigDirConstructed;
+}
+
+//______________________________________________________________________________
+const char* ROMEAnalyzer::GetHistosInputPath()
+{
+   ConstructFilePath(fHistoInputPath, "", fHistoInputPathConstructed);
+   return fHistoInputPathConstructed;
+}
+
+//______________________________________________________________________________
+const char* ROMEAnalyzer::GetHistosInputFileName(Long64_t run)
+{
+   if (fHistoInputFileName != "") {
+      fHistoInputFileNameConstructed = fHistoInputFileName;
+   } else {
+      fHistoInputFileNameConstructed = "histos#.root";
+   }
+   Long64_t runOrg = GetCurrentRunNumber();
+   SetCurrentRunNumber(run);
+   ReplaceWithRunAndEventNumber(fHistoInputFileNameConstructed);
+   SetCurrentRunNumber(runOrg);
+   return fHistoInputFileNameConstructed;
+}
+
+//______________________________________________________________________________
+const char* ROMEAnalyzer::GetHistosOutputPath()
+{
+   ConstructFilePath(fHistoOutputPath, "", fHistoOutputPathConstructed);
+   return fHistoOutputPathConstructed;
+}
+
+//______________________________________________________________________________
+const char* ROMEAnalyzer::GetHistosOutputFileName()
+{
+   if (fHistoOutputFileName != "") {
+      fHistoOutputFileNameConstructed = fHistoOutputFileName;
+   } else {
+      if (gROME->IsHistosAccumulateAll()) {
+         fHistoOutputFileNameConstructed = "histos.root";
+      } else {
+         fHistoOutputFileNameConstructed = "histos#.root";
+      }
+   }
+   ReplaceWithRunAndEventNumber(fHistoOutputFileNameConstructed);
+   return fHistoOutputFileNameConstructed;
 }

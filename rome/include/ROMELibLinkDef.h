@@ -9,7 +9,7 @@
 #pragma link C++ class ROMEStrArray+;
 #pragma link C++ class ROMEStr2DArray+;
 #pragma link C++ class ROMEXML;
-#pragma link C++ class ROMETask;
+#pragma link C++ class ROMETask+;
 #pragma link C++ class ROMETreeInfo+;
 #pragma link C++ class ROMENetFolder;
 #pragma link C++ class ROMENetFolderServer;
@@ -39,7 +39,7 @@
 #pragma link C++ class ROMEConfigHisto;
 #pragma link C++ class ROMETGraph+;
 #pragma link C++ class ROMETGraphErrors+;
-#pragma link C++ class ROMETCutG;
+#pragma link C++ class ROMETCutG+;
 #pragma link C++ class TNetFolder;
 #pragma link C++ class TNetFolderServer;
 #pragma link C++ class XMLToFormWindow;
