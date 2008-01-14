@@ -57,7 +57,9 @@ namespace {
       kWriteDB,
       kCheckTransition
    };
+
    // inter thread communication
+#if defined( HAVE_MIDAS )
    Int_t           fgOnlineLoopPeriod         = kMidasInitialOnlineLoopPeriod;
    ULong_t         fgLastLoopTime             = 0;
    Int_t           fgOnlineThreadRequest      = 0;
@@ -72,6 +74,7 @@ namespace {
    Long64_t        fgCurrentRunNumber         = -1;
    Int_t           fgEventStatus              = -1;
    Int_t           fgRunStatus                = -1;
+#endif
 }
 
 #if defined( HAVE_MIDAS )
@@ -801,6 +804,7 @@ Bool_t ROMEMidasDAQ::ActualReadODBOnline(ROMEStr2DArray *values, const char *dat
 Bool_t ROMEMidasDAQ::WriteODBOnline(ROMEStr2DArray* values, const char * dataBasePath,
                                     Long64_t runNumber, Long64_t eventNumber)
 {
+#if defined( HAVE_MIDAS )
    if (fOnlineThread) {
       if (!fOnlineHandlerThread) {
          return kFALSE;
@@ -821,12 +825,20 @@ Bool_t ROMEMidasDAQ::WriteODBOnline(ROMEStr2DArray* values, const char * dataBas
    } else {
       return ActualWriteODBOnline(values, dataBasePath, runNumber, eventNumber);
    }
+#else
+   WarningSuppression(values);
+   WarningSuppression(dataBasePath);
+   WarningSuppression(runNumber);
+   WarningSuppression(eventNumber);
+   return kTRUE;
+#endif
 }
 
 //______________________________________________________________________________
 Bool_t ROMEMidasDAQ::ReadODBOnline(ROMEStr2DArray* values, const char * dataBasePath,
                                    Long64_t runNumber, Long64_t eventNumber)
 {
+#if defined( HAVE_MIDAS )
    if (fOnlineThread) {
       if (!fOnlineHandlerThread) {
          return kFALSE;
@@ -847,6 +859,13 @@ Bool_t ROMEMidasDAQ::ReadODBOnline(ROMEStr2DArray* values, const char * dataBase
    } else {
       return ActualReadODBOnline(values, dataBasePath, runNumber, eventNumber);
    }
+#else
+   WarningSuppression(values);
+   WarningSuppression(dataBasePath);
+   WarningSuppression(runNumber);
+   WarningSuppression(eventNumber);
+   return kTRUE;
+#endif
 }
 
 //______________________________________________________________________________
@@ -1438,6 +1457,7 @@ Bool_t ROMEMidasDAQ::ReadOnlineEvent(ROMEMidasDAQ *localThis)
 //______________________________________________________________________________
 void ROMEMidasDAQ::DummyRead()
 {
+#if defined( HAVE_MIDAS )
    if (fOnlineThread) {
       if (!fOnlineHandlerThread) {
          return;
@@ -1453,6 +1473,8 @@ void ROMEMidasDAQ::DummyRead()
    } else {
       ReadOnlineEventDummy(this);
    }
+#else
+#endif
 }
 
 //______________________________________________________________________________
@@ -1546,11 +1568,19 @@ void ROMEMidasDAQ::SetODBBufferSize(Int_t size)
 //______________________________________________________________________________
 void ROMEMidasDAQ::SetOnlineLoopPeriod(Int_t period)
 {
+#if defined( HAVE_MIDAS )
    fgOnlineLoopPeriod = period;
+#else
+   WarningSuppression(period);
+#endif
 }
 
 //______________________________________________________________________________
 Int_t ROMEMidasDAQ::GetOnlineLoopPeriod() const
 {
+#if defined( HAVE_MIDAS )
    return fgOnlineLoopPeriod;
+#else
+   return kMidasInitialOnlineLoopPeriod;
+#endif
 }
