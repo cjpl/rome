@@ -167,12 +167,12 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fHistoFolders(new TObjArray(0))
 ,fHistoRead(kFALSE)
 ,fHistoRun(0)
-,fHistoInputPath("./")
+,fHistoInputPath("")
 ,fHistoInputPathConstructed("")
 ,fHistoInputFileName("")
 ,fHistoInputFileNameConstructed("")
 ,fHistoWrite(kTRUE)
-,fHistoOutputPath("./")
+,fHistoOutputPath("")
 ,fHistoOutputPathConstructed("")
 ,fHistoOutputFileName("")
 ,fHistoOutputFileNameConstructed("")
@@ -2043,8 +2043,11 @@ const ROMEString& ROMEAnalyzer::GetConfigDirString()
 //______________________________________________________________________________
 const char* ROMEAnalyzer::GetHistosInputPath()
 {
-   ConstructFilePath(fHistoInputPath, "", fHistoInputPathConstructed);
-   return fHistoInputPathConstructed;
+   if (fHistoInputPath != "") {
+      ConstructFilePath(fHistoInputPath, "", fHistoInputPathConstructed);
+      return fHistoInputPathConstructed;
+   }
+   return GetInputDirString();
 }
 
 //______________________________________________________________________________
@@ -2065,8 +2068,11 @@ const char* ROMEAnalyzer::GetHistosInputFileName(Long64_t run)
 //______________________________________________________________________________
 const char* ROMEAnalyzer::GetHistosOutputPath()
 {
-   ConstructFilePath(fHistoOutputPath, "", fHistoOutputPathConstructed);
-   return fHistoOutputPathConstructed;
+   if (fHistoOutputPath != "") {
+      ConstructFilePath(fHistoOutputPath, "", fHistoOutputPathConstructed);
+      return fHistoOutputPathConstructed;
+   }
+   return GetOutputDirString();
 }
 
 //______________________________________________________________________________
