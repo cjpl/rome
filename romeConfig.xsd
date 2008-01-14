@@ -546,7 +546,7 @@
 			</xs:element>
 			<xs:element name="Path" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>directory path to read histogram/graph file. (optional)</xs:documentation>
+					<xs:documentation>directory path to read histogram/graph file. When this is empty, global input path is used.(optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="FileName" type="xs:string" minOccurs="0">
@@ -568,7 +568,7 @@
 			</xs:element>
 			<xs:element name="Path" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>directory path to write histogram/graph file. (optional)</xs:documentation>
+					<xs:documentation>directory path to write histogram/graph file. When this is empty global output path is used.(optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="FileName" type="xs:string" minOccurs="0">
