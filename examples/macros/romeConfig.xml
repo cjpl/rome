@@ -142,7 +142,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <!-- Run numbers of the required histogram/graph file. (required) -->
         <RunNumber>0</RunNumber>
         <!-- directory path to read histogram/graph file. (optional) -->
-        <Path>./</Path>
+        <Path></Path>
         <!-- The name of the histogram input file. (optional) -->
         <FileName></FileName>
       </HistogramRead>
@@ -152,7 +152,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <!-- Write flag. (required) -->
         <Write>true</Write>
         <!-- directory path to write histogram/graph file. (optional) -->
-        <Path>./</Path>
+        <Path></Path>
         <!-- The name of the histogram output file. (e.g. histos#.root, # will be replaced by run number) (optional) -->
         <FileName></FileName>
         <!-- If this value is true all the histograms and graphs are not reset by framework. Default is false. -->

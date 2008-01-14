@@ -85,13 +85,13 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <HistogramRead>
         <Read>false</Read>
         <RunNumber>0</RunNumber>
-        <Path>./</Path>
+        <Path></Path>
         <FileName></FileName>
       </HistogramRead>
 
       <HistogramWrite>
         <Write>true</Write>
-        <Path>./</Path>
+        <Path></Path>
         <FileName></FileName>
         <AccumulateAll>false</AccumulateAll>
         <DeactivateAll>false</DeactivateAll>
