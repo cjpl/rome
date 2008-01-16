@@ -932,14 +932,7 @@ Bool_t ROMEEventLoop::Update()
       }
    }
 
-   // Histograms auto save
-   static ULong_t histoSaveLastTime = 0;
-   if (gROME->GetHistosAutoSavePeriod() > 0 &&
-       currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() * 1000 &&
-       !strcmp(gROME->GetOutputFileOption(), "RECREATE")) {
-      histoSaveLastTime = currentTime;
-      WriteHistograms();
-   }
+   AutoSave();
 
    ROMEPrint::Debug("ROMEEventLoop::Update() TriggerEventHandler");
    if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
@@ -1300,6 +1293,36 @@ Bool_t ROMEEventLoop::WriteHistograms()
       }
    }
    return kTRUE;
+}
+
+//______________________________________________________________________________
+void ROMEEventLoop::AutoSave()
+{
+   // Trees auto save
+   Bool_t saveTrees = kFALSE;
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   Int_t iTree;
+   for (iTree = 0; iTree < nTree; iTree++) {
+      if (gROME->GetTreeObjectAt(iTree)->CheckAutoSave()) {
+         saveTrees = kTRUE;
+         break;
+      }
+   }
+   if (saveTrees) {
+      for (iTree = 0; iTree < nTree; iTree++) {
+         gROME->GetTreeObjectAt(iTree)->AutoSave("SaveSelf");
+      }
+   }
+
+   // Histograms auto save
+   static ULong_t histoSaveLastTime = 0;
+   ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
+   if (gROME->GetHistosAutoSavePeriod() > 0 &&
+       currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() * 1000 &&
+       !strcmp(gROME->GetOutputFileOption(), "RECREATE")) {
+      histoSaveLastTime = currentTime;
+      WriteHistograms();
+   }
 }
 
 //______________________________________________________________________________

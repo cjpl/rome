@@ -122,6 +122,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Fill>true</Fill>
           <!-- Compression level for all branches of the tree. Default is 0. -->
           <CompressionLevel>1</CompressionLevel>
+          <!-- Number of bytes for auto saving. Auto saving is disabled when this is 0. Default is 100000000 (about 100 MB). -->
+          <AutoSaveSize>100000000</AutoSaveSize>
           <!-- If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0. -->
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
           <!-- The name of the trees input file. This value overwrites the value specified in the definition file. (optional) -->
@@ -155,8 +157,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Read>false</Read>
         <!-- Run numbers of the required histogram/graph file. (required) -->
         <RunNumber>0</RunNumber>
-        <!-- directory path to read histogram/graph file. (optional) -->
-        <Path></Path>
+        <!-- directory path to read histogram/graph file. When this is empty, global input path is used.(optional) -->
+        <Path>/</Path>
         <!-- The name of the histogram input file. (optional) -->
         <FileName></FileName>
       </HistogramRead>
@@ -165,8 +167,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <!-- Description of the histogram/graph writing. -->
         <!-- Write flag. (required) -->
         <Write>true</Write>
-        <!-- directory path to write histogram/graph file. (optional) -->
-        <Path></Path>
+        <!-- directory path to write histogram/graph file. When this is empty global output path is used.(optional) -->
+        <Path>/</Path>
         <!-- The name of the histogram output file. (e.g. histos#.root, # will be replaced by run number) (optional) -->
         <FileName></FileName>
         <!-- If this value is true all the histograms and graphs are not reset by framework. Default is false. -->

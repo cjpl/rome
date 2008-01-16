@@ -170,6 +170,7 @@ protected:
    static Bool_t IsTerminal() { return ROMEAnalyzer::STDOutIsTerminal() && ROMEAnalyzer::STDErrIsTerminal();}
    TFile       *CreateTFile(const char *fname, Option_t *option = "",
                             const char *ftitle = "", Int_t compress = 1);
+   void         AutoSave();
 
    // virtual methods
    virtual void InitArrayFolders() = 0;

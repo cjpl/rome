@@ -36,6 +36,8 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
                  "Save Config = BOOL : 0\n"
                  "Compression Level = INT : 0\n"
                  "Max Entries = INT : 0\n")
+,fAutoSaveSize(100000000)
+,fLastSaveSize(0)
 ,fBranchActive(0)
 ,fNBranchActive(0)
 ,fTree(tree)
@@ -90,4 +92,28 @@ Bool_t ROMETree::CheckConfiguration(const char* inDir, const char* outDir) const
       return kFALSE;
    }
    return kTRUE;
+}
+
+//______________________________________________________________________________
+Long64_t ROMETree::AutoSave(Option_t *option)
+{
+   Long64_t ret = 0;
+   if (fAutoSaveSize > 0 && isWrite() && fTree && fTree->GetCurrentFile()) {
+      ret = fTree->AutoSave(option);
+      fLastSaveSize = fTree->GetCurrentFile()->GetBytesWritten();
+   }
+   return ret;
+}
+
+//______________________________________________________________________________
+Bool_t ROMETree::CheckAutoSave()
+{
+   Long64_t currentSize;
+   if (fAutoSaveSize > 0 && isWrite() && fTree && fTree->GetCurrentFile()) {
+      currentSize = fTree->GetCurrentFile()->GetBytesWritten();
+      if (currentSize > fLastSaveSize + fAutoSaveSize) {
+         return kTRUE;
+      }
+   }
+   return kFALSE;
 }
