@@ -80,9 +80,15 @@ const Long64_t  kMinLong64   = -kMaxLong64 - 1;
 #endif
 
 #if defined(R__UNIX)
-#   define R_LLD "%lld"
+#   define R_LLD     "%lld"
+#   define R_ULLD    "%llu"
+#   define R_05LLD   "%05lld"
+#   define R_05ULLD  "%05llu"
 #else
-#   define R_LLD "%I64d"
+#   define R_LLD     "%I64d"
+#   define R_ULLD    "%I64u"
+#   define R_05LLD   "%05I64d"
+#   define R_05ULLD "%05I64u"
 #endif
 
 #endif   // ROME_H

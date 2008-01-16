@@ -31,8 +31,11 @@ private:
    } fSwitches;                    //!   Switches Structure
 
    ROMEString  fSwitchesString;    //!   Switches String
+   Long64_t    fAutoSaveSize;      //!   Auto save size
+   Long64_t    fLastSaveSize;      //!   The last saved size
    Bool_t     *fBranchActive;      //!   Flag if brahch is active
    Int_t       fNBranchActive;     //!   Number of branch active
+
 protected:
    TTree      *fTree;              //    Tree
    ROMEString  fFileName;          //!   Name of the File for the Tree Object
@@ -46,10 +49,10 @@ private:
    ROMETree &operator=(const ROMETree &rhs); // not implemented
 
 public:
-   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configInputFileName="",
-            ROMEString configOUtputFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,
-            Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=kFALSE,
-            Int_t compressionLevel=0,Long64_t maxEntries=0);
+   ROMETree(TTree *tree = 0, ROMEString fileName = "", ROMEString configInputFileName = "",
+            ROMEString configOUtputFileName = "", TFile* file = 0, Int_t fileOption = kOverWrite,
+            Bool_t read = 0,Bool_t write = 0,Bool_t fill = 0,Bool_t saveConfig = kFALSE,
+            Int_t compressionLevel = 0, Long64_t maxEntries = 0);
    virtual ~ROMETree();
 
    void        AllocateBranchActive(Int_t n);
@@ -59,16 +62,17 @@ public:
    ROMEString &GetConfigOutputFileName() { return fConfigOutputFileName; }
    void        UpdateFilePointer() { fFile = fTree->GetCurrentFile(); }
    TFile      *GetFile() const { return fFile; }
-   Bool_t      IsFileOverWrite() const { return fFileOption==kOverWrite; }
-   Bool_t      IsFileUpdate() const { return fFileOption==kUpdate; }
-   Bool_t      isRead() const { return fSwitches.fRead!=0; }
-   Bool_t      isWrite() const { return fSwitches.fWrite!=0; }
-   Bool_t      isFill() const { return fSwitches.fFill!=0; }
-   Bool_t      isSaveConfig() const { return fSwitches.fSaveConfig!=0; }
+   Bool_t      IsFileOverWrite() const { return fFileOption == kOverWrite; }
+   Bool_t      IsFileUpdate() const { return fFileOption == kUpdate; }
+   Bool_t      isRead() const { return fSwitches.fRead != 0; }
+   Bool_t      isWrite() const { return fSwitches.fWrite != 0; }
+   Bool_t      isFill() const { return fSwitches.fFill != 0; }
+   Bool_t      isSaveConfig() const { return fSwitches.fSaveConfig != 0; }
    Int_t       GetCompressionLevel() const { return fSwitches.fCompressionLevel; }
+   Long64_t    GetAutoSaveSize() const { return fAutoSaveSize; }
    Bool_t      isCircular() const {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-                  return fSwitches.fMaxEntries!=0;
+                  return fSwitches.fMaxEntries != 0;
 #else
                   return false;
 #endif
@@ -97,6 +101,9 @@ public:
                   for (Int_t i=0;i<branches->GetEntriesFast();i++)
                      (static_cast<TBranch*>(branches->At(i)))->SetCompressionLevel(compressionLevel);
                }
+   void        SetAutoSaveSize(Long64_t size) { fAutoSaveSize = size; }
+   Long64_t    AutoSave(Option_t *option);
+   Bool_t      CheckAutoSave();
    void        SetMaxEntries(Long64_t maxEntries) {
                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
                   /* note: use 4byte integer for odb */

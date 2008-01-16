@@ -69,6 +69,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Write>false</Write>
           <Fill>false</Fill>
           <CompressionLevel>0</CompressionLevel>
+          <AutoSaveSize>100000000</AutoSaveSize>
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
           <TreeInputFileName></TreeInputFileName>
           <TreeOutputFileName></TreeOutputFileName>

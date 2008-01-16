@@ -262,14 +262,14 @@ check : remove $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
 	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q -nc
 
-	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q -nc
+	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q -nc -e 0-99
 
 	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b -nc && \
 	./runhanalyzer.exe -i readConfig.xml -q -nc
 
 	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd midas; ./midanalyzer.exe -i romeConfig.xml -q -m offline -nc
+	cd midas; ./midanalyzer.exe -i romeConfig.xml -q -m offline -nc -e 0-99
 
 	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 

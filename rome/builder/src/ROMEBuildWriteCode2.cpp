@@ -1130,6 +1130,15 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
             subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",
                                                              i);
+            // AutoSaveSize
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("AutoSaveSize"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetAutoSaveSize(##.ToLong64());",
+                                                           i);
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(R_LLD,gAnalyzer->GetTreeObjectAt(%d)->GetAutoSaveSize());",
+                                                             i);
             // MaxNumberOfEntries
             subSubSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
             subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");

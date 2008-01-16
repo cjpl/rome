@@ -10700,6 +10700,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    for (i = 0; i < numOfTree; i++) {
       buffer.AppendFormatted("   tree = new TTree(\"%s\",\"%s\");\n",treeName[i].Data(),treeTitle[i].Data());
+      buffer.AppendFormatted("   tree->SetAutoSave(kMaxLong64);\n"); // ROME saves trees in event loop with "SaveSelf" option.
       buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
       buffer.AppendFormatted("   treeFolder->Add(tree);\n\n");
       buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->AllocateBranchActive(%d);\n",i,numOfBranch[i]);

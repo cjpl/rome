@@ -34,8 +34,11 @@ public:
    void         Write() const { cout << Data(); }
    void         WriteLine() const { cout << Data() << endl; }
    Int_t        ToInteger() const;
+   UInt_t       ToUnsignedInteger() const;
    Long_t       ToLong() const;
+   ULong_t      ToUnsignedLong() const;
    Long64_t     ToLong64() const;
+   ULong64_t    ToUnsignedLong64() const;
    Double_t     ToDouble() const;
    Float_t      ToFloat() const;
    Bool_t       ToBool() const;

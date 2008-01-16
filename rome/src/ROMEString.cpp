@@ -166,10 +166,24 @@ Int_t ROMEString::ToInteger() const
 }
 
 //______________________________________________________________________________
+UInt_t ROMEString::ToUnsignedInteger() const
+{
+   char *cstop;
+   return strtoul(Data(), &cstop, 10);
+}
+
+//______________________________________________________________________________
 Long_t ROMEString::ToLong() const
 {
    char *cstop;
    return strtol(Data(), &cstop, 10);
+}
+
+//______________________________________________________________________________
+ULong_t ROMEString::ToUnsignedLong() const
+{
+   char *cstop;
+   return strtoul(Data(), &cstop, 10);
 }
 
 //______________________________________________________________________________
@@ -180,6 +194,17 @@ Long64_t ROMEString::ToLong64() const
    return strtoll(Data(), &cstop, 10);
 #else
    return _strtoi64(Data(), &cstop, 10);
+#endif
+}
+
+//______________________________________________________________________________
+ULong64_t ROMEString::ToUnsignedLong64() const
+{
+   char *cstop;
+#if defined( R__UNIX )
+   return strtoull(Data(), &cstop, 10);
+#else
+   return _strtoui64(Data(), &cstop, 10);
 #endif
 }
 
