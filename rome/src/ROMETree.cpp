@@ -111,6 +111,10 @@ Bool_t ROMETree::CheckAutoSave()
    Long64_t currentSize;
    if (fAutoSaveSize > 0 && isWrite() && fTree && fTree->GetCurrentFile()) {
       currentSize = fTree->GetCurrentFile()->GetBytesWritten();
+      if (currentSize < fLastSaveSize) {
+         // probably new file is created.
+         fLastSaveSize = 0;
+      }
       if (currentSize > fLastSaveSize + fAutoSaveSize) {
          return kTRUE;
       }
