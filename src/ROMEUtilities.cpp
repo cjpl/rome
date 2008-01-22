@@ -169,6 +169,8 @@ const char* ROMEUtilities::FastDecrypt(const char *str)
    result[i / 2] = '\0';
    return result;
 }
+
+//______________________________________________________________________________
 Int_t ROMEUtilities::GetFPEMask()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -215,6 +217,7 @@ Int_t ROMEUtilities::GetFPEMask()
 #endif
 }
 
+//______________________________________________________________________________
 Int_t ROMEUtilities::SetFPEMask(const Int_t mask)
 {
 #if defined( R__VISUAL_CPLUSPLUS )
