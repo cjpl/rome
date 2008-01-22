@@ -21,7 +21,7 @@
 #  pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#if defined( R__MACOSX )
+#if defined( R__MACOSX ) && !defined( __MAKECINT__ )
 #   include <libkern/OSByteOrder.h>
 #endif
 
