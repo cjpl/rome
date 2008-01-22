@@ -132,8 +132,9 @@ static void SigHandler(ESignals sig)
    // Unix signal handler.
    if (gROME) {
       cerr<<"Signal";
-      if (sig >= 0 && sig <kMAXSIGNALS) {
-         cerr<<"("<<gSignalMap[sig].fSigName<<")";
+      if (static_cast<Int_t>(sig) >= 0 &&
+          static_cast<Int_t>(sig) < static_cast<Int_t>(kMAXSIGNALS)) {
+         cerr<<"("<<gSignalMap[static_cast<Int_t>(sig)].fSigName<<")";
       }
       cerr<<" caught at run="<<gROME->GetCurrentRunNumber()<<
             ", event="<<gROME->GetCurrentEventNumber()<<endl;
