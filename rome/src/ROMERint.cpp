@@ -130,7 +130,14 @@ void UnixSignal(ESignals sig, SigHandler_t handler)
 static void SigHandler(ESignals sig)
 {
    // Unix signal handler.
-
+   if (gROME) {
+      cerr<<"Signal";
+      if (sig >= 0 && sig <kMAXSIGNALS) {
+         cerr<<"("<<gSignalMap[sig].fSigName<<")";
+      }
+      cerr<<" caught at run="<<gROME->GetCurrentRunNumber()<<
+            ", event="<<gROME->GetCurrentEventNumber()<<endl;
+   }
    cleaning();
    if (gSystem)
       ((TUnixSystem*)gSystem)->DispatchSignals(sig);
