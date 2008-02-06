@@ -270,3 +270,9 @@
   <Directory>/scratch0/data/offline/rome</Directory>
   <LastCompile>Thu, 06 Dec 2007 09:57:54 +0000 (GMT) +882403000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>lcmeg00</Host>
+  <Directory>/data/disk4/users/sawada/rome-trunk</Directory>
+  <LastCompile>Wed, 06 Feb 2008 11:16:37 +0000 (GMT) +226255000 nsec</LastCompile>
+</Entry>
