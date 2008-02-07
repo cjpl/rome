@@ -48,6 +48,7 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBase
    ROMEString path = dataBasePath;
    ROMEString tmp;
    ROMEString odbPath;
+   ROMEString odbArrayPath;
    if (!fXML->isPathOpen()) {
       return true;
    }
@@ -64,7 +65,9 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBase
       ind = path.First('/');
       if (ind == -1) {
          if (tmp.Length() > 0) {
+            odbArrayPath = odbPath;
             odbPath.AppendFormatted("key[@name=\"%s\"]/", tmp.Data());
+            odbArrayPath.AppendFormatted("keyarray[@name=\"%s\"]/value/", tmp.Data());
          }
       } else {
          if (tmp.Length() > 0) {
@@ -73,8 +76,27 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBase
       }
    }
    odbPath = odbPath(0, odbPath.Length() - 1);
-   fXML->GetPathValue(odbPath.Data(), value);
-   values->SetAt(value.Data(), 0, 0);
+   odbArrayPath = odbArrayPath(0, odbArrayPath.Length() - 1);
+
+   Int_t nValue;
+   if (fXML->NumberOfOccurrenceOfPath(odbPath.Data())) {
+      // single key
+      fXML->GetPathValue(odbPath.Data(), value);
+      values->SetAt(value.Data(), 0, 0);
+   } else if ((nValue = fXML->NumberOfOccurrenceOfPath(odbArrayPath.Data()))) {
+      // key array
+      Int_t iValue;
+      ROMEString elemPath;
+      for (iValue = 0; iValue < nValue; iValue++) {
+         elemPath = odbArrayPath;
+         elemPath.AppendFormatted("[%d]", iValue);
+         fXML->GetPathValue(elemPath.Data(), value);
+         values->SetAt(value.Data(), 0, iValue);
+      }
+   } else {
+      return kFALSE;
+   }
+
    return true;
 }
 
