@@ -89,7 +89,7 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBase
       ROMEString elemPath;
       for (iValue = 0; iValue < nValue; iValue++) {
          elemPath = odbArrayPath;
-         elemPath.AppendFormatted("[%d]", iValue);
+         elemPath.AppendFormatted("[%d]", iValue + 1);
          fXML->GetPathValue(elemPath.Data(), value);
          values->SetAt(value.Data(), 0, iValue);
       }
