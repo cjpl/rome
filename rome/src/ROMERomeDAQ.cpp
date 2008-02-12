@@ -100,7 +100,7 @@ Bool_t ROMERomeDAQ::Init() {
 Bool_t ROMERomeDAQ::BeginOfRun() {
    const Int_t nTree = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
-   const Int_t run = static_cast<Int_t>(gROME->GetCurrentRunNumber());
+   Int_t run = static_cast<Int_t>(gROME->GetCurrentRunNumber());
 
    int i,j,k;
    for (j=0;j<nTree;j++) {
@@ -246,6 +246,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
             if (tree->GetEntriesFast()>0) {
                tree->GetBranch("Info")->GetEntry(0);
                gROME->SetCurrentRunNumber(fTreeInfo->GetRunNumber());
+               run = static_cast<Int_t>(gROME->GetCurrentRunNumber());
             }
          }
       }
