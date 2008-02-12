@@ -760,6 +760,10 @@ Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber) const
 //______________________________________________________________________________
 Int_t ROMEAnalyzer::CheckNumber(Long64_t number, const TArrayL64 &numbers)
 {
+   // -1 : stop
+   //  0 : continue
+   //  1 : analyze
+
    const int nNumbers = numbers.GetSize();
    if (nNumbers == 0) {
       return 1;
