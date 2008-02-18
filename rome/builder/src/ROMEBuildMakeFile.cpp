@@ -1166,6 +1166,19 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("rootlibs  := $(shell $(ROOTCONFIG) --libs) -lHtml -lThread\n");
    buffer.AppendFormatted("rootglibs := $(shell $(ROOTCONFIG) --glibs) -lHtml -lThread\n");
    buffer.AppendFormatted("rootcflags:= $(shell $(ROOTCONFIG) --cflags)\n");
+   buffer.AppendFormatted("defflags  :=");
+   for (i = 0; i < flags.GetEntriesFast(); i++) {
+      buffer.AppendFormatted(" -D%s",flags.At(i).Data());
+   }
+   for (i = 0; i < affiliations.GetEntriesFast(); i++) {
+      buffer.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
+   }
+   for (i = 0; i < numOfMFPreDefs; i++) {
+      buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
+   }
+   buffer.AppendFormatted(" -D%s_%s",shortCut.ToUpper(tmp),mainProgName.ToUpper(tmp2));
+   buffer.AppendFormatted("\n");
+
    buffer.AppendFormatted("sqllibs   :=");
    if (this->mysql) {
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
@@ -1195,15 +1208,6 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    }
    if (this->sqlite3) {
       buffer.AppendFormatted(" -DHAVE_SQLITE3");
-   }
-   for (i = 0; i < flags.GetEntriesFast(); i++) {
-      buffer.AppendFormatted(" -D%s",flags.At(i).Data());
-   }
-   for (i = 0; i < affiliations.GetEntriesFast(); i++) {
-      buffer.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
-   }
-   for (i = 0; i < numOfMFPreDefs; i++) {
-      buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    }
    buffer.AppendFormatted("\n");
    // OS Flaqs
@@ -1285,10 +1289,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    // Flags
-   buffer.AppendFormatted("Flags     := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)");
-   for (i = 0; i < numOfMFPreDefs; i++)
-      buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
-   buffer.AppendFormatted(" -D%s_%s",shortCut.ToUpper(tmp),mainProgName.ToUpper(tmp2));
+   buffer.AppendFormatted("Flags     := $(oscflags) $(rootcflags) $(defflags) $(sqlcflags) $(daqcflags)");
    buffer.AppendFormatted("\n");
 
    // libs
@@ -2188,6 +2189,7 @@ void ROMEBuilder::WriteMakefile() {
    if (this->midas)
       buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
 #else
+   buffer.Append(" $(defflags)");
    if (this->midas)
       buffer.AppendFormatted(" \\\n                      -I$(MIDASSYS)/include -DHAVE_MIDAS");
    if (this->sql)
