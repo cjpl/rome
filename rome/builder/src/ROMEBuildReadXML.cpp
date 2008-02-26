@@ -590,12 +590,12 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
 //______________________________________________________________________________
 Bool_t ROMEBuilder::ReadXMLDefinitionFile()
 {
-   int i,j;
+   Int_t i,j;
    const char* name;
-   bool finished = false;
-   bool inputok = false;
-   bool firstTaskHierarchyConnectedFrom;
-   int type;
+   Bool_t finished = false;
+   Bool_t inputok = false;
+   Bool_t firstTaskHierarchyConnectedFrom = kTRUE;
+   Int_t type;
    ROMEString tmp;
 
    experimentName = "";
