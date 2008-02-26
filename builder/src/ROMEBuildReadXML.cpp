@@ -594,6 +594,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    const char* name;
    bool finished = false;
    bool inputok = false;
+   bool firstTaskHierarchyConnectedFrom;
    int type;
    ROMEString tmp;
 
@@ -919,6 +920,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                            return false;
                         }
                         // task connected from
+                        firstTaskHierarchyConnectedFrom = kTRUE;
                         numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] =
                               numOfTaskConnectedFrom[taskHierarchyClassIndex[numOfTaskHierarchy]];
                         for (j = 0; j < numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]; j++) {
@@ -936,6 +938,10 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                            numOfTaskHierarchy--;
                      }
                      if (type == 1 && !strcmp(name,"TaskConnectedFrom")) {
+                        if (firstTaskHierarchyConnectedFrom) {
+                           firstTaskHierarchyConnectedFrom = kFALSE;
+                           numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] = 0;
+                        }
                         if (numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] == 2 * maxNumberOfTasks) {
                            cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
                                  taskHierarchyName[numOfTaskHierarchy].Data()<<"' reached : "<<
