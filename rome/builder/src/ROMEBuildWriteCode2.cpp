@@ -3693,7 +3693,8 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
          continue;
       if (folderArray[i] == "1" && !folderSupport[i]) {
          for (j = 0; j < numOfValue[i]; j++) {
-            if (valueDimension[i][j] == 0 && !isFolder(valueType[i][j].Data()) && !valueIsTObject[i][j]) {
+            if (valueDimension[i][j] == 0 && !isFolder(valueType[i][j].Data()) &&
+                !valueIsTObject[i][j] && !isPointerType(valueType[i][j].Data())) {
                buffer.AppendFormatted("      case %d:\n",codeNumber);
                tmp.SetFormatted("gAnalyzer->Get%s()->Get%s()",folderName[i].Data(),valueName[i][j].Data());
                stringBuffer = "buffer";
@@ -3792,9 +3793,10 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
 
          buffer.AppendFormatted("      else\n");
          buffer.AppendFormatted("         path.SetFormatted(fDBPath[%d][%d].Data()",numFolder,j);
-         for (k = 0; k < maxNumberOfPathObjectInterpreterCodes; k++)
+         for (k = 0; k < maxNumberOfPathObjectInterpreterCodes; k++) {
             buffer.AppendFormatted("\n            ,gAnalyzer->GetObjectInterpreterCharValue(fDBCode[%d][%d]->At(%d),buffer[%d],buffer[%d]).Data()",
                                    numFolder,j,k,k,k);
+         }
          buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("      if (name.Length() && path.Length() && gAnalyzer->isDataBaseActive(name.Data())) {\n");
          buffer.AppendFormatted("         ROMEPrint::Debug(\"Reading database %%s(type=%%s, path=%%s)\\n\",name.Data(),gAnalyzer->GetDataBase(name.Data())->GetType(),path.Data());\n");
