@@ -634,6 +634,7 @@ private:
                                          Int_t numTask,ROMEString& steerPointer,Int_t tab);
    void    WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
    void    WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int_t type);
+   void    WriteReadDataBaseFields(ROMEString &buffer,Int_t numFolder,Int_t type, ROMEString &tmpFolderName);
    void    WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder);
    void    WriteFolderSetterInclude(ROMEString &buffer,Int_t numFolder);
    void    WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder);

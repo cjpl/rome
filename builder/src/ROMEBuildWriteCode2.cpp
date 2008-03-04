@@ -3720,15 +3720,8 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
 {
    // type == 1 : single folder
    // type == 2 : array folder
-   int j,k;
-   ROMEString valueString;
-   ROMEString buf;
-   ROMEString blank = "";
-   ROMEString iValue = "0";
-   ROMEString tempBuffer;
+   Int_t iFolder, jFolder;
    if (type == 2) {
-      blank = "   ";
-      iValue= "i";
       buffer.AppendFormatted("   int i;\n");
       buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warnin
       buffer.AppendFormatted("   int nentry;\n");
@@ -3748,6 +3741,48 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1, 1);\n");
    buffer.AppendFormatted("   char *cstop;\n");
    buffer.AppendFormatted("   cstop = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   ROMEString folderName;\n");
+   buffer.AppendFormatted("   folderName = \"%s%s\";\n", shortCut.Data(), folderName[numFolder].Data()); // to suppress unused warning
+
+   iFolder = numFolder;
+   ROMEString tmpFolderName = folderName[numFolder];
+
+   Bool_t found;
+   while (1) {
+      WriteReadDataBaseFields(buffer, iFolder, type, tmpFolderName);
+      if (!folderInheritName[iFolder].Length()) {
+         break;
+      }
+      found = kFALSE;
+      for (jFolder = 0; jFolder < numOfFolder; jFolder++) {
+         if (folderName[jFolder] == folderInheritName[iFolder]) {
+            iFolder = jFolder;
+            found = kTRUE;
+            break;
+         }
+      }
+      if (!found) {
+         break;
+      }
+   }
+
+   buffer.AppendFormatted("   values->RemoveAll();\n");
+   buffer.AppendFormatted("   delete values;\n");
+}
+
+//______________________________________________________________________________
+void ROMEBuilder::WriteReadDataBaseFields(ROMEString &buffer,Int_t numFolder,Int_t type, ROMEString &tmpFolderName)
+{
+   int j,k;
+   ROMEString blank = "";
+   ROMEString iValue = "0";
+   ROMEString valueString;
+   ROMEString buf;
+   ROMEString tempBuffer;
+   if (type == 2) {
+      blank = "   ";
+      iValue= "i";
+   }
    for (j = 0; j < numOfValue[numFolder]; j++) {
       if (valueDimension[numFolder][j] > 1 || valueArray[numFolder][j][0] == "variable" ||
           isFolder(valueType[numFolder][j].Data())) {
@@ -3802,15 +3837,15 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
          buffer.AppendFormatted("         ROMEPrint::Debug(\"Reading database %%s(type=%%s, path=%%s)\\n\",name.Data(),gAnalyzer->GetDataBase(name.Data())->GetType(),path.Data());\n");
          buffer.AppendFormatted("         if (gAnalyzer->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
          buffer.AppendFormatted("            ROMEPrint::Debug(\"%s/%s was filled.\\n\");\n",
-                                folderName[numFolder].Data(),valueName[numFolder][j].Data());
+                                tmpFolderName.Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         } else {\n");
          buffer.AppendFormatted("            ROMEPrint::Error(\"Error in Folder '%s' Value '%s'.\\n\");\n",
-                                folderName[numFolder].Data(),valueName[numFolder][j].Data());
+                                tmpFolderName.Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("            return false;\n");
          buffer.AppendFormatted("         }\n");
          if (type == 2) {
             buffer.AppendFormatted("         nentry = gAnalyzer->Get%ss()->GetEntriesFast();\n",
-                                   folderName[numFolder].Data());
+                                   tmpFolderName.Data());
             buffer.AppendFormatted("         for (i = 0; i < nentry; i++) {\n");
          }
          if (valueDimension[numFolder][j] == 0) {
@@ -3819,19 +3854,19 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
             setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),valueType[numFolder][j].Data(), 1);
             if (type == 1) {
                buffer.AppendFormatted("%s            gAnalyzer->Get%s()->Set%s(static_cast<%s>(%s));\n",blank.Data(),
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       valueType[numFolder][j].Data(),buf.Data());
                buffer.AppendFormatted("%s         else\n",blank.Data());
                buffer.AppendFormatted("%s            gAnalyzer->Get%s()->Set%s(%s);\n",blank.Data(),
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       valueInit[numFolder][j].Data());
             } else {
                buffer.AppendFormatted("               gAnalyzer->Get%sAt(i)->Set%s(static_cast<%s>(%s));\n",
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       valueType[numFolder][j].Data(),buf.Data());
                buffer.AppendFormatted("            else\n");
                buffer.AppendFormatted("               gAnalyzer->Get%sAt(i)->Set%s(%s);\n",
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       valueInit[numFolder][j].Data());
             }
          } else if (valueDimension[numFolder][j] == 1) {
@@ -3843,19 +3878,19 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
                      TArray2StandardType(valueType[numFolder][j],tempBuffer), 1);
             if (type == 1) {
                buffer.AppendFormatted("%s               gAnalyzer->Get%s()->Set%sAt(j, static_cast<%s>(%s));\n",
-                                      blank.Data(), folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      blank.Data(), tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       TArray2StandardType(valueType[numFolder][j],tempBuffer),buf.Data());
                buffer.AppendFormatted("%s            else\n",blank.Data());
                buffer.AppendFormatted("%s               gAnalyzer->Get%s()->Set%sAt(j,%s);\n",blank.Data(),
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       valueInit[numFolder][j].Data());
             } else {
                buffer.AppendFormatted("                  gAnalyzer->Get%sAt(i)->Set%sAt(j, static_cast<%s>(%s));\n",
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       TArray2StandardType(valueType[numFolder][j],tempBuffer),buf.Data());
                buffer.AppendFormatted("               else\n");
                buffer.AppendFormatted("                  gAnalyzer->Get%sAt(i)->Set%sAt(j,%s);\n",
-                                      folderName[numFolder].Data(),valueName[numFolder][j].Data(),
+                                      tmpFolderName.Data(),valueName[numFolder][j].Data(),
                                       valueInit[numFolder][j].Data());
             }
             buffer.AppendFormatted("%s         }\n",blank.Data());
@@ -3869,8 +3904,6 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
-   buffer.AppendFormatted("   values->RemoveAll();\n");
-   buffer.AppendFormatted("   delete values;\n");
 }
 
 //______________________________________________________________________________
