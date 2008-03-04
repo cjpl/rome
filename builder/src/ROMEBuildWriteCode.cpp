@@ -246,6 +246,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                }
             } else {
                if (valueArraySpecifier[iFold][i].Length()) {
+                  buffer.AppendFormatted("   Set%sSize(%s);\n",
+                                         valueName[iFold][i].Data(), valueArraySpecifier[iFold][i].Data());
                   buffer.AppendFormatted("   for (i = 0; i < %s; i++) {\n", valueArraySpecifier[iFold][i].Data());
                   buffer.AppendFormatted("      %s[i] = rhs.%s[i];\n",
                                          valueName[iFold][i].Data(), valueName[iFold][i].Data());
