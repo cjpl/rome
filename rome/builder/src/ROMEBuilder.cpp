@@ -2077,7 +2077,9 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
       ROMEString tmp = stringBuffer;
       if (oldTypeStr == "std::string") {
          return stringBuffer.SetFormatted("%s = %s.c_str()",tmp.Data(),value);
-      } else if (oldTypeStr == "ROMEString" || oldTypeStr == "TString") {
+      } else if (oldTypeStr == "ROMEString" || oldTypeStr == "TString" ||
+                 oldTypeStr == "char*" || oldTypeStr == "unsigned char*" ||
+                 oldTypeStr == "Char_t*" || oldTypeStr == "UChar_t*") {
          return stringBuffer.SetFormatted("%s = %s",tmp.Data(),value);
       } else if (isFloatingType(oldType)) {
          return stringBuffer.SetFormatted("%s.SetFormatted(\"%%.16g\",%s)",tmp.Data(),value);
