@@ -1836,65 +1836,85 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
    typeStr.StripSpaces();
    // returns code which transformes a source variable of any type into a destination variable of type character
    if (
-       typeStr == "int" ||
-       typeStr == "unsigned int" ||
-       typeStr == "Int_t" ||
-       typeStr == "UInt_t" ||
+         typeStr == "char" ||
+         typeStr == "unsigned char" ||
+         typeStr == "Char_t" ||
+         typeStr == "UChar_t" ||
 
-       typeStr == "long" ||
-       typeStr == "unsigned long" ||
-       typeStr == "Long_t" ||
-       typeStr == "ULong_t" ||
+         typeStr == "short" ||
+         typeStr == "unsigned short" ||
+         typeStr == "Short_t" ||
+         typeStr == "UShort_t" ||
 
-       typeStr == "short" ||
-       typeStr == "unsigned short" ||
-       typeStr == "Short_t" ||
-       typeStr == "UShort_t" ||
+         typeStr == "int" ||
+         typeStr == "unsigned int" ||
+         typeStr == "Int_t" ||
+         typeStr == "UInt_t" ||
 
-       typeStr == "long long" ||
-       typeStr == "unsigned long long" ||
+         typeStr == "long" ||
+         typeStr == "unsigned long" ||
+         typeStr == "Long_t" ||
+         typeStr == "ULong_t" ||
 
-       typeStr == "Style_t" ||
-       typeStr == "Marker_t" ||
-       typeStr == "Color_t" ||
-       typeStr == "Font_t" ||
-       typeStr == "Version_t") {
+         typeStr == "Style_t" ||
+         typeStr == "Marker_t" ||
+         typeStr == "Color_t" ||
+         typeStr == "Font_t" ||
+         typeStr == "Version_t") {
       if (version == 0) {
          buf->AppendFormatted("%s = strtol(%s,&cstop,10)",destination,source);
       } else {
          buf->AppendFormatted("strtol(%s,&cstop,10)",source);
       }
    } else if (
-       typeStr == "bool" ||
-       typeStr == "Bool_t") {
+         typeStr == "long long" ||
+         typeStr == "unsigned long long" ||
+         typeStr == "Long64_t" ||
+         typeStr == "ULong64_t") {
+      if (version == 0) {
+#if defined( R__UNIX )
+         buf->AppendFormatted("%s = strtoll(%s,&cstop,10)",destination,source);
+#else
+         buf->AppendFormatted("%s = _strtoi64(%s,&cstop,10)",destination,source);
+#endif
+      } else {
+#if defined( R__UNIX )
+         buf->AppendFormatted("strtol(%s,&cstop,10)",source);
+#else
+         buf->AppendFormatted("_strtoi64(%s,&cstop,10)",source);
+#endif
+      }
+   } else if (
+         typeStr == "bool" ||
+         typeStr == "Bool_t") {
       if (version == 0) {
          buf->AppendFormatted("%s = gAnalyzer->strtobool(%s)",destination,source);
       } else {
          buf->AppendFormatted("gAnalyzer->strtobool(%s)",source);
       }
    } else if (
-       typeStr == "char" ||
-       typeStr == "unsigned char" ||
-       typeStr == "Char_t" ||
-       typeStr == "UChar_t" ||
+         typeStr == "char*" ||
+         typeStr == "unsigned char*" ||
+         typeStr == "Char_t*" ||
+         typeStr == "UChar_t*" ||
 
-       typeStr == "Option_t" ||
-       typeStr == "Text_t") {
+         typeStr == "Option_t" ||
+         typeStr == "Text_t") {
       if (version == 0) {
          buf->AppendFormatted("strcpy(%s,%s)",destination,source);
       } else {
          buf->AppendFormatted("%s",source);
       }
    } else if (
-       typeStr == "float" ||
-       typeStr == "Float_t" ||
+         typeStr == "float" ||
+         typeStr == "Float_t" ||
 
-       typeStr == "double" ||
-       typeStr == "Double_t" ||
-       typeStr == "Double32_t" ||
+         typeStr == "double" ||
+         typeStr == "Double_t" ||
+         typeStr == "Double32_t" ||
 
-       typeStr == "Stat_t" ||
-       typeStr == "Axis_t") {
+         typeStr == "Stat_t" ||
+         typeStr == "Axis_t") {
       if (version == 0) {
          buf->AppendFormatted("%s = strtod(%s,&cstop)",destination,source);
       } else {
@@ -1915,18 +1935,33 @@ bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
    // converts c++ types to midas odb compatible types
    ROMEString typeStr = type;
    typeStr.StripSpaces();
-   if (typeStr == "int" ||
-       typeStr == "Int_t") {
+   if (typeStr == "char" ||
+       typeStr == "Char_t") {
+      midasODBType = "char";
+   } else if (typeStr == "unsigned char" ||
+              typeStr == "UChar_t") {
+      midasODBType = "unsigned char";
+   } else if (typeStr == "short" ||
+              typeStr == "Short_t") {
+      midasODBType = "short";
+   } else if (typeStr == "unsigned short" ||
+              typeStr == "UShort_t") {
+      midasODBType = "WORD";
+   } else if (typeStr == "int" ||
+              typeStr == "Int_t") {
       midasODBType = "INT";
+   } else if (typeStr == "unsigned int" ||
+              typeStr == "UInt_t") {
+      midasODBType = "DWORD";
    } else if (typeStr == "bool" ||
               typeStr == "Bool_t") {
       midasODBType = "BOOL";
    } else if (typeStr == "float" ||
               typeStr == "Float_t") {
-      midasODBType = "FLOAT";
+      midasODBType = "float";
    } else if (typeStr == "double" ||
               typeStr == "Double_t") {
-      midasODBType = "DOUBLE";
+      midasODBType = "double";
    } else {
       cout<<type<<" no conversion to a midas odb type available"<<endl;
       return false;
@@ -1941,12 +1976,14 @@ Bool_t ROMEBuilder::isNumber(const char* str)
    typeStr.StripSpaces();
    if (typeStr != "float" && typeStr != "Float_t" &&
        typeStr != "double" && typeStr != "Double_t" && typeStr != "Double32_t" &&
+       typeStr != "char" && typeStr != "Char_t" &&
+       typeStr != "unsigned char" && typeStr != "UChar_t" &&
+       typeStr != "short" && typeStr != "Short_t" &&
+       typeStr != "unsigned short" && typeStr != "UShort_t" &&
        typeStr != "int" && typeStr != "Int_t" &&
        typeStr != "unsigned int" && typeStr != "UInt_t" &&
        typeStr != "long" && typeStr != "Long_t" &&
        typeStr != "unsigned long" && typeStr != "ULong_t" &&
-       typeStr != "short" && typeStr != "Short_t" &&
-       typeStr != "unsigned short" && typeStr != "UShort_t" &&
        typeStr != "Long64_t" && typeStr != "ULong64_t" &&
        typeStr != "long long" && typeStr != "unsigned long long")
       return false;
@@ -1960,15 +1997,15 @@ Bool_t ROMEBuilder::isFloatingType(const char *type)
    typeStr.StripSpaces();
 
    if (
-       typeStr == "float" ||
-       typeStr == "Float_t" ||
+         typeStr == "float" ||
+         typeStr == "Float_t" ||
 
-       typeStr == "double" ||
-       typeStr == "Double_t" ||
-       typeStr == "Double32_t" ||
+         typeStr == "double" ||
+         typeStr == "Double_t" ||
+         typeStr == "Double32_t" ||
 
-       typeStr == "Stat_t" ||
-       typeStr == "Axis_t") {
+         typeStr == "Stat_t" ||
+         typeStr == "Axis_t") {
       return true;
    }
    return false;
@@ -2092,13 +2129,13 @@ Bool_t ROMEBuilder::isTArrayType(const char *type)
    typeStr.StripSpaces();
    ROMEString str;
    const char arrayTypes[][8]
-      = {"TArrayC"
-         ,"TArrayI"
-         ,"TArrayD"
-         ,"TArrayL"
-         ,"TArrayF"
-         ,"TArrayS"
-      };
+         = {"TArrayC"
+            ,"TArrayI"
+            ,"TArrayD"
+            ,"TArrayL"
+            ,"TArrayF"
+            ,"TArrayS"
+         };
 
    for (j = 0; j < 6; j++) {
       if (typeStr == arrayTypes[j])
@@ -2176,57 +2213,60 @@ void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, 
          (typeid(T) == typeid(Double_t));
 
    switch(n) {
-      case 1:
-         p1 = new T[x1];
-         if (reset) memset(p1, 0, sizeof(T) * x1);
-         return p1;
+   case 1:
+      p1 = new T[x1];
+      if (reset) memset(p1, 0, sizeof(T) * x1);
+      return p1;
 
-      case 2:
-         p2 = new T*[x1];
-         for (i = 0; i < x1; i++)
-            p2[i] = static_cast<T*>(AllocateArray(p0, x2));
-         return p2;
+   case 2:
+      p2 = new T*[x1];
+      for (i = 0; i < x1; i++)
+         p2[i] = static_cast<T*>(AllocateArray(p0, x2));
+      return p2;
 
-      case 3:
-         p3 = new T**[x1];
-         for (i = 0; i < x1; i++)
-            p3[i] = static_cast<T**>(AllocateArray(p0, x2, x3));
-         return p3;
+   case 3:
+      p3 = new T**[x1];
+      for (i = 0; i < x1; i++)
+         p3[i] = static_cast<T**>(AllocateArray(p0, x2, x3));
+      return p3;
 
-      case 4:
-         p4 = new T***[x1];
-         for (i = 0; i < x1; i++)
-            p4[i] = static_cast<T***>(AllocateArray(p0, x2, x3, x4));
-         return p4;
+   case 4:
+      p4 = new T***[x1];
+      for (i = 0; i < x1; i++)
+         p4[i] = static_cast<T***>(AllocateArray(p0, x2, x3, x4));
+      return p4;
 
-      case 5:
-         p5 = new T****[x1];
-         for (i = 0; i < x1; i++)
-            p5[i] = static_cast<T****>(AllocateArray(p0, x2, x3, x4, x5));
-         return p5;
+   case 5:
+      p5 = new T****[x1];
+      for (i = 0; i < x1; i++)
+         p5[i] = static_cast<T****>(AllocateArray(p0, x2, x3, x4, x5));
+      return p5;
 
-      case 6:
-         p6 = new T*****[x1];
-         for (i = 0; i < x1; i++)
-            p6[i] = static_cast<T*****>(AllocateArray(p0, x2, x3, x4, x5, x6));
-         return p6;
+   case 6:
+      p6 = new T*****[x1];
+      for (i = 0; i < x1; i++)
+         p6[i] = static_cast<T*****>(AllocateArray(p0, x2, x3, x4, x5, x6));
+      return p6;
    };
 
    return 0;
 }
 
 //______________________________________________________________________________
-void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
+void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+{
    return AllocateArray(static_cast<Int_t*>(0), x1, x2, x3, x4, x5, x6);
 }
 
 //______________________________________________________________________________
-void* ROMEBuilder::AllocateBool(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
+void* ROMEBuilder::AllocateBool(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+{
    return AllocateArray(static_cast<Bool_t*>(0), x1, x2, x3, x4, x5, x6);
 }
 
 //______________________________________________________________________________
-void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6){
+void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+{
    return AllocateArray(static_cast<ROMEString*>(0), x1, x2, x3, x4, x5, x6);
 }
 
