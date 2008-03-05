@@ -117,7 +117,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   // Comparison operator.\n");
-      buffer.AppendFormatted("   // Warning! Not all fields are compared.\n");
+      buffer.AppendFormatted("   // Warning! All fields may not be compared.\n");
       buffer.AppendFormatted("   Int_t i;\n");
       buffer.AppendFormatted("   i = 0;\n"); // warning suppression
       buffer.AppendFormatted("   WarningSuppression(lhs.IsFolder());\n"); // warning suppression
@@ -194,7 +194,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   // Equal operator.\n");
-      buffer.AppendFormatted("   // Warning! Not all fields are copied.\n");
+      buffer.AppendFormatted("   // Warning! All fields may not be copied.\n");
       buffer.AppendFormatted("   if (this == &rhs) return *this;\n");
 
       if (folderInheritName[iFold].Length() > 0) {
@@ -1287,7 +1287,7 @@ Bool_t ROMEBuilder::WriteFolderH()
       // Comparison operator
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("// Comparison operator.\n");
-      buffer.AppendFormatted("// Warning! Not all fields are compared.\n");
+      buffer.AppendFormatted("// Warning! All fields may not be compared.\n");
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("class %s%s_Base;\n",shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("Bool_t operator==(const %s%s_Base &lhs, const %s%s_Base &rhs);\n",
@@ -1419,7 +1419,7 @@ Bool_t ROMEBuilder::WriteFolderH()
       buffer.AppendFormatted("\n");
 
       // Comparison operator
-      buffer.AppendFormatted("   // Warning! Not all fields are compared.\n");
+      buffer.AppendFormatted("   // Warning! All fields may not be compared.\n");
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("   friend Bool_t operator==(const %s%s_Base &lhs, const %s%s_Base &rhs);\n",
                                 shortCut.Data(), folderName[iFold].Data(), shortCut.Data(), folderName[iFold].Data());
@@ -1433,7 +1433,7 @@ Bool_t ROMEBuilder::WriteFolderH()
       }
 
       // Equal operator
-      buffer.AppendFormatted("   // Warning! Not all fields are copied.\n");
+      buffer.AppendFormatted("   // Warning! All fields may not be copied.\n");
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("   %s%s_Base& operator=(const %s%s_Base &c);\n",
                                 shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
