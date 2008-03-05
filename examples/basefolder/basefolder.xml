@@ -7,17 +7,34 @@
 	<Folders>
 		<Folder>
 			<FolderName>MyFolder</FolderName>
+                        <DataBaseAccess>true</DataBaseAccess>
 			<Inherit>MyBaseFolder</Inherit>
 			<Field>
 				<FieldName>MyValue</FieldName>
 				<FieldType>Int_t</FieldType>
+                                <DataBaseName>mydatabase</DataBaseName>
+                                <DataBasePath>"/CCC[id=#]/BBB/bbb"</DataBasePath>
 			</Field>
 		</Folder>
 		<Folder>
 			<FolderName>MyBaseFolder</FolderName>
+                        <DataBaseAccess>true</DataBaseAccess>
+			<Inherit>MyBaseBaseFolder</Inherit>
 			<Field>
 				<FieldName>MyBaseValue</FieldName>
 				<FieldType>Int_t</FieldType>
+                                <DataBaseName>mydatabase</DataBaseName>
+                                <DataBasePath>"/BBB[id=#]/BBB/bbb"</DataBasePath>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>MyBaseBaseFolder</FolderName>
+                        <DataBaseAccess>true</DataBaseAccess>
+			<Field>
+				<FieldName>MyBaseBaseValue</FieldName>
+				<FieldType>Int_t</FieldType>
+                                <DataBaseName>mydatabase</DataBaseName>
+                                <DataBasePath>"/AAA[id=#]/BBB/bbb"</DataBasePath>
 			</Field>
 		</Folder>
 	</Folders>

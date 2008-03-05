@@ -3748,15 +3748,18 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
    ROMEString tmpFolderName = folderName[numFolder];
 
    Bool_t found;
+   TArrayI folderNumArray(1);
+   folderNumArray.AddAt(iFolder, 0);
    while (1) {
-      WriteReadDataBaseFields(buffer, iFolder, type, tmpFolderName);
       if (!folderInheritName[iFolder].Length()) {
          break;
       }
       found = kFALSE;
       for (jFolder = 0; jFolder < numOfFolder; jFolder++) {
          if (folderName[jFolder] == folderInheritName[iFolder]) {
+            folderNumArray.Set(folderNumArray.GetSize() + 1);
             iFolder = jFolder;
+            folderNumArray.AddAt(iFolder, folderNumArray.GetSize() - 1);
             found = kTRUE;
             break;
          }
@@ -3765,6 +3768,11 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
          break;
       }
    }
+
+   for (iFolder = folderNumArray.GetSize() - 1; iFolder >= 0; iFolder--) {
+      WriteReadDataBaseFields(buffer, folderNumArray.At(iFolder), type, tmpFolderName);
+   }
+
 
    buffer.AppendFormatted("   values->RemoveAll();\n");
    buffer.AppendFormatted("   delete values;\n");
