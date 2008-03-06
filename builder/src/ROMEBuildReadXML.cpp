@@ -5166,6 +5166,7 @@ Bool_t ROMEBuilder::CountXMLOccurrenceFolder(const ROMEXML *xmlfile, const char*
 Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* root, Int_t &nTask)
 {
    ROMEString path;
+   ROMEString tmpPath;
 
    // Authors
    path.SetFormatted("%s/Author", root);
@@ -5196,9 +5197,14 @@ Bool_t ROMEBuilder::CountXMLOccurrenceTask(const ROMEXML *xmlfile, const char* r
    }
 
    // Steering
-   Int_t nSteering = 1;
    path.SetFormatted("%s/SteeringParameters", root);
-   CountXMLOccurrenceSteering(xmlfile, path.Data(), nSteering);
+   Int_t nTopSteering = xmlfile->NumberOfOccurrenceOfPath(path);
+   Int_t nSteering = nTopSteering + 1;
+   Int_t iTopSteering;
+   for (iTopSteering = 0; iTopSteering < nTopSteering; iTopSteering++) {
+      tmpPath.SetFormatted("%s[%d]", path.Data(), iTopSteering + 1);
+      CountXMLOccurrenceSteering(xmlfile, tmpPath.Data(), nSteering);
+   }
    if (nSteering > maxNumberOfSteering) {
       maxNumberOfSteering = nSteering;
    }
@@ -5237,6 +5243,7 @@ Bool_t ROMEBuilder::CountXMLOccurrenceTaskHierarchy(const ROMEXML *xmlfile, cons
 Bool_t ROMEBuilder::CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* root)
 {
    ROMEString path;
+   ROMEString tmpPath;
 
    // Authors
    path.SetFormatted("%s/Author", root);
@@ -5253,9 +5260,14 @@ Bool_t ROMEBuilder::CountXMLOccurrenceTab(const ROMEXML *xmlfile, const char* ro
    }
 
    // Steering
-   Int_t nSteering = 1;
    path.SetFormatted("%s/SteeringParameters", root);
-   CountXMLOccurrenceSteering(xmlfile, path.Data(), nSteering);
+   Int_t nTopSteering = xmlfile->NumberOfOccurrenceOfPath(path);
+   Int_t nSteering = nTopSteering + 1;
+   Int_t iTopSteering;
+   for (iTopSteering = 0; iTopSteering < nTopSteering; iTopSteering++) {
+      tmpPath.SetFormatted("%s[%d]", path.Data(), iTopSteering + 1);
+      CountXMLOccurrenceSteering(xmlfile, tmpPath.Data(), nSteering);
+   }
    if (nSteering > maxNumberOfSteering) {
       maxNumberOfSteering = nSteering;
    }
