@@ -1729,7 +1729,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 
          // operand#2 (pos[6],pos[7])
          valStr = buffer(pos[6], pos[7]-pos[6]);
-         val2   = valStr.Atoll();
+         val2   = valStr.ToLong64();
 
          // format (pos[8],pos[9])
          if (pos[8]>0) {
