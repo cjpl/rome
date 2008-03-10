@@ -60,7 +60,9 @@
 #include <TFolder.h>
 #include <TList.h>
 #include <TObjString.h>
-#include <TPRegexp.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0)
+#  include <TPRegexp.h>
+#endif
 #include <TROOT.h>
 #include <TBrowser.h>
 #include <THtml.h>
@@ -1628,6 +1630,7 @@ ROMEString& ROMEAnalyzer::ConstructFilePath(const ROMEString &dir, const ROMEStr
 }
 
 //______________________________________________________________________________
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,0,0)
 static Long64_t getNumber(const char op, const Long64_t a, const Long64_t b)
 {
    // a helper function for ReplaceWithRunAndEventNumber
@@ -1653,10 +1656,13 @@ static Long64_t getNumber(const char op, const Long64_t a, const Long64_t b)
    }
    return 0;
 }
+#endif
 
 //______________________________________________________________________________
 void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0)
+
 // Conversion from #, ##, ### to run number, event number, process
 // id, respectively, with integer operaton and printf-style format.
 //
@@ -1682,7 +1688,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
    TArrayI pos;
 
    static TPRegexp pattern1(
-         //     2      3    4       5    6    7            8   9         10     11   12      13   14   15
+         //      2      3    4       5    6    7              8   9          10     11   12      13   14   15
          "\\{\\s*(#{1,3})\\s*([*/%+-])\\s*(\\d+)\\s*\\}\\s*\\((.+?)\\)|\\{\\s*(#{1,3})\\s*([*/%+-])\\s*(\\d+)\\s*\\}"
          ); // pattern for full expression
 
@@ -1710,7 +1716,7 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
          nMatch = 5;
       }
 
-      if (nMatch==5){ // with operation, with format
+      if (nMatch==5) { // with operation, with format
 //         cout << nMatch << " : " << pos[0] << " " << pos[1] << endl;
          // operand#1 (pos[2],pos[3])
          numberLength = pos[3] - pos[2];
@@ -1738,12 +1744,11 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
             if (numberLength==3) { // PID
                format = "%d";
             } else { // Run# or Event#
-#if defined(R__UNIX)
+#  if defined(R__UNIX)
                format = "%05lld";
-#else
+#  else
                format = "%05I64d";
-#endif
-            
+#  endif
             }
          }
 
@@ -1785,6 +1790,91 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
       break;
    }
 //   cout << "end" << endl;
+
+#else // ROOT_VERSION_CODE < ROOT_VERSION(5,0,0)
+// replace ###, ##, # with PID, event number, run number, respectively.
+// format can be specified like "file#(%05d).root"
+// Integer operations will not be supported with ROOT 4 and earlier.
+
+   Int_t startStr = 0;
+   Int_t endStr = 0;
+   Int_t startForm = 0;
+   Int_t endForm = 0;
+   ROMEString format;
+   ROMEString insertStr;
+
+   // Check if meta-characters are used for arithmetic operation for run#/event#/PID
+   if (buffer.Index("{", 1, 0, TString::kExact) != -1 ||
+       buffer.Index("}", 1, 0, TString::kExact) != -1 ||
+       buffer.Index("*", 1, 0, TString::kExact) != -1 ||
+//       buffer.Index("/", 1, 0, TString::kExact) != -1 || // "/" is also used as path delimiter
+       buffer.Index("%", 1, 0, TString::kExact) != -1 ||
+       buffer.Index("+", 1, 0, TString::kExact) != -1 ||
+       buffer.Index("-", 1, 0, TString::kExact) != -1) {
+
+      ROMEPrint::Warning("ROME compiles with ROOT 4 and earlier does not support arithmetic operation for run number, event number and PID. Following characters may remain in the filename and/or path: {}*/%%+- : %s\n",
+                         buffer.Data());
+   }
+
+   // PID
+   while((startStr = buffer.Index("###", strlen("###"), endStr, TString::kExact)) != -1) {
+      endStr = startStr + strlen("###");
+      buffer.Remove(startStr, endStr - startStr);
+      insertStr.SetFormatted("%d", gSystem->GetPid());
+      buffer.Insert(startStr, insertStr);
+      endStr = startStr + insertStr.Length();
+   }
+
+   // event number
+   while((startStr = buffer.Index("##", strlen("##"), endStr, TString::kExact)) != -1) {
+      endStr = startStr + strlen("##");
+      if (buffer[endStr] == '(' && (endForm = buffer.Index(")", 1, endStr + 1, TString::kExact)) != -1) {
+         startForm = endStr + 1;
+         format = buffer(startForm, endForm - startForm);
+         buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
+         endStr = startStr + strlen("##");
+      } else {
+#  if defined( R__VISUAL_CPLUSPLUS )
+         format = "%05I64d";
+#  else
+         format = "%05lld";
+#  endif
+      }
+      buffer.Remove(startStr, endStr - startStr);
+      insertStr.SetFormatted(format.Data(), GetCurrentEventNumber());
+      buffer.Insert(startStr, insertStr);
+      endStr = startStr + insertStr.Length();
+   }
+
+   // run number
+   startStr = 0;
+   endStr = 0;
+   startForm = 0;
+   endForm = 0;
+   while((startStr = buffer.Index("#", strlen("#"), endStr, TString::kExact)) != -1) {
+      endStr = startStr + strlen("#");
+      if (buffer[endStr] == '(' && (endForm = buffer.Index(")", 1, endStr + 1, TString::kExact)) != -1) {
+         startForm = endStr + 1;
+         format = buffer(startForm, endForm - startForm);
+         buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
+         endStr = startStr + strlen("#");
+      } else {
+         if (gROME->isTreeAccumulation()) {
+            format = gROME->GetRunNumberStringOriginal();
+         } else {
+#  if defined( R__VISUAL_CPLUSPLUS )
+            format = "%05I64d";
+#  else
+            format = "%05lld";
+#  endif
+         }
+      }
+      buffer.Remove(startStr, endStr - startStr);
+      insertStr.SetFormatted(format.Data(), GetCurrentRunNumber());
+      buffer.Insert(startStr, insertStr);
+      endStr = startStr + insertStr.Length();
+   }
+#endif
 
    return;
 }
