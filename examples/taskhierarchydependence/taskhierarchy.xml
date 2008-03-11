@@ -54,4 +54,23 @@
 			<TaskName>TaskD</TaskName>
 		</Task>
 	</TaskHierarchy>
+	<Folders>
+		<Folder>
+			<FolderName>Data1</FolderName>
+			<Field>
+				<FieldName>Value1</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Value of Folder Data</FieldComment>
+			</Field>
+		</Folder>
+	</Folders>
+	<Trees>
+		<Tree>
+			<TreeName>DataTree1</TreeName>
+			<Branch>
+				<BranchName>DataBranch</BranchName>
+				<RelatedFolder>Data1</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
 </ROMEFrameworkDefinition>

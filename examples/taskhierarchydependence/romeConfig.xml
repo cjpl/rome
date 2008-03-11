@@ -60,6 +60,26 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       </SocketServer>
 
       <DataBases/>
+
+      <Trees>
+        <Accumulate>false</Accumulate>
+        <Tree>
+          <TreeName>DataTree1</TreeName>
+          <Read>false</Read>
+          <Write>true</Write>
+          <Fill>true</Fill>
+          <CompressionLevel>0</CompressionLevel>
+          <AutoSaveSize>100000000</AutoSaveSize>
+          <MaxNumberOfEntries>0</MaxNumberOfEntries>
+          <TreeInputFileName></TreeInputFileName>
+          <TreeOutputFileName></TreeOutputFileName>
+          <SaveConfiguration>true</SaveConfiguration>
+          <Branch>
+            <BranchName>DataBranch</BranchName>
+            <Active>true</Active>
+          </Branch>
+        </Tree>
+      </Trees>
     </Common>
 
     <Analyzer>
