@@ -274,6 +274,7 @@ check : remove $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 
 	cd taskhierarchydependence; ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
+	cd taskhierarchydependence; ./thexample.exe -i romeConfig2nd.xml -q -r 1 -ng
 
 #	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 

@@ -12,12 +12,12 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
   <MainConfiguration>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
-      <DAQSystem>none</DAQSystem>
+      <DAQSystem>rome</DAQSystem>
     </Modes>
 
     <Offline>
       <RunNumbers>1</RunNumbers>
-      <EventNumbers>0-99</EventNumbers>
+      <EventNumbers></EventNumbers>
       <InputFileNames></InputFileNames>
     </Offline>
 
@@ -65,7 +65,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Accumulate>false</Accumulate>
         <Tree>
           <TreeName>DataTree1</TreeName>
-          <Read>false</Read>
+          <Read>true</Read>
           <Write>false</Write>
           <Fill>false</Fill>
           <CompressionLevel>0</CompressionLevel>
@@ -73,7 +73,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <MaxNumberOfEntries>0</MaxNumberOfEntries>
           <TreeInputFileName></TreeInputFileName>
           <TreeOutputFileName></TreeOutputFileName>
-          <SaveConfiguration>false</SaveConfiguration>
+          <SaveConfiguration>true</SaveConfiguration>
           <Branch>
             <BranchName>DataBranch</BranchName>
             <Active>true</Active>
@@ -109,7 +109,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Tasks>
         <Task>
           <TaskName>TaskA</TaskName>
-          <Active>true</Active>
+          <Active>false</Active>
           <Task>
             <TaskName>TaskA_A</TaskName>
             <Active>false</Active>
@@ -123,12 +123,12 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
         <Task>
           <TaskName>TaskC</TaskName>
-          <Active>true</Active>
+          <Active>false</Active>
         </Task>
 
         <Task>
           <TaskName>TaskD</TaskName>
-          <Active>true</Active>
+          <Active>false</Active>
         </Task>
       </Tasks>
     </Analyzer>
