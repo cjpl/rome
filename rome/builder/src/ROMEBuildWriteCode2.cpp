@@ -5,6 +5,7 @@
   $Id$
 
 ********************************************************************/
+#include <stdlib.h>
 #include <map>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -3781,6 +3782,8 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
 //______________________________________________________________________________
 void ROMEBuilder::WriteReadDataBaseFields(ROMEString &buffer,Int_t numFolder,Int_t type, ROMEString &tmpFolderName)
 {
+   // type == 1 : single folder
+   // type == 2 : array folder
    int j,k;
    ROMEString blank = "";
    ROMEString iValue = "0";
@@ -3812,7 +3815,8 @@ void ROMEBuilder::WriteReadDataBaseFields(ROMEString &buffer,Int_t numFolder,Int
       } else {
          buffer.AppendFormatted("   {\n");
       }
-      if (folderArray[numFolder] == "1" && type == 1 || folderArray[numFolder] != "1" && type == 2 &&
+      if (((folderArray[numFolder] == "1" && type == 1) ||
+           (folderArray[numFolder] != "1" && type == 2)) &&
           !folderSupport[numFolder]) {
          buffer.AppendFormatted("      values->RemoveAll();\n");
          buffer.AppendFormatted("      if (fDBName[%d][%d].Length() == 0)\n",numFolder,j);
@@ -4186,8 +4190,9 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
       for (i = 0; i < TMath::Min(TMath::Min(arr1.GetEntriesFast(),arr2.GetEntriesFast()),
                                  TMath::Min(condition.GetEntriesFast(),replaceWhenFound.GetSize())); i++) {
          if (arr1.At(i).Length() > 0  && fileBuffer.ContainsFast(arr1.At(i))) {
-            if (condition.At(i).Length() > 0 && (fileBuffer.ContainsFast(condition.At(i)) && replaceWhenFound.At(i)) ||
-                (!fileBuffer.ContainsFast(condition.At(i)) && !replaceWhenFound.At(i))) {
+            if (condition.At(i).Length() > 0 &&
+                ((fileBuffer.ContainsFast(condition.At(i)) && replaceWhenFound.At(i)) ||
+                 (!fileBuffer.ContainsFast(condition.At(i)) && !replaceWhenFound.At(i)))) {
                writeFile = true;
                fileBuffer.ReplaceAll(arr1.At(i), arr2.At(i));
             }

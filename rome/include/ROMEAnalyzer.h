@@ -7,6 +7,7 @@
 #ifndef ROMEAnalyzer_H
 #define ROMEAnalyzer_H
 
+#include <stdlib.h>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )

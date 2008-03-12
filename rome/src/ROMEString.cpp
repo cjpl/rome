@@ -325,7 +325,7 @@ Bool_t ROMEString::ContainsInLongString(const char* str)
 
    while(1) {
       i = len2;
-      while (testf[i] == str[i] && --i >= 0);
+      while (testf[i] == str[i] && --i >= 0) {;}
       if (i != -1) {
          skipindex = testf + searchLen;
          if (skipindex >= end) {
