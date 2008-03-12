@@ -426,9 +426,14 @@ void ArgusWindow::OnClick(TGListTreeItem* item, Int_t /* btn */)
 
    // selecting a branch-node is not allowed
    if (fNumberOfChildren[selectedTabIndex] > 0) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0)
+      // For ROOT 4 and earlier, selecting a branch-node might cause
+      // inconsistency; a tab being displayed might be different from
+      // the selected one in the ListTree view.
       fListTree->SetSelected(fListTreeItem[fCurrentTabIndex]);
       fListTree->HighlightItem(fListTreeItem[fCurrentTabIndex], kTRUE, kTRUE);
       fListTree->HighlightItem(fListTreeItem[selectedTabIndex], kFALSE, kTRUE);
+#endif
       return;
    }
 
@@ -467,9 +472,14 @@ void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t /* btn */)
 
    // selecting a branch-node is not allowed.
    if (fNumberOfChildren[selectedTabIndex] > 0) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0)
+      // For ROOT 4 and earlier, selecting a branch-node might cause
+      // inconsistency; a tab being displayed might be different from
+      // the selected one in the ListTree view.
       fListTree->SetSelected(fListTreeItem[fCurrentTabIndex]);
       fListTree->HighlightItem(fListTreeItem[fCurrentTabIndex], kTRUE, kTRUE);
       fListTree->HighlightItem(fListTreeItem[selectedTabIndex], kFALSE, kTRUE);
+#endif
       return;
    }
 }
