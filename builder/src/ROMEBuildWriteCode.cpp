@@ -12768,7 +12768,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                   // not yet implemented
                } else {
                   if (valueDimension[iFold][iValue] > 0 ) {
-                     buffer.AppendFormatted("//       cout<<left<<setw(50)<<\"   /%s/%s/%s\"<<%s->Get%sAt(",treeName[iTree].Data(),
+                     buffer.AppendFormatted("//       cout<<left<<setw(50)<<\"   /%s/%s/%s \"<<%s->Get%sAt(",treeName[iTree].Data(),
                                             branchNameTmp[iTree][iBranch]->Data(), valueName[iFold][iValue].Data(),
                                             folderName[iFold].Data(), valueName[iFold][iValue].Data());
                      for (iDm = 0; iDm < valueDimension[iFold][iValue]; iDm++)
@@ -12776,7 +12776,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                      buffer.Resize(buffer.Length() - 2);
                      buffer.AppendFormatted(")<<endl;\n");
                   } else {
-                     buffer.AppendFormatted("         cout<<left<<setw(50)<<\"   /%s/%s/%s\"<<%s->Get%s()<<endl;\n",
+                     buffer.AppendFormatted("         cout<<left<<setw(50)<<\"   /%s/%s/%s \"<<%s->Get%s()<<endl;\n",
                                             treeName[iTree].Data(), branchNameTmp[iTree][iBranch]->Data(),
                                             valueName[iFold][iValue].Data(), folderName[iFold].Data(),
                                             valueName[iFold][iValue].Data());
@@ -12790,7 +12790,8 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                   // not yet implemented
                } else {
                   if (valueDimension[iFold][iValue] > 0 ) {
-                     buffer.AppendFormatted("//          cout<<left<<setw(50)<<\"   /%s/%s/%s\"<<static_cast<%s%s*>(%s->At(0))->Get%sAt(",
+                     // rootcint does not like static_cast
+                     buffer.AppendFormatted("//          cout<<left<<setw(50)<<\"   /%s/%s/%s \"<<((%s%s*)(%s->At(0)))->Get%sAt(",
                                             treeName[iTree].Data(), branchNameTmp[iTree][iBranch]->Data(),
                                             valueName[iFold][iValue].Data(), shortCut.Data(), folderName[iFold].Data(),
                                             folderName[iFold].Data(), valueName[iFold][iValue].Data());
@@ -12799,7 +12800,8 @@ Bool_t ROMEBuilder::WriteReadTreesC()
                      buffer.Resize(buffer.Length() - 2);
                      buffer.AppendFormatted(")<<endl;\n");
                   } else {
-                     buffer.AppendFormatted("            cout<<left<<setw(50)<<\"   /%s/%s/%s\"<<static_cast<%s%s*>(%s->At(0))->Get%s()<<endl;\n",
+                     // rootcint does not like static_cast
+                     buffer.AppendFormatted("            cout<<left<<setw(50)<<\"   /%s/%s/%s \"<<((%s%s*)(%s->At(0)))->Get%s()<<endl;\n",
                                             treeName[iTree].Data(), branchNameTmp[iTree][iBranch]->Data(),
                                             valueName[iFold][iValue].Data(), shortCut.Data(), folderName[iFold].Data(),
                                             folderName[iFold].Data(), valueName[iFold][iValue].Data());
