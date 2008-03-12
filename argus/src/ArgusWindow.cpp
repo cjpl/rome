@@ -417,15 +417,15 @@ Int_t ArgusWindow::GetSelectedItemIndex(TGListTreeItem* item) const
 }
 
 //______________________________________________________________________________
-void ArgusWindow::OnClick(TGListTreeItem* item, Int_t btn)
+void ArgusWindow::OnClick(TGListTreeItem* item, Int_t /* btn */)
 {
    Int_t selectedTabIndex = GetSelectedItemIndex(item);
    if (selectedTabIndex < 0 || selectedTabIndex == fCurrentTabIndex) {
       return;
    }
 
-   // selecting a branch-node is not allowed. Buttons other than button1 are not allowed, either.
-   if (fNumberOfChildren[selectedTabIndex] > 0 || btn != kButton1) {
+   // selecting a branch-node is not allowed
+   if (fNumberOfChildren[selectedTabIndex] > 0) {
       fListTree->SetSelected(fListTreeItem[fCurrentTabIndex]);
       fListTree->HighlightItem(fListTreeItem[fCurrentTabIndex], kTRUE, kTRUE);
       fListTree->HighlightItem(fListTreeItem[selectedTabIndex], kFALSE, kTRUE);
@@ -444,7 +444,7 @@ void ArgusWindow::OnClick(TGListTreeItem* item, Int_t btn)
 }
 
 //______________________________________________________________________________
-void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t btn)
+void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t /* btn */)
 {
    Int_t selectedTabIndex = GetSelectedItemIndex(item);
    if (selectedTabIndex < 0 || selectedTabIndex == fCurrentTabIndex) {
@@ -465,8 +465,8 @@ void ArgusWindow::OnDoubleClick(TGListTreeItem* item, Int_t btn)
       fListTree->OpenItem(item);
    }
 
-   // selecting a branch-node is not allowed. Buttons other than button1 are not allowed, either.
-   if (fNumberOfChildren[selectedTabIndex] > 0 || btn != kButton1) {
+   // selecting a branch-node is not allowed.
+   if (fNumberOfChildren[selectedTabIndex] > 0) {
       fListTree->SetSelected(fListTreeItem[fCurrentTabIndex]);
       fListTree->HighlightItem(fListTreeItem[fCurrentTabIndex], kTRUE, kTRUE);
       fListTree->HighlightItem(fListTreeItem[selectedTabIndex], kFALSE, kTRUE);
