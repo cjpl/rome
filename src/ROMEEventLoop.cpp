@@ -943,17 +943,14 @@ Bool_t ROMEEventLoop::Update()
    }
 
    ROMEPrint::Debug("ROMEEventLoop::Update() Update");
-   if (!gROME->isBatchMode() &&
-       (!fContinuous ||
-        (fProgressDelta == 1 ||
-         !(static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5) % fProgressDelta) &&
-         fProgressWrite))) {
-      if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-         if (IsTerminal()) {
-            ROMEPrint::Print("processed event number "R_LLD"                                              \r",
-                             gROME->GetCurrentEventNumber());
-            ROMEPrint::Debug("\n");
-         }
+   if (!gROME->isBatchMode()  && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) &&
+       ((!fContinuous) ||
+        (fProgressDelta == 1) ||
+        (!(static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5) % fProgressDelta) && fProgressWrite))) {
+      if (IsTerminal()) {
+         ROMEPrint::Print("processed event number "R_LLD"                                              \r",
+                          gROME->GetCurrentEventNumber());
+         ROMEPrint::Debug("\n");
       }
       fProgressWrite = false;
    }

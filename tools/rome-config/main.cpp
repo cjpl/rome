@@ -6,6 +6,7 @@
 
 ********************************************************************/
 #include <stdlib.h>
+#include <string.h>
 #include <Riostream.h>
 #include "ROMEVersion.h"
 

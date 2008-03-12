@@ -5,6 +5,7 @@
   $Id$
 
 ********************************************************************/
+#include <stdlib.h>
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 #include "ROMEXML.h"
