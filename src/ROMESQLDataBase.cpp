@@ -109,8 +109,9 @@ Bool_t ROMESQLDataBase::DecodeDBConstraint(const char *currentTableName, const c
    if ((is1 = value.Index(temp, temp.Length(), 0, TString::kIgnoreCase)) != -1) {
       if ((ie1 = value.Index("\"", 1, is1 + temp.Length(), TString::kIgnoreCase)) != -1) {
          value = value(is1 + temp.Length(), ie1 - is1 - temp.Length());
-         if (value(value.Length() - 1) != '/')
+         if (value(value.Length() - 1) != '/') {
             value += "/";
+         }
          temp.Remove(temp.Length() - 2, 2);
          while ((is1 = value.Index("(@@", 3, 0, TString::kIgnoreCase)) != -1) {
             if ((ie1 = value.Index(")", 1, is1 + 3, TString::kIgnoreCase)) == -1) {
@@ -129,18 +130,23 @@ Bool_t ROMESQLDataBase::DecodeDBConstraint(const char *currentTableName, const c
                is3 = 1;
                ie3 = value.Length();
                while ((is2 = value.Index("/", 1, ie2, TString::kIgnoreCase)) != -1) {
-                  if (is2 > is1)
+                  if (is2 > is1) {
                      break;
+                  }
                   is3 = is2 + 1;
                   ie2 = value.Length();
-                  if ((itmp = value.Index("/", 1, is3, TString::kIgnoreCase)) != -1)
+                  if ((itmp = value.Index("/", 1, is3, TString::kIgnoreCase)) != -1) {
                      ie2 = TMath::Min(ie2, itmp + 1);
-                  if ((itmp = value.Index("{", 1, is3, TString::kIgnoreCase)) != -1)
+                  }
+                  if ((itmp = value.Index("{", 1, is3, TString::kIgnoreCase)) != -1) {
                      ie2 = TMath::Min(ie2, itmp + 1);
-                  if ((itmp = value.Index("(", 1, is3, TString::kIgnoreCase)) != -1)
+                  }
+                  if ((itmp = value.Index("(", 1, is3, TString::kIgnoreCase)) != -1) {
                      ie2 = TMath::Min(ie2, itmp + 1);
-                  if ((itmp = value.Index("[", 1, is3, TString::kIgnoreCase)) != -1)
+                  }
+                  if ((itmp = value.Index("[", 1, is3, TString::kIgnoreCase)) != -1) {
                      ie2 = TMath::Min(ie2, itmp + 1);
+                  }
                   ie3 = ie2 - 1;
                }
                tname = value(is3, ie3 - is3);
@@ -163,16 +169,16 @@ Bool_t ROMESQLDataBase::DecodeDBConstraint(const char *currentTableName, const c
                fWherePhrase += " AND ";
             }
             fWherePhrase += temp + "." + "id" /*dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables()-1) */  +
-                "=" + dbpath->GetTableNameAt(dbpath->GetNumberOfTables() - 1) + "." + temp + "_" +
-                dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables() - 1);
+                  "=" + dbpath->GetTableNameAt(dbpath->GetNumberOfTables() - 1) + "." + temp + "_" +
+                  dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables() - 1);
          }
          if (strlen(dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables() - 1))) {
             if (fWherePhrase.Length()) {
                fWherePhrase += " AND ";
             }
             fWherePhrase += temp + "." + "idx" /* dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables()-1) */  +
-                "=" + dbpath->GetTableNameAt(dbpath->GetNumberOfTables() - 1) + "." + temp +
-                "_" + dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables() - 1);
+                  "=" + dbpath->GetTableNameAt(dbpath->GetNumberOfTables() - 1) + "." + temp +
+                  "_" + dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables() - 1);
          }
       }
       //add relation to the first @constraint table
@@ -261,8 +267,8 @@ Bool_t ROMESQLDataBase::MakePhrase(ROMEPath * path, Long64_t runNumber, Long64_t
       tmp2 = ",";
       tmp2 += path->GetTableNameAt(iTable);
       tmp2 += ",";
-      if (fFromPhrase != path->GetTableNameAt(iTable) && !fFromPhrase.EndsWith(tmp1) && !fFromPhrase.Contains(tmp2)
-          ) {
+      if (fFromPhrase != path->GetTableNameAt(iTable) && !fFromPhrase.EndsWith(tmp1) &&
+          !fFromPhrase.Contains(tmp2)) {
          if (fFromPhrase.Length()) {
             fFromPhrase += ",";
          }
@@ -402,53 +408,64 @@ Bool_t ROMESQLDataBase::Init(const char *name, const char * /*dataBase */ , cons
    fDBMSType.ToLower();
 
    istart += 3;
-   //search for user
-   is = istart;
-   if ((ie = path.Index("@", 1, is, TString::kIgnoreCase)) == -1) {
-      user = "";
-      passwd = "";
-   } else {
-      istart = ie + 1;
-      user = path(is, ie - is);
-      //search for passwd
-      if ((ie = user.Index(":", 1, 0, TString::kIgnoreCase)) == -1) {
+   if (fDBMSType == "mysql" || fDBMSType == "postgresql") {
+      //search for user
+      is = istart;
+      if ((ie = path.Index("@", 1, is, TString::kIgnoreCase)) == -1) {
+         user = "";
          passwd = "";
       } else {
-         passwd = user(ie + 1, user.Length() - ie - 1);
-         user.Remove(ie, user.Length() - ie);
+         istart = ie + 1;
+         user = path(is, ie - is);
+         //search for passwd
+         if ((ie = user.Index(":", 1, 0, TString::kIgnoreCase)) == -1) {
+            passwd = "";
+         } else {
+            passwd = user(ie + 1, user.Length() - ie - 1);
+            user.Remove(ie, user.Length() - ie);
+         }
       }
-   }
-   //search for server
-   is = istart;
-   if ((ie = path.Index("/", 1, is, TString::kIgnoreCase)) == -1) {
-      database = "";
-   } else {
-      istart = ie + 1;
-      server = path(is, ie - is);
-      //search for port
-      if ((ie = server.Index(":", 1, 0, TString::kIgnoreCase)) == -1) {
-         port = "0";
+      //search for server
+      is = istart;
+      if ((ie = path.Index("/", 1, is, TString::kIgnoreCase)) == -1) {
+         database = "";
       } else {
-         port = server(ie + 1, server.Length() - ie - 1);
-         server.Remove(ie, server.Length() - ie);
+         istart = ie + 1;
+         server = path(is, ie - is);
+         //search for port
+         if ((ie = server.Index(":", 1, 0, TString::kIgnoreCase)) == -1) {
+            port = "0";
+         } else {
+            port = server(ie + 1, server.Length() - ie - 1);
+            server.Remove(ie, server.Length() - ie);
+         }
+         //search for database
+         database = path(istart, path.Length());
       }
-      //search for database
-      database = path(istart, path.Length());
-   }
 
-   if (passwd.Length() == 1 && passwd(0) == '?') {
+      if (passwd.Length() == 1 && passwd(0) == '?') {
 #if defined ( R__UNIX )
-      prompt = user + "@" + server + "'s password: ";
-      passwd = getpass(prompt.Data());
+         prompt = user + "@" + server + "'s password: ";
+         passwd = getpass(prompt.Data());
 #endif
-// please implement similar function for windows
+         ROMEPrint::Debug("******  SQL Connection  ******\n");
+         ROMEPrint::Debug("server   : %s\n", server.Data());
+         ROMEPrint::Debug("user     : %s\n", user.Data());
+         ROMEPrint::Debug("passwd   : %s\n", passwd.Data());
+         ROMEPrint::Debug("database : %s\n", database.Data());
+         ROMEPrint::Debug("port     : %s\n", port.Data());
+      }
+   } else if (fDBMSType == "sqlite" || fDBMSType == "sqlite3") {
+      server = path(istart, path.Length());
+      user = "";
+      passwd = "";
+      database = "";
+      port = "";
+      ROMEPrint::Debug("******  SQL Connection  ******\n");
+      ROMEPrint::Debug("filename  : %s\n", server.Data());
+   } else {
+      ROMEPrint::Error("Unknown DBMS type %s\n", fDBMSType.Data());
    }
-   ROMEPrint::Debug("******  SQL Connection  ******\n");
-   ROMEPrint::Debug("server   : %s\n", server.Data());
-   ROMEPrint::Debug("user     : %s\n", user.Data());
-   ROMEPrint::Debug("passwd   : %s\n", passwd.Data());
-   ROMEPrint::Debug("database : %s\n", database.Data());
-   ROMEPrint::Debug("port     : %s\n", port.Data());
 
    if (fDBMSType == "mysql") {
 #if defined ( HAVE_MYSQL )
@@ -544,7 +561,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray * values, const char *dataBasePath, 
       }
       if (path->IsOrderArray()) {
          orderField += strlen(path->GetOrderTableName())? path->GetOrderTableName() :
-             path->GetTableNameAt(path->GetNumberOfTables() - 1);
+               path->GetTableNameAt(path->GetNumberOfTables() - 1);
          orderField += ".";
          orderField += strlen(path->GetOrderFieldName())? path->GetOrderFieldName() : "idx";
       }
@@ -739,7 +756,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray * values, const char *dataBasePath,
          sqlQuery += path->GetTableNameAt(path->GetNumberOfTables() - 1);
          sqlQuery += ".";
          sqlQuery += strlen(path->GetTableIDXNameAt(path->GetNumberOfTables() - 1)) ?
-             path->GetTableIDXNameAt(path->GetNumberOfTables() - 1) : "idx";
+               path->GetTableIDXNameAt(path->GetNumberOfTables() - 1) : "idx";
          sqlQuery += "='";
          sqlQuery += iOrder;
          sqlQuery += "'";
@@ -766,8 +783,8 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray * values, const char *dataBasePath,
          sqlQuery += fInsertFieldList;
          if (path->IsOrderArray()) {
             sqlQuery += "," +
-                strlen(path->GetTableIDXNameAt(path->GetNumberOfTables() - 1)) ?
-                path->GetTableIDXNameAt(path->GetNumberOfTables() - 1) : "idx";
+                  strlen(path->GetTableIDXNameAt(path->GetNumberOfTables() - 1)) ?
+                  path->GetTableIDXNameAt(path->GetNumberOfTables() - 1) : "idx";
          }
          if (fAdInsertFields.Length()) {
             sqlQuery += "," + fAdInsertFields;
@@ -822,7 +839,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray * values, const char *dataBasePath,
             sqlQuery += path->GetTableNameAt(path->GetNumberOfTables() - 1);
             sqlQuery += ".";
             sqlQuery += strlen(path->GetTableIDXNameAt(path->GetNumberOfTables() - 1)) ?
-                path->GetTableIDXNameAt(path->GetNumberOfTables() - 1) : "idx";
+                  path->GetTableIDXNameAt(path->GetNumberOfTables() - 1) : "idx";
             sqlQuery += " ='";
             sqlQuery += iOrder;
             sqlQuery += "'";
@@ -851,7 +868,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray * values, const char *dataBasePath,
 }
 
 //______________________________________________________________________________
-void ROMESQLDataBase::Print(Option_t *) const const
+void ROMESQLDataBase::Print(Option_t *) const
 {
    ROMEString temp = fSelectFieldList;
    temp.ReplaceAll(RSQLDB_STR, "");
