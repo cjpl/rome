@@ -49,8 +49,19 @@ Bool_t ROMEMySQL::DisConnect()
 }
 
 //______________________________________________________________________________
+Bool_t ROMEMySQL::Ping()
+{
+   return (mysql_ping(&mysql) == 0);
+}
+
+//______________________________________________________________________________
 Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
 {
+
+   if (!Ping()) { // if this is bad for performance, last pinged time should be checked.
+      ROMEPrint::Error("DB connection error : %s\n", GetErrorMessage());
+      return false;
+   }
    if (strlen(query) < 2048)
       ROMEPrint::Debug("ROMEMySQL::MakeQuery : %s\n", query);
    if (mysql_query(&mysql,query)) {

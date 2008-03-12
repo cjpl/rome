@@ -1927,10 +1927,12 @@ Bool_t ROMEBuilder::WriteTaskCpp()
                            taskName[iTask].Data());
 
       numOfTaskAccessedFolder[iTask] = 0;
-      if (fileBuffer.ContainsFast("GetWindow") || fileBuffer.ContainsFast("fWindow"))
+      if (fileBuffer.ContainsFast("GetWindow") || fileBuffer.ContainsFast("fWindow")) {
          buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
-      if (fileBuffer.ContainsFast("GetGSP"))
+      }
+      if (fileBuffer.ContainsFast("GetGSP")) {
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      }
       for (j = 0; j < numOfFolder; j++) {
          if (accessFolder(cppFile.Data(),j)) {
             if (!folderUsed[j])
@@ -1950,9 +1952,10 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       for (j = 0; j < daqNameArray->GetEntriesFast(); j++) {
          tmp.SetFormatted("Get%sDAQ()",daqNameArray->At(j).Data());
          tmp2.SetFormatted("Get%s()",daqNameArray->At(j).Data());
-         if (fileBuffer.ContainsFast(tmp) || fileBuffer.ContainsFast(tmp2))
+         if (fileBuffer.ContainsFast(tmp) || fileBuffer.ContainsFast(tmp2)) {
             buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),
                                    daqNameArray->At(j).Data());
+         }
       }
 
       WriteFile(genFile.Data(), buffer.Data(),6);

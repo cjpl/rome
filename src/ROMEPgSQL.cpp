@@ -27,8 +27,6 @@ ROMEPgSQL::ROMEPgSQL()
 ROMEPgSQL::~ROMEPgSQL() {
    FreeResult();
    DisConnect();
-   SafeDelete(connection);
-   SafeDelete(result);
 }
 
 //______________________________________________________________________________
@@ -53,8 +51,30 @@ Bool_t ROMEPgSQL::DisConnect()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEPgSQL::MakeQuery(const char* query, Bool_t store)
+Bool_t ROMEPgSQL::Ping()
 {
+   result = PQexec(connection, "SELECT 1;");
+   PQclear(result);
+
+   if (PQstatus(connection) == CONNECTION_OK) {
+      return kTRUE;
+   }
+
+   PQreset(connection);
+   if (PQstatus(connection) == CONNECTION_OK) {
+      return kTRUE;
+   }
+
+   return kFALSE;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEPgSQL::MakeQuery(const char* query, Bool_t /* store */)
+{
+   if (!Ping()) { // if this is bad for performance, last pinged time should be checked.
+      ROMEPrint::Error("DB connection error : %s\n", GetErrorMessage());
+      return false;
+   }
    if (strlen(query) < 2048)
       ROMEPrint::Debug("ROMEPgSQL::MakeQuery : %s\n", query);
    result = PQexec(connection, query);
