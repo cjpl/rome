@@ -57,7 +57,6 @@ Bool_t ROMEMySQL::Ping()
 //______________________________________________________________________________
 Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
 {
-
    if (!Ping()) { // if this is bad for performance, last pinged time should be checked.
       ROMEPrint::Error("DB connection error : %s\n", GetErrorMessage());
       return false;
