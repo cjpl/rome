@@ -9336,6 +9336,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       buffer.AppendFormatted("   %s%sConfigParameters *p = 0;\n",shortCut.Data(), mainProgName.Data());
       buffer.AppendFormatted("   for (i = 0; i < %d; i++) {\n", numOfTree);
       buffer.AppendFormatted("      if (fROMETrees[i]->isRead() && fROMETrees[i]->GetFile()) {\n");
+      buffer.AppendFormatted("         fROMETrees[i]->GetFile()->cd();\n"); // this is needed for old ROOT(v-4.2.0)
       buffer.AppendFormatted("         p = static_cast<%s%sConfigParameters*>(fROMETrees[i]->GetFile()->FindObjectAny(\"%sConfigParameters\"));\n",
                              shortCut.Data(), mainProgName.Data(), mainProgName.Data());
       buffer.AppendFormatted("         if (p) {\n");
