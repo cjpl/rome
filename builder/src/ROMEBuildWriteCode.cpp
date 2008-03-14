@@ -9351,6 +9351,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          buffer.AppendFormatted("            }\n");
       }
       buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         gROOT->cd();\n"); // this is needed for old ROOT(v-4.2.0)
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
