@@ -74,10 +74,6 @@ Bool_t ROMEDAQSystem::TimeDAQ()
    ROMEPrint::Print(" : %s  %s",
                     fWatchAll.GetRealTimeString(str1),
                     fWatchAll.GetCpuTimeString(str2));
-//   if (fWatchEvent.CpuTime() > 0) {
    ROMEPrint::Print("  %s\n", fWatchEvent.GetCpuTimeString(str1));
-//   } else {
-//      ROMEPrint::Print("\n");
-//   }
    return true;
 }
