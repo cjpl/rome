@@ -63,7 +63,8 @@ protected:
    // Histo File
    TFile        *fHistoFile;                       //! Histo file
 
-   ROMEStopwatch fFileIOWatch;                     //! Records Time used by File IO
+   //
+   ROMEStopwatch fWatchWriteEvent;                 //! Records Time used by Write Event
 
    // Monitor
    Bool_t        fUpdateWindow;                    //! Window update activation flag
@@ -171,6 +172,9 @@ protected:
    TFile       *CreateTFile(const char *fname, Option_t *option = "",
                             const char *ftitle = "", Int_t compress = 1);
    void         AutoSave();
+
+   // stopwatch
+   Bool_t TimeEventLoop();
 
    // virtual methods
    virtual void InitArrayFolders() = 0;

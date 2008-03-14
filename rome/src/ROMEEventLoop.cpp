@@ -91,7 +91,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
 ,fTreeUpdateIndex(0)
 ,fAlwaysFillTrees(kFALSE)
 ,fHistoFile(0)
-,fFileIOWatch()
+,fWatchWriteEvent()
 ,fUpdateWindow(kFALSE)
 ,fLastUpdateTime(0)
 //,fWindowFirstDraw(kFALSE)
@@ -138,6 +138,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 // Event loop
    fWatchUserEvent.Reset();
    fWatchAll.Reset();
+   fWatchWriteEvent.Reset();
    fWatchAll.Start(false);
    if (fgBeginTask) {
       Error("ExecuteTask", "Cannot execute task:%s, already running task: %s", GetName(), fgBeginTask->GetName());
@@ -330,7 +331,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
          ROMEString str;
-         ROMEPrint::Print("run times :                           RealTime ALL  CPUTime All   User Events\n");
+         ROMEPrint::Print("run times :                           RealTime All  CPUTime All   User Events\n");
          ROMEPrint::Print("-----------                           ------------  ------------  ------------\n");
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
@@ -339,6 +340,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
             ROMEPrint::Print(gROME->GetWindow()->GetTimeStatisticsString(str));
          }
+         TimeEventLoop();
          ROMEPrint::Print("\n");
       }
       ExecuteTasks("PrintSkipped");
@@ -532,12 +534,14 @@ Int_t ROMEEventLoop::RunEvent()
    if (!gROME->IsROMEMonitor()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
       if (gROME->isFillEvent()) {
+         fWatchWriteEvent.Start(false);
          if (!this->WriteEvent()) {
             this->Terminate();
             gROME->SetTerminationFlag();
             ROMEPrint::Print("\n\nTerminating Program !\n");
             return kReturn;
          }
+         fWatchWriteEvent.Stop();
       }
    }
 //   if (fWindowFirstDraw && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
@@ -1640,4 +1644,20 @@ TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const cha
    }
 
    return new TFile(filename.Data(), opt.Data(), ftitle, compress);
+}
+
+//______________________________________________________________________________
+Bool_t ROMEEventLoop::TimeEventLoop()
+{
+   int i;
+   ROMEPrint::Print(" WriteEvent");
+   for (i=0; i < 35 - 11; i++) {
+      ROMEPrint::Print(".");
+   }
+   ROMEString str1, str2;
+   ROMEPrint::Print(" : %s  %s",
+                    fWatchWriteEvent.GetRealTimeString(str1),
+                    fWatchWriteEvent.GetCpuTimeString(str2));
+//   ROMEPrint::Print("  %s\n", fWatchEvent.GetCpuTimeString(str1));
+   return true;
 }

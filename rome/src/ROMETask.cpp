@@ -259,11 +259,7 @@ void ROMETask::Exec(Option_t *option)
          ROMEPrint::Print(".");
       }
       ROMEPrint::Print(" : %s  %s", GetRealTimeOfAll(), GetCpuTimeOfAll());
-//      if (fWatchUserEvent.CpuTime() > 0) {
       ROMEPrint::Print("  %s\n", GetTimeOfUserEvents());
-//      } else {
-//         ROMEPrint::Print("\n");
-//      }
    } else if (!strncmp(option, "PrintSkipped", 12)) {
       ROMEString name;
       name = fName;
