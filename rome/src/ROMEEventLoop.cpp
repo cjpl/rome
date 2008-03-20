@@ -906,7 +906,9 @@ Bool_t ROMEEventLoop::DAQEvent()
 Bool_t ROMEEventLoop::WriteEvent()
 {
    // Writes the event. Called after the Event tasks.
+#if 0 // Is it necessary ?
    this->CleanUpFolders();
+#endif
    fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());
    this->FillTrees();
    return true;
