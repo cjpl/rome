@@ -20,7 +20,7 @@
 class ROMECompositeFrame : public TGCompositeFrame {
 public:
    ROMECompositeFrame(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = kChildFrame,
-                     Pixel_t back = GetDefaultFrameBackground()) : TGCompositeFrame(p, w, h, options, back) { };
+                     Pixel_t back = GetDefaultFrameBackground()) : TGCompositeFrame(p, w, h, options, back) { }
 
    void HideFrame(TGFrame *f);
 

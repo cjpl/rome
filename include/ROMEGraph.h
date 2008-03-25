@@ -47,39 +47,39 @@ private:
 
 public:
    ROMEGraph();
-   virtual ~ROMEGraph() {};
+   virtual ~ROMEGraph() {}
 
-   void        SetActive(bool value) { fActive = value; };
-   void        SetWrite(bool value) { fWrite = value; };
-   void        SetTitle(const char* value) { fTitle = value; };
-   void        SetFolderTitle(const char* value) { fFolderTitle = value; };
-   void        SetArraySize(const char* value) { fArraySize = value; };
-   void        SetArrayStartIndex(const char* value) { fArrayStartIndex = value; };
-   void        SetXLabel(const char* value) { fXLabel = value; };
-   void        SetYLabel(const char* value) { fYLabel = value; };
-   void        SetZLabel(const char* value) { fZLabel = value; };
-   void        SetXmin(const char* value) { fXmin = value; };
-   void        SetXmax(const char* value) { fXmax = value; };
-   void        SetYmin(const char* value) { fYmin = value; };
-   void        SetYmax(const char* value) { fYmax = value; };
-   void        SetZmin(const char* value) { fZmin = value; };
-   void        SetZmax(const char* value) { fZmax = value; };
+   void        SetActive(bool value) { fActive = value; }
+   void        SetWrite(bool value) { fWrite = value; }
+   void        SetTitle(const char* value) { fTitle = value; }
+   void        SetFolderTitle(const char* value) { fFolderTitle = value; }
+   void        SetArraySize(const char* value) { fArraySize = value; }
+   void        SetArrayStartIndex(const char* value) { fArrayStartIndex = value; }
+   void        SetXLabel(const char* value) { fXLabel = value; }
+   void        SetYLabel(const char* value) { fYLabel = value; }
+   void        SetZLabel(const char* value) { fZLabel = value; }
+   void        SetXmin(const char* value) { fXmin = value; }
+   void        SetXmax(const char* value) { fXmax = value; }
+   void        SetYmin(const char* value) { fYmin = value; }
+   void        SetYmax(const char* value) { fYmax = value; }
+   void        SetZmin(const char* value) { fZmin = value; }
+   void        SetZmax(const char* value) { fZmax = value; }
    void        SetOriginal(const char* title,const char* folderTitle,Int_t arraySize,Int_t arrayStartIndex,
                            const char* xLabel,const char* yLabel,const char* zLabel,Double_t xmin,Double_t xmax,
                            Double_t ymin,Double_t ymax,Double_t zmin,Double_t zmax);
-   void        SetTitleOriginal(const char* value) { fTitleOrig = value; };
-   void        SetFolderTitleOriginal(const char* value) { fFolderTitleOrig = value; };
-   void        SetArraySizeOriginal(Int_t value) { fArraySizeOrig = value; };
-   void        SetArrayStartIndexOriginal(Int_t value) { fArrayStartIndexOrig = value; };
-   void        SetXLabelOriginal(const char* value) { fXLabelOrig = value; };
-   void        SetYLabelOriginal(const char* value) { fYLabelOrig = value; };
-   void        SetZLabelOriginal(const char* value) { fZLabelOrig = value; };
-   void        SetXminOriginal(Double_t value) { fXminOrig = value; };
-   void        SetXmaxOriginal(Double_t value) { fXmaxOrig = value; };
-   void        SetYminOriginal(Double_t value) { fYminOrig = value; };
-   void        SetYmaxOriginal(Double_t value) { fYmaxOrig = value; };
-   void        SetZminOriginal(Double_t value) { fZminOrig = value; };
-   void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
+   void        SetTitleOriginal(const char* value) { fTitleOrig = value; }
+   void        SetFolderTitleOriginal(const char* value) { fFolderTitleOrig = value; }
+   void        SetArraySizeOriginal(Int_t value) { fArraySizeOrig = value; }
+   void        SetArrayStartIndexOriginal(Int_t value) { fArrayStartIndexOrig = value; }
+   void        SetXLabelOriginal(const char* value) { fXLabelOrig = value; }
+   void        SetYLabelOriginal(const char* value) { fYLabelOrig = value; }
+   void        SetZLabelOriginal(const char* value) { fZLabelOrig = value; }
+   void        SetXminOriginal(Double_t value) { fXminOrig = value; }
+   void        SetXmaxOriginal(Double_t value) { fXmaxOrig = value; }
+   void        SetYminOriginal(Double_t value) { fYminOrig = value; }
+   void        SetYmaxOriginal(Double_t value) { fYmaxOrig = value; }
+   void        SetZminOriginal(Double_t value) { fZminOrig = value; }
+   void        SetZmaxOriginal(Double_t value) { fZmaxOrig = value; }
    bool        IsActive() const { return fActive; }
    bool        IsWrite() const { return fWrite; }
    const char *GetTitle() const;
@@ -104,8 +104,8 @@ public:
    double      GetZmax() const;
    const char *GetZmaxString(ROMEString &string) const;
 
-   Bool_t      IsAccumulate() const { return fAccumulate; };
-   void        SetAccumulate(Bool_t flag) { fAccumulate = flag; };
+   Bool_t      IsAccumulate() const { return fAccumulate; }
+   void        SetAccumulate(Bool_t flag) { fAccumulate = flag; }
 
    ClassDef(ROMEGraph,0) // ROMEGraph
 };

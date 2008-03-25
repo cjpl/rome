@@ -19,7 +19,7 @@ protected:
 
 public:
    ROMETreeInfo():TObject(),run(0),event(0),time(0) { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); }
-   virtual ~ROMETreeInfo() {};
+   virtual ~ROMETreeInfo() {}
 
    Long64_t GetRunNumber() const   { return run; }
    Long64_t GetEventNumber() const { return event; }
