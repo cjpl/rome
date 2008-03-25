@@ -65,7 +65,7 @@ protected:
    void   SaveCurrentValues(XMLToFormFrame *frame);
    void   AddFrame(XMLToFormFrame *frame);
    void   AddSubFrames(XMLToFormFrame *frame);
-   void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); };
+   void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); }
    void   HideFrame(XMLToFormFrame *frame);
    void   HideFrame(TGFrame *frame) { TGCompositeFrame::HideFrame(frame); }
    void   GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest) const;

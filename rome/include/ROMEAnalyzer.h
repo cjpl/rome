@@ -305,7 +305,7 @@ public:
    // Active DAQ System
    const char     *GetNameOfActiveDAQ() const { if (fActiveDAQ == 0) { return "none"; } return fActiveDAQ->GetName(); }
    ROMEDAQSystem  *GetActiveDAQ() const;
-   Bool_t          IsActiveDAQ(const char* daqName) const { return strcmp(fActiveDAQ->GetName(),daqName) == 0; };
+   Bool_t          IsActiveDAQ(const char* daqName) const { return strcmp(fActiveDAQ->GetName(),daqName) == 0; }
    Bool_t          isActiveDAQSet() const { return fActiveDAQ != 0; }
    void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; }
 
@@ -692,8 +692,8 @@ public:
    // Monitor
    ArgusWindow    *GetWindow() const { return fWindow; }
    Bool_t          StartWindow();
-   Int_t           GetWindowUpdatePeriod() const { return fWindowUpdatePeriod; };
-   void            SetWindowUpdatePeriod(Int_t period) { fWindowUpdatePeriod = period; };
+   Int_t           GetWindowUpdatePeriod() const { return fWindowUpdatePeriod; }
+   void            SetWindowUpdatePeriod(Int_t period) { fWindowUpdatePeriod = period; }
    Bool_t          IsWindowBusy() const;
 
    // Program Steering

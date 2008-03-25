@@ -721,7 +721,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("         memset(%s, 0, number * sizeof(%s));\n",
                                       valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("      return;\n");
-               buffer.AppendFormatted("   };\n");
+               buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   %s *tmp = %s;\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   if (number != 0) {\n");
                buffer.AppendFormatted("      %s = new %s[number];\n",valueName[iFold][i].Data(),
@@ -2645,19 +2645,19 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       }
       // Access Methods
       if (numOfHistos[iTask]>0) {
-         buffer.AppendFormatted("   Int_t GetHistoDimensionAt(Int_t i) { return fHistoDimension[i]; };\n");
+         buffer.AppendFormatted("   Int_t GetHistoDimensionAt(Int_t i) { return fHistoDimension[i]; }\n");
       }
       if (numOfGraphs[iTask]>0) {
-         buffer.AppendFormatted("   ROMEString* GetGraphNameAt(Int_t i) { return &fGraphName[i]; };\n");
-         buffer.AppendFormatted("   Int_t GetGraphDimensionAt(Int_t i) { return fGraphDimension[i]; };\n");
+         buffer.AppendFormatted("   ROMEString* GetGraphNameAt(Int_t i) { return &fGraphName[i]; }\n");
+         buffer.AppendFormatted("   Int_t GetGraphDimensionAt(Int_t i) { return fGraphDimension[i]; }\n");
       }
       for (i = 0; i < numOfHistos[iTask]; i++) {
          if (histoArraySize[iTask][i] == "1") {
-            buffer.AppendFormatted("   %s* Get%s() { return ((%s*)GetHistoAt(%d)); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),i);
+            buffer.AppendFormatted("   %s* Get%s() { return ((%s*)GetHistoAt(%d)); }\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),i);
          } else {
-            buffer.AppendFormatted("   %s* Get%sAt(Int_t indx) { return static_cast<%s*>(static_cast<TObjArray*>(GetHistoAt(%d))->At(indx)); };\n",histoType[iTask][i].Data(),
+            buffer.AppendFormatted("   %s* Get%sAt(Int_t indx) { return static_cast<%s*>(static_cast<TObjArray*>(GetHistoAt(%d))->At(indx)); }\n",histoType[iTask][i].Data(),
                                    histoName[iTask][i].Data(),histoType[iTask][i].Data(),i);
-            buffer.AppendFormatted("   TObjArray* Get%s() { return static_cast<TObjArray*>(GetHistoAt(%d)); };\n",histoName[iTask][i].Data(),i);
+            buffer.AppendFormatted("   TObjArray* Get%s() { return static_cast<TObjArray*>(GetHistoAt(%d)); }\n",histoName[iTask][i].Data(),i);
          }
          buffer.AppendFormatted("   ROMEHisto* Get%sHisto() const { return static_cast<ROMEHisto*>(fHistoParameter->At(%d)); }\n",
                                 histoName[iTask][i].Data(),i);
@@ -6365,7 +6365,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   Bool_t GetDBPathWriteFlag(const char* path) const;\n");
    buffer.AppendFormatted("\n");
    // DBAccess
-   buffer.AppendFormatted("   %sDBAccess* GetDBAccess() const { return fDBAccess; };\n",shortCut.Data());
+   buffer.AppendFormatted("   %sDBAccess* GetDBAccess() const { return fDBAccess; }\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #if 0
    for (i = 0; i < numOfFolder; i++) {
@@ -9127,16 +9127,16 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
       for (i = 0; i < numOfTaskHierarchy; i++) {
          if (!taskUsed[taskHierarchyClassIndex[i]])
             continue;
-         buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; };\n",
+         buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; }\n",
                                 taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),
                                 taskHierarchySuffix[i].Data());
       }
-      buffer.AppendFormatted("   GSPHotLinks* GetGSPHotLinks() { return &fGSPHotLinks; };\n");
+      buffer.AppendFormatted("   GSPHotLinks* GetGSPHotLinks() { return &fGSPHotLinks; }\n");
       for (i = 0; i < numOfTab; i++) {
          if (!tabUsed[i])
             continue;
-         buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; };\n",tabName[i].Data(),
+         buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; }\n",tabName[i].Data(),
                                 tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),
                                 tabSuffix[i].Data());
       }
@@ -9958,7 +9958,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   // Change 'kFALSE' to 'kTRUE' if trees must be filled in every events\n");
          buffer.AppendFormatted("   // When this is 'kFALSE', the program does not fill a tree unless any folders in the tree is modified.\n");
-         buffer.AppendFormatted("   Bool_t   GetAlwaysFillTrees() const { return kFALSE; };\n");
+         buffer.AppendFormatted("   Bool_t   GetAlwaysFillTrees() const { return kFALSE; }\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   ClassDef(%s%sDAQ, 0)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("};\n\n");
@@ -10515,7 +10515,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("         default:\n");
    buffer.AppendFormatted("            ROMEPrint::Error(\"Error: Failed to connect port %%d\\n\", port);\n");
    buffer.AppendFormatted("            break;\n");
-   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      delete lsock;\n");
    buffer.AppendFormatted("      return THREADRETURN;\n");
    buffer.AppendFormatted("   }\n");

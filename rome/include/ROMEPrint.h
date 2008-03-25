@@ -48,7 +48,7 @@ namespace ROMEPrint
 
    inline Int_t GetReportMaxCount() { return gReportMaxCount; }
    inline void  SetReportMaxCount(Int_t max = 20) { gReportMaxCount = max; }
-};
+}
 
 // Report styles
 //  R_ERROR   : Printed when gVerboseLevel >= kError

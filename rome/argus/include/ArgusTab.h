@@ -71,15 +71,15 @@ public:
    const char    *GetTimeOfUserEvents();
 
    // General Histo/Graph parameter methods (object displays, single objects)
-   void           SetLogScaleXAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleX->AddAt(flag,displayTypeIndex); };
-   Int_t          IsLogScaleXAt(Int_t displayTypeIndex) { return fLogScaleX->At(displayTypeIndex); };
-   void           SetLogScaleYAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleY->AddAt(flag,displayTypeIndex); };
-   Int_t          IsLogScaleYAt(Int_t displayTypeIndex) { return fLogScaleY->At(displayTypeIndex); };
-   void           SetLogScaleZAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleZ->AddAt(flag,displayTypeIndex); };
-   Int_t          IsLogScaleZAt(Int_t displayTypeIndex) { return fLogScaleZ->At(displayTypeIndex); };
+   void           SetLogScaleXAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleX->AddAt(flag,displayTypeIndex); }
+   Int_t          IsLogScaleXAt(Int_t displayTypeIndex) { return fLogScaleX->At(displayTypeIndex); }
+   void           SetLogScaleYAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleY->AddAt(flag,displayTypeIndex); }
+   Int_t          IsLogScaleYAt(Int_t displayTypeIndex) { return fLogScaleY->At(displayTypeIndex); }
+   void           SetLogScaleZAt(Int_t displayTypeIndex,Int_t flag=1) { fLogScaleZ->AddAt(flag,displayTypeIndex); }
+   Int_t          IsLogScaleZAt(Int_t displayTypeIndex) { return fLogScaleZ->At(displayTypeIndex); }
 
-   void           SetDrawOptionAt(Int_t displayTypeIndex,const char* option) { fDrawOption->AddAt(option,displayTypeIndex); };
-   const char    *GetDrawOptionAt(Int_t displayTypeIndex) { return fDrawOption->At(displayTypeIndex); };
+   void           SetDrawOptionAt(Int_t displayTypeIndex,const char* option) { fDrawOption->AddAt(option,displayTypeIndex); }
+   const char    *GetDrawOptionAt(Int_t displayTypeIndex) { return fDrawOption->At(displayTypeIndex); }
 
    // User Methods
    void           SetTitle(const char* title) { fTitle = title; }

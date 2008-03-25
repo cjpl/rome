@@ -3384,7 +3384,7 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
                                 steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       }
    }
-   buffer.AppendFormatted("%s   };\n",blank.Data());
+   buffer.AppendFormatted("%s   }\n",blank.Data());
 
    // Getters
    for (j = 0; j < numOfSteerFields[numTask][numSteer]; j++) {

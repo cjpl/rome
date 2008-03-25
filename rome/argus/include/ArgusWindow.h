@@ -109,8 +109,8 @@ public:
 private:
    virtual ArgusWindow *CreateSubWindow() = 0;
 public:
-   void             SetWindowId(int id) { fWindowId = id; };
-   int              GetWindowId() const { return fWindowId; };
+   void             SetWindowId(int id) { fWindowId = id; }
+   int              GetWindowId() const { return fWindowId; }
    void             SetSubWindowRunningAt(Int_t i, Bool_t running);
    Bool_t           IsSubWindowRunningAt(Int_t i);
 

@@ -92,19 +92,19 @@ public:
    Int_t        GetVersion() const { return fVersion; }
 
    // Task methods
-   ROMEString*   GetTaskSuffix() { return &fTaskSuffix; };
-   Int_t         GetTaskIndex() { return fTaskIndex; };
+   ROMEString*   GetTaskSuffix() { return &fTaskSuffix; }
+   Int_t         GetTaskIndex() { return fTaskIndex; }
 
    // Histo methods
 public:
 //   Bool_t       hasHistograms() const { return fNumberOfHistos>0; }
    TFolder     *GetHistoFolder() const { return fHistoFolder; }
    TObject     *GetHistoAt(Int_t i);
-   ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); };
-   Int_t        GetNumberOfHistos() { return fNumberOfHistos; };
-   ROMEString*  GetHistoNameAt(Int_t i) { return &fHistoName[i]; };
-   Bool_t       IsHistoUpToDateAt(Int_t i) { return fHistoUpToDate[i]; };
-   void         SetHistoUpToDateAt(Int_t i,Bool_t flag) { fHistoUpToDate[i] = flag; };
+   ROMEHisto   *GetHistoParameterAt(Int_t i) { return ((ROMEHisto*)fHistoParameter->At(i)); }
+   Int_t        GetNumberOfHistos() { return fNumberOfHistos; }
+   ROMEString*  GetHistoNameAt(Int_t i) { return &fHistoName[i]; }
+   Bool_t       IsHistoUpToDateAt(Int_t i) { return fHistoUpToDate[i]; }
+   void         SetHistoUpToDateAt(Int_t i,Bool_t flag) { fHistoUpToDate[i] = flag; }
    void         ResetHisto();
    void         CopyHistosAndGraphs(TDirectory *d) const;
    void         PropagateDeactivation();
@@ -117,11 +117,11 @@ protected:
    // Graph mothods
 public:
 //   Bool_t       hasGraphs() const { return fNumberOfGraphs>0; }
-   TObject     *GetGraphAt(Int_t i) { return fGraph->At(i); };
-   TObject     *GetGraphStorageAt(Int_t i) { return fGraphStorage->At(i); };
-   ROMEGraph   *GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); };
-   Int_t        GetNumberOfGraphs() { return fNumberOfGraphs; };
-   ROMEString*  GetGraphNameAt(Int_t i) { return &fGraphName[i]; };
+   TObject     *GetGraphAt(Int_t i) { return fGraph->At(i); }
+   TObject     *GetGraphStorageAt(Int_t i) { return fGraphStorage->At(i); }
+   ROMEGraph   *GetGraphParameterAt(Int_t i) { return ((ROMEGraph*)fGraphParameter->At(i)); }
+   Int_t        GetNumberOfGraphs() { return fNumberOfGraphs; }
+   ROMEString*  GetGraphNameAt(Int_t i) { return &fGraphName[i]; }
    void         ResetGraph();
 protected:
    void         BookGraph();
