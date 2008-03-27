@@ -58,7 +58,7 @@ Bool_t ROMEMySQL::Ping()
 Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
 {
    while (!Ping()) { // if this is bad for performance, last pinged time should be checked.
-      ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
+      ROMEPrint::Warning("SQL connection is lost. Program sleeps for 5s and tries again.\n");
       gSystem->Sleep(5000);
    }
    if (strlen(query) < 2048)
