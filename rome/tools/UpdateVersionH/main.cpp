@@ -72,39 +72,42 @@ int main()
    // Reading XML
    //
 
-   ROMEString xmlFileName = gSystem->ExpandPathName("$(ROMESYS)/.revision.xml");
-   ROMEXML *xml = new ROMEXML();
+   ROMEString xmlFileName = "$(ROMESYS)/.revision.xml";
+   gSystem->ExpandPathName(xmlFileName);
+   auto_ptr<ROMEXML> xmlIn(new ROMEXML());
 
-   if(xml->OpenFileForPath(xmlFileName.Data())) {
+   if(xmlIn->OpenFileForPath(xmlFileName.Data())) {
       ROMEString revisionString;
       ROMEString path;
 
       path = "Entry";
-      Int_t nEntry = xml->NumberOfOccurrenceOfPath(path.Data());
+      Int_t nEntry = xmlIn->NumberOfOccurrenceOfPath(path.Data());
 
       Int_t iEntry;
-      ROMEString *user = new ROMEString[nEntry + 1];
-      ROMEString *host = new ROMEString[nEntry + 1];
-      ROMEString *directory = new ROMEString[nEntry + 1];
-      ROMEString *lastcompile = new ROMEString[nEntry + 1];
+      vector<ROMEString> user(nEntry + 1);
+      vector<ROMEString> host(nEntry + 1);
+      vector<ROMEString> directory(nEntry + 1);
+      vector<ROMEString> lastcompile(nEntry + 1);
       Bool_t foundIdenticalEntry = kFALSE;
 
-      user[nEntry] = gSystem->GetUserInfo()->fUser;
-      host[nEntry] = gSystem->HostName();
-      directory[nEntry] = gSystem->ExpandPathName("$(ROMESYS)");
+      auto_ptr<UserGroup_t> userInfo(gSystem->GetUserInfo());
+      user[nEntry]        = userInfo->fUser;
+      host[nEntry]        = gSystem->HostName();
+      directory[nEntry]   = "$(ROMESYS)";
+      gSystem->ExpandPathName(directory[nEntry]);
       lastcompile[nEntry] = timestamp.AsString();
 
       path.SetFormatted("Revision");
-      xml->GetPathValue(path,revisionString);
+      xmlIn->GetPathValue(path,revisionString);
       for(iEntry = 0; iEntry < nEntry; iEntry++) {
          path.SetFormatted("Entry[%d]/User", iEntry + 1);
-         xml->GetPathValue(path,user[iEntry]);
+         xmlIn->GetPathValue(path,user[iEntry]);
          path.SetFormatted("Entry[%d]/Host", iEntry + 1);
-         xml->GetPathValue(path,host[iEntry]);
+         xmlIn->GetPathValue(path,host[iEntry]);
          path.SetFormatted("Entry[%d]/Directory", iEntry + 1);
-         xml->GetPathValue(path,directory[iEntry]);
+         xmlIn->GetPathValue(path,directory[iEntry]);
          path.SetFormatted("Entry[%d]/LastCompile", iEntry + 1);
-         xml->GetPathValue(path,lastcompile[iEntry]);
+         xmlIn->GetPathValue(path,lastcompile[iEntry]);
          if (user[iEntry] == user[nEntry] &&
              host[iEntry] == host[nEntry] &&
              directory[iEntry] == directory[nEntry]) {
@@ -112,7 +115,6 @@ int main()
             foundIdenticalEntry = kTRUE;
          }
       }
-      delete xml;
 
       //
       // Writing XML
@@ -134,28 +136,27 @@ int main()
          ) {
 
          ROMEXML::SuppressWritingDate();
-         xml = new ROMEXML();
-         xml->OpenFileForWrite(xmlFileName);
-         xml->SetTranslate(0);
-         xml->WriteElement("Revision", revisionString.Data());
+         auto_ptr<ROMEXML> xmlOut(new ROMEXML());
+         xmlOut->OpenFileForWrite(xmlFileName);
+         xmlOut->SetTranslate(0);
+         xmlOut->WriteElement("Revision", revisionString.Data());
          for(iEntry = 0; iEntry < nEntry; iEntry++) {
-            xml->StartElement("Entry");
-            xml->WriteElement("User", user[iEntry].Data());
-            xml->WriteElement("Host", host[iEntry].Data());
-            xml->WriteElement("Directory", directory[iEntry].Data());
-            xml->WriteElement("LastCompile", lastcompile[iEntry].Data());
-            xml->EndElement();
+            xmlOut->StartElement("Entry");
+            xmlOut->WriteElement("User", user[iEntry].Data());
+            xmlOut->WriteElement("Host", host[iEntry].Data());
+            xmlOut->WriteElement("Directory", directory[iEntry].Data());
+            xmlOut->WriteElement("LastCompile", lastcompile[iEntry].Data());
+            xmlOut->EndElement();
          }
          if (!foundIdenticalEntry) {
-            xml->StartElement("Entry");
-            xml->WriteElement("User", user[nEntry].Data());
-            xml->WriteElement("Host", host[nEntry].Data());
-            xml->WriteElement("Directory", directory[nEntry].Data());
-            xml->WriteElement("LastCompile", lastcompile[nEntry].Data());
-            xml->EndElement();
+            xmlOut->StartElement("Entry");
+            xmlOut->WriteElement("User", user[nEntry].Data());
+            xmlOut->WriteElement("Host", host[nEntry].Data());
+            xmlOut->WriteElement("Directory", directory[nEntry].Data());
+            xmlOut->WriteElement("LastCompile", lastcompile[nEntry].Data());
+            xmlOut->EndElement();
          }
-         xml->EndDocument();
-         delete xml;
+         xmlOut->EndDocument();
       }
       ParseSVNKeyword(revisionString);
       revisionNumber = revisionString.ToInteger();
@@ -165,7 +166,8 @@ int main()
       revisionNumber = 0;
    }
 
-   ROMEString hfile = gSystem->ExpandPathName("$(ROMESYS)/include/");
+   ROMEString hfile = "$(ROMESYS)/include/";
+   gSystem->ExpandPathName(hfile);
    hfile.AppendFormatted("ROMEVersion.h");
    //
    // Reading ROMEVersion.h

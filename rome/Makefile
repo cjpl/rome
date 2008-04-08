@@ -314,7 +314,7 @@ bin/romebuilder.exe: builder/src/main.cpp include/ROMEVersion.h $(BldObjects)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
 	$(call romeechoing, "linking   $@")
-	$(Q)$(CXXLD) $(LDFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
+	$(Q)$(CXXLD) $(LDFLAGS) $(INCLUDE) -g -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
 	$(call romeechoing, "linking   $@")
