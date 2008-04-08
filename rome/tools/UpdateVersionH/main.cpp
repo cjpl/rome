@@ -5,6 +5,7 @@
   $Id$
 
 ********************************************************************/
+#include <vector>
 #include <Riostream.h>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
