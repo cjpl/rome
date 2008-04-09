@@ -7,6 +7,7 @@
 ********************************************************************/
 #include <stdlib.h>
 #include <map>
+#include <vector>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
@@ -493,12 +494,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
 Bool_t ROMEBuilder::AddConfigParameters()
 {
    int i,j;
-   int nIndex = 1;
-   int *indx = new int[nIndex];
    ROMEString str;
    ROMEString tmp;
-   for (i = 0; i < nIndex; i++)
-      indx[i] = -1;
    maxConfigParameterHierarchyLevel = 0;
 
    histoParameters = new ROMEStrArray(20);
@@ -2019,10 +2016,10 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
       }
       if (numOfTabSingleObjects[iTab] > 0) {
          int nskip = 0;
-         int *skip = new int[numOfTabSingleObjects[iTab]];
+         vector<int> skip(numOfTabSingleObjects[iTab]);
          bool skipthis = false;
          int nmulti = 0;
-         int *multi = new int[numOfTabSingleObjects[iTab]];
+         vector<int> multi(numOfTabSingleObjects[iTab]);
          for (j = 0; j < numOfTabSingleObjects[iTab]; j++) {
             skipthis = false;
             for (k = 0; k < nskip; k++) {

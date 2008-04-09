@@ -11471,19 +11471,22 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted("      \" -I%s/include\"\n", finkDir.Data());
 #endif
    if (this->midas) {
-      tmpName = gSystem->ExpandPathName("$(MIDASSYS)/include");
+      tmpName = "$(MIDASSYS)/include";
+      gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
       buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
    }
-   tmpName = gSystem->ExpandPathName("$(ROMESYS)/include");
+   tmpName = "$(ROMESYS)/include";
+   gSystem->ExpandPathName(tmpName);
    tmpName.ReplaceAll("\\\\","/");
    tmpName.ReplaceAll("\\","/");
    buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
 #if (ROOT_VERSION_CODE < ROOT_VERSION(5,14,0))
    buffer.AppendFormatted("      \" -I%s/array64\"\n", tmpName.Data());
 #endif
-   tmpName = gSystem->ExpandPathName("$(ROMESYS)/argus/include");
+   tmpName = "$(ROMESYS)/argus/include";
+   gSystem->ExpandPathName(tmpName);
    tmpName.ReplaceAll("\\\\","/");
    tmpName.ReplaceAll("\\","/");
    buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
@@ -11498,7 +11501,8 @@ Bool_t ROMEBuilder::WriteMain()
    if (numOfTask > 0) buffer.AppendFormatted("      \" -I%s/include/tasks\"\n", outDirAbsolute.Data());
    Int_t i;
    for (i = 0; i < numOfMFIncDirs; i++) {
-      tmpName = gSystem->ExpandPathName(mfIncDir[i].Data());
+      tmpName = mfIncDir[i].Data();
+      gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
       buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
@@ -11545,13 +11549,15 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted("      \":%s/include\"\n", finkDir.Data());
 #endif
    if (this->midas) {
-      tmpName = gSystem->ExpandPathName("$(MIDASSYS)");
+      tmpName = "$(MIDASSYS)";
+      gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
 //      buffer.AppendFormatted("      \":%s/src\"\n", tmpName.Data());
       buffer.AppendFormatted("      \":%s/include\"\n", tmpName.Data());
    }
-   tmpName = gSystem->ExpandPathName("$(ROMESYS)");
+   tmpName = "$(ROMESYS)";
+   gSystem->ExpandPathName(tmpName);
    tmpName.ReplaceAll("\\\\","/");
    tmpName.ReplaceAll("\\","/");
    buffer.AppendFormatted("      \":%s/src\"\n", tmpName.Data());
@@ -11580,7 +11586,8 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted("      \":%s/include/tasks\"\n", outDirAbsolute.Data());
    }
    for (i = 0; i < numOfMFIncDirs; i++) {
-      tmpName = gSystem->ExpandPathName(mfIncDir[i].Data());
+      tmpName = mfIncDir[i].Data();
+      gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
       buffer.AppendFormatted("      \":%s\"\n", tmpName.Data());
@@ -11588,7 +11595,8 @@ Bool_t ROMEBuilder::WriteMain()
    for (i = 0;i < numOfMFDictHeaders; i++) {
       if (!mfDictHeaderUsed[i])
          continue;
-      tmpName = gSystem->ExpandPathName(gSystem->DirName(mfDictHeaderName[i].Data()));
+      tmpName = gSystem->DirName(mfDictHeaderName[i].Data());
+      gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
       if (!buffer.ContainsFast(tmpName.Data()))
@@ -11597,7 +11605,8 @@ Bool_t ROMEBuilder::WriteMain()
    for (i = 0; i < numOfMFSources; i++) {
       if (!mfSourceFileUsed[i])
          continue;
-      tmpName = gSystem->ExpandPathName(gSystem->DirName(mfSourceFileName[i].Data()));
+      tmpName = gSystem->DirName(mfSourceFileName[i].Data());
+      gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
       if (!buffer.ContainsFast(tmpName.Data()))

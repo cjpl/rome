@@ -20,6 +20,7 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
+#include "ROMEConfigParameter.h"
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 
@@ -484,324 +485,384 @@ ROMEBuilder::~ROMEBuilder()
 {
    // Free memory
 
-   // FIX ME !
-   // multiple dimensional arrays are not freed yet.
-   // I counld implement similar function as AllocateInt....
-   // But specifing array size explictly might be dangerous
-   // when there is an inconsistency between actual size and arguments.
-   // So for the moment I only free the first dimension.
-   // Ryu.
    delete configXSD;
 
-   delete [] parent;
+   SafeDelete(histoParameters);
+   SafeDelete(histoParameterTypes);
+   SafeDelete(histoParameterWidgetTypes);
+   SafeDelete(graphParameters);
+   SafeDelete(graphParameterTypes);
+   SafeDelete(graphParameterWidgetTypes);
 
-   delete [] numOfValue;
-   delete [] numOfFolderInclude;
+   FreeArray(parent);
 
-   delete [] numOfFolderAffiliations;
-   delete [] folderAffiliation;
-   delete [] folderUsed;
-   delete [] folderName;
-   delete [] folderDescription;
-   delete [] folderShortDescription;
-   delete [] folderParentName;
-   delete [] folderInheritName;
-   delete [] folderTitle;
-   delete [] folderArray;
-   delete [] numOfFolderAuthors;
-   delete [] folderAuthor;
-   delete [] folderAuthorInstitute;
-   delete [] folderAuthorCollaboration;
-   delete [] folderAuthorEmail;
-   delete [] folderVersion;
-   delete [] folderInclude;
-   delete [] folderLocalFlag;
-   delete [] folderDataBase;
-   delete [] folderIgnoreTObjectStreamer;
-   delete [] folderUserCode;
-   delete [] folderSupport;
-   delete [] folderNoReset;
-   delete [] folderNoResetModified;
-   delete [] folderHasClassField;
+   SafeDelete(daqNameArray);
+   SafeDelete(daqTypeArray);
+   SafeDelete(daqDirArray);
 
-   delete [] valueName;
-   delete [] valueType;
-   delete [] valueInit;
-   delete [] valueComment;
-   delete [] valueDimension;
-   delete [] valueArray;
-   delete [] valueArraySpecifier;
-   delete [] valueDBName;
-   delete [] valueDBPath;
-   delete [] valueDBIf;
-   delete [] valueNoBoundChech;
-   delete [] valueIsTObject;
+   FreeArray(numOfValue);
+   FreeArray(numOfFolderInclude);
+
+   FreeArray(numOfFolderAffiliations);
+   FreeArray(folderAffiliation);
+   FreeArray(folderUsed);
+   FreeArray(folderName);
+   FreeArray(folderDescription);
+   FreeArray(folderShortDescription);
+   FreeArray(folderParentName);
+   FreeArray(folderInheritName);
+   FreeArray(folderTitle);
+   FreeArray(folderArray);
+   FreeArray(numOfFolderAuthors);
+   FreeArray(folderAuthor);
+   FreeArray(folderAuthorInstitute);
+   FreeArray(folderAuthorCollaboration);
+   FreeArray(folderAuthorEmail);
+   FreeArray(folderVersion);
+   FreeArray(folderInclude);
+   FreeArray(folderLocalFlag);
+   FreeArray(folderDataBase);
+   FreeArray(folderIgnoreTObjectStreamer);
+   FreeArray(folderUserCode);
+   FreeArray(folderSupport);
+   FreeArray(folderNoReset);
+   FreeArray(folderNoResetModified);
+   FreeArray(folderHasClassField);
+
+   FreeArray(valueName);
+   FreeArray(valueType);
+   FreeArray(valueInit);
+   FreeArray(valueComment);
+   FreeArray(valueDimension);
+   FreeArray(valueArray);
+   FreeArray(valueArraySpecifier);
+   FreeArray(valueDBName);
+   FreeArray(valueDBPath);
+   FreeArray(valueDBIf);
+   FreeArray(valueNoBoundChech);
+   FreeArray(valueIsTObject);
 
    // net folder
-   delete [] netFolderName;
-   delete [] netFolderTitle;
-   delete [] netFolderHost;
-   delete [] netFolderPort;
-   delete [] netFolderRoot;
+   FreeArray(netFolderName);
+   FreeArray(netFolderTitle);
+   FreeArray(netFolderHost);
+   FreeArray(netFolderPort);
+   FreeArray(netFolderRoot);
 
    // task
-   delete [] numOfTaskInclude;
-   delete [] taskName;
-   delete [] numOfTaskAffiliations;
-   delete [] taskAffiliation;
-   delete [] taskUsed;
-   delete [] taskEventID;
-   delete [] taskDescription;
-   delete [] taskShortDescription;
-   delete [] taskUsage;
-   delete [] taskStatus;
-   delete [] taskToDo;
-   delete [] taskKnownProblems;
-   delete [] numOfTaskAuthors;
-   delete [] taskAuthor;
-   delete [] taskAuthorInstitute;
-   delete [] taskAuthorCollaboration;
-   delete [] taskAuthorEmail;
-   delete [] taskVersion;
-   delete [] taskDependence;
-   delete [] taskInclude;
-   delete [] taskLocalFlag;
-   delete [] numOfTaskAccessedFolder;
-   delete [] taskAccessedFolder;
-   delete [] numOfTaskConnectedFrom;
-   delete [] taskConnectedFrom;
-   delete [] numOfHistos;
-   delete [] histoComment;
-   delete [] histoName;
-   delete [] histoTitle;
-   delete [] histoFolderName;
-   delete [] histoFolderTitle;
-   delete [] histoType;
-   delete [] histoArraySize;
-   delete [] histoArrayStartIndex;
-   delete [] histoXLabel;
-   delete [] histoYLabel;
-   delete [] histoZLabel;
-   delete [] histoXNbins;
-   delete [] histoXmin;
-   delete [] histoXmax;
-   delete [] histoYNbins;
-   delete [] histoYmin;
-   delete [] histoYmax;
-   delete [] histoZNbins;
-   delete [] histoZmin;
-   delete [] histoZmax;
-   delete [] histoOption;
-   delete [] numOfHistoSingleObjectTabs;
-   delete [] histoSingleObjectTabName;
-   delete [] histoSingleObjectTabIndex;
-   delete [] histoSingleObjectTabArrayIndex;
-   delete [] numOfGraphs;
-   delete [] graphName;
-   delete [] graphTitle;
-   delete [] graphFolderName;
-   delete [] graphFolderTitle;
-   delete [] graphType;
-   delete [] graphArraySize;
-   delete [] graphArrayStartIndex;
-   delete [] graphXLabel;
-   delete [] graphYLabel;
-   delete [] graphZLabel;
-   delete [] graphXmin;
-   delete [] graphXmax;
-   delete [] graphYmin;
-   delete [] graphYmax;
-   delete [] graphZmin;
-   delete [] graphZmax;
-   delete [] numOfGraphSingleObjectTabs;
-   delete [] graphSingleObjectTabName;
-   delete [] graphSingleObjectTabIndex;
-   delete [] graphSingleObjectTabArrayIndex;
+   FreeArray(numOfTaskInclude);
+   FreeArray(taskName);
+   FreeArray(numOfTaskAffiliations);
+   FreeArray(taskAffiliation);
+   FreeArray(taskUsed);
+   FreeArray(taskEventID);
+   FreeArray(taskDescription);
+   FreeArray(taskShortDescription);
+   FreeArray(taskUsage);
+   FreeArray(taskStatus);
+   FreeArray(taskToDo);
+   FreeArray(taskKnownProblems);
+   FreeArray(numOfTaskAuthors);
+   FreeArray(taskAuthor);
+   FreeArray(taskAuthorInstitute);
+   FreeArray(taskAuthorCollaboration);
+   FreeArray(taskAuthorEmail);
+   FreeArray(taskVersion);
+   FreeArray(taskDependence);
+   FreeArray(taskInclude);
+   FreeArray(taskLocalFlag);
+   FreeArray(numOfTaskAccessedFolder);
+   FreeArray(taskAccessedFolder);
+   FreeArray(numOfTaskConnectedFrom);
+   FreeArray(taskConnectedFrom);
+   FreeArray(numOfHistos);
+   FreeArray(histoComment);
+   FreeArray(histoName);
+   FreeArray(histoTitle);
+   FreeArray(histoFolderName);
+   FreeArray(histoFolderTitle);
+   FreeArray(histoType);
+   FreeArray(histoArraySize);
+   FreeArray(histoArrayStartIndex);
+   FreeArray(histoXLabel);
+   FreeArray(histoYLabel);
+   FreeArray(histoZLabel);
+   FreeArray(histoXNbins);
+   FreeArray(histoXmin);
+   FreeArray(histoXmax);
+   FreeArray(histoYNbins);
+   FreeArray(histoYmin);
+   FreeArray(histoYmax);
+   FreeArray(histoZNbins);
+   FreeArray(histoZmin);
+   FreeArray(histoZmax);
+   FreeArray(histoOption);
+   FreeArray(numOfHistoSingleObjectTabs);
+   FreeArray(histoSingleObjectTabName);
+   FreeArray(histoSingleObjectTabIndex);
+   FreeArray(histoSingleObjectTabArrayIndex);
+   FreeArray(numOfGraphs);
+   FreeArray(graphName);
+   FreeArray(graphTitle);
+   FreeArray(graphFolderName);
+   FreeArray(graphFolderTitle);
+   FreeArray(graphType);
+   FreeArray(graphArraySize);
+   FreeArray(graphArrayStartIndex);
+   FreeArray(graphXLabel);
+   FreeArray(graphYLabel);
+   FreeArray(graphZLabel);
+   FreeArray(graphXmin);
+   FreeArray(graphXmax);
+   FreeArray(graphYmin);
+   FreeArray(graphYmax);
+   FreeArray(graphZmin);
+   FreeArray(graphZmax);
+   FreeArray(numOfGraphSingleObjectTabs);
+   FreeArray(graphSingleObjectTabName);
+   FreeArray(graphSingleObjectTabIndex);
+   FreeArray(graphSingleObjectTabArrayIndex);
 
    // task hierarchy
-   delete [] taskHierarchyName;
-   delete [] taskHierarchyParentIndex;
-   delete [] taskHierarchyClassIndex;
-   delete [] taskHierarchyMultiplicity;
-   delete [] taskHierarchyLevel;
-   delete [] taskHierarchyObjectIndex;
-   delete [] taskHierarchySuffix;
-   delete [] numOfTaskHierarchyConnectedFrom;
-   delete [] taskHierarchyConnectedFrom;
+   FreeArray(taskHierarchyName);
+   FreeArray(taskHierarchyParentIndex);
+   FreeArray(taskHierarchyClassIndex);
+   FreeArray(taskHierarchyMultiplicity);
+   FreeArray(taskHierarchyLevel);
+   FreeArray(taskHierarchyObjectIndex);
+   FreeArray(taskHierarchySuffix);
+   FreeArray(numOfTaskHierarchyConnectedFrom);
+   FreeArray(taskHierarchyConnectedFrom);
 
    // steering
-   delete [] numOfSteering;
-   delete [] numOfSteerFields;
-   delete [] numOfSteerChildren;
-   delete [] steerName;
-   delete [] steerArraySize;
-   delete [] steerParent;
-   delete [] steerChildren;
-   delete [] numOfSteerAffiliations;
-   delete [] steerAffiliation;
-   delete [] steerUsed;
-   delete [] steerFieldName;
-   delete [] steerFieldType;
-   delete [] steerFieldFormat;
-   delete [] steerFieldArraySize;
-   delete [] steerFieldInit;
-   delete [] steerFieldComment;
-   delete [] steerFieldShortDescription;
-   delete [] steerFieldCLOption;
-   delete [] steerFieldCLDescription;
-   delete [] numOfSteerFieldAffiliations;
-   delete [] steerFieldAffiliation;
-   delete [] steerFieldUsed;
-   delete [] steerFieldHotLink;
-   delete [] gspInclude;
-   delete [] gspLocalFlag;
+   FreeArray(numOfSteering);
+   FreeArray(numOfSteerFields);
+   FreeArray(numOfSteerChildren);
+   FreeArray(steerName);
+   FreeArray(steerArraySize);
+   FreeArray(steerParent);
+   FreeArray(steerChildren);
+   FreeArray(numOfSteerAffiliations);
+   FreeArray(steerAffiliation);
+   FreeArray(steerUsed);
+   FreeArray(steerFieldName);
+   FreeArray(steerFieldType);
+   FreeArray(steerFieldFormat);
+   FreeArray(steerFieldArraySize);
+   FreeArray(steerFieldInit);
+   FreeArray(steerFieldComment);
+   FreeArray(steerFieldShortDescription);
+   FreeArray(steerFieldCLOption);
+   FreeArray(steerFieldCLDescription);
+   FreeArray(numOfSteerFieldAffiliations);
+   FreeArray(steerFieldAffiliation);
+   FreeArray(steerFieldUsed);
+   FreeArray(steerFieldHotLink);
+   FreeArray(gspInclude);
+   FreeArray(gspLocalFlag);
 
    // tab
-   delete [] tabName;
-   delete [] tabSuffix;
-   delete [] tabTitle;
-   delete [] numOfTabAffiliations;
-   delete [] tabAffiliation;
-   delete [] tabUsed;
-   delete [] tabUsedIndex;
-   delete [] tabDescription;
-   delete [] tabShortDescription;
-   delete [] tabUsage;
-   delete [] tabStatus;
-   delete [] tabToDo;
-   delete [] tabKnownProblems;
-   delete [] numOfTabAuthors;
-   delete [] tabAuthor;
-   delete [] tabAuthorInstitute;
-   delete [] tabAuthorCollaboration;
-   delete [] tabAuthorEmail;
-   delete [] tabVersion;
-   delete [] tabDependence;
-   delete [] tabHeredity;
-   delete [] tabHeredityIndex;
-   delete [] tabParentIndex;
-   delete [] tabNumOfChildren;
-   delete [] numOfMenu;
-   delete [] numOfMenuItem;
-   delete [] menuTitle;
-   delete [] menuDepth;
-   delete [] menuItemChildMenuIndex;
-   delete [] menuItemEnumName;
-   delete [] menuItemTitle;
-   delete [] numOfTabSingleObjects;
-   delete [] tabSingleObjectName;
-   delete [] tabSingleObjectIndex;
-   delete [] tabSingleObjectArrayIndexStart;
-   delete [] tabSingleObjectArrayIndexEnd;
-   delete [] tabSingleObjectTaskHierarchyIndex;
-   delete [] tabSingleObjectTaskIndex;
-   delete [] tabSingleObjectObjectIndex;
-   delete [] tabSingleObjectType;
-   delete [] tabSingleObjectIndexMax;
-   delete [] tabObjectDisplayName;
-   delete [] tabObjectDisplayTitle;
-   delete [] numOfTabObjectDisplayObjects;
-   delete [] tabObjectDisplayObject;
-   delete [] tabObjectDisplayType;
-   delete [] tabObjectDisplayTaskHierarchyIndex;
-   delete [] tabObjectDisplayTaskIndex;
-   delete [] tabObjectDisplayObjectIndex;
-   delete [] tabObjectDisplayTaskHierarchyNumber;
-   delete [] tabObjectDisplayObjectTypeIndex;
-   delete [] numOfTabObjectDisplayObjectTypes;
-   delete [] tabObjectDisplayObjectType;
+   FreeArray(tabName);
+   FreeArray(tabSuffix);
+   FreeArray(tabTitle);
+   FreeArray(tabObjectDisplay);
+   FreeArray(numOfTabAffiliations);
+   FreeArray(tabAffiliation);
+   FreeArray(tabUsed);
+   FreeArray(tabUsedIndex);
+   FreeArray(tabDescription);
+   FreeArray(tabShortDescription);
+   FreeArray(tabUsage);
+   FreeArray(tabStatus);
+   FreeArray(tabToDo);
+   FreeArray(tabKnownProblems);
+   FreeArray(numOfTabAuthors);
+   FreeArray(tabAuthor);
+   FreeArray(tabAuthorInstitute);
+   FreeArray(tabAuthorCollaboration);
+   FreeArray(tabAuthorEmail);
+   FreeArray(tabVersion);
+   FreeArray(tabDependence);
+   FreeArray(tabHeredity);
+   FreeArray(tabHeredityIndex);
+   FreeArray(tabParentIndex);
+   FreeArray(tabNumOfChildren);
+   FreeArray(numOfMenu);
+   FreeArray(numOfMenuItem);
+   FreeArray(menuTitle);
+   FreeArray(menuDepth);
+   FreeArray(menuItemChildMenuIndex);
+   FreeArray(menuItemEnumName);
+   FreeArray(menuItemTitle);
+   FreeArray(numOfTabSingleObjects);
+   FreeArray(tabSingleObjectName);
+   FreeArray(tabSingleObjectIndex);
+   FreeArray(tabSingleObjectArrayIndexStart);
+   FreeArray(tabSingleObjectArrayIndexEnd);
+   FreeArray(tabSingleObjectTaskHierarchyIndex);
+   FreeArray(tabSingleObjectTaskIndex);
+   FreeArray(tabSingleObjectObjectIndex);
+   FreeArray(tabSingleObjectType);
+   FreeArray(tabSingleObjectIndexMax);
+   FreeArray(numOfTabObjectDisplays);
+   FreeArray(tabObjectDisplayName);
+   FreeArray(tabObjectDisplayTitle);
+   FreeArray(numOfTabObjectDisplayObjects);
+   FreeArray(tabObjectDisplayObject);
+   FreeArray(tabObjectDisplayType);
+   FreeArray(tabObjectDisplayTaskHierarchyIndex);
+   FreeArray(tabObjectDisplayTaskIndex);
+   FreeArray(tabObjectDisplayObjectIndex);
+   FreeArray(tabObjectDisplayTaskHierarchyNumber);
+   FreeArray(tabObjectDisplayObjectTypeIndex);
+   FreeArray(numOfTabObjectDisplayObjectTypes);
+   FreeArray(tabObjectDisplayObjectType);
 
    // tree
-   delete [] numOfBranch;
-   delete [] treeName;
-   delete [] treeTitle;
-   delete [] treeFileName;
-   delete [] treeDescription;
-   delete [] branchName;
-   delete [] branchFolder;
-   delete [] branchBufferSize;
-   delete [] branchSplitLevel;
-   delete [] branchSplitLevelSpecified;
+   FreeArray(numOfBranch);
+   FreeArray(numOfRunHeader);
+   FreeArray(treeName);
+   FreeArray(treeTitle);
+   FreeArray(treeFileName);
+   FreeArray(treeDescription);
+   FreeArray(branchName);
+   FreeArray(branchFolder);
+   FreeArray(branchBufferSize);
+   FreeArray(branchSplitLevel);
+   FreeArray(branchSplitLevelSpecified);
+   FreeArray(runHeaderName);
+   FreeArray(runHeaderFolder);
+   FreeArray(runHeaderFolderIndex);
 
    // thread functions
-   delete [] numOfThreadFunctions;
-   delete [] numOfThreadFunctionArguments;
-   delete [] threadFunctionName;
-   delete [] threadFunctionArgument;
+   FreeArray(numOfThreadFunctions);
+   FreeArray(numOfThreadFunctionArguments);
+   FreeArray(threadFunctionName);
+   FreeArray(threadFunctionArgument);
 
    // daq
-   delete [] daqName;
-   delete [] numOfDAQAffiliations;
-   delete [] daqAffiliation;
-   delete [] daqUsed;
+   FreeArray(daqName);
+   FreeArray(numOfDAQAffiliations);
+   FreeArray(daqAffiliation);
+   FreeArray(daqUsed);
 
    // database
-   delete [] dbName;
-   delete [] dbDescription;
+   FreeArray(dbName);
+   FreeArray(dbDescription);
 
    // midas
-   delete [] numOfBank;
-   delete [] numOfStructFields;
-   delete [] eventName;
-   delete [] eventID;
-   delete [] eventTriggerMask;
-   delete [] eventSamplingRate;
-   delete [] bankName;
-   delete [] bankAlias;
-   delete [] bankType;
-   delete [] bankArraySize;
-   delete [] bankArrayStart;
-   delete [] bankArrayDigit;
-   delete [] structFieldName;
-   delete [] structFieldType;
-   delete [] structFieldSize;
-   delete [] bankFieldArraySize;
+   FreeArray(numOfBank);
+   FreeArray(numOfStructFields);
+   FreeArray(eventName);
+   FreeArray(eventID);
+   FreeArray(eventTriggerMask);
+   FreeArray(eventSamplingRate);
+   FreeArray(bankName);
+   FreeArray(bankAlias);
+   FreeArray(bankType);
+   FreeArray(bankArraySize);
+   FreeArray(bankArrayStart);
+   FreeArray(bankArrayDigit);
+   FreeArray(structFieldName);
+   FreeArray(structFieldType);
+   FreeArray(structFieldSize);
+   FreeArray(bankFieldArraySize);
 
    // root DAQ
-   delete [] numOfRootBranch;
-   delete [] numOfRootBranchField;
-   delete [] rootTreeName;
-   delete [] rootBranchName;
-   delete [] rootBranchType;
-   delete [] rootBranchArraySize;
-   delete [] rootBranchClassName;
-   delete [] rootBranchClassVersion;
-   delete [] rootBranchFieldName;
-   delete [] rootBranchFieldType;
-   delete [] rootBranchFieldArraySize;
+   FreeArray(numOfRootBranch);
+   FreeArray(numOfRootBranchField);
+   FreeArray(rootTreeName);
+   FreeArray(rootBranchName);
+   FreeArray(rootBranchType);
+   FreeArray(rootBranchArraySize);
+   FreeArray(rootBranchClassName);
+   FreeArray(rootBranchClassVersion);
+   FreeArray(rootBranchFieldName);
+   FreeArray(rootBranchFieldType);
+   FreeArray(rootBranchFieldArraySize);
 
    // user makefile
-   delete [] mfDictHeaderName;
-   delete [] mfDictHeaderLinkDefSuffix;
-   delete [] numOfMFDictHeaderAffiliations;
-   delete [] mfDictHeaderAffiliation;
-   delete [] mfDictHeaderUsed;
-   delete [] mfDictIncDir;
-   delete [] mfWinLibName;
-   delete [] numOfMFWinLibFlags;
-   delete [] mfWinLibFlag;
-   delete [] mfUnixLibName;
-   delete [] numOfMFUnixLibFlags;
-   delete [] mfUnixLibFlag;
-   delete [] mfIncDir;
-   delete [] mfPreDefName;
-   delete [] mfSourceFileName;
-   delete [] mfSourceFilePath;
-   delete [] mfSourceFileObjPath;
-   delete [] mfHeaderFileName;
-   delete [] mfHeaderFilePath;
-   delete [] numOfMFSourceFlags;
-   delete [] mfSourceFileFlag;
-   delete [] numOfMFSourceAffiliations;
-   delete [] mfSourceFileAffiliation;
-   delete [] mfSourceFileUsed;
-   delete [] mainAuthor;
-   delete [] mainInstitute;
-   delete [] mainCollaboration;
-   delete [] mainEmail;
+   FreeArray(mfDictHeaderName);
+   FreeArray(mfDictHeaderLinkDefSuffix);
+   FreeArray(numOfMFDictHeaderAffiliations);
+   FreeArray(mfDictHeaderAffiliation);
+   FreeArray(mfDictHeaderUsed);
+   FreeArray(mfDictIncDir);
+   FreeArray(mfWinLibName);
+   FreeArray(numOfMFWinLibFlags);
+   FreeArray(mfWinLibFlag);
+   FreeArray(mfUnixLibName);
+   FreeArray(numOfMFUnixLibFlags);
+   FreeArray(mfUnixLibFlag);
+   FreeArray(mfIncDir);
+   FreeArray(mfPreDefName);
+   FreeArray(mfSourceFileName);
+   FreeArray(mfSourceFilePath);
+   FreeArray(mfSourceFileObjPath);
+   FreeArray(mfHeaderFileName);
+   FreeArray(mfHeaderFilePath);
+   FreeArray(numOfMFSourceFlags);
+   FreeArray(mfSourceFileFlag);
+   FreeArray(numOfMFSourceAffiliations);
+   FreeArray(mfSourceFileAffiliation);
+   FreeArray(mfSourceFileUsed);
+   FreeArray(mainAuthor);
+   FreeArray(mainInstitute);
+   FreeArray(mainCollaboration);
+   FreeArray(mainEmail);
 
-   delete precompiledHeaders;
-   delete precompiledIncludeHeaders;
+   SafeDelete(dictionaryNames);
+   SafeDelete(dictionaryOutputs);
+   SafeDelete(dictionaryDependencies);
+   SafeDelete(dictionaryCommands);
+   SafeDelete(dictionaryHeaders);
+   SafeDelete(dictionarySources);
+   SafeDelete(dictionaryLinkDefSuffix);
+   SafeDelete(includeDirectories);
+   SafeDelete(romeHeaders);
+   SafeDelete(romeDictHeaders);
+   SafeDelete(romeSources);
+   SafeDelete(romeLinkDefSuffix);
+   SafeDelete(argusHeaders);
+   SafeDelete(argusSources);
+   SafeDelete(argusLinkDefSuffix);
+   SafeDelete(generatedHeaders);
+   SafeDelete(generatedDictHeaders);
+   SafeDelete(generatedLinkDefSuffix);
+   SafeDelete(generatedFolderDictHeaders);
+   SafeDelete(generatedFolderLinkDefSuffix);
+   SafeDelete(generatedSupportFolderDictHeaders);
+   SafeDelete(generatedSupportFolderLinkDefSuffix);
+   SafeDelete(generatedTaskDictHeaders);
+   SafeDelete(generatedTaskLinkDefSuffix);
+   SafeDelete(generatedTabDictHeaders);
+   SafeDelete(generatedTabLinkDefSuffix);
+   SafeDelete(generatedSources);
+   SafeDelete(folderHeaders);
+   SafeDelete(folderSources);
+   SafeDelete(folderLinkDefSuffix);
+   SafeDelete(taskHeaders);
+   SafeDelete(taskSources);
+   SafeDelete(taskLinkDefSuffix);
+   SafeDelete(tabHeaders);
+   SafeDelete(tabSources);
+   SafeDelete(tabLinkDefSuffix);
+   SafeDelete(daqHeaders);
+   SafeDelete(daqSources);
+   SafeDelete(daqLinkDefSuffix);
+   SafeDelete(databaseHeaders);
+   SafeDelete(databaseSources);
+   SafeDelete(databaseLinkDefSuffix);
+   SafeDelete(additionalDictHeaders);
+   SafeDelete(additionalDictLinkDefSuffix);
+   SafeDelete(rootLibraries);
+   SafeDelete(mysqlLibraries);
+   SafeDelete(daqLibraries);
+   SafeDelete(daqFlags);
+   SafeDelete(precompiledHeaders);
+   SafeDelete(precompiledIncludeHeaders);
+
+   SafeDelete(mainParGroup);
 }
 
 //______________________________________________________________________________
@@ -834,7 +895,9 @@ Bool_t ROMEBuilder::StartBuilder()
    tabObjectDisplaySupportedObjects.AddLast("TH3D");
 
    configXSD = new ROMEXML();
-   configXSD->OpenFileForPath(gSystem->ExpandPathName("$(ROMESYS)/romeConfig.xsd"));
+   ROMEString xsdName = "$(ROMESYS)/romeConfig.xsd";
+   gSystem->ExpandPathName(xsdName);
+   configXSD->OpenFileForPath(xsdName.Data());
 
    if (!AllocateMemorySpace())
       return false;
@@ -1626,9 +1689,9 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
    folderUserCode[numOfFolder] = false;
    folderDescription[numOfFolder] = "folder for configuration parameters";
    folderShortDescription[numOfFolder] = "";
-   folderAuthor[numOfFolder] = mainAuthor;
    numOfFolderAuthors[numOfFolder] = numOfMainAuthors;
    for (i = 0; i < numOfFolderAuthors[numOfFolder]; i++) {
+      folderAuthor[numOfFolder][i] = mainAuthor[i];
       folderAuthorInstitute[numOfFolder][i] = mainInstitute[i];
       folderAuthorCollaboration[numOfFolder][i] = mainCollaboration[i];
       folderAuthorEmail[numOfFolder][i] = mainEmail[i];
@@ -2180,6 +2243,112 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
    return type;
 }
 
+
+//______________________________________________________________________________
+template <class T>
+void ROMEBuilder::FreeArray(T* p0)
+{
+   // memory must be allocated by using AllocateArray.
+   if (p0) {
+      delete [] p0;
+   }
+}
+
+//______________________________________________________________________________
+template <class T>
+void ROMEBuilder::FreeArray(T** p0)
+{
+   // memory must be allocated by using AllocateArray.
+   if (!p0) {
+      return;
+   }
+   Int_t i = 0;
+   while (1) {
+      if (!p0[i]) {
+         break;
+      }
+      FreeArray(p0[i]);
+      i++;
+   }
+   delete [] p0;
+}
+
+//______________________________________________________________________________
+template <class T>
+void ROMEBuilder::FreeArray(T*** p0)
+{
+   // memory must be allocated by using AllocateArray.
+   if (!p0) {
+      return;
+   }
+   Int_t i = 0;
+   while (1) {
+      if (!p0[i]) {
+         break;
+      }
+      FreeArray(p0[i]);
+      i++;
+   }
+   delete [] p0;
+}
+
+//______________________________________________________________________________
+template <class T>
+void ROMEBuilder::FreeArray(T**** p0)
+{
+   // memory must be allocated by using AllocateArray.
+   if (!p0) {
+      return;
+   }
+   Int_t i = 0;
+   while (1) {
+      if (!p0[i]) {
+         break;
+      }
+      FreeArray(p0[i]);
+      i++;
+   }
+   delete [] p0;
+}
+
+//______________________________________________________________________________
+template <class T>
+void ROMEBuilder::FreeArray(T***** p0)
+{
+   // memory must be allocated by using AllocateArray.
+   if (!p0) {
+      return;
+   }
+   Int_t i = 0;
+   while (1) {
+      if (!p0[i]) {
+         break;
+      }
+      FreeArray(p0[i]);
+      i++;
+   }
+   delete [] p0;
+}
+
+//______________________________________________________________________________
+template <class T>
+void ROMEBuilder::FreeArray(T****** p0)
+{
+   // memory must be allocated by using AllocateArray.
+   if (!p0) {
+      return;
+   }
+   Int_t i = 0;
+   while (1) {
+      if (!p0[i]) {
+         break;
+      }
+      FreeArray(p0[i]);
+      i++;
+   }
+   delete [] p0;
+}
+
 //______________________________________________________________________________
 template <class T>
 void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
@@ -2222,35 +2391,40 @@ void* ROMEBuilder::AllocateArray(T* p0, Int_t x1, Int_t x2, Int_t x3, Int_t x4, 
       return p1;
 
    case 2:
-      p2 = new T*[x1];
+      p2 = new T*[x1 + 1];
       for (i = 0; i < x1; i++)
          p2[i] = static_cast<T*>(AllocateArray(p0, x2));
+      p2[x1] = 0;
       return p2;
 
    case 3:
-      p3 = new T**[x1];
+      p3 = new T**[x1 + 1];
       for (i = 0; i < x1; i++)
          p3[i] = static_cast<T**>(AllocateArray(p0, x2, x3));
+      p3[x1] = 0;
       return p3;
 
    case 4:
-      p4 = new T***[x1];
+      p4 = new T***[x1 + 1];
       for (i = 0; i < x1; i++)
          p4[i] = static_cast<T***>(AllocateArray(p0, x2, x3, x4));
+      p4[x1] = 0;
       return p4;
 
    case 5:
-      p5 = new T****[x1];
+      p5 = new T****[x1 + 1];
       for (i = 0; i < x1; i++)
          p5[i] = static_cast<T****>(AllocateArray(p0, x2, x3, x4, x5));
+      p5[x1] = 0;
       return p5;
 
    case 6:
-      p6 = new T*****[x1];
+      p6 = new T*****[x1 + 1];
       for (i = 0; i < x1; i++)
          p6[i] = static_cast<T*****>(AllocateArray(p0, x2, x3, x4, x5, x6));
+      p6[x1] = 0;
       return p6;
-   };
+   }
 
    return 0;
 }
