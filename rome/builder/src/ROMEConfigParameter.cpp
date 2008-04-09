@@ -154,7 +154,13 @@ ROMEConfigParameterGroup::~ROMEConfigParameterGroup()
    SafeDelete(fWriteEndLines);
    SafeDelete(fWriteStartLines);
    SafeDelete(fReadGroupArrayInitLines);
+   if (fSubGroups) {
+      fSubGroups->Delete();
+   }
    SafeDelete(fSubGroups);
+   if (fParameters) {
+      fParameters->Delete();
+   }
    SafeDelete(fParameters);
 }
 

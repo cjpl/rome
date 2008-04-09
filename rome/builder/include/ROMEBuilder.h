@@ -840,6 +840,12 @@ private:
    void* AllocateInt(Int_t x1, Int_t x2= -1, Int_t x3= -1, Int_t x4= -1, Int_t x5= -1, Int_t x6= -1);
    void* AllocateBool(Int_t x1, Int_t x2= -1, Int_t x3= -1, Int_t x4= -1, Int_t x5= -1, Int_t x6= -1);
    void* AllocateROMEString(Int_t x1, Int_t x2= -1, Int_t x3= -1, Int_t x4= -1, Int_t x5= -1, Int_t x6= -1);
+   template <class T> void FreeArray(T* p0);
+   template <class T> void FreeArray(T** p0);
+   template <class T> void FreeArray(T*** p0);
+   template <class T> void FreeArray(T**** p0);
+   template <class T> void FreeArray(T***** p0);
+   template <class T> void FreeArray(T****** p0);
 
    ROMEString& ProcessCommentCPP(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentHTML(ROMEString& org, ROMEString& result);
