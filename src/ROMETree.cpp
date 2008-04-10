@@ -65,6 +65,10 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
 
 //______________________________________________________________________________
 ROMETree::~ROMETree() {
+#if 0 /* this class does not own it */
+   SafeDeleteArray(fTree);
+   SafeDeleteArray(fFile);
+#endif
    SafeDeleteArray(fBranchActive);
 }
 

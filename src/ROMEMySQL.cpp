@@ -27,7 +27,6 @@ ROMEMySQL::ROMEMySQL()
 //______________________________________________________________________________
 ROMEMySQL::~ROMEMySQL()
 {
-   FreeResult();
    DisConnect();
 }
 

@@ -73,6 +73,7 @@ ROMESQLDataBase::~ROMESQLDataBase()
    for (i = 0; i < kNumberOfReadCache; i++) {
       SafeDelete(fPathCache[i]);
    }
+   SafeDelete(fSQL);
 }
 
 //______________________________________________________________________________

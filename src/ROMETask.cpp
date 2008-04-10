@@ -124,6 +124,64 @@ ROMETask::ROMETask(const char *name, const char *title, Int_t level, Int_t versi
 }
 
 //______________________________________________________________________________
+ROMETask::~ROMETask() {
+   Int_t i;
+
+   SafeDelete(fRootFolder);
+#if 0 // This is not owned by this class.
+   SafeDelete(fHistoFolder);
+#endif
+
+   if (fHisto) {
+      for (i = 0; i < GetNumberOfHistos(); i++) {
+         if (static_cast<ROMEHisto*>(fHistoParameter->At(i))->IsActive() &&
+             !gROME->IsHistosDeactivateAll()) {
+            if (fHistoArray[i] && fHisto->At(i)) {
+               static_cast<TObjArray*>(fHisto->At(i))->Delete();
+            }
+         }
+      }
+      fHisto->Delete();
+   }
+   SafeDelete(fHisto);
+   if (fHistoParameter) {
+      fHistoParameter->Delete();
+   }
+   SafeDelete(fHistoParameter);
+   SafeDeleteArray(fHistoName);
+   SafeDeleteArray(fHistoType);
+   SafeDeleteArray(fHistoDimension);
+   SafeDeleteArray(fHistoArray);
+   SafeDeleteArray(fHistoUpToDate);
+
+   if (fGraph) {
+      for (i = 0; i < GetNumberOfGraphs(); i++) {
+         if (static_cast<ROMEGraph*>(fGraphParameter->At(i))->IsActive() &&
+             !gROME->IsHistosDeactivateAll()) {
+            if (fGraphArray[i] && fGraph->At(i)) {
+               static_cast<TObjArray*>(fGraph->At(i))->Delete();
+               static_cast<TObjArray*>(fGraphStorage->At(i))->Delete();
+            }
+         }
+      }
+      fGraph->Delete();
+   }
+   SafeDelete(fGraph);
+   if (fGraphStorage) {
+      fGraphStorage->Delete();
+   }
+   SafeDelete(fGraphStorage);
+   if (fGraphParameter) {
+      fGraphParameter->Delete();
+   }
+   SafeDelete(fGraphParameter);
+   SafeDeleteArray(fGraphName);
+   SafeDeleteArray(fGraphType);
+   SafeDeleteArray(fGraphDimension);
+   SafeDeleteArray(fGraphArray);
+}
+
+//______________________________________________________________________________
 void ROMETask::Exec(Option_t *option)
 {
    // Overrides the TTask::Exec Method to replace the Exec Method with the following Methods :
