@@ -4987,6 +4987,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
                buffer.AppendFormatted("   SafeDelete(f%sFolder);\n",folderName[i].Data());
                buffer.AppendFormatted("   SafeDelete(f%sFolderStorage);\n",folderName[i].Data());
             } else {
+               buffer.AppendFormatted("   if (f%sFolders)        { f%sFolders->Delete(); }\n",
+                                      folderName[i].Data(), folderName[i].Data());
+               buffer.AppendFormatted("   if (f%sFoldersStorage) { f%sFoldersStorage->Delete(); }\n",
+                                      folderName[i].Data(), folderName[i].Data());
                buffer.AppendFormatted("   SafeDelete(f%sFolders);\n",folderName[i].Data());
                buffer.AppendFormatted("   SafeDelete(f%sFoldersStorage);\n",folderName[i].Data());
             }
@@ -4996,12 +5000,18 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    if (numOfSteering[numOfTask] > 0) {
       buffer.AppendFormatted("   SafeDelete(fGlobalSteeringParameters);\n");
    }
+   buffer.AppendFormatted("   if (IsActiveDAQ(\"none\")) { SafeDelete(fActiveDAQ); }\n");
    for (i = 0; i < daqNameArray->GetEntriesFast(); i++) {
       buffer.AppendFormatted("   SafeDelete(f%sDAQ);\n",daqNameArray->At(i).Data());
    }
+   if (numOfSteering[numOfTask] > 0) {
+      buffer.AppendFormatted("   SafeDelete(fGlobalSteeringParameters);\n");
+   }
+   buffer.AppendFormatted("   SafeDeleteArray(fStatistics);\n");
    buffer.AppendFormatted("   SafeDelete(fWindow);\n");
    buffer.AppendFormatted("   SafeDelete(fConfiguration);\n");
    buffer.AppendFormatted("   SafeDelete(fDBAccess);\n");
+   buffer.AppendFormatted("   SafeDelete(fTaskObjects);\n");
    buffer.AppendFormatted("   gAnalyzer = 0;\n");
    // End of Destructor
    buffer.AppendFormatted("}\n\n");
@@ -9227,6 +9237,9 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("// Connect Trees\n");
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sRomeDAQ::ConnectTrees()\n{\n",shortCut.Data());
+   if (numOfTree > 0) {
+         buffer.AppendFormatted("   ROMETree *romeTree;\n");
+   }
    for (i = 0; i < numOfTree && !found; i++) {
       for (j = 0; j < numOfBranch[i]; j++) {
          for (k = 0; k < numOfFolder; k++) {
@@ -9241,7 +9254,8 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       }
    }
    for (i = 0; i < numOfTree; i++) {
-      buffer.AppendFormatted("   if (fROMETrees[%d]->isRead()) {\n", i);
+      buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
+      buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
       for (j = 0; j < numOfBranch[i]; j++) {
          for (k = 0; k < numOfFolder; k++) {
             if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
@@ -9249,10 +9263,10 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          }
          if (!folderUsed[iFold])
             continue;
-         buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(fROMETrees[%d]->GetTree()->FindBranch(\"%s\"));\n",i,
+         buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"%s\"));\n",
                                 branchName[i][j].Data());
          buffer.AppendFormatted("     if (bb) {\n");
-         buffer.AppendFormatted("        if (fROMETrees[%d]->GetBranchActiveAt(%d)) {\n",i,j);
+         buffer.AppendFormatted("        if (romeTree->GetBranchActiveAt(%d)) {\n", j);
          if (folderArray[iFold] == "1") {
             buffer.AppendFormatted("           bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          } else {
@@ -9260,11 +9274,11 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          }
          buffer.AppendFormatted("        }\n");
          buffer.AppendFormatted("        else {\n");
-         buffer.AppendFormatted("           fROMETrees[%d]->GetTree()->SetBranchStatus(\"%s*\", 0);\n",i,
+         buffer.AppendFormatted("           romeTree->GetTree()->SetBranchStatus(\"%s*\", 0);\n",
                                 branchName[i][j].Data());
          buffer.AppendFormatted("        }\n");
          buffer.AppendFormatted("     }\n");
-         buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(fROMETrees[%d]->GetTree()->FindBranch(\"Info\"));\n",i);
+         buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"Info\"));\n");
          buffer.AppendFormatted("     bb->SetAddress(&fTreeInfo);\n");
       }
       buffer.AppendFormatted("   }\n");
@@ -9274,10 +9288,14 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    // Read run header
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sRomeDAQ::ReadRunHeaders()\n{\n",shortCut.Data());
+   if (numOfTree > 0) {
+      buffer.AppendFormatted("   ROMETree* romeTree;\n");
+   }
    for (i = 0; i < numOfTree; i++) {
-      buffer.AppendFormatted("   if (fROMETrees[%d]->isRead()) {\n", i);
-      buffer.AppendFormatted("      if (fROMETrees[%d]->GetFile()) {\n", i);
-      buffer.AppendFormatted("         fROMETrees[%d]->GetFile()->cd();\n", i);
+      buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
+      buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
+      buffer.AppendFormatted("      if (romeTree->GetFile()) {\n");
+      buffer.AppendFormatted("         romeTree->GetFile()->cd();\n");
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
             if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
@@ -9310,14 +9328,15 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
                buffer.AppendFormatted("TClonesArray* %sRomeDAQ::Get%ssFrom%s() const\n{\n", shortCut.Data(),
                                       runHeaderFolder[i][j].Data(), treeName[i].Data());
             }
-            buffer.AppendFormatted("   if (fROMETrees[%d]->isRead()) {\n", i);
-            buffer.AppendFormatted("      if (fROMETrees[%d]->GetFile()) {\n", i);
+            buffer.AppendFormatted("   ROMETree *romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
+            buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
+            buffer.AppendFormatted("      if (romeTree->GetFile()) {\n");
             if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
-               buffer.AppendFormatted("         return static_cast<%s%s*>(fROMETrees[%d]->GetFile()->FindObjectAny(\"%s\"));\n",
-                                      shortCut.Data(), runHeaderFolder[i][j].Data(), i, runHeaderName[i][j].Data());
+               buffer.AppendFormatted("         return static_cast<%s%s*>(romeTree->GetFile()->FindObjectAny(\"%s\"));\n",
+                                      shortCut.Data(), runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
             } else {
-               buffer.AppendFormatted("         return static_cast<TClonesArray*>(fROMETrees[%d]->GetFile()->FindObjectAny(\"%s\"));\n",
-                                      i, runHeaderName[i][j].Data());
+               buffer.AppendFormatted("         return static_cast<TClonesArray*>(romeTree->GetFile()->FindObjectAny(\"%s\"));\n",
+                                      runHeaderName[i][j].Data());
             }
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
@@ -9334,10 +9353,14 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    if (hasDependenceCheck || mainDefinitionVersion != "1") {
       buffer.AppendFormatted("   Int_t i;\n");
       buffer.AppendFormatted("   %s%sConfigParameters *p = 0;\n",shortCut.Data(), mainProgName.Data());
+      if (numOfTree > 0) {
+         buffer.AppendFormatted("   ROMETree *romeTree;\n");
+      }
       buffer.AppendFormatted("   for (i = 0; i < %d; i++) {\n", numOfTree);
-      buffer.AppendFormatted("      if (fROMETrees[i]->isRead() && fROMETrees[i]->GetFile()) {\n");
-      buffer.AppendFormatted("         fROMETrees[i]->GetFile()->cd();\n"); // this is needed for old ROOT(v-4.2.0)
-      buffer.AppendFormatted("         p = static_cast<%s%sConfigParameters*>(fROMETrees[i]->GetFile()->FindObjectAny(\"%sConfigParameters\"));\n",
+      buffer.AppendFormatted("      romeTree = static_cast<ROMETree*>(fROMETrees->At(i));\n");
+      buffer.AppendFormatted("      if (romeTree->isRead() && romeTree->GetFile()) {\n");
+      buffer.AppendFormatted("         romeTree->GetFile()->cd();\n"); // this is needed for old ROOT(v-4.2.0)
+      buffer.AppendFormatted("         p = static_cast<%s%sConfigParameters*>(romeTree->GetFile()->FindObjectAny(\"%sConfigParameters\"));\n",
                              shortCut.Data(), mainProgName.Data(), mainProgName.Data());
       buffer.AppendFormatted("         if (p) {\n");
       // Task active flag
@@ -9439,8 +9462,8 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    // File getter
    for (i = 0; i < numOfTree; i++)
-      buffer.AppendFormatted("   TFile* Get%sFile() const { return fRootFiles ? fRootFiles[%d] : 0; }\n",treeName[i].Data(),
-                             i);
+      buffer.AppendFormatted("   TFile* Get%sFile() const { return fRootFiles ? static_cast<TFile*>(fRootFiles->At(%d)) : 0; }\n",
+                             treeName[i].Data(), i);
 
    // methods
    buffer.AppendFormatted("protected:\n");

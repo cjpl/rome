@@ -67,27 +67,8 @@ public:
    ROMETask(const char *name, const char *title, int level, int version, int eventID,
             TFolder* histoFolder, const char* histoSuffix,
             int numberOfHistos, int numberOfGraphs);
+   virtual ~ROMETask();
 
-   virtual ~ROMETask() {
-      SafeDelete(fRootFolder);
-#if 0 // This is not owned by this class.
-      SafeDelete(fHistoFolder);
-#endif
-      SafeDelete(fHisto);
-      SafeDelete(fHistoParameter);
-      SafeDeleteArray(fHistoName);
-      SafeDeleteArray(fHistoType);
-      SafeDeleteArray(fHistoDimension);
-      SafeDeleteArray(fHistoArray);
-      SafeDeleteArray(fHistoUpToDate);
-      SafeDelete(fGraph);
-      SafeDelete(fGraphStorage);
-      SafeDelete(fGraphParameter);
-      SafeDeleteArray(fGraphName);
-      SafeDeleteArray(fGraphType);
-      SafeDeleteArray(fGraphDimension);
-      SafeDeleteArray(fGraphArray);
-   }
    void         Exec(Option_t *option="");
    Int_t        GetVersion() const { return fVersion; }
 

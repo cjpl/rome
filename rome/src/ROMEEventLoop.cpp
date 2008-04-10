@@ -119,6 +119,7 @@ ROMEEventLoop::~ROMEEventLoop()
    SafeDelete(fHistoFile);
    SafeDeleteArray(fStatisticsTimeOfLastEvent);
    SafeDeleteArray(fStatisticsLastEvent);
+   SafeDelete(fTreeInfo);
 }
 
 //______________________________________________________________________________
@@ -1380,7 +1381,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
             }
             if (!identicalFileNameFound) { // file can be closed here
                romeTree->GetFile()->Close();
-               romeTree->GetFile()->Delete();
+               romeTree->DeleteFile();
             }
             gROOT->cd();
          }
@@ -1445,6 +1446,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
             if (!identicalFileNameFound) { // file can be closed here
                if (romeTree->GetFile() != 0) {
                   romeTree->GetFile()->Close();
+                  romeTree->DeleteFile();
                }
             }
             gROOT->cd();

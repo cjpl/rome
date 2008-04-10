@@ -65,6 +65,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fUserInfoObjects(new TObjArray(0))
 ,fListTreeView(kFALSE)
 ,fListTree(0)
+,fNListTreeItem(numberOfTabs)
 ,fListTreeItem(new TGListTreeItem*[numberOfTabs])
 ,fTab(0)
 ,fMainFrame(0)
@@ -81,6 +82,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fRequestEventHandling(kFALSE)
 ,fForceEventHandling(kFALSE)
 {
+   memset(fListTreeItem, 0, sizeof(TGListTreeItem*) * numberOfTabs);
    fWatchAll.Reset();
 }
 
@@ -108,6 +110,7 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fUserInfoObjects(new TObjArray(0))
 ,fListTreeView(kFALSE)
 ,fListTree(0)
+,fNListTreeItem(numberOfTabs)
 ,fListTreeItem(new TGListTreeItem*[numberOfTabs])
 ,fTab(0)
 ,fMainFrame(0)
@@ -124,25 +127,53 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fRequestEventHandling(kFALSE)
 ,fForceEventHandling(kFALSE)
 {
+   memset(fListTreeItem, 0, sizeof(TGListTreeItem*) * numberOfTabs);
    fWatchAll.Reset();
 }
 
 //______________________________________________________________________________
 ArgusWindow::~ArgusWindow()
 {
+   Int_t i;
 #if 0 // deleting GUI objects may cause error
+   if (fSubWindows) {
+      fSubWindows->Delete();
+   }
    SafeDelete(fStatusBar);
    SafeDelete(fMenuBar);
    SafeDelete(fMenuFile);
-   SafeDelete(fTab);
    SafeDelete(fTabObjects);
    SafeDelete(fProgress);
+   SafeDelete(fRunNumber);
+   SafeDelete(fEventNumber);
+   SafeDelete(fYearMonDay);
+   SafeDelete(fHourMinSec);
+   SafeDelete(fListTree);
+   SafeDelete(fTab);
+   if (fTabObjects) {
+      fTabObjects->Delete();
+   }
+   if (fTGTab) {
+      fTGTab->Delete();
+   }
 #endif
+   SafeDelete(fSubWindows);
    SafeDelete(fSubWindowRunning);
+   if (fUserInfoObjects) {
+      fUserInfoObjects->Delete();
+   }
+   for (i = 0; i < fNListTreeItem; i++) {
+      SafeDelete(fListTreeItem[i]);
+   }
    SafeDeleteArray(fListTreeItem);
+   SafeDelete(fUserInfoObjects);
+   SafeDelete(fTabObjects);
+   SafeDelete(fTGTab);
+
    SafeDeleteArray(fParentIndex);
    SafeDeleteArray(fNumberOfChildren);
 //   SafeDelete(fController); // fController can be deleted by clicking closed box.
+//   SafeDelete(fControllerNetFolder); // This class is not the owner of net folder
 }
 
 //______________________________________________________________________________
@@ -539,28 +570,28 @@ void ArgusWindow::SetSubWindowRunningAt(Int_t i, Bool_t running)
 }
 
 //______________________________________________________________________________
-const char* ArgusWindow::GetTimeStatisticsString(ROMEString& string)
+const char* ArgusWindow::GetTimeStatisticsString(ROMEString& str1)
 {
    Int_t iTab;
    const Int_t nTabs = fTabObjects->GetEntriesFast();
    Int_t iSub;
    const Int_t nSubs = fSubWindows->GetEntriesFast();
-   ROMEString str;
+   ROMEString str2, str3;
    if (fTabWindow) {
-      string.SetFormatted("main window........................ : %s  %s\n",
-                          fWatchAll.GetRealTimeString(str), fWatchAll.GetCpuTimeString(str));
+      str1.SetFormatted("main window........................ : %s  %s\n",
+                          fWatchAll.GetRealTimeString(str2), fWatchAll.GetCpuTimeString(str3));
    } else {
-      string.SetFormatted("sub window %3d..................... : %s  %s\n", fWindowId,
-                          fWatchAll.GetRealTimeString(str), fWatchAll.GetCpuTimeString(str));
+      str1.SetFormatted("sub window %3d..................... : %s  %s\n", fWindowId,
+                          fWatchAll.GetRealTimeString(str2), fWatchAll.GetCpuTimeString(str3));
    }
    for (iTab = 0; iTab < nTabs; iTab++) {
-      static_cast<ArgusTab*>(fTabObjects->At(iTab))->GetTimeStatisticsString(str);
-      string.AppendFormatted(str.Data());
+      static_cast<ArgusTab*>(fTabObjects->At(iTab))->GetTimeStatisticsString(str2);
+      str1.AppendFormatted(str2.Data());
    }
    for (iSub = 0; iSub < nSubs; iSub++) {
-      string.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str));
+      str1.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str2));
    }
-   return string.Data();
+   return str1.Data();
 }
 
 //______________________________________________________________________________

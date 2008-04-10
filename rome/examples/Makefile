@@ -1,9 +1,16 @@
 -include ../Makefile.arch
 
 RESTRICT_TEST = yes
+MEMORY_TEST   = no
 
 # parallel job option
 #JOBSFLAG = -j2
+
+ifeq ($(MEMORY_TEST), yes)
+   VALGRIND ?= valgrind --suppressions=${ROOTSYS}/etc/valgrind-root.supp --tool=memcheck --leak-check=yes
+else
+   VALGRIND =
+endif
 
 ifeq ($(RESTRICT_TEST), yes)
 OPT = -Wall -W -Werror
@@ -229,92 +236,92 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 
 check : remove $(ROMEProjects) $(ARGUSProjects) dbwrapper
 
-	cd romedbwrapper; ./test_c; ./test_f
+	cd romedbwrapper; $(VALGRIND) ./test_c; $(VALGRIND) ./test_f
 
-	cd multirun; ./mranalyzer.exe -i romeConfig.xml -q -nc
+	cd multirun; $(VALGRIND) ./mranalyzer.exe -i romeConfig.xml -q -nc
 
 	cd dbexample; \
 	cp sqlDataBase/RDBDataBase.sqlite3 .; \
-	./rdbframework.exe -i sqlite3Config.xml -q -r 1 -nc; \
+	$(VALGRIND) ./rdbframework.exe -i sqlite3Config.xml -q -r 1 -nc; \
 	mv -f RDBDataBase.sqlite3 sqlDataBase/; \
 
-	cd taskhierarchy; ./thexample.exe -i romeConfig.xml -q -e 0-9999 -r 1 -nc
+	cd taskhierarchy; $(VALGRIND) ./thexample.exe -i romeConfig.xml -q -e 0-9999 -r 1 -nc
 
-	cd netfolder; ./nfexample.exe -i singleProcessConfig.xml -q -e 0-19 -nc
+	cd netfolder; $(VALGRIND) ./nfexample.exe -i singleProcessConfig.xml -q -e 0-19 -nc
 
-	cd stepbystep;	./sbsanalyzer.exe -i romeConfig.xml -q -nc
+	cd stepbystep;	$(VALGRIND) ./sbsanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd tree_write_read; ./twrsample.exe -i writeTreeConfig.xml -q -nc
-	cd tree_write_read; ./twrsample.exe -i writeTreeWithFileName.xml -q -nc
-	cd tree_write_read; ./twrsample.exe -i readTreeConfig.xml -q -nc
-	cd tree_write_read; ./twrsample.exe -i readTreeWithFileName.xml -q -nc
+	cd tree_write_read; $(VALGRIND) ./twrsample.exe -i writeTreeConfig.xml -q -nc
+	cd tree_write_read; $(VALGRIND) ./twrsample.exe -i writeTreeWithFileName.xml -q -nc
+	cd tree_write_read; $(VALGRIND) ./twrsample.exe -i readTreeConfig.xml -q -nc
+	cd tree_write_read; $(VALGRIND) ./twrsample.exe -i readTreeWithFileName.xml -q -nc
 
-	cd tree_write_read2; ./twr2sample.exe -i writeTreeConfig.xml -q -e 0-9 -nc
-	cd tree_write_read2; ./twr2sample.exe -i readTreeConfig.xml -q -nc
+	cd tree_write_read2; $(VALGRIND) ./twr2sample.exe -i writeTreeConfig.xml -q -e 0-9 -nc
+	cd tree_write_read2; $(VALGRIND) ./twr2sample.exe -i readTreeConfig.xml -q -nc
 
-	cd tree_write_read3; ./twr3sample.exe -i writeTreeConfig.xml -q -e 0-9 -nc
-	cd tree_write_read3; ./twr3sample.exe -i readTreeConfig.xml -q -nc
+	cd tree_write_read3; $(VALGRIND) ./twr3sample.exe -i writeTreeConfig.xml -q -e 0-9 -nc
+	cd tree_write_read3; $(VALGRIND) ./twr3sample.exe -i readTreeConfig.xml -q -nc
 
-	cd stepbystephisto; ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99 -nc
+	cd stepbystephisto; $(VALGRIND) ./sbshanalyzer.exe -i romeConfig.xml -q -e 0-99 -nc
 
-	cd histoGUI; ./hguiexample.exe -i romeConfig.xml -q -e 0-9 -nc
-	cd histoGUI; ./hguiexample.exe -i histoReadConfig.xml -q -e 0-9 -nc
+	cd histoGUI; $(VALGRIND) ./hguiexample.exe -i romeConfig.xml -q -e 0-9 -nc
+	cd histoGUI; $(VALGRIND) ./hguiexample.exe -i histoReadConfig.xml -q -e 0-9 -nc
 
-	cd stepbystepdbdaq; ./sdaqanalyzer.exe -i xmlConfig.xml -q -nc
+	cd stepbystepdbdaq; $(VALGRIND) ./sdaqanalyzer.exe -i xmlConfig.xml -q -nc
 
-	cd stepbystepmydaq; ./smdanalyzer.exe -i romeConfig.xml -q -nc -e 0-99
+	cd stepbystepmydaq; $(VALGRIND) ./smdanalyzer.exe -i romeConfig.xml -q -nc -e 0-99
 
-	cd runheader; ./runhanalyzer.exe -i writeConfig.xml -q -b -nc && \
-	./runhanalyzer.exe -i readConfig.xml -q -nc
+	cd runheader; $(VALGRIND) ./runhanalyzer.exe -i writeConfig.xml -q -b -nc && \
+	$(VALGRIND) ./runhanalyzer.exe -i readConfig.xml -q -nc
 
-	cd rootDAQ; root -b -q treeCreationMakro.C+; ./rdaqanalyzer.exe -i romeConfig.xml -q -nc
+	cd rootDAQ; root -b -q treeCreationMakro.C+; $(VALGRIND) ./rdaqanalyzer.exe -i romeConfig.xml -q -nc
 
-	cd midas; ./midanalyzer.exe -i romeConfig.xml -q -m offline -nc -e 0-99
+	cd midas; $(VALGRIND) ./midanalyzer.exe -i romeConfig.xml -q -m offline -nc -e 0-99
 
-	cd taskhierarchyandhistos; ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
+	cd taskhierarchyandhistos; $(VALGRIND) ./thhexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 
-	cd taskhierarchydependence; ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
-	cd taskhierarchydependence; ./thexample.exe -i romeConfig2nd.xml -q -r 1 -ng
+	cd taskhierarchydependence; $(VALGRIND) ./thexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
+	cd taskhierarchydependence; $(VALGRIND) ./thexample.exe -i romeConfig2nd.xml -q -r 1 -ng
 
 #	cd displayobjects; ./doexample.exe -i romeConfig.xml -q -e 0-99 -r 1 -nc
 
-	cd macros; ./mcranalyzer.exe -i romeConfig.xml -q -nc
+	cd macros; $(VALGRIND) ./mcranalyzer.exe -i romeConfig.xml -q -nc
 
-	cd cutg; ./tcutgexample.exe -i romeConfig.xml -q -e 0-9 -nc
+	cd cutg; $(VALGRIND) ./tcutgexample.exe -i romeConfig.xml -q -e 0-9 -nc
 
-	cd basefolder; ./bfsample.exe -i romeConfig.xml -q -nc
+	cd basefolder; $(VALGRIND) ./bfsample.exe -i romeConfig.xml -q -nc
 
-	cd message; ./msganalyzer.exe -i romeConfig.xml -q -nc
+	cd message; $(VALGRIND) ./msganalyzer.exe -i romeConfig.xml -q -nc
 
-	cd reference; ./refanalyzer.exe -i writeConfig.xml -q -nc
-	cd reference; ./refanalyzer.exe -i readConfig.xml -q -nc
+	cd reference; $(VALGRIND) ./refanalyzer.exe -i writeConfig.xml -q -nc
+	cd reference; $(VALGRIND) ./refanalyzer.exe -i readConfig.xml -q -nc
 
-	cd argus/file; ./flmonitor.exe -i romeConfig.xml -q -e 0-99 -nc
+	cd argus/file; $(VALGRIND) ./flmonitor.exe -i romeConfig.xml -q -e 0-99 -nc
 
-	cd argus/timer; ./ttmonitor.exe -i romeConfig.xml -q -nc & \
+	cd argus/timer; $(VALGRIND) ./ttmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 ttmonitor.exe
 
-	cd argus/processMessage; ./pmmonitor.exe -i romeConfig.xml -q -nc & \
+	cd argus/processMessage; $(VALGRIND) ./pmmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 pmmonitor.exe
 
-	cd argus/menu; ./tmmonitor.exe -i romeConfig.xml -q -nc & \
+	cd argus/menu; $(VALGRIND) ./tmmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 tmmonitor.exe
 
-	cd argus/thread; ./ttmonitor.exe -i romeConfig.xml -q -nc & \
+	cd argus/thread; $(VALGRIND) ./ttmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 ttmonitor.exe
 
-	cd argus/tabs;	./tbmonitor.exe -i romeConfig.xml -q -nc & \
+	cd argus/tabs;	$(VALGRIND) ./tbmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 tbmonitor.exe
 
-	cd argus/helloWorld; ./hwmonitor.exe -i romeConfig.xml -q -nc & \
+	cd argus/helloWorld; $(VALGRIND) ./hwmonitor.exe -i romeConfig.xml -q -nc & \
 	sleep 10; killall -9 hwmonitor.exe
 
-	cd argus/histogram/romeproject; ./hgframework.exe -i romeConfig.xml -b & \
-	cd ..; ./hgmonitor.exe -i argusConfig.xml -q -p 3 -nc & sleep 10; killall -9 hgmonitor.exe; \
+	cd argus/histogram/romeproject; $(VALGRIND) ./hgframework.exe -i romeConfig.xml -b & \
+	cd ..; $(VALGRIND) ./hgmonitor.exe -i argusConfig.xml -q -p 3 -nc & sleep 10; killall -9 hgmonitor.exe; \
 	killall -9 hgframework.exe
 
-	cd argus/folders/romeproject; ./foframework.exe -i romeConfig.xml -b -r 1 & \
-	cd ..; ./fomonitor.exe -i argusConfig.xml -q -p 1 -nc & sleep 10; killall -9 fomonitor.exe; \
+	cd argus/folders/romeproject; $(VALGRIND) ./foframework.exe -i romeConfig.xml -b -r 1 & \
+	cd ..; $(VALGRIND) ./fomonitor.exe -i argusConfig.xml -q -p 1 -nc & sleep 10; killall -9 fomonitor.exe; \
 	killall -9 foframework.exe
 
 clean :

@@ -124,7 +124,8 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,
    fileName.Prepend(fDirectoryPath);
 
    // open file
-   fstream    fileStream(gSystem->ExpandPathName(fileName.Data()),ios::in);
+   gSystem->ExpandPathName(fileName);
+   fstream    fileStream(fileName.Data(), ios::in);
    if(!fileStream)
       return true;
 

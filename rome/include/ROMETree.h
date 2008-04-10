@@ -57,11 +57,22 @@ public:
 
    void        AllocateBranchActive(Int_t n);
    TTree      *GetTree() const { return fTree; }
+   void        DeleteTree() {
+#if 0
+      if (fTree) {
+         fTree->Delete("");
+      }
+      fTree = 0;
+#else
+      SafeDelete(fTree);
+#endif
+   }
    ROMEString &GetFileName() { return fFileName; }
    ROMEString &GetConfigInputFileName() { return fConfigInputFileName; }
    ROMEString &GetConfigOutputFileName() { return fConfigOutputFileName; }
    void        UpdateFilePointer() { fFile = fTree->GetCurrentFile(); }
    TFile      *GetFile() const { return fFile; }
+   void        DeleteFile() { SafeDelete(fFile); }
    Bool_t      IsFileOverWrite() const { return fFileOption == kOverWrite; }
    Bool_t      IsFileUpdate() const { return fFileOption == kUpdate; }
    Bool_t      isRead() const { return fSwitches.fRead != 0; }

@@ -68,6 +68,7 @@ protected:
    TObjArray               *fUserInfoObjects;      //!
    Bool_t                   fListTreeView;         //!
    TGListTree              *fListTree;             //!
+   Int_t                    fNListTreeItem;        //!
    TGListTreeItem         **fListTreeItem;         //!
    TGTab                   *fTab;                  //! tabs
    ROMECompositeFrame      *fMainFrame;            //! main frame

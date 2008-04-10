@@ -230,10 +230,14 @@ ROMEAnalyzer::~ROMEAnalyzer()
    SafeDelete(fSocketClientNetFolder);
    SafeDelete(fTaskObjects);
    SafeDelete(fMainTask);
+#if 0 /* this may be done by ROOT */
    SafeDelete(fMainFolder);
    SafeDelete(fMainHistoFolder);
+#endif
    SafeDelete(fHistoFiles);
+#if 0 /* this may be done by ROOT */
    SafeDelete(fHistoFolders);
+#endif
    SafeDelete(fWindow);
 
    Int_t i;

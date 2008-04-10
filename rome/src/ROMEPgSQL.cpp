@@ -25,7 +25,6 @@ ROMEPgSQL::ROMEPgSQL()
 
 //______________________________________________________________________________
 ROMEPgSQL::~ROMEPgSQL() {
-   FreeResult();
    DisConnect();
 }
 

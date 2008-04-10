@@ -36,7 +36,6 @@ ROMESQLite::ROMESQLite()
 
 //______________________________________________________________________________
 ROMESQLite::~ROMESQLite() {
-   FreeResult();
    DisConnect();
 }
 
@@ -49,7 +48,8 @@ Bool_t ROMESQLite::Connect(const char *server,const char * /*user*/,const char *
       filename += "/";
       filename += database;
    }
-   db = sqlite_open(gSystem->ExpandPathName(filename.Data()), fileOpenMode, &errmsg);
+   gSystem->ExpandPathName(filename);
+   db = sqlite_open(filename.Data(), fileOpenMode, &errmsg);
    if(errmsg){
       ROMEPrint::Error("ROMESQLite: %s\n", GetErrorMessage());
       DisConnect();

@@ -16,8 +16,8 @@ class ROMETreeInfo;
 
 class ROMERomeDAQ : public ROMEDAQSystem {
 protected:
-   TFile       **fRootFiles;                       //! Input Root files
-   ROMETree    **fROMETrees;                       //! Input ROME trees
+   TObjArray    *fRootFiles;                       //! Input Root files
+   TObjArray    *fROMETrees;                       //! Input ROME trees
    Int_t         fTreeIndex;                       //! Index of tree in current file
    Int_t         fInputFileNameIndex;              //! Index of current input file name
    ROMEString    fCurrentTreeName;                 //! Name of the current tree
