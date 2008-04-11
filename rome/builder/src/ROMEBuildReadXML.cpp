@@ -935,26 +935,29 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                                taskHierarchyParentIndex[i] == taskHierarchyParentIndex[numOfTaskHierarchy])
                               taskHierarchyMultiplicity[numOfTaskHierarchy]++;
                         }
-                        if (!taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]])
+                        if (!taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]]) {
                            numOfTaskHierarchy--;
+                        }
                      }
                      if (type == 1 && !strcmp(name,"TaskConnectedFrom")) {
                         if (firstTaskHierarchyConnectedFrom) {
                            firstTaskHierarchyConnectedFrom = kFALSE;
                            numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] = 0;
                         }
-                        if (numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] == 2 * maxNumberOfTasks) {
-                           cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
-                                 taskHierarchyName[numOfTaskHierarchy].Data()<<"' reached : "<<
-                                 2 * maxNumberOfTasks<<" !"<<endl;
-                           cout<<"Terminating program."<<endl;
-                           return false;
+                        if (taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]]) {
+                           if (numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] == 2 * maxNumberOfTasks) {
+                              cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
+                                    taskHierarchyName[numOfTaskHierarchy].Data()<<"' reached : "<<
+                                    2 * maxNumberOfTasks<<" !"<<endl;
+                              cout<<"Terminating program."<<endl;
+                              return false;
+                           }
+                           xml->GetValue(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
+                                         "");
+                           FormatText(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
+                                      kTRUE);
+                           numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]++;
                         }
-                        xml->GetValue(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
-                                      "");
-                        FormatText(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
-                                   kTRUE);
-                        numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]++;
                      }
                      if (type == 1 && !strcmp(name,"Task")) {
                         depth++;
