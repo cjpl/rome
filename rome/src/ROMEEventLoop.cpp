@@ -328,6 +328,23 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       gROME->GetNetFolderServer()->SetCopyAll(true);
    }
 
+   // Terminate
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      if (!this->DAQTerminate()) {
+         gROME->SetTerminationFlag();
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return;
+      }
+      ROMEPrint::Debug("Executing Terminate tasks\n");
+      ExecuteTasks("Terminate");
+      CleanTasks();
+   }
+
+   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+      fUpdateWindow = false;
+//      gROME->GetWindow()->TriggerEventHandler();
+   }
+
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
@@ -345,22 +362,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          ROMEPrint::Print("\n");
       }
       ExecuteTasks("PrintSkipped");
-      CleanTasks();
-   }
-   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
-      fUpdateWindow = false;
-//      gROME->GetWindow()->TriggerEventHandler();
-   }
-
-   // Terminate
-   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      if (!this->DAQTerminate()) {
-         gROME->SetTerminationFlag();
-         ROMEPrint::Print("\n\nTerminating Program !\n");
-         return;
-      }
-      ROMEPrint::Debug("Executing Terminate tasks\n");
-      ExecuteTasks("Terminate");
       CleanTasks();
    }
 
