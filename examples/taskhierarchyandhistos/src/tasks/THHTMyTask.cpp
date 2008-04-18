@@ -15,6 +15,8 @@
 //                                                                            //
 // This task contains the following histgrams :                               //
 //    MyHisto                                                                 //
+// This task contains the following graphs :                                  //
+//    MyGraph                                                                 //
 //                                                                            //
 // The histograms/graph are created and saved automaticaly by the task.       //
 //                                                                            //
@@ -62,6 +64,18 @@ void THHTMyTask::Event()
    GetMyHistoAt(0)->Fill(gRandom->Gaus(GetSP()->GetMeanValue(),10));
    GetMyHistoAt(1)->Fill(gRandom->Gaus(GetSP()->GetMeanValue(),20));
    GetMyHistoAt(2)->Fill(gRandom->Gaus(GetSP()->GetMeanValue(),30));
+
+   Double_t x[200];
+   Double_t y[200];
+   Int_t i;
+   for (i = 0; i < 200; i++) {
+      x[i] =  0.5 * i;
+      y[i] = gRandom->Rndm();
+   }
+   GetMyGraph()->Set(200);
+   memcpy(GetMyGraph()->GetX(), x, sizeof(Double_t) * 200);
+   memcpy(GetMyGraph()->GetY(), y, sizeof(Double_t) * 200);
+   GetMyGraph()->GetXaxis()->SetLimits(-200, 200);
 }
 
 void THHTMyTask::EndOfRun()
