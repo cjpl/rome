@@ -6,6 +6,7 @@
 
 ********************************************************************/
 #include <vector>
+#include <memory>
 #include <Riostream.h>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
