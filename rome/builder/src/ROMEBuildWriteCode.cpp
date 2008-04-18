@@ -180,7 +180,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("   return true;\n");
       buffer.AppendFormatted("}\n\n");
 
-      // Equal operator
+      // Assignment operator
       buffer.Append(kMethodLine);
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("%s%s_Base& %s%s_Base::operator=(const %s%s_Base &rhs)\n",
@@ -194,7 +194,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                 shortCut.Data(),folderName[iFold].Data());
       }
       buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   // Equal operator.\n");
+      buffer.AppendFormatted("   // Assignment operator.\n");
       buffer.AppendFormatted("   // Warning! All fields may not be copied.\n");
       buffer.AppendFormatted("   if (this == &rhs) return *this;\n");
 
@@ -1193,6 +1193,15 @@ Bool_t ROMEBuilder::WriteFolderH()
          }
       }
 
+      // When user code, we put virtual for methods.
+      const char *virtualKwd;
+      if (folderUserCode[iFold]) {
+         virtualKwd = "virtual ";
+      } else {
+         virtualKwd = "";
+      }
+
+
       // File name
       if (folderUserCode[iFold]) {
          hFile.SetFormatted("%sinclude/generated/%s%s_Base.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
@@ -1433,7 +1442,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                                 shortCut.Data(), folderName[iFold].Data(), shortCut.Data(), folderName[iFold].Data());
       }
 
-      // Equal operator
+      // Assignment operator
       buffer.AppendFormatted("   // Warning! All fields may not be copied.\n");
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("   %s%s_Base& operator=(const %s%s_Base &c);\n",
@@ -1449,101 +1458,105 @@ Bool_t ROMEBuilder::WriteFolderH()
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueDimension[iFold][i] > 0) {
             if (valueType[iFold][i] == "TRef") {
-               buffer.AppendFormatted("   %-*s  Get%sAt(Int_t indx);\n", typeLen, "TRef*", valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %-*s  Get%sObjAt(Int_t indx) const;\n", typeLen, "TObject*", valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx);\n", virtualKwd, typeLen, "TRef*",
+                                      valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %s%-*s  Get%sObjAt(Int_t indx) const;\n", virtualKwd, typeLen,
+                                      "TObject*", valueName[iFold][i].Data());
                if (valueArray[iFold][i][0] == "variable") {
-                  buffer.AppendFormatted("   %-*s  Get%sSize() const%*s { return %sSize;%*s }\n", typeLen,
+                  buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %sSize;%*s }\n", virtualKwd, typeLen,
                                          "Int_t", valueName[iFold][i].Data(), lb, "",
                                          valueName[iFold][i].Data(), lb, "");
                }
             } else if (valueType[iFold][i] == "TRefArray") {
-               buffer.AppendFormatted("   %-*s* Get%sAt(Int_t indx) const;\n", typeLen, "TObject", valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %-*s  Get%s() %*s { return &%s;%*s }\n",
+               buffer.AppendFormatted("   %s%-*s* Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, "TObject", valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %s%-*s  Get%s() %*s { return &%s;%*s }\n", virtualKwd,
                                       typeLen, "TRefArray*", valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(),lb, "");
-               buffer.AppendFormatted("   %-*s  Get%sSize() const%*s { return %s.GetEntriesFast();%*s }\n", typeLen,
+               buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %s.GetEntriesFast();%*s }\n", virtualKwd, typeLen,
                                       "Int_t", valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "");
             } else if (isFolder(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %-*s* Get%sAt(Int_t indx) const;\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s* Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %-*s  Get%s() const%*s { return %s;%*s }\n",typeLen, "TClonesArray*",
+               buffer.AppendFormatted("   %s%-*s  Get%s() const%*s { return %s;%*s }\n", virtualKwd, typeLen, "TClonesArray*",
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "");
-               buffer.AppendFormatted("   %-*s  Get%sSize() const%*s { return %s->GetEntriesFast();%*s }\n",
+               buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %s->GetEntriesFast();%*s }\n", virtualKwd,
                                       typeLen, "Int_t", valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(),
                                       lb, "");
             } else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
-               buffer.AppendFormatted("   %-*s  Get%sAt(Int_t indx) const%*s { return %s%sAt(indx);%*s }\n",
+               buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx) const%*s { return %s%sAt(indx);%*s }\n", virtualKwd,
                                       typeLen, TArray2StandardType(valueType[iFold][i],tempBuffer),
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), Relation(valueType[iFold][i]), lb, "");
                if (valueType[iFold][i].ContainsFast("*")) {
-                  buffer.AppendFormatted("   %-*s  Get%s() const%*s { return %s;%*s }\n",
+                  buffer.AppendFormatted("   %s%-*s  Get%s() const%*s { return %s;%*s }\n", virtualKwd,
                                          typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data(), lb, "",
                                          valueName[iFold][i].Data(), lb, "");
                }
-               buffer.AppendFormatted("   %-*s  Get%sSize() const%*s { return %s%sGetSize();%*s }\n",
+               buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %s%sGetSize();%*s }\n", virtualKwd,
                                       typeLen, "Int_t", valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), Relation(valueType[iFold][i]), lb, "");
-               buffer.AppendFormatted("   %-*s  Get%sCopy(Int_t n,%s* arrayToCopy) const;\n",
+               buffer.AppendFormatted("   %s%-*s  Get%sCopy(Int_t n,%s* arrayToCopy) const;\n", virtualKwd,
                                       typeLen, "void", valueName[iFold][i].Data(),
                                       TArray2StandardType(valueType[iFold][i],tempBuffer));
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %-*s* Get%sAt(", typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data());
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %s%-*s* Get%sAt(", virtualKwd, typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               }
                buffer.Resize(buffer.Length()-2);
                buffer.AppendFormatted(");\n");
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %-*s  Get%sAt(Int_t indx) const;\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
             } else if (valueArray[iFold][i][0] == "variable") {
-               buffer.AppendFormatted("   %-*s  Get%sAt(Int_t indx) const;\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %-*s* Get%s() const%*s { return %s;%*s }\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s* Get%s() const%*s { return %s;%*s }\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
-               buffer.AppendFormatted("   %-*s  Get%sSize() const%*s { return %sSize;%*s }\n", typeLen,
+               buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %sSize;%*s }\n", virtualKwd, typeLen,
                                       "Int_t", valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
-               buffer.AppendFormatted("   %-*s  Get%sCopy(Int_t n,%s* array) const;\n", typeLen,
+               buffer.AppendFormatted("   %s%-*s  Get%sCopy(Int_t n,%s* array) const;\n", virtualKwd, typeLen,
                                       "void", valueName[iFold][i].Data(), valueType[iFold][i].Data());
             } else {
-               buffer.AppendFormatted("   %-*s  Get%sAt(", typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data());
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %s%-*s  Get%sAt(", virtualKwd, typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               }
                buffer.Resize(buffer.Length()-2);
                buffer.AppendFormatted(") const;\n");
-               buffer.AppendFormatted("   %-*s* Get%s()%*s { return &%s", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s* Get%s()%*s { return &%s", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data());
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                   buffer.AppendFormatted("[0]");
                buffer.AppendFormatted(";%*s }\n", lb, "");
-               buffer.AppendFormatted("   %-*s  Get%sCopy(Int_t n,%s* array) const;\n", typeLen,
+               buffer.AppendFormatted("   %s%-*s  Get%sCopy(Int_t n,%s* array) const;\n", virtualKwd, typeLen,
                                       "void", valueName[iFold][i].Data(), valueType[iFold][i].Data());
             }
          } else {
             if (isFolder(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %-*s* Get%s()%*s { return &%s;%*s }\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s* Get%s()%*s { return &%s;%*s }\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
             } else if (valueType[iFold][i] == "TRef") {
-               buffer.AppendFormatted("   %-*s* Get%s() %*s { return &%s;%*s }\n", typeLen, "TRef",
+               buffer.AppendFormatted("   %s%-*s* Get%s() %*s { return &%s;%*s }\n", virtualKwd, typeLen, "TRef",
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
-               buffer.AppendFormatted("   %-*s* Get%sObj() const%*s { return %s.GetObject();%*s }\n", typeLen, "TObject",
+               buffer.AppendFormatted("   %s%-*s* Get%sObj() const%*s { return %s.GetObject();%*s }\n", virtualKwd, typeLen, "TObject",
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %-*s* Get%s()%*s { return &%s;%*s }\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s* Get%s()%*s { return &%s;%*s }\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
             } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %-*s  Get%s() const%*s { return %s;%*s }\n", typeLen, valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   %s%-*s  Get%s() const%*s { return %s;%*s }\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
             } else {
-               buffer.AppendFormatted("   %-*s  Get%s() const%*s { return %s;%*s }\n",
+               buffer.AppendFormatted("   %s%-*s  Get%s() const%*s { return %s;%*s }\n", virtualKwd,
                                       typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
             }
@@ -1564,7 +1577,8 @@ Bool_t ROMEBuilder::WriteFolderH()
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueDimension[iFold][i] == 0) {
             if (valueType[iFold][i] == "TRef") {
-               buffer.AppendFormatted("   void Set%s%*s(%-*s %s_value%*s) { %s%*s = %s_value;%*s SetModified(true); }\n",
+               buffer.AppendFormatted("   %svoid Set%s%*s(%-*s %s_value%*s) { %s%*s = %s_value;%*s SetModified(true); }\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", typeLen, "TObject*",
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
@@ -1578,67 +1592,80 @@ Bool_t ROMEBuilder::WriteFolderH()
                   buffer.AppendFormatted("   // in %s class but %s has pointer data member.\n",
                                          valueType[iFold][i].Data(), valueType[iFold][i].Data());
                }
-               buffer.AppendFormatted("   void Set%s%*s(%-*s %s_value%*s) { %s%*s = %s_value;%*s SetModified(true); }\n",
+               buffer.AppendFormatted("   %svoid Set%s%*s(%-*s %s_value%*s) { %s%*s = %s_value;%*s SetModified(true); }\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
             }
          } else {
             if (valueType[iFold][i] == "TRef") {
-               buffer.AppendFormatted("   void Set%sAt%*s(", valueName[iFold][i].Data(), lb, "");
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %svoid Set%sAt%*s(", virtualKwd, valueName[iFold][i].Data(), lb, "");
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               }
                buffer.AppendFormatted("%-*s %s_value);\n", typeLen, "TObject*", valueName[iFold][i].Data());
             } else if (valueType[iFold][i] == "TRefArray") {
-               buffer.AppendFormatted("   void Set%sAt%*s(Int_t indx, TObject* %s_value%*s) { %s%sAddAt(%s_value,indx)%*s;%*s SetModified(true); }\n",
+               buffer.AppendFormatted("   %svoid Set%sAt%*s(Int_t indx, TObject* %s_value%*s) { %s%sAddAt(%s_value,indx)%*s;%*s SetModified(true); }\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(),
                                       lb, "", valueName[iFold][i].Data(), Relation(valueType[iFold][i]),
                                       valueName[iFold][i].Data(), lb, "", lb, "");
-               buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %s%sExpand(number);\n",valueName[iFold][i].Data(),Relation(valueType[iFold][i]));
+               buffer.AppendFormatted("   %svoid Set%sSize(Int_t number) {\n", virtualKwd, valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s%sExpand(number);\n", valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   }\n");
             } else if (isFolder(valueType[iFold][i].Data())) {
-               if (valueArray[iFold][i][0] != "variable")
+               if (valueArray[iFold][i][0] != "variable") {
                   buffer.AppendFormatted("private:\n");
+               }
                tmp = valueType[iFold][i];
                tmp.ReplaceAll("*","");
-               buffer.AppendFormatted("   void Set%sSize(Int_t number);\n",valueName[iFold][i].Data());
-               if (valueArray[iFold][i][0] != "variable")
+               buffer.AppendFormatted("   %svoid Set%sSize(Int_t number);\n", virtualKwd, valueName[iFold][i].Data());
+               if (valueArray[iFold][i][0] != "variable") {
                   buffer.AppendFormatted("public:\n");
+               }
             } else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
-               buffer.AppendFormatted("   void Set%sAt%*s(Int_t indx,%-*s %s_value%*s) { %s%sAddAt(%s_value,indx)%*s;%*s SetModified(true); }\n",
+               buffer.AppendFormatted("   %svoid Set%sAt%*s(Int_t indx,%-*s %s_value%*s) { %s%sAddAt(%s_value,indx)%*s;%*s SetModified(true); }\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", typeLen,TArray2StandardType(valueType[iFold][i], tempBuffer),
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), Relation(valueType[iFold][i]),
                                       valueName[iFold][i].Data(), lb, "", lb, "");
-               buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %s%sSet(number);\n",valueName[iFold][i].Data(),Relation(valueType[iFold][i]));
+               buffer.AppendFormatted("   %svoid Set%sSize(Int_t number) {\n", virtualKwd, valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s%sSet(number);\n", valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   }\n");
-               buffer.AppendFormatted("   %-*s  Set%sCopy(Int_t n, const %s* array);\n",
+               buffer.AppendFormatted("   %s%-*s  Set%sCopy(Int_t n, const %s* array);\n",
+                                      virtualKwd,
                                       typeLen, "void", valueName[iFold][i].Data(),
                                       TArray2StandardType(valueType[iFold][i], tempBuffer));
             } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())) {
                continue;
             } else if (valueArray[iFold][i][0] == "variable") {
-               buffer.AppendFormatted("   void Set%sAt%*s(Int_t indx,%-*s %s_value);\n",valueName[iFold][i].Data(), lb, "",
+               buffer.AppendFormatted("   %svoid Set%sAt%*s(Int_t indx,%-*s %s_value);\n", virtualKwd,
+                                      valueName[iFold][i].Data(), lb, "",
                                       typeLen, valueType[iFold][i].Data(), valueName[iFold][i].Data());
-               buffer.AppendFormatted("   void Set%s%*s(%-*s* %s_value%*s) { %s = %s_value%*s;%*s SetModified(true); }\n",
+               buffer.AppendFormatted("   %svoid Set%s%*s(%-*s* %s_value%*s) { %s = %s_value%*s;%*s SetModified(true); }\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", typeLen - 1, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "", lb, "");
-               buffer.AppendFormatted("   void Set%sSize(Int_t number, Bool_t copyOldData = kFALSE, Bool_t fillZero = kFALSE);\n",
+               buffer.AppendFormatted("   %svoid Set%sSize(Int_t number, Bool_t copyOldData = kFALSE, Bool_t fillZero = kFALSE);\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %-*s  Set%sCopy(Int_t n, const %s* array);\n", typeLen, "void",
+               buffer.AppendFormatted("   %s%-*s  Set%sCopy(Int_t n, const %s* array);\n",
+                                      virtualKwd, typeLen, "void",
                                       valueName[iFold][i].Data(), valueType[iFold][i].Data());
             } else {
-               buffer.AppendFormatted("   void Set%sAt%*s(", valueName[iFold][i].Data(), lb, "");
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %svoid Set%sAt%*s(", virtualKwd, valueName[iFold][i].Data(), lb, "");
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               }
                buffer.AppendFormatted("%-*s %s_value);\n", typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %-*s  Set%sCopy(Int_t n, const %s* array);\n",
+               buffer.AppendFormatted("   %s%-*s  Set%sCopy(Int_t n, const %s* array);\n",
+                                      virtualKwd,
                                       typeLen, "void", valueName[iFold][i].Data(),
                                       TArray2StandardType(valueType[iFold][i],tempBuffer));
             }
@@ -1653,19 +1680,22 @@ Bool_t ROMEBuilder::WriteFolderH()
          }
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueDimension[iFold][i] == 0) {
-            buffer.AppendFormatted("   void Add%s%*s(%-*s %s_value%*s) { %s%*s += %s_value;%*s SetModified(true); }\n",
+            buffer.AppendFormatted("   %svoid Add%s%*s(%-*s %s_value%*s) { %s%*s += %s_value;%*s SetModified(true); }\n",
+                                   virtualKwd,
                                    valueName[iFold][i].Data(), lb, "", typeLen, valueType[iFold][i].Data(),
                                    valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "",
                                    valueName[iFold][i].Data(), lb, "");
          } else {
             if (isTArrayType(valueType[iFold][i])) {
-               buffer.AppendFormatted("   void Add%sAt%*s(Int_t indx,%-*s %s_value);\n",
+               buffer.AppendFormatted("   %svoid Add%sAt%*s(Int_t indx,%-*s %s_value);\n",
+                                      virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", typeLen,
                                       TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data());
             } else {
-               buffer.AppendFormatted("   void Add%sAt(",valueName[iFold][i].Data());
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %svoid Add%sAt(", virtualKwd, valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               }
                buffer.AppendFormatted("%-*s %s_value);\n",typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
             }
@@ -1693,13 +1723,15 @@ Bool_t ROMEBuilder::WriteFolderH()
       // Set All
       if (folderInheritName[iFold].Length() == 0) { // only base class can have SetAll
          if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
-            buffer.AppendFormatted("   void SetAll( ");
+            buffer.AppendFormatted("   %svoid SetAll( ", virtualKwd);
             for (i = 0; i < numOfValue[iFold]; i++) {
-               if (isFolder(valueType[iFold][i].Data()))
+               if (isFolder(valueType[iFold][i].Data())) {
                   continue;
+               }
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
-                   valueType[iFold][i] != "TRef")
+                   valueType[iFold][i] != "TRef") {
                   continue;
+               }
                if (valueDimension[iFold][i] == 0) {
                   if (valueType[iFold][i] == "TRef") {
                      buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),
@@ -1730,28 +1762,30 @@ Bool_t ROMEBuilder::WriteFolderH()
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (valueDimension[iFold][i] > 0) {
             if (isFolder(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   Bool_t %sBoundsOk(const char* where, Int_t at) const;\n",
-                                      valueName[iFold][i].Data());
-               buffer.AppendFormatted("   Bool_t %sOutOfBoundsError(const char* where, Int_t i) const;\n",
-                                      valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %sBool_t %sBoundsOk(const char* where, Int_t at) const;\n",
+                                      virtualKwd, valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %sBool_t %sOutOfBoundsError(const char* where, Int_t i) const;\n",
+                                      virtualKwd, valueName[iFold][i].Data());
             } else if (valueArray[iFold][i][0] == "variable") {
-               buffer.AppendFormatted("   Bool_t %sBoundsOk(const char* where, Int_t at) const;\n",
-                                      valueName[iFold][i].Data());
-               buffer.AppendFormatted("   Bool_t %sOutOfBoundsError(const char* where, Int_t i) const;\n",
-                                      valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %sBool_t %sBoundsOk(const char* where, Int_t at) const;\n",
+                                      virtualKwd, valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %sBool_t %sOutOfBoundsError(const char* where, Int_t i) const;\n",
+                                      virtualKwd, valueName[iFold][i].Data());
             } else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
             } else if (valueType[iFold][i] == "TRefArray") {
                // TRefArray itself checks bounds.
             } else {
-               buffer.AppendFormatted("   Bool_t %sBoundsOk(const char* where, ",valueName[iFold][i].Data());
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %sBool_t %sBoundsOk(const char* where, ", virtualKwd, valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
-               buffer.Resize(buffer.Length()-2);
+               }
+               buffer.Resize(buffer.Length() - 2);
                buffer.AppendFormatted(") const;\n");
-               buffer.AppendFormatted("   Bool_t %sOutOfBoundsError(const char* where,",valueName[iFold][i].Data());
-               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
+               buffer.AppendFormatted("   %sBool_t %sOutOfBoundsError(const char* where,", virtualKwd, valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted(" Int_t %c,",valueCounter[iDm]);
+               }
                buffer.Resize(buffer.Length() - 1);
                buffer.AppendFormatted(") const;\n");
             }
@@ -1845,7 +1879,7 @@ Bool_t ROMEBuilder::WriteFolderH()
          buffer.Resize(buffer.Length() - 1);
 #endif
          buffer.AppendFormatted(" ) {}\n");
-         // Equal operator
+         // Assignment operator
          buffer.AppendFormatted("   %s%s& operator=(const %s%s& /* c */) { /* Not implemented */ }\n",
                                 shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
 
