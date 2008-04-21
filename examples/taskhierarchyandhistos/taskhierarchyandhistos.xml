@@ -21,10 +21,6 @@
 				<GraphName>MyGraph</GraphName>
 				<GraphFolderName>mygraph</GraphFolderName>
 				<GraphType>TGraph</GraphType>
-				<GraphXLabel>X</GraphXLabel>
-				<GraphYLabel>Y</GraphYLabel>
-				<GraphXmin>-100</GraphXmin>
-				<GraphXmax>100</GraphXmax>
 			</Graph>
 			<SteeringParameters>
 				<SteeringParameterField>
