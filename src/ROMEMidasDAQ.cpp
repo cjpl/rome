@@ -771,7 +771,7 @@ Bool_t ROMEMidasDAQ::ActualReadODBOnline(ROMEStr2DArray *values, const char *dat
          } else {
             // array field
             iv = 0;
-            for (i = path->GetFieldIndexAt(0); i < path->GetFieldIndexAt(1); i += path->GetFieldIndexAt(2)) {
+            for (i = path->GetFieldIndexAt(0); i <= path->GetFieldIndexAt(1); i += path->GetFieldIndexAt(2)) {
                if (db_sprintf(value, fODBBuffer, buffersize, i, type) != CM_SUCCESS) {
                   errMsg.SetFormatted("Cannot read online database");
                   throw errMsg.Data();
@@ -920,7 +920,7 @@ Bool_t ROMEMidasDAQ::ActualWriteODBOnline(ROMEStr2DArray* values, const char * d
          } else {
             // array field
             iv = 0;
-            for (i = path->GetFieldIndexAt(0); i < path->GetFieldIndexAt(1); i += path->GetFieldIndexAt(2)) {
+            for (i = path->GetFieldIndexAt(0); i <= path->GetFieldIndexAt(1); i += path->GetFieldIndexAt(2)) {
                if (db_sscanf(const_cast<char*>(values->At(iv, 0).Data()), fODBBuffer, &buffersize, 0, type) != CM_SUCCESS) {
                   errMsg.SetFormatted("\nCannot write to online database\n");
                   throw errMsg.Data();
