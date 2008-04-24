@@ -14,7 +14,6 @@
 #include "ROMESQLite3.h"
 
 ClassImp(ROMESQLite3)
-
 //______________________________________________________________________________
 ROMESQLite3::ROMESQLite3()
 :ROMESQL()
@@ -29,22 +28,23 @@ ROMESQLite3::ROMESQLite3()
 }
 
 //______________________________________________________________________________
-ROMESQLite3::~ROMESQLite3() {
+ROMESQLite3::~ROMESQLite3()
+{
    DisConnect();
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::Connect(const char *server,const char * /*user*/,const char * /*passwd*/,
-                            const char *database,const char * /*port*/)
+Bool_t ROMESQLite3::Connect(const char *server, const char * /*user */ , const char * /*passwd */ ,
+                            const char *database, const char * /*port */ )
 {
    TString filename = server;
-   if(strlen(database) && strlen(server)){
+   if (strlen(database) && strlen(server)) {
       filename += "/";
       filename += database;
    }
    gSystem->ExpandPathName(filename);
    sqlite3_open(filename.Data(), &db);
-   if( GetErrorCode() != SQLITE_OK ){
+   if (GetErrorCode() != SQLITE_OK) {
       ROMEPrint::Error("ROMESQLite3: %s\n", GetErrorMessage());
       return false;
    }
@@ -60,7 +60,7 @@ Bool_t ROMESQLite3::DisConnect()
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
+Bool_t ROMESQLite3::MakeQuery(const char *query, Bool_t store)
 {
    if (strlen(query) < 2048) {
       ROMEPrint::Debug("\nROMESQLite3::MakeQuery : %s\n", query);
@@ -68,19 +68,18 @@ Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
       ROMEPrint::Debug("\nROMESQLite3::MakeQuery : Printing sql query is suppressed,"
                        " because query is longer than 2048.\n");
    }
-   if(store){
+   if (store) {
       sqlite3_prepare(db, query, -1, &stmt, NULL);
-      if(GetErrorCode() != SQLITE_OK){
+      if (GetErrorCode() != SQLITE_OK) {
          ROMEPrint::Error("%s\n", query);
          ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
          return false;
       }
-      if(!StoreResult()){
+      if (!StoreResult()) {
          ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
          return false;
       }
-   }
-   else if(sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK){
+   } else if (sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK) {
       ROMEPrint::Error("%s\n", query);
       ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
       return false;
@@ -91,36 +90,37 @@ Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
 //______________________________________________________________________________
 Bool_t ROMESQLite3::StoreResult()
 {
-   int i=0;
-   int j=0;
+   int i = 0;
+   int j = 0;
    int column_count;
 
-   while(sqlite3_step(stmt) != SQLITE_DONE){
-      switch (GetErrorCode()){
-         case SQLITE_BUSY:
-            gSystem->Sleep(1);
-            continue;
-            break;
-         case SQLITE_ROW:
-            column_count = sqlite3_column_count(stmt);
-            for (i=0; i < column_count; i++) {
-               result.SetAt(reinterpret_cast<const char*>(sqlite3_column_text(stmt,i)),i,j);
-            }
-            j++;
-            break;
-         default:
-            return false;
+   while (sqlite3_step(stmt) != SQLITE_DONE) {
+      switch (GetErrorCode()) {
+      case SQLITE_BUSY:
+         gSystem->Sleep(1);
+         continue;
+         break;
+      case SQLITE_ROW:
+         column_count = sqlite3_column_count(stmt);
+         for (i = 0; i < column_count; i++) {
+            result.SetAt(reinterpret_cast < const char *>(sqlite3_column_text(stmt, i)), i, j);
+         }
+         j++;
+         break;
+      default:
+         return false;
       }
    }
    numOfFields = i;
-   numOfRows   = j;
-   currentRow  = -1;
+   numOfRows = j;
+   currentRow = -1;
    return true;
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::NextRow() {
-   if(currentRow+1 >= GetNumberOfRows()){
+Bool_t ROMESQLite3::NextRow()
+{
+   if (currentRow + 1 >= GetNumberOfRows()) {
       ROMEPrint::Error("NextRow error : You have tried nonexistent row.\n");
       return false;
    }
@@ -129,45 +129,50 @@ Bool_t ROMESQLite3::NextRow() {
 }
 
 //______________________________________________________________________________
-const char* ROMESQLite3::GetField(Int_t fieldNumber) {
-   if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
+const char *ROMESQLite3::GetField(Int_t fieldNumber)
+{
+   if (fieldNumber < 0 || fieldNumber >= GetNumberOfFields()) {
       ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
-   return result.At(fieldNumber,currentRow).Data();
+   return result.At(fieldNumber, currentRow).Data();
 }
 
 //______________________________________________________________________________
-void ROMESQLite3::FreeResult() {
-   if(stmt){
+void ROMESQLite3::FreeResult()
+{
+   if (stmt) {
       sqlite3_finalize(stmt);
    }
    numOfFields = 0;
-   numOfRows   = 0;
-   currentRow  = 0;
+   numOfRows = 0;
+   currentRow = 0;
    result.RemoveAll();
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::StartTransaction( const char* option ){
+Bool_t ROMESQLite3::StartTransaction(const char *option)
+{
    TString sqlQuery = "BEGIN ";
    sqlQuery += option;
    sqlQuery += ";";
-   return MakeQuery(sqlQuery.Data(),false);
+   return MakeQuery(sqlQuery.Data(), false);
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::CommitTransaction( const char* option ){
+Bool_t ROMESQLite3::CommitTransaction(const char *option)
+{
    TString sqlQuery = "COMMIT ";
    sqlQuery += option;
    sqlQuery += ";";
-   return MakeQuery(sqlQuery.Data(),false);
+   return MakeQuery(sqlQuery.Data(), false);
 }
 
 //______________________________________________________________________________
-Bool_t ROMESQLite3::RollbackTransaction( const char* option ){
+Bool_t ROMESQLite3::RollbackTransaction(const char *option)
+{
    TString sqlQuery = "ROLLBACK ";
    sqlQuery += option;
    sqlQuery += ";";
-   return MakeQuery(sqlQuery.Data(),false);
+   return MakeQuery(sqlQuery.Data(), false);
 }
