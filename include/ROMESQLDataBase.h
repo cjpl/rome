@@ -58,6 +58,10 @@ public:
    const char  *GetType() const { return "sql"; }
    const char  *GetDescription() const { return "SQL data base using the file system to store tables"; }
 
+   Bool_t       Connect(const char* server,const char* user,const char* passwd,const char* database,const char* port) {
+      return fSQL->Connect(server, user, passwd, database, port);
+   }
+   Bool_t       DisConnect() { return fSQL->DisConnect(); }
    Bool_t       MakeQuery(const char* query,Bool_t store) const { return fSQL->MakeQuery(query,store); }
    Int_t        GetNumberOfRows() const { return fSQL->GetNumberOfRows(); }
    Bool_t       NextRow() const { return fSQL->NextRow(); }
