@@ -330,14 +330,14 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Terminate
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      ROMEPrint::Debug("Executing Terminate tasks\n");
+      ExecuteTasks("Terminate");
+      CleanTasks();
       if (!this->DAQTerminate()) {
          gROME->SetTerminationFlag();
          ROMEPrint::Print("\n\nTerminating Program !\n");
          return;
       }
-      ROMEPrint::Debug("Executing Terminate tasks\n");
-      ExecuteTasks("Terminate");
-      CleanTasks();
    }
 
    if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
@@ -443,14 +443,14 @@ Int_t ROMEEventLoop::RunEvent()
                }
                // Terminate
                if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+                  ROMEPrint::Debug("Executing Terminate tasks\n");
+                  ExecuteTasks("Terminate");
+                  CleanTasks();
                   if (!this->DAQTerminate()) {
                      gROME->SetTerminationFlag();
                      ROMEPrint::Print("\n\nTerminating Program !\n");
                      return false;
                   }
-                  ROMEPrint::Debug("Executing Terminate tasks\n");
-                  ExecuteTasks("Terminate");
-                  CleanTasks();
                }
                return kReturn;
             }
