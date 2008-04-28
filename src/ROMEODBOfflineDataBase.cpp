@@ -20,29 +20,31 @@ ClassImp(ROMEODBOfflineDataBase)
 ROMEODBOfflineDataBase::ROMEODBOfflineDataBase()
 :ROMEDataBase()
 ,fXML(new ROMEXML())
-{ 
+{
 }
 
 //______________________________________________________________________________
-ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase() {
+ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase()
+{
    SafeDelete(fXML);
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::Init(const char* name, const char* /*path*/, const char* /*connection*/) {
+Bool_t ROMEODBOfflineDataBase::Init(const char *name, const char * /*path */ , const char * /*connection */ )
+{
    fName = name;
    return true;
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::SetBuffer(const char *buffer) const
+Bool_t ROMEODBOfflineDataBase::SetBuffer(const char *buffer) const const
 {
    return fXML->OpenBufferForPath(buffer);
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBasePath, Long64_t /*runNumber*/,
-                                    Long64_t /*eventNumber*/)
+Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBasePath, Long64_t /*runNumber */ ,
+                                    Long64_t /*eventNumber */ )
 {
    ROMEString value;
    ROMEString path = dataBasePath;
@@ -54,11 +56,25 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBase
    }
    path += "/";
    odbPath = "odb/";
-   int ind = path.First('/');
-   while (ind!=-1) {
+
+   // remove () for array
+   Int_t ind = path.First('(');
+   Int_t ind2;
+   while (ind != -1) {
+      ind2 = path.Index(")", 1, ind, TString::kIgnoreCase);
+      if (ind2 == -1) {
+         // wrong path
+         break;
+      }
+      path.Remove(ind, ind2 - ind + 1);
+      ind = path.First('(');
+   }
+
+   ind = path.First('/');
+   while (ind != -1) {
       tmp = path(0, ind);
-      if (ind + 1< path.Length()) {
-         path = path(ind+1, path.Length());
+      if (ind + 1 < path.Length()) {
+         path = path(ind + 1, path.Length());
       } else {
          path = "";
       }
@@ -101,8 +117,9 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values, const char *dataBase
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray* /*values*/, const char* /*dataBasePath*/, Long64_t /*runNumber*/,
-                                     Long64_t /*eventNumber*/)
+Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray * /*values */ , const char * /*dataBasePath */ ,
+                                     Long64_t /*runNumber */ ,
+                                     Long64_t /*eventNumber */ )
 {
    return true;
 }
