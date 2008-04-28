@@ -30,21 +30,21 @@ ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::Init(const char *name, const char * /*path */ , const char * /*connection */ )
+Bool_t ROMEODBOfflineDataBase::Init(const char *name, const char * /* path */, const char * /* connection */ )
 {
    fName = name;
    return true;
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::SetBuffer(const char *buffer) const const
+Bool_t ROMEODBOfflineDataBase::SetBuffer(const char *buffer) const
 {
    return fXML->OpenBufferForPath(buffer);
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBasePath, Long64_t /*runNumber */ ,
-                                    Long64_t /*eventNumber */ )
+Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBasePath, Long64_t /* runNumber */,
+                                    Long64_t /* eventNumber */ )
 {
    ROMEString value;
    ROMEString path = dataBasePath;
@@ -117,9 +117,9 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBas
 }
 
 //______________________________________________________________________________
-Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray * /*values */ , const char * /*dataBasePath */ ,
-                                     Long64_t /*runNumber */ ,
-                                     Long64_t /*eventNumber */ )
+Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray * /* values */, const char * /* dataBasePath */,
+                                     Long64_t /* runNumber */,
+                                     Long64_t /* eventNumber */ )
 {
    return true;
 }
