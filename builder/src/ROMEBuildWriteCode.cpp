@@ -4128,7 +4128,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   if (gAnalyzer->IsProgramTerminated()) {\n");
       buffer.AppendFormatted("      ArgusEventHandler();\n");
       buffer.AppendFormatted("   }\n");
-
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
@@ -7642,10 +7641,15 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ROMEString XMLFile = file;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
-   buffer.AppendFormatted("   xml->OpenFileForPath(XMLFile);\n");
-   buffer.AppendFormatted("   xml->GetPathAttribute(\"/Configuration\",\"xsi:noNamespaceSchemaLocation\",fXSDFile,\"romeConfig.xsd\");\n");
-   buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml))\n");
-   buffer.AppendFormatted("      return false;\n");
+   buffer.AppendFormatted("   if (!xml->OpenFileForPath(XMLFile)) {\n");
+   buffer.AppendFormatted("      return kFALSE;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (!xml->GetPathAttribute(\"/Configuration\",\"xsi:noNamespaceSchemaLocation\",fXSDFile,\"romeConfig.xsd\")) {\n");
+   buffer.AppendFormatted("      return kFALSE;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml)) {\n");
+   buffer.AppendFormatted("      return kFALSE;\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   Int_t i;\n");
    buffer.AppendFormatted("   for (i = 0; i < fNumberOfRunConfigs + 1; i++)\n");
    buffer.AppendFormatted("      SafeDelete(fConfigData[i]);\n");
@@ -13032,8 +13036,13 @@ Bool_t ROMEBuilder::WriteVersionH()
             // This is maybe XML format (Subversion 1.3 or older)
             entryStream.close();
             ROMEXML *svnxml = new ROMEXML();
-            svnxml->OpenFileForPath(path.Data());
-            svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0");
+            if (!svnxml->OpenFileForPath(path.Data())) {
+               revNumber = "0";
+            } else {
+               if (!svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0")) {
+                  revNumber = "0";
+               }
+            }
             delete svnxml;
          }
       }
