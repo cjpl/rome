@@ -7644,9 +7644,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   if (!xml->OpenFileForPath(XMLFile)) {\n");
    buffer.AppendFormatted("      return kFALSE;\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (!xml->GetPathAttribute(\"/Configuration\",\"xsi:noNamespaceSchemaLocation\",fXSDFile,\"romeConfig.xsd\")) {\n");
-   buffer.AppendFormatted("      return kFALSE;\n");
-   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   xml->GetPathAttribute(\"/Configuration\",\"xsi:noNamespaceSchemaLocation\",fXSDFile,\"romeConfig.xsd\");");
    buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml)) {\n");
    buffer.AppendFormatted("      return kFALSE;\n");
    buffer.AppendFormatted("   }\n");

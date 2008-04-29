@@ -18,10 +18,6 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
       delete xml;
       return kFALSE;
    }
-   if (!xml->GetPathAttribute("ROMEFrameworkDefinition", "xsi:noNamespaceSchemaLocation", xsdFile, "rome.xsd")) {
-      delete xml;
-      return kFALSE;
-   }
 
    Int_t nfound;
    Int_t nfound2;

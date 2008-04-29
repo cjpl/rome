@@ -86,7 +86,6 @@ protected:
 
    ROMEString    outDir;
    ROMEString    xmlFile;
-   ROMEString    xsdFile;
    Bool_t        makeOutput;
    Bool_t        noLink;
    Bool_t        midas;
