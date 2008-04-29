@@ -14,8 +14,14 @@
 Bool_t ROMEBuilder::AllocateMemorySpace()
 {
    xml = new ROMEXML();
-   xml->OpenFileForPath(xmlFile.Data());
-   xml->GetPathAttribute("ROMEFrameworkDefinition", "xsi:noNamespaceSchemaLocation", xsdFile, "rome.xsd");
+   if (!xml->OpenFileForPath(xmlFile.Data())) {
+      delete xml;
+      return kFALSE;
+   }
+   if (!xml->GetPathAttribute("ROMEFrameworkDefinition", "xsi:noNamespaceSchemaLocation", xsdFile, "rome.xsd")) {
+      delete xml;
+      return kFALSE;
+   }
 
    Int_t nfound;
    Int_t nfound2;
