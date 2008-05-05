@@ -178,8 +178,7 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
          SetTableNameAt(nTable,subPath);
          SetTableAbsolutePathAt(nTable, static_cast<TString>(originalPath(0,abspathposition-1)).Data());
          continue;
-      }
-      else {
+      } else {
          if (indx==0) {
             ROMEPrint::Error("\nNo table name specified.\n");
             return false;
@@ -195,8 +194,7 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
 return false;
             }
             SetTableDBConstraintAt(nTable, static_cast<TString>(subPath(iat1+1,iat2-iat1-1)).Data());
-         }
-         else {
+         } else {
             if ((indx=subPath.Index("]",1,i1,TString::kExact))==-1) {
                ROMEPrint::Error("\nConstraint statement not closed in table '%s'.\n", GetTableNameAt(nTable));
                return false;
@@ -219,14 +217,17 @@ return false;
          for (int i=0;i<3;i++) {
             value = strtol(temp.Data(),&cstop,10);
             if (cstop==NULL) {
-               return true;
+               break;
             }
             if (*cstop!=',' && *cstop!=')') {
                ROMEPrint::Error("\nError in array statement.\n%s\n", dataBasePath);
                return false;
             }
-            SetOrderIndexAt(i,value);
+            SetOrderIndexAt(i, value);
             if (*cstop==')') {
+               if (GetOrderIndexAt(1)==-1) {
+                  SetOrderIndexAt(1,GetOrderIndexAt(0));
+               }
                break;
             }
             temp = temp(static_cast<int>(cstop+1-temp.Data()),temp.Length());
@@ -287,8 +288,7 @@ return false;
       SetFieldName(path);
       SetFieldArray(false);
       return true;
-   }
-   else {
+   } else {
       if (indx==0) {
          ROMEPrint::Error("\nNo field name specified.\n");
          return false;
@@ -315,7 +315,7 @@ return false;
       for (int i=0;i<3;i++) {
          value = strtol(path.Data(),&cstop,10);
          if (cstop==NULL) {
-            return true;
+            break;;
          }
          if (*cstop!=',' && *cstop!=')') {
             ROMEPrint::Error("\nError in array statement.\n%s\n", dataBasePath);
@@ -324,9 +324,9 @@ return false;
          SetFieldIndexAt(i,value);
          if (*cstop==')') {
             if (GetFieldIndexAt(1)==-1) {
-               SetFieldIndexAt(1,GetFieldIndexAt(0)+1);
+               SetFieldIndexAt(1,GetFieldIndexAt(0));
             }
-            return true;
+            break;;
          }
          path = path(static_cast<int>(cstop+1-path.Data()),path.Length());
       }
