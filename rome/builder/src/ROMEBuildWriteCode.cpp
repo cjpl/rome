@@ -3294,6 +3294,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("      gSystem->Sleep(100);\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   Init();\n");
+      buffer.AppendFormatted("   const Bool_t addDirectoryOld = TH1::AddDirectoryStatus();\n");
+      buffer.AppendFormatted("   TH1::AddDirectory(kFALSE); // will be restored at the end of this function\n");
       if (numOfTabSingleObjects[iTab] > 0) {
          buffer.AppendFormatted("   // Init Histos\n");
          buffer.AppendFormatted("   fGeneratedCanvas = new TRootEmbeddedCanvas(\"GeneratedCanvas\", this, 600, 600);\n");
@@ -3625,6 +3627,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          }
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseInit();\n");
       }
+      buffer.AppendFormatted("   TH1::AddDirectory(addDirectoryOld);\n");
       buffer.AppendFormatted("   EndInit();\n");
       buffer.AppendFormatted("   UnRegisterObjects();\n");
       buffer.AppendFormatted("}\n");
@@ -3663,6 +3666,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   TObjArray  *ptr = 0;\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   ptr = 0; //warning supression\n");
+         buffer.AppendFormatted("   const Bool_t addDirectoryOld = TH1::AddDirectoryStatus();\n");
+         buffer.AppendFormatted("   TH1::AddDirectory(kFALSE); // will be restored at the end of this function\n");
          for (i = 0; i < numOfTabObjectDisplays[iTab]; i++) {
             if (tabObjectDisplayTaskIndex[iTab][i] != -1) {
                for (j = 0; j < numOfTabObjectDisplayObjects[iTab][i]; j++) {
@@ -3737,6 +3742,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                }
             }
             buffer.AppendFormatted("\n");
+            buffer.AppendFormatted("   TH1::AddDirectory(addDirectoryOld);\n");
          }
       }
       for (i = 0; i < tabSingleObjectIndexMax[iTab]; i++) {
@@ -3828,6 +3834,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   TLine     *userLine = 0;\n");
          buffer.AppendFormatted("   TLine     *line = 0;\n");
          buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   const Bool_t addDirectoryOld = TH1::AddDirectoryStatus();\n");
+         buffer.AppendFormatted("   TH1::AddDirectory(kFALSE); // will be restored at the end of this function\n");
          buffer.AppendFormatted("   for (i = 0 ; i<fNumberOfPads ; i++) {\n");
          buffer.AppendFormatted("      if (fPadConfigActive) {\n");
          buffer.AppendFormatted("         chn = fPadConfigChannel[i];\n");
@@ -3891,6 +3899,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   TH1::AddDirectory(addDirectoryOld);\n");
          buffer.AppendFormatted("   Modified(processEvents);\n");
       } else {
          buffer.AppendFormatted("   return;\n");
