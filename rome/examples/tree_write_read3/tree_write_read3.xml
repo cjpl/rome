@@ -491,6 +491,9 @@
 		<Task>
 			<TaskName>CheckValues</TaskName>
 		</Task>
+		<Task>
+			<TaskName>PrintValues</TaskName>
+		</Task>
 	</Tasks>
 	<Trees>
 		<Tree>

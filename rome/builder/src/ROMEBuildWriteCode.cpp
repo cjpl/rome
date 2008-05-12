@@ -49,6 +49,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
    ROMEString tempBuffer;
    ROMEString tmp;
    Int_t iDm;
+   Int_t nameLen;
+   Int_t nameLenT;
+   Bool_t haveArray;
 
    if (makeOutput) cout<<"\n   Output CPP-Files:"<<endl;
    for (int iFold = 0; iFold < numOfFolder; iFold++) {
@@ -56,6 +59,21 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          continue;
       changeableFlagChanged = false;
       if (!FolderToBeGenerated(iFold)) continue;
+
+      nameLen = 8;
+      haveArray = kFALSE;
+      for (i = 0; i < numOfValue[iFold]; i++) {
+         if (valueDimension[iFold][i] != 0) {
+            haveArray = kTRUE;
+         }
+         nameLenT = static_cast<Int_t>(valueName[iFold][i].Length());
+         for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+            nameLenT += 4;
+         }
+         if (nameLen < nameLenT) {
+            nameLen = nameLenT;
+         }
+      }
 
       // back up old files
       if (folderUserCode[iFold]) {
@@ -107,7 +125,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
       buffer.AppendFormatted("\n");
 
-      // Comparison operator
+      // Equality operator
       buffer.Append(kMethodLine);
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("Bool_t operator==(const %s%s_Base &lhs, const %s%s_Base &rhs)\n",
@@ -117,7 +135,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                 shortCut.Data(), folderName[iFold].Data(), shortCut.Data(), folderName[iFold].Data());
       }
       buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   // Comparison operator.\n");
+      buffer.AppendFormatted("   // Equality operator.\n");
       buffer.AppendFormatted("   // Warning! All fields may not be compared.\n");
       buffer.AppendFormatted("   Int_t i;\n");
       buffer.AppendFormatted("   i = 0;\n"); // warning suppression
@@ -267,7 +285,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
          for (i = 0; i < numOfValue[iFold]; i++) {
             if (valueDimension[iFold][i] == 0) {
-               if (isFolder(valueType[iFold][i].Data())) {
+               if (isFolder(valueType[iFold][i].Data()) ||
+                   (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
                   continue;
                } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
                           valueType[iFold][i] != "TRef") {
@@ -291,7 +310,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          buffer.AppendFormatted(":TObject()\n");
       }
       for (i = 0; i < numOfValue[iFold]; i++) {
-         if (isFolder(valueType[iFold][i].Data())) {
+         if (isFolder(valueType[iFold][i].Data()) ||
+             (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
             tmp = valueType[iFold][i];
             tmp.ReplaceAll("*","");
             if (valueDimension[iFold][i] == 0) {
@@ -352,7 +372,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
       }
       for (i = 0; i < numOfValue[iFold]; i++) {
-         if (isFolder(valueType[iFold][i].Data())) {
+         if (isFolder(valueType[iFold][i].Data()) ||
+             (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
             if (valueDimension[iFold][i] == 0) {
             } else {
                buffer.AppendFormatted("   %s->SetName(\"%s%s\");\n",valueName[iFold][i].Data(),
@@ -409,8 +430,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("%s::~%s()\n",clsName.Data(),clsName.Data());
       buffer.AppendFormatted("{\n");
       for (i = 0 ; i < numOfValue[iFold]; i++) {
-         if (isFolder(valueType[iFold][i].Data())) {
-            if (isPointerType(valueType[iFold][i].Data())) {
+         if (isFolder(valueType[iFold][i].Data()) ||
+             (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
+            if (isPointerType(valueType[iFold][i].Data()) || valueDimension[iFold][i] > 0) {
                buffer.AppendFormatted("   SafeDelete(%s);\n",valueName[iFold][i].Data());
             }
          } else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].ContainsFast("*")) {
@@ -425,9 +447,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       // Getters
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (valueDimension[iFold][i] > 0) {
-            if (isFolder(valueType[iFold][i].Data())) {
+            if (isFolder(valueType[iFold][i].Data()) ||
+                (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
+               tmp = valueType[iFold][i];
+               tmp.ReplaceAll("*","");
                buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%s* %s::Get%sAt(Int_t indx) const\n",valueType[iFold][i].Data(),clsName.Data(),
+               buffer.AppendFormatted("%s* %s::Get%sAt(Int_t indx) const\n",tmp.Data(),clsName.Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
                if (!valueNoBoundChech[iFold][i]) {
@@ -435,7 +460,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                          valueName[iFold][i].Data());
                   buffer.AppendFormatted("      return %s;\n",valueInit[iFold][i].Data());
                }
-               buffer.AppendFormatted("   return static_cast<%s*>(%s->At(indx));\n",valueType[iFold][i].Data(),
+               buffer.AppendFormatted("   return static_cast<%s*>(%s->At(indx));\n",tmp.Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
@@ -467,7 +492,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   return %s.At(indx);\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
-            } else if (isTArrayType(valueType[iFold][i])) {
+            }  else if (isTArrayType(valueType[iFold][i])) {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("void %s::Get%sCopy(Int_t n, %s* arrayToCopy) const\n",clsName.Data(),
                                       valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
@@ -503,18 +528,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
                buffer.AppendFormatted(";\n");
-               buffer.AppendFormatted("}\n");
-               buffer.AppendFormatted("\n");
-            } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())) {
-               buffer.Append(kMethodLine);
-               buffer.AppendFormatted("%s %s::Get%sAt(Int_t indx) const\n",valueType[iFold][i].Data(),clsName.Data(),
-                                      valueName[iFold][i].Data());
-               buffer.AppendFormatted("{\n");
-               if (!valueNoBoundChech[iFold][i])
-                  buffer.AppendFormatted("   if (!%sBoundsOk(\"Get%sAt\", indx)) return %s;\n",
-                                         valueName[iFold][i].Data(),valueName[iFold][i].Data(),
-                                         valueInit[iFold][i].Data());
-               buffer.AppendFormatted("   return %s[indx];\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else if (valueArray[iFold][i][0] == "variable") {
@@ -644,7 +657,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       // Setters
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (valueDimension[iFold][i] != 0) {
-            if (isFolder(valueType[iFold][i].Data())) {
+            if (isFolder(valueType[iFold][i].Data()) ||
+                (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("void %s::Set%sSize(Int_t number)\n",clsName.Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
@@ -948,7 +962,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          buffer.AppendFormatted("   fModified = false;\n");
       }
       for (i = 0; i < numOfValue[iFold]; i++) {
-         if (isFolder(valueType[iFold][i].Data())) {
+         if (isFolder(valueType[iFold][i].Data()) ||
+             (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
+            tmp = valueType[iFold][i];
+            tmp.ReplaceAll("*","");
             if (valueDimension[iFold][i] == 0) {
                if (!isPointerType(valueType[iFold][i].Data())) {
                   buffer.AppendFormatted("   %s.Reset();\n",valueName[iFold][i].Data());
@@ -958,8 +975,13 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                }
             } else {
                buffer.AppendFormatted("   nentry = %s->GetEntriesFast();\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("   for (int i%d = 0; i%d < nentry; i%d++) { static_cast<%s*>(%s->At(i%d))->Reset(); }\n",
-                                      i,i,i,valueType[iFold][i].Data(),valueName[iFold][i].Data(),i);
+               if (valueIsTObject[iFold][i]) {
+                  buffer.AppendFormatted("   for (int i%d = 0; i%d < nentry; i%d++) { static_cast<%s*>(%s->At(i%d))->Clear(); }\n",
+                                         i,i,i,tmp.Data(),valueName[iFold][i].Data(),i);
+               } else {
+                  buffer.AppendFormatted("   for (int i%d = 0; i%d < nentry; i%d++) { static_cast<%s*>(%s->At(i%d))->Reset(); }\n",
+                                         i,i,i,tmp.Data(),valueName[iFold][i].Data(),i);
+               }
             }
          } else if (isTArrayType(valueType[iFold][i])) {
             buffer.AppendFormatted("   %s%sReset(%s);\n",valueName[iFold][i].Data(),Relation(valueType[iFold][i]),
@@ -1007,6 +1029,232 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
+
+      // Print
+      buffer.Append(kMethodLine);
+      buffer.AppendFormatted("void %s::Print(Option_t* option) const\n", clsName.Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("   // Print all members.\n");
+      buffer.AppendFormatted("   // String in <> in option is used for title of this folder.\n");
+      buffer.AppendFormatted("   // Number in [] in option is index of array.\n");
+      buffer.AppendFormatted("   // Number in {} in option is additional tab width.\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   Int_t ind = -1;\n");
+      buffer.AppendFormatted("   TString name = GetName();\n");
+      if (haveArray) {
+         buffer.AppendFormatted("   Int_t i, n;\n");
+         buffer.AppendFormatted("   TString fieldName;\n");
+         buffer.AppendFormatted("   n = 0;\n"); // warning suppression
+         buffer.AppendFormatted("   i = 0;\n"); // warning suppression
+         buffer.AppendFormatted("   fieldName = \"\";\n"); // warning suppression
+      }
+      buffer.AppendFormatted("   TString opt = option;\n");
+      buffer.AppendFormatted("   TString tmpOpt;\n");
+      buffer.AppendFormatted("   Int_t is = kNPOS;\n");
+      buffer.AppendFormatted("   Int_t ie;\n");
+      buffer.AppendFormatted("   Int_t tab = 0;\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   // get name\n"); // assuming 1-dim array
+      buffer.AppendFormatted("   if (option) {\n");
+      buffer.AppendFormatted("      is = opt.Last('<');\n");
+      buffer.AppendFormatted("      if (is != kNPOS) {\n");
+      buffer.AppendFormatted("         if ((ie = opt.Index(\">\", 1, is, TString::kExact)) != kNPOS) {\n");
+      buffer.AppendFormatted("            name = opt(is + 1, ie - is - 1);\n");
+      buffer.AppendFormatted("            opt.Remove(is, ie - is + 1);\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   // get array index\n"); // assuming 1-dim array
+      buffer.AppendFormatted("   if (option) {\n");
+      buffer.AppendFormatted("      is = opt.Last('[');\n");
+      buffer.AppendFormatted("      if (is != kNPOS) {\n");
+      buffer.AppendFormatted("         if ((ie = opt.Index(\"]\", 1, is, TString::kExact)) != kNPOS) {\n");
+      buffer.AppendFormatted("            ind = strtol(opt(is + 1, ie - is - 1).Data(), 0, 10);\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (name.Length()) {\n");
+      buffer.AppendFormatted("      cout<<setw(tab)<<\"\"<<name;\n");
+      buffer.AppendFormatted("      if (ind >= 0) {\n");
+      buffer.AppendFormatted("         cout<<'['<<ind<<']';\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("      cout<<'\\n';\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   tmpOpt = opt;\n"); // used for inherit
+      buffer.AppendFormatted("   // get tab width and set new tab width for sub folders\n");
+      buffer.AppendFormatted("   is = kNPOS;\n");
+      buffer.AppendFormatted("   if (option) {\n");
+      buffer.AppendFormatted("      is = opt.Last('{');\n");
+      buffer.AppendFormatted("      if (is != kNPOS) {\n");
+      buffer.AppendFormatted("         if ((ie = opt.Index(\"}\", 1, is, TString::kExact)) != kNPOS) {\n");
+      buffer.AppendFormatted("            tab = strtol(opt(is + 1, ie - is - 1).Data(), 0, 10);\n");
+      buffer.AppendFormatted("            TString newTab = \"\";\n");
+      buffer.AppendFormatted("            newTab += tab + 3;\n");
+      buffer.AppendFormatted("            opt.Replace(is + 1, ie - is - 1, newTab);\n");
+      buffer.AppendFormatted("         } else {\n");
+      buffer.AppendFormatted("            opt += \"{3}\";\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+      if (folderInheritName[iFold].Length() > 0) {
+         buffer.AppendFormatted("   tmpOpt += \"<>\";\n");
+         buffer.AppendFormatted("   %s%s::Print(tmpOpt.Data());\n",shortCut.Data(), folderInheritName[iFold].Data());
+      }
+
+      for (i = 0; i < numOfValue[iFold]; i++) {
+         if (isFolder(valueType[iFold][i].Data()) ||
+             (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
+            tmp = valueType[iFold][i];
+            tmp.ReplaceAll("*","");
+            if (valueDimension[iFold][i] == 0) {
+               buffer.AppendFormatted("   tmpOpt = opt;\n");
+               buffer.AppendFormatted("   tmpOpt += \"<\";\n");
+               buffer.AppendFormatted("   tmpOpt += \"%s\";\n", valueName[iFold][i].Data());
+               buffer.AppendFormatted("   tmpOpt += \">\";\n");
+               buffer.AppendFormatted("   %s%sPrint(tmpOpt.Data());\n",
+                                      valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
+            } else {
+               buffer.AppendFormatted("   n = %s->GetEntriesFast();\n",
+                                      valueName[iFold][i].Data());
+               buffer.AppendFormatted("   for (i = 0; i < n; i++) {\n");
+               buffer.AppendFormatted("      tmpOpt = opt;\n");
+               buffer.AppendFormatted("      tmpOpt += \"<\";\n");
+               buffer.AppendFormatted("      tmpOpt += \"%s\";\n", valueName[iFold][i].Data());
+               buffer.AppendFormatted("      tmpOpt += \">\";\n");
+               buffer.AppendFormatted("      tmpOpt += \"[\";\n");
+               buffer.AppendFormatted("      tmpOpt += i;\n");
+               buffer.AppendFormatted("      tmpOpt += \"]\";\n");
+               buffer.AppendFormatted("      static_cast<%s*>(%s->At(i))->Print(tmpOpt.Data());\n",
+                                      tmp.Data(), valueName[iFold][i].Data());
+               buffer.AppendFormatted("   }\n");
+            }
+         } else if (valueType[iFold][i] == "TRef") {
+            if (valueDimension[iFold][i] == 0) {
+               buffer.AppendFormatted("   cout<<\"   \"<<setw(tab)<<\"\"<<\"%s\"<<'\\n';\n",
+                                      valueName[iFold][i].Data());
+               buffer.AppendFormatted("   Get%sObj()->Print();\n", valueName[iFold][i].Data());
+            } else if (valueArray[iFold][i][0] != "variable") {
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   for (int %c%d = 0; %c%d < %s; %c%d++) {\n",
+                                         iDm * 3, "", valueCounter[iDm], i, valueCounter[iDm], i,
+                                         valueArray[iFold][i][iDm].Data(), valueCounter[iDm], i);
+               }
+               buffer.AppendFormatted("%*s   fieldName = \"%s\";\n", valueDimension[iFold][i] * 3, "", valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   fieldName += '[';\n", valueDimension[iFold][i] * 3, "");
+                  buffer.AppendFormatted("%*s   fieldName += %c%d;\n", valueDimension[iFold][i] * 3, "", valueCounter[iDm], i);
+                  buffer.AppendFormatted("%*s   fieldName += ']';\n", valueDimension[iFold][i] * 3, "");
+               }
+               buffer.AppendFormatted("%*s   cout<<\"   \"<<setw(tab)<<\"\"<<fieldName<<'\\n';\n",
+                                      valueDimension[iFold][i] * 3, "");
+               buffer.AppendFormatted("%*s   %s",
+                                      valueDimension[iFold][i] * 3, "", valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("[%c%d]", valueCounter[iDm], i);
+               }
+               buffer.AppendFormatted("%sGetObject()->Print();\n", Relation(valueType[iFold][i]));
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   }\n", (valueDimension[iFold][i] - iDm - 1) * 3,"");
+               }
+            } else {
+                  buffer.AppendFormatted("   n = Get%sSize();\n", valueName[iFold][i].Data());
+                  buffer.AppendFormatted("   for (i = 0; i < n; i++) {\n");
+                  buffer.AppendFormatted("      fieldName = \"%s\";\n", valueName[iFold][i].Data());
+                  buffer.AppendFormatted("      fieldName += '[';\n");
+                  buffer.AppendFormatted("      fieldName += i;\n");
+                  buffer.AppendFormatted("      fieldName += ']';\n");
+                  buffer.AppendFormatted("      cout<<\"   \"<<setw(tab)<<\"\"<<fieldName<<'\\n';\n");
+                  buffer.AppendFormatted("      Get%sAt(i)->GetObject()->Print();\n", valueName[iFold][i].Data());
+                  buffer.AppendFormatted("   }\n");
+            }
+         } else if (valueType[iFold][i] == "TRefArray") {
+            buffer.AppendFormatted("   n = %s%sGetEntriesFast();\n",
+                                   valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
+            buffer.AppendFormatted("   for (i = 0; i < n; i++) {\n");
+            buffer.AppendFormatted("      %s%sAt(i)->Print();\n",
+                                   valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
+            buffer.AppendFormatted("   }\n");
+         } else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())) {
+            if (valueDimension[iFold][i] == 0) {
+               buffer.AppendFormatted("   %s%sPrint();\n", valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
+            } else {
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   for (int %c%d = 0; %c%d < %s; %c%d++) {\n",
+                                         iDm * 3, "", valueCounter[iDm], i, valueCounter[iDm], i,
+                                         valueArray[iFold][i][iDm].Data(), valueCounter[iDm], i);
+               }
+               buffer.AppendFormatted("%*s   fieldName = \"%s\";\n", valueDimension[iFold][i] * 3, "", valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   fieldName += '[';\n", valueDimension[iFold][i] * 3, "");
+                  buffer.AppendFormatted("%*s   fieldName += %c%d;\n", valueDimension[iFold][i] * 3, "", valueCounter[iDm], i);
+                  buffer.AppendFormatted("%*s   fieldName += ']';\n", valueDimension[iFold][i] * 3, "");
+               }
+               buffer.AppendFormatted("%*s   cout<<\"   \"<<setw(tab)<<\"\"<<fieldName<<'\\n';\n",
+                                      valueDimension[iFold][i] * 3, "");
+               buffer.AppendFormatted("%*s   %s",
+                                      valueDimension[iFold][i] * 3, "", valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("[%c%d]", valueCounter[iDm], i);
+               }
+               buffer.AppendFormatted("%sPrint();\n", Relation(valueType[iFold][i]));
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   }\n", (valueDimension[iFold][i] - iDm - 1) * 3,"");
+               }
+            }
+         } else if (isTArrayType(valueType[iFold][i])) {
+            buffer.AppendFormatted("   n = Get%sSize();\n", valueName[iFold][i].Data());
+            buffer.AppendFormatted("   for (i = 0; i < n; i++) {\n");
+            buffer.AppendFormatted("      fieldName = \"%s\";\n", valueName[iFold][i].Data());
+            buffer.AppendFormatted("      fieldName += '[';\n");
+            buffer.AppendFormatted("      fieldName += i;\n");
+            buffer.AppendFormatted("      fieldName += ']';\n");
+            buffer.AppendFormatted("      cout<<\"   \"<<setw(tab)<<\"\"<<setw(%d)<<left<<fieldName<<' '<<Get%sAt(i)<<'\\n';\n",
+                                   nameLen, valueName[iFold][i].Data());
+            buffer.AppendFormatted("   }\n");
+         } else {
+            if (valueDimension[iFold][i] == 0) {
+               buffer.AppendFormatted("   cout<<\"   \"<<setw(tab)<<\"\"<<setw(%d)<<left<<\"%s\"<<' '<<Get%s()<<'\\n';\n",
+                                      nameLen, valueName[iFold][i].Data(), valueName[iFold][i].Data());
+            } else if (valueArray[iFold][i][0] != "variable") {
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   for (int %c%d = 0; %c%d < %s; %c%d++) {\n",
+                                         iDm * 3, "", valueCounter[iDm], i, valueCounter[iDm], i,
+                                         valueArray[iFold][i][iDm].Data(), valueCounter[iDm], i);
+               }
+               buffer.AppendFormatted("%*s   fieldName = \"%s\";\n", valueDimension[iFold][i] * 3, "", valueName[iFold][i].Data());
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   fieldName += '[';\n", valueDimension[iFold][i] * 3, "");
+                  buffer.AppendFormatted("%*s   fieldName += %c%d;\n", valueDimension[iFold][i] * 3, "", valueCounter[iDm], i);
+                  buffer.AppendFormatted("%*s   fieldName += ']';\n", valueDimension[iFold][i] * 3, "");
+               }
+               buffer.AppendFormatted("%*s   cout<<\"   \"<<setw(tab)<<\"\"<<setw(%d)<<left<<fieldName<<' '<<Get%sAt(",
+                                      valueDimension[iFold][i] * 3, "",
+                                      nameLen, valueName[iFold][i].Data());
+               separator = "";
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%s%c%d", separator.Data(), valueCounter[iDm],i);
+                  separator = ", ";
+               }
+               buffer.AppendFormatted(")<<'\\n\';\n");
+               for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
+                  buffer.AppendFormatted("%*s   }\n", (valueDimension[iFold][i] - iDm - 1) * 3,"");
+               }
+            } else {
+               if (valueArraySpecifier[iFold][i].Length()) {
+                  buffer.AppendFormatted("   for (i = 0; i < %s; i++) {\n", valueArraySpecifier[iFold][i].Data());
+                  buffer.AppendFormatted("      fieldName = \"%s\";\n", valueName[iFold][i].Data());
+                  buffer.AppendFormatted("      fieldName += '[';\n");
+                  buffer.AppendFormatted("      fieldName += i;\n");
+                  buffer.AppendFormatted("      fieldName += ']';\n");
+                  buffer.AppendFormatted("      cout<<\"   \"<<setw(tab)<<\"\"<<setw(%d)<<left<<fieldName<<' '<<Get%sAt(i)<<'\\n';\n",
+                                         nameLen, valueName[iFold][i].Data());
+                  buffer.AppendFormatted("   }\n");
+               }
+            }
+         }
+      }
+      buffer.AppendFormatted("   cout<<endl;\n\n");
+      buffer.AppendFormatted("}\n\n");
 
       // BoundsOk
       for (i = 0; i < numOfValue[iFold]; i++) {
@@ -1253,7 +1501,7 @@ Bool_t ROMEBuilder::WriteFolderH()
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-      buffer.AppendFormatted("#include <ROMEString.h>\n");
+      buffer.AppendFormatted("#include \"ROMEString.h\"\n");
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isTArrayType(valueType[iFold][i])) {
             str1 = valueType[iFold][i](0, 7);
@@ -1294,9 +1542,9 @@ Bool_t ROMEBuilder::WriteFolderH()
          buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderInheritName[iFold].Data());
       }
 
-      // Comparison operator
+      // Equality operator
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("// Comparison operator.\n");
+      buffer.AppendFormatted("// Equality operator.\n");
       buffer.AppendFormatted("// Warning! All fields may not be compared.\n");
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("class %s%s_Base;\n",shortCut.Data(),folderName[iFold].Data());
@@ -1343,9 +1591,10 @@ Bool_t ROMEBuilder::WriteFolderH()
          if (nameLen < nameLenT) nameLen = nameLenT;
       }
       for (i = 0; i < numOfValue[iFold]; i++) {
-         if (isFolder(valueType[iFold][i].Data()) && valueDimension[iFold][i] > 0) {
+         if ((isFolder(valueType[iFold][i].Data()) && valueDimension[iFold][i] > 0) ||
+             (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
             if (valueDimension[iFold][i] > 1) {
-               cout<<"You can not have multiple dimensional array of support folders."<<endl;
+               cout<<"You can not have multiple dimensional array of support folders or TObjects."<<endl;
                cout<<"Terminating program."<<endl;
                return false;
             }
@@ -1401,10 +1650,12 @@ Bool_t ROMEBuilder::WriteFolderH()
       if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
          for (i = 0; i < numOfValue[iFold]; i++) {
             if (valueDimension[iFold][i] == 0) {
-               if (isFolder(valueType[iFold][i].Data()))
+               if (isFolder(valueType[iFold][i].Data())) {
                   continue;
-               if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) && valueType[iFold][i] != "TRef")
+               }
+               if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) && valueType[iFold][i] != "TRef") {
                   continue;
+               }
                if (valueType[iFold][i] == "TRef") {
                   buffer.AppendFormatted("%sTObject* %s_value=%s",separator.Data(),valueName[iFold][i].Data(),
                                          valueInit[iFold][i].Data());
@@ -1428,7 +1679,7 @@ Bool_t ROMEBuilder::WriteFolderH()
       }
       buffer.AppendFormatted("\n");
 
-      // Comparison operator
+      // Equality operator
       buffer.AppendFormatted("   // Warning! All fields may not be compared.\n");
       if (folderUserCode[iFold]) {
          buffer.AppendFormatted("   friend Bool_t operator==(const %s%s_Base &lhs, const %s%s_Base &rhs);\n",
@@ -1457,7 +1708,18 @@ Bool_t ROMEBuilder::WriteFolderH()
       for (i = 0; i < numOfValue[iFold]; i++) {
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueDimension[iFold][i] > 0) {
-            if (valueType[iFold][i] == "TRef") {
+            if (isFolder(valueType[iFold][i].Data()) ||
+                (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
+               tmp = valueType[iFold][i];
+               tmp.ReplaceAll("*","");
+               buffer.AppendFormatted("   %s%-*s* Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, tmp.Data(),
+                                      valueName[iFold][i].Data());
+               buffer.AppendFormatted("   %s%-*s  Get%s() const%*s { return %s;%*s }\n", virtualKwd, typeLen, "TClonesArray*",
+                                      valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "");
+               buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %s->GetEntriesFast();%*s }\n", virtualKwd,
+                                      typeLen, "Int_t", valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(),
+                                      lb, "");
+            } else if (valueType[iFold][i] == "TRef") {
                buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx);\n", virtualKwd, typeLen, "TRef*",
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("   %s%-*s  Get%sObjAt(Int_t indx) const;\n", virtualKwd, typeLen,
@@ -1474,14 +1736,6 @@ Bool_t ROMEBuilder::WriteFolderH()
                                       valueName[iFold][i].Data(),lb, "");
                buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %s.GetEntriesFast();%*s }\n", virtualKwd, typeLen,
                                       "Int_t", valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "");
-            } else if (isFolder(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %s%-*s* Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
-                                      valueName[iFold][i].Data());
-               buffer.AppendFormatted("   %s%-*s  Get%s() const%*s { return %s;%*s }\n", virtualKwd, typeLen, "TClonesArray*",
-                                      valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "");
-               buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %s->GetEntriesFast();%*s }\n", virtualKwd,
-                                      typeLen, "Int_t", valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(),
-                                      lb, "");
             } else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
                buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx) const%*s { return %s%sAt(indx);%*s }\n", virtualKwd,
@@ -1506,9 +1760,11 @@ Bool_t ROMEBuilder::WriteFolderH()
                }
                buffer.Resize(buffer.Length()-2);
                buffer.AppendFormatted(");\n");
-            } else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())) {
-               buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
-                                      valueName[iFold][i].Data());
+               if (valueArray[iFold][i][0] == "variable") {
+                  buffer.AppendFormatted("   %s%-*s  Get%sSize() const%*s { return %sSize;%*s }\n", virtualKwd, typeLen,
+                                         "Int_t", valueName[iFold][i].Data(), lb, "",
+                                         valueName[iFold][i].Data(), lb, "");
+               }
             } else if (valueArray[iFold][i][0] == "variable") {
                buffer.AppendFormatted("   %s%-*s  Get%sAt(Int_t indx) const;\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data());
@@ -1536,7 +1792,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                                       "void", valueName[iFold][i].Data(), valueType[iFold][i].Data());
             }
          } else {
-            if (isFolder(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())) {
+            if ((isFolder(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())) ||
+                (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
                buffer.AppendFormatted("   %s%-*s* Get%s()%*s { return &%s;%*s }\n", virtualKwd, typeLen, valueType[iFold][i].Data(),
                                       valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
@@ -1576,14 +1833,14 @@ Bool_t ROMEBuilder::WriteFolderH()
       for (i = 0; i < numOfValue[iFold]; i++) {
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueDimension[iFold][i] == 0) {
-            if (valueType[iFold][i] == "TRef") {
+            if (isFolder(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())) {
+               // operator= is not implemented perfectly
+            } else if (valueType[iFold][i] == "TRef") {
                buffer.AppendFormatted("   %svoid Set%s%*s(%-*s %s_value%*s) { %s%*s = %s_value;%*s SetModified(true); }\n",
                                       virtualKwd,
                                       valueName[iFold][i].Data(), lb, "", typeLen, "TObject*",
                                       valueName[iFold][i].Data(), lb, "", valueName[iFold][i].Data(), lb, "",
                                       valueName[iFold][i].Data(), lb, "");
-            } else if (isFolder(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())) {
-               // operator= is not implemented perfectly
             } else {
                if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data()) &&
                    !valueType[iFold][i].ContainsFast("TRef")) {
@@ -1599,7 +1856,18 @@ Bool_t ROMEBuilder::WriteFolderH()
                                       valueName[iFold][i].Data(), lb, "");
             }
          } else {
-            if (valueType[iFold][i] == "TRef") {
+            if (isFolder(valueType[iFold][i].Data()) ||
+                       (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
+               if (valueArray[iFold][i][0] != "variable") {
+                  buffer.AppendFormatted("private:\n");
+               }
+               tmp = valueType[iFold][i];
+               tmp.ReplaceAll("*","");
+               buffer.AppendFormatted("   %svoid Set%sSize(Int_t number);\n", virtualKwd, valueName[iFold][i].Data());
+               if (valueArray[iFold][i][0] != "variable") {
+                  buffer.AppendFormatted("public:\n");
+               }
+            } else if (valueType[iFold][i] == "TRef") {
                buffer.AppendFormatted("   %svoid Set%sAt%*s(", virtualKwd, valueName[iFold][i].Data(), lb, "");
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
@@ -1615,16 +1883,6 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted("      %s%sExpand(number);\n", valueName[iFold][i].Data(), Relation(valueType[iFold][i]));
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   }\n");
-            } else if (isFolder(valueType[iFold][i].Data())) {
-               if (valueArray[iFold][i][0] != "variable") {
-                  buffer.AppendFormatted("private:\n");
-               }
-               tmp = valueType[iFold][i];
-               tmp.ReplaceAll("*","");
-               buffer.AppendFormatted("   %svoid Set%sSize(Int_t number);\n", virtualKwd, valueName[iFold][i].Data());
-               if (valueArray[iFold][i][0] != "variable") {
-                  buffer.AppendFormatted("public:\n");
-               }
             } else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
                buffer.AppendFormatted("   %svoid Set%sAt%*s(Int_t indx,%-*s %s_value%*s) { %s%sAddAt(%s_value,indx)%*s;%*s SetModified(true); }\n",
@@ -1755,13 +2013,20 @@ Bool_t ROMEBuilder::WriteFolderH()
       }
       buffer.AppendFormatted("\n");
 
+      // Print
+      buffer.AppendFormatted("   %svoid Print(Option_t* option) const;\n", virtualKwd);
+      buffer.AppendFormatted("\n");
+
       // Private
       buffer.AppendFormatted("private:\n");
 
       // BoundsOk
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (valueDimension[iFold][i] > 0) {
-            if (isFolder(valueType[iFold][i].Data())) {
+            if (valueType[iFold][i] == "TRefArray") {
+               // TRefArray itself checks bounds.
+            } else if (isFolder(valueType[iFold][i].Data()) ||
+                       (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) {
                buffer.AppendFormatted("   %sBool_t %sBoundsOk(const char* where, Int_t at) const;\n",
                                       virtualKwd, valueName[iFold][i].Data());
                buffer.AppendFormatted("   %sBool_t %sOutOfBoundsError(const char* where, Int_t i) const;\n",
@@ -1773,8 +2038,6 @@ Bool_t ROMEBuilder::WriteFolderH()
                                       virtualKwd, valueName[iFold][i].Data());
             } else if (isTArrayType(valueType[iFold][i])) {
                // TArray itself checks bounds.
-            } else if (valueType[iFold][i] == "TRefArray") {
-               // TRefArray itself checks bounds.
             } else {
                buffer.AppendFormatted("   %sBool_t %sBoundsOk(const char* where, ", virtualKwd, valueName[iFold][i].Data());
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
@@ -1839,7 +2102,7 @@ Bool_t ROMEBuilder::WriteFolderH()
 
          buffer.AppendFormatted("#include \"generated/%s%s_Base.h\"\n",shortCut.Data(),folderName[iFold].Data());
 
-         // Comparison operator
+         // Equality operator
          buffer.AppendFormatted("\nclass %s%s;\n",shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("inline Bool_t operator==(const %s%s& /* lhs */, const %s%s& /*rhs */)\n",
                                 shortCut.Data(), folderName[iFold].Data(), shortCut.Data(), folderName[iFold].Data());
@@ -1855,7 +2118,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                                 shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("{\n");
 
-         // Comparison operator
+         // Equality operator
          buffer.AppendFormatted("\nclass %s%s;\n",shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("friend Bool_t operator==(const %s%s &lhs, const %s%s &rhs);\n",
                                 shortCut.Data(), folderName[iFold].Data(), shortCut.Data(), folderName[iFold].Data());
