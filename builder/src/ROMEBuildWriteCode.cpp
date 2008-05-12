@@ -1129,10 +1129,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   }\n");
             }
          } else if (valueType[iFold][i] == "TRef") {
+            buffer.AppendFormatted("   tmpOpt = opt;\n");
+            buffer.AppendFormatted("   tmpOpt += \"<>\";\n");
             if (valueDimension[iFold][i] == 0) {
                buffer.AppendFormatted("   cout<<\"   \"<<setw(tab)<<\"\"<<\"%s\"<<'\\n';\n",
                                       valueName[iFold][i].Data());
-               buffer.AppendFormatted("   Get%sObj()->Print();\n", valueName[iFold][i].Data());
+               buffer.AppendFormatted("   Get%sObj()->Print(tmpOpt.Data());\n", valueName[iFold][i].Data());
             } else if (valueArray[iFold][i][0] != "variable") {
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("%*s   for (int %c%d = 0; %c%d < %s; %c%d++) {\n",
@@ -1152,7 +1154,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("[%c%d]", valueCounter[iDm], i);
                }
-               buffer.AppendFormatted("%sGetObject()->Print();\n", Relation(valueType[iFold][i]));
+               buffer.AppendFormatted("%sGetObject()->Print(tmpOpt.Data());\n", Relation(valueType[iFold][i]));
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++) {
                   buffer.AppendFormatted("%*s   }\n", (valueDimension[iFold][i] - iDm - 1) * 3,"");
                }
@@ -1164,7 +1166,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                   buffer.AppendFormatted("      fieldName += i;\n");
                   buffer.AppendFormatted("      fieldName += ']';\n");
                   buffer.AppendFormatted("      cout<<\"   \"<<setw(tab)<<\"\"<<fieldName<<'\\n';\n");
-                  buffer.AppendFormatted("      Get%sAt(i)->GetObject()->Print();\n", valueName[iFold][i].Data());
+                  buffer.AppendFormatted("      Get%sAt(i)->GetObject()->Print(tmpOpt.Data());\n", valueName[iFold][i].Data());
                   buffer.AppendFormatted("   }\n");
             }
          } else if (valueType[iFold][i] == "TRefArray") {
