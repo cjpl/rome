@@ -116,6 +116,11 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <TaskName>CheckValues</TaskName>
           <Active>true</Active>
         </Task>
+
+        <Task>
+          <TaskName>PrintValues</TaskName>
+          <Active>false</Active>
+        </Task>
       </Tasks>
     </Analyzer>
 
