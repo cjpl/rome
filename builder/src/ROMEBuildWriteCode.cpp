@@ -1034,13 +1034,13 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %s::Print(Option_t* option) const\n", clsName.Data());
       buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   // Print all members.\n");
+      buffer.AppendFormatted("   // Print all the members.\n");
       buffer.AppendFormatted("   // String in <> in option is used for title of this folder.\n");
       buffer.AppendFormatted("   // Number in [] in option is index of array.\n");
       buffer.AppendFormatted("   // Number in {} in option is additional tab width.\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   Int_t ind = -1;\n");
-      buffer.AppendFormatted("   TString name = GetName();\n");
+      buffer.AppendFormatted("   TString name = \"%s\";\n", folderName[iFold].Data());
       if (haveArray) {
          buffer.AppendFormatted("   Int_t i, n;\n");
          buffer.AppendFormatted("   TString fieldName;\n");
@@ -1054,7 +1054,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("   Int_t ie;\n");
       buffer.AppendFormatted("   Int_t tab = 0;\n");
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("   // get name\n"); // assuming 1-dim array
+      buffer.AppendFormatted("   // get name\n");
       buffer.AppendFormatted("   if (option) {\n");
       buffer.AppendFormatted("      is = opt.Last('<');\n");
       buffer.AppendFormatted("      if (is != kNPOS) {\n");
@@ -1073,14 +1073,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   if (name.Length()) {\n");
-      buffer.AppendFormatted("      cout<<setw(tab)<<\"\"<<name;\n");
-      buffer.AppendFormatted("      if (ind >= 0) {\n");
-      buffer.AppendFormatted("         cout<<'['<<ind<<']';\n");
-      buffer.AppendFormatted("      }\n");
-      buffer.AppendFormatted("      cout<<'\\n';\n");
-      buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   tmpOpt = opt;\n"); // used for inherit
+      if (folderInheritName[iFold].Length() > 0) {
+         buffer.AppendFormatted("   tmpOpt = opt;\n"); // used for inherit (use same tab width)
+      }
       buffer.AppendFormatted("   // get tab width and set new tab width for sub folders\n");
       buffer.AppendFormatted("   is = kNPOS;\n");
       buffer.AppendFormatted("   if (option) {\n");
@@ -1094,7 +1089,16 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("         } else {\n");
       buffer.AppendFormatted("            opt += \"{3}\";\n");
       buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("      } else {\n");
+      buffer.AppendFormatted("         opt += \"{3}\";\n");
       buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (name.Length()) {\n");
+      buffer.AppendFormatted("      cout<<setw(tab)<<\"\"<<name;\n");
+      buffer.AppendFormatted("      if (ind >= 0) {\n");
+      buffer.AppendFormatted("         cout<<'['<<ind<<']';\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("      cout<<'\\n';\n");
       buffer.AppendFormatted("   }\n");
       if (folderInheritName[iFold].Length() > 0) {
          buffer.AppendFormatted("   tmpOpt += \"<>\";\n");
