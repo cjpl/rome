@@ -1235,7 +1235,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          // Path
          subSubGroup->AddParameter(new ROMEConfigParameter("Path"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
-         subSubGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
+         subSubGroup->GetLastParameter()->AddSetLine("if (##.Length() && ##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
          subSubGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosInputPath(##.Data());");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosInputRawPath();");
@@ -1259,7 +1259,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          // Path
          subSubGroup->AddParameter(new ROMEConfigParameter("Path"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
-         subSubGroup->GetLastParameter()->AddSetLine("if (##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
+         subSubGroup->GetLastParameter()->AddSetLine("if (##.Length() && ##[##.Length() - 1] != '/' && ##[##.Length() - 1] != '\\\\')");
          subSubGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosOutputPath(##.Data());");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosOutputRawPath();");

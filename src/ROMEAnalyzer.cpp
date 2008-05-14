@@ -418,9 +418,15 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2))
          html.SetProductName(fProgramName.Data());
 #endif
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,19,4))
+         ROMEString sourceDir = html.GetInputPath();
+         sourceDir.Append(kHTMLSourceDir);
+         html.SetInputDir(sourceDir.Data());
+#else
          ROMEString sourceDir = html.GetSourceDir();
          sourceDir.Append(kHTMLSourceDir);
          html.SetSourceDir(sourceDir.Data());
+#endif
          html.MakeAll(false);
          return false;
       }
