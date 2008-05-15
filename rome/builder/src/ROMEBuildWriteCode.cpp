@@ -123,6 +123,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#include \"Windows4Root.h\"\n");
 #endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include <cstdlib>\n");
       buffer.AppendFormatted("#include \"ROME.h\"\n");
       buffer.AppendFormatted("#include \"generated/%s.h\"\n",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
