@@ -270,3 +270,9 @@
   <Directory>/data/disk4/users/sawada/rome-trunk</Directory>
   <LastCompile>Mon, 28 Apr 2008 14:20:06 +0000 (GMT) + 36504000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>ryu</User>
+  <Host>mackro.psi.ch</Host>
+  <Directory>/Users/ryu/Analysis/rome</Directory>
+  <LastCompile>Wed, 21 May 2008 13:20:06 UTC +436662000 nsec</LastCompile>
+</Entry>
