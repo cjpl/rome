@@ -109,10 +109,10 @@ Bool_t ROMERomeDAQ::BeginOfRun()
       romeTree->SetConfigInputFileName(gROME->GetTreeObjectAt(j)->GetConfigInputFileName());
       romeTree->SetRead(gROME->GetTreeObjectAt(j)->isRead());
       romeTree->SetName(gROME->GetTreeObjectAt(j)->GetName());
-      romeTree->AllocateBranchActive(gROME->GetTreeObjectAt(j)->GetNBranchActive());
-      memcpy(romeTree->GetBranchActive(),
-             gROME->GetTreeObjectAt(j)->GetBranchActive(),
-             gROME->GetTreeObjectAt(j)->GetNBranchActive() * sizeof(Bool_t));
+      romeTree->AllocateBranchRead(gROME->GetTreeObjectAt(j)->GetNBranchRead());
+      memcpy(romeTree->GetBranchRead(),
+             gROME->GetTreeObjectAt(j)->GetBranchRead(),
+             gROME->GetTreeObjectAt(j)->GetNBranchRead() * sizeof(Bool_t));
    }
 
    Int_t nKey;
@@ -158,8 +158,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                gROOT->cd();
             } else if (gROME->IsFileNameBasedIO()) {
                if (fTreeIndex > 0) {
-                  if (fTreeIndex >= static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))
-                      ->GetNkeys()) {
+                  if (fTreeIndex >= static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->GetNkeys()) {
                      fTreeIndex = 0;
                   } else {
                      treename.SetFormatted("%s_%d", fCurrentTreeName.Data(), fTreeIndex);

@@ -77,22 +77,27 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Branch>
             <BranchName>TrackBranch</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
           <Branch>
             <BranchName>RawPointerSplitBranch</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
           <Branch>
             <BranchName>RawPointerNoSplitBranch</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
           <Branch>
             <BranchName>RawSplitBranch</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
           <Branch>
             <BranchName>RawNoSplitBranch</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
         </Tree>
       </Trees>

@@ -1199,6 +1199,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
                subSubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)?1:0];",
                                                                    i, j);
                subSubSubSubGroup->GetLastParameter()->AddWriteLine("}");
+               // Read
+               subSubSubSubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
+               subSubSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Branch");
+               subSubSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+               subSubSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchReadAt(%d, ## != \"false\");",
+                                                                 i, j);
+               subSubSubSubGroup->GetLastParameter()->AddSetLine("}");
+               subSubSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor()) {");
+               subSubSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = kFalseTrueString[gAnalyzer->GetTreeObjectAt(%d)->GetBranchReadAt(%d)?1:0];",
+                                                                   i, j);
+               subSubSubSubGroup->GetLastParameter()->AddWriteLine("}");
             }
          }
       }

@@ -9579,12 +9579,13 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
             if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
                iFold = k;
          }
-         if (!folderUsed[iFold])
+         if (!folderUsed[iFold]) {
             continue;
+         }
          buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"%s\"));\n",
                                 branchName[i][j].Data());
          buffer.AppendFormatted("     if (bb) {\n");
-         buffer.AppendFormatted("        if (romeTree->GetBranchActiveAt(%d)) {\n", j);
+         buffer.AppendFormatted("        if (romeTree->GetBranchReadAt(%d)) {\n", j);
          if (folderArray[iFold] == "1") {
             buffer.AppendFormatted("           bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          } else {
@@ -11266,6 +11267,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
       buffer.AppendFormatted("   treeFolder->Add(tree);\n\n");
       buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->AllocateBranchActive(%d);\n",i,numOfBranch[i]);
+      buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->AllocateBranchRead(%d);\n",i,numOfBranch[i]);
       buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->SetName(\"%s\");\n",i,treeName[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
