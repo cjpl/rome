@@ -132,10 +132,12 @@ int main()
          // Shuei
          user[nEntry] == "shuei" ||
          user[nEntry] == "yamada" ||
+#if 0
          // Meg
          user[nEntry] == "meg" ||
-         user[nEntry] == "Administrator"
-         ) {
+         user[nEntry] == "Administrator" ||
+#endif
+         0) {
 
          ROMEXML::SuppressWritingDate();
          auto_ptr<ROMEXML> xmlOut(new ROMEXML());
