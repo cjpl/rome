@@ -77,6 +77,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Branch>
             <BranchName>test</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
         </Tree>
       </Trees>

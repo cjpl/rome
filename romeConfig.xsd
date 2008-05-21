@@ -308,6 +308,11 @@
 					<xs:documentation>Inactive branches are not filled by the framework. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Read" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Inactive branches are not read in ROME DAQ mode. This can be true even when Active is false. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TreeDesc">
@@ -335,9 +340,9 @@
 					<xs:documentation>Trees are filled. It will be changed to true when 'Write' is true. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="CompressionLevel" type="xs:integer" default="0" minOccurs="0">
+			<xs:element name="CompressionLevel" type="xs:integer" default="1" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Compression level for all branches of the tree. Default is 0.</xs:documentation>
+					<xs:documentation>Compression level for all branches of the tree. Default is 1.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="AutoSaveSize" type="xs:integer" default="100000000" minOccurs="0">

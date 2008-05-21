@@ -77,14 +77,17 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Branch>
             <BranchName>hits</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
           <Branch>
             <BranchName>clusters</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
           <Branch>
             <BranchName>maincluster</BranchName>
             <Active>true</Active>
+            <Read>true</Read>
           </Branch>
         </Tree>
       </Trees>

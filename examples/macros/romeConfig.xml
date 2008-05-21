@@ -107,7 +107,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <Write>true</Write>
           <!-- Trees are filled. It will be changed to true when 'Write' is true. Default is false. -->
           <Fill>true</Fill>
-          <!-- Compression level for all branches of the tree. Default is 0. -->
+          <!-- Compression level for all branches of the tree. Default is 1. -->
           <CompressionLevel>1</CompressionLevel>
           <!-- Number of bytes for auto saving. Auto saving is disabled when this is 0. Saving one tree triggers saving all trees to keep consistency of output files. Default is 100000000 (about 100 MB). -->
           <AutoSaveSize>100000000</AutoSaveSize>
@@ -124,12 +124,16 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
             <BranchName>pmt</BranchName>
             <!-- Inactive branches are not filled by the framework. (optional) -->
             <Active>true</Active>
+            <!-- Inactive reading of branches in ROME DAQ mode. (optional) -->
+            <Read>true</Read>
           </Branch>
           <Branch>
             <!-- Description of a branch. -->
             <BranchName>sum</BranchName>
             <!-- Inactive branches are not filled by the framework. (optional) -->
             <Active>true</Active>
+            <!-- Inactive reading of branches in ROME DAQ mode. (optional) -->
+            <Read>true</Read>
           </Branch>
         </Tree>
       </Trees>
