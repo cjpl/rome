@@ -306,6 +306,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          // End of Run Tasks
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
             ROMEPrint::Debug("Executing EndOfRun tasks\n");
+            gROME->SetCurrentEventNumber(kEventNumberEndOfRun);
             ExecuteTasks("EndOfRun");
             CleanTasks();
             if (fHaveEndOfRunMacro) {
@@ -331,6 +332,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Terminate
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEPrint::Debug("Executing Terminate tasks\n");
+      gROME->SetCurrentEventNumber(kEventNumberTerminate);
       ExecuteTasks("Terminate");
       CleanTasks();
       if (!this->DAQTerminate()) {
@@ -444,6 +446,7 @@ Int_t ROMEEventLoop::RunEvent()
                // Terminate
                if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
                   ROMEPrint::Debug("Executing Terminate tasks\n");
+                  gROME->SetCurrentEventNumber(kEventNumberTerminate);
                   ExecuteTasks("Terminate");
                   CleanTasks();
                   if (!this->DAQTerminate()) {
