@@ -232,7 +232,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             fHaveEndOfRunMacro =  (fEndOfRunMacro.Length() > 0);
 
             // Begin of Run Tasks
-            ReadRunHeaders();
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
                ROMEPrint::Debug("Executing BeginOfRun tasks\n");
                ExecuteTasks("BeginOfRun");
@@ -733,6 +732,9 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 
    // Set Run Number
    fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
+
+   // read run header in case ROME DAQ.
+   ReadRunHeaders();
 
    // Update Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {
