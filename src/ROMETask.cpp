@@ -197,6 +197,7 @@ void ROMETask::Exec(Option_t *option)
    Int_t usedMemoryDifference;
 #endif
    if (!strncmp(option, "Terminate", 9)) {
+      fWatchAll.Start(false);
       if (fInitTerminateState != 1) {
 #if 0
          ROMEPrint::Warning("Terminate is called twice, or called before Init");
@@ -207,6 +208,7 @@ void ROMETask::Exec(Option_t *option)
          ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
          Terminate();
       }
+      fWatchAll.Stop();
    }
    if (gROME->isTerminationFlag() || gROME->IsSkipEvent()) {
       return;
