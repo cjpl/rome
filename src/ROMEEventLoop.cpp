@@ -298,8 +298,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
-            ROMEPrint::Print("Run "R_LLD" stopped                                             \n", gROME->GetCurrentRunNumber());
-            ROMEPrint::Print(R_LLD" events processed\n\n", static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
+            ROMEPrint::Print(R_LLD" events processed                                             \n",
+                             static_cast<Long64_t>(gROME->GetProcessedEvents()+0.5));
          }
 
          // End of Run Tasks
@@ -312,6 +312,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
                gROME->GetApplication()->ProcessFile(fEndOfRunMacro.Data());
             }
          }
+
+         // Show stopped message
+         if (gROME->IsShowRunStat()) {
+            ROMEPrint::Print("Run "R_LLD" stopped\n\n", gROME->GetCurrentRunNumber());
+         }
+
          // Disconnect
          if (!this->DAQEndOfRun()) {
             this->Terminate();
