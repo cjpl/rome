@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- $Id$ -->
 
-<!-- Please check ROME homepage for details of tags
-http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+<!-- Please check $ROMESYS/romeConfig_xsd.html for details of tags -->
 
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:\rome\romeConfig.xsd">
   <ProgramConfiguration>
@@ -137,7 +136,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
             <BranchName>Data</BranchName>
             <!-- Inactive branches are not filled by the framework. (optional) -->
             <Active>true</Active>
-            <!-- Inactive reading of branches in ROME DAQ mode. (optional) -->
+            <!-- Inactive branches are not read in ROME DAQ mode. This can be true even when Active is false. (optional) -->
             <Read>true</Read>
           </Branch>
         </Tree>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- $Id$ -->
 
-<!-- Please check ROME homepage for details of tags
-http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+<!-- Please check $ROMESYS/romeConfig_xsd.html for details of tags -->
 
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="romeConfig.xsd">
   <ProgramConfiguration>

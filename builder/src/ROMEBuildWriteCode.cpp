@@ -8079,8 +8079,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->SetTranslate(0);\n");
    buffer.AppendFormatted("   xml->WriteComment(\"$%s: $\");\n", "Id"); // to avoid Id: is replaced by SVN.
    buffer.AppendFormatted("   xml->WriteEmptyLine();\n");
-   buffer.AppendFormatted("   xml->WriteComment(\"Please check ROME homepage for details of tags\\n\"\n");
-   buffer.AppendFormatted("      \"http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm\");\n");
+   buffer.AppendFormatted("   xml->WriteComment(\"Please check $ROMESYS/romeConfig_xsd.html for details of tags\");\n");
    buffer.AppendFormatted("   xml->WriteEmptyLine();\n");
    buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
