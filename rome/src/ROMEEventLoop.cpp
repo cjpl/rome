@@ -226,10 +226,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             if(!gROME->CheckDependences())
                return;
 
-            fHaveBeginOfRunMacro = (fBeginOfRunMacro.Length() > 0);
-            fHaveBeginOfEventMacro =  (fBeginOfEventMacro.Length() > 0);
-            fHaveEndOfEventMacro =  (fEndOfEventMacro.Length() > 0);
-            fHaveEndOfRunMacro =  (fEndOfRunMacro.Length() > 0);
+            // Output
+            if (gROME->IsShowRunStat()) {
+               ROMEPrint::Print("\n\nRun "R_LLD" started\n", gROME->GetCurrentRunNumber());
+            }
+
+            fHaveBeginOfRunMacro   = (fBeginOfRunMacro.Length()   > 0);
+            fHaveBeginOfEventMacro = (fBeginOfEventMacro.Length() > 0);
+            fHaveEndOfEventMacro   = (fEndOfEventMacro.Length()   > 0);
+            fHaveEndOfRunMacro     = (fEndOfRunMacro.Length()     > 0);
 
             // Begin of Run Tasks
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
@@ -243,11 +248,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             WriteRunHeaders();
 
             eventLoopIndex++;
-
-            // Output
-            if (gROME->IsShowRunStat()) {
-               ROMEPrint::Print("\n\nRun "R_LLD" started\n", gROME->GetCurrentRunNumber());
-            }
          }
       }
 
