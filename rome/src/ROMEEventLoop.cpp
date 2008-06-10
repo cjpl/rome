@@ -911,6 +911,7 @@ Bool_t ROMEEventLoop::DAQEvent()
    }
 
    fTreeInfo->SetTimeStamp(gROME->GetActiveDAQ()->GetTimeStamp());
+   fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());
 
    return true;
 }
@@ -922,7 +923,6 @@ Bool_t ROMEEventLoop::WriteEvent()
 #if 0 // Is it necessary ?
    this->CleanUpFolders();
 #endif
-   fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());
    this->FillTrees();
    return true;
 }
