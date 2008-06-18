@@ -56,6 +56,18 @@
 				<HistYmin>-100</HistYmin>
 				<HistYmax>100</HistYmax>
 			</Histogram>
+			<Histogram>
+				<HistName>MyProfile</HistName>
+				<HistTitle>MyPorfile</HistTitle>
+				<HistFolderName>myhisto</HistFolderName>
+				<HistType>TProfile</HistType>
+				<HistArraySize>3</HistArraySize>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>-100</HistXmin>
+				<HistXmax>100</HistXmax>
+			</Histogram>
 			<Graph>
 				<GraphName>MyGraph</GraphName>
 				<GraphTitle>MyGraph</GraphTitle>
@@ -95,6 +107,11 @@
 							<ObjectDisplayName>MySingleHisto</ObjectDisplayName>
 							<ObjectDisplayTitle>MySingleHisto</ObjectDisplayTitle>
 							<ObjectDisplayObject>MySingleHisto</ObjectDisplayObject>
+						</ObjectDisplay
+						<ObjectDisplay>
+							<ObjectDisplayName>MyProfile</ObjectDisplayName>
+							<ObjectDisplayTitle>MyProfile</ObjectDisplayTitle>
+							<ObjectDisplayObject>MyProfile</ObjectDisplayObject>
 						</ObjectDisplay>
 					</ObjectDisplays>
 				</Tab>
