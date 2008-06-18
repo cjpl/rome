@@ -18,6 +18,7 @@
 //    MyOtherHisto                                                            //
 //    MySingleHisto                                                           //
 //    My2DHisto                                                               //
+//    MyProfile                                                               //
 // This task contains the following graphs :                                  //
 //    MyGraph                                                                 //
 //                                                                            //
@@ -62,6 +63,9 @@ void DOTFillHisto::Event()
    GetMyHistoAt(0)->Fill(gRandom->Gaus(0,10));
    GetMyHistoAt(1)->Fill(gRandom->Gaus(0,20));
    GetMyHistoAt(2)->Fill(gRandom->Gaus(0,30));
+   GetMyProfileAt(0)->Fill(gRandom->Gaus(0,10), gRandom->Gaus(0,10));
+   GetMyProfileAt(1)->Fill(gRandom->Gaus(0,20), gRandom->Gaus(0,20));
+   GetMyProfileAt(2)->Fill(gRandom->Gaus(0,30), gRandom->Gaus(0,30));
    GetMyOtherHistoAt(0)->Fill(gRandom->Gaus(10,10));
    GetMyOtherHistoAt(1)->Fill(gRandom->Gaus(10,20));
    GetMyOtherHistoAt(2)->Fill(gRandom->Gaus(10,30));

@@ -892,6 +892,7 @@ Bool_t ROMEBuilder::StartBuilder()
    tabObjectDisplaySupportedObjects.AddLast("TH3I");
    tabObjectDisplaySupportedObjects.AddLast("TH3F");
    tabObjectDisplaySupportedObjects.AddLast("TH3D");
+   tabObjectDisplaySupportedObjects.AddLast("TProfile");
 
    configXSD = new ROMEXML();
    ROMEString xsdName = "$(ROMESYS)/romeConfig.xsd";
