@@ -906,6 +906,7 @@ Bool_t ROMEMidasDAQ::ActualWriteODBOnline(ROMEStr2DArray* values, const char * d
          }
          if (num_values * item_size > fODBBufferSize) {
             SetODBBufferSize(num_values * item_size);
+            buffersize = fODBBufferSize;
          }
          if (path->GetFieldIndexAt(1) == -1) {
             // single field
@@ -913,7 +914,7 @@ Bool_t ROMEMidasDAQ::ActualWriteODBOnline(ROMEStr2DArray* values, const char * d
                errMsg.SetFormatted("\nCannot write to online database\n");
                throw errMsg.Data();
             }
-            if (db_set_data(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, buffersize, 1, type) != CM_SUCCESS) {
+            if (db_set_data(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, item_size, 1, type) != CM_SUCCESS) {
                errMsg.SetFormatted("\nCannot write to online database\n");
                throw errMsg.Data();
             }
@@ -925,7 +926,7 @@ Bool_t ROMEMidasDAQ::ActualWriteODBOnline(ROMEStr2DArray* values, const char * d
                   errMsg.SetFormatted("\nCannot write to online database\n");
                   throw errMsg.Data();
                }
-               if (db_set_data_index(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, buffersize, i, type) != CM_SUCCESS) {
+               if (db_set_data_index(gROME->GetMidasOnlineDataBase(), hKey, fODBBuffer, item_size, i, type) != CM_SUCCESS) {
                   errMsg.SetFormatted("\nCannot write to online database\n");
                   throw errMsg.Data();
                }

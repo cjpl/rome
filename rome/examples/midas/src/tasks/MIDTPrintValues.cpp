@@ -84,6 +84,38 @@ void MIDTPrintValues::Event()
 
 void MIDTPrintValues::EndOfRun()
 {
+   /* */
+
+   // Example of alarm
+   Alarm("TestAlarm", "Alarm from ROME analyzer", "Alarm", "", kATProgram);
+
+   // Example of ODB access.
+   TString path;
+   TString msgOrg;
+   Int_t iDB;
+   ROMEStr2DArray* value = new ROMEStr2DArray(1, 1);
+   for(iDB = 0; iDB < gAnalyzer->GetNumberOfDataBases(); iDB++){
+      if(!strcmp(gAnalyzer->GetDataBase(iDB)->GetName(), "odb")){
+         path = "/Alarms/Alarms/TestAlarm/Alarm Message";
+         // Read ODB
+         gAnalyzer->GetDataBase(iDB)->Read(value, path.Data());
+         msgOrg = value->At(0, 0);
+         cout<<msgOrg<<endl;
+
+         // Write ODB
+         value->SetAt("Modified message",0,0);
+         gAnalyzer->GetDataBase(iDB)->Write(value, path.Data());
+
+         // Read ODB
+         gAnalyzer->GetDataBase(iDB)->Read(value, path.Data());
+         cout<<value->At(0, 0)<<endl;
+
+         // Write ODB
+         value->SetAt(msgOrg.Data(),0,0);
+         gAnalyzer->GetDataBase(iDB)->Write(value, path.Data());
+      }
+   }
+   delete value;
 }
 
 void MIDTPrintValues::Terminate()

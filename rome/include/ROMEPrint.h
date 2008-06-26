@@ -13,6 +13,13 @@
 #include "ROMEAnalyzer.h"
 #include "ROME.h"
 
+// Alarm types.
+// This must same with definition in midas.h
+const Int_t kATInternal  = 1;
+const Int_t kATProgram   = 2;
+const Int_t kATEvaluated = 3;
+const Int_t kATPeriodic  = 4;
+
 namespace ROMEPrint
 {
    // Verbose level
@@ -38,6 +45,7 @@ namespace ROMEPrint
    void  Warning(const char *msgfmt, ...)     G_GNUC_PRINTF(1, 2);
    void  Error(const char *msgfmt, ...)       G_GNUC_PRINTF(1, 2);
 
+   Int_t  Alarm(const char *name, const char *message, const char *alarmClass, const char *cond, Int_t type);
    void  Report(const Int_t verboseLevel, const char* fileName, const char *funcName, Int_t lineNumber,
                 const Long64_t run, const Long64_t event, const Bool_t printHeader, const char* va_(fmt),...) G_GNUC_PRINTF(8, 9);
 #endif
