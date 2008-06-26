@@ -172,6 +172,30 @@ void ROMEPrint::Error(const char* va_(fmt),...)
 }
 
 //______________________________________________________________________________
+Int_t ROMEPrint::Alarm(const char *name, const char *message,
+                       const char *alarmClass, const char *cond, Int_t type)
+{
+   // Trigger alarm of midas system.
+   // Do nothing when midas library is not linked.
+#if defined( HAVE_MIDAS )
+   if (gROME->isOnline()) {
+      return al_trigger_alarm(const_cast<char*>(name),
+                              const_cast<char*>(message),
+                              const_cast<char*>(alarmClass),
+                              const_cast<char*>(cond), type);
+   }
+   return 0;
+#else
+   return 0;
+   WarningSuppression(name);
+   WarningSuppression(message);
+   WarningSuppression(alarmClass);
+   WarningSuppression(cond);
+   WarningSuppression(type);
+#endif
+}
+
+//______________________________________________________________________________
 void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const char *funcName, Int_t lineNumber,
                        const Long64_t run, const Long64_t event, const Bool_t printHeader, const char* va_(fmt),...)
 {
