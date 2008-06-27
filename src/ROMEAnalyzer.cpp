@@ -181,6 +181,9 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fHistoAccumulateAll(kFALSE)
 ,fHistoDeactivateAll(kFALSE)
 ,fHistoAutoSavePeriod(0)
+,fHistoSnapShotFileName("")
+,fHistoSnapShotFileNameConstructed("")
+,fHistoSnapShotEvents(10000)
 ,fProgramName(programName)
 ,fOnlineHost("")
 ,fOnlineExperiment("")
@@ -2193,4 +2196,12 @@ const char* ROMEAnalyzer::GetHistosOutputFileName()
    }
    ReplaceWithRunAndEventNumber(fHistoOutputFileNameConstructed);
    return fHistoOutputFileNameConstructed;
+}
+
+//______________________________________________________________________________
+const char* ROMEAnalyzer::GetHistosSnapShotFileName()
+{
+   fHistoSnapShotFileNameConstructed = fHistoSnapShotFileName;
+   ReplaceWithRunAndEventNumber(fHistoSnapShotFileNameConstructed);
+   return fHistoSnapShotFileNameConstructed;
 }

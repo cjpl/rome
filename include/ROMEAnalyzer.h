@@ -214,6 +214,9 @@ protected:
    Bool_t         fHistoAccumulateAll;           //! Accmulate all histograms and graphs
    Bool_t         fHistoDeactivateAll;           //! Deactivate all histograms and graphs
    ULong_t        fHistoAutoSavePeriod;          //! Period for auto save
+   ROMEString     fHistoSnapShotFileName;        //! Output filename to the Histograms of snap shot. "##" is replaced with event number
+   ROMEString     fHistoSnapShotFileNameConstructed; //! Output filename to the Histograms of snap shot after replacing #,##...
+   ULong64_t      fHistoSnapShotEvents;          //! Snap shot is written every n-th events.
 
    // Program name
    ROMEString     fProgramName;                  //! Name of this Program
@@ -451,6 +454,9 @@ public:
    Bool_t          IsHistosAccumulateAll() const { return fHistoAccumulateAll; }
    Bool_t          IsHistosDeactivateAll() const { return fHistoDeactivateAll; }
    ULong_t         GetHistosAutoSavePeriod() const { return fHistoAutoSavePeriod; }
+   const char*     GetHistosSnapShotRawFileName() { return fHistoSnapShotFileName; }
+   const char*     GetHistosSnapShotFileName();
+   ULong64_t       GetHistosSnapShotEvents() const { return fHistoSnapShotEvents; }
 
    void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
    void            SetHistosRun(const char* runNumber) { fHistoRun = runNumber; }
@@ -463,6 +469,8 @@ public:
    void            SetHistosAccumulateAll(Bool_t flag) { fHistoAccumulateAll = flag; }
    void            SetHistosDeactivateAll(Bool_t flag) { fHistoDeactivateAll = flag; }
    void            SetHistosAutoSavePeriod(ULong_t period) { fHistoAutoSavePeriod = period; }
+   void            SetHistosSnapShotFileName(const char* file) { fHistoSnapShotFileName = file; }
+   void            SetHistosSnapShotEvents(ULong64_t n) { fHistoSnapShotEvents = n; }
 
    void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
    ROMEString&     ConstructFilePath(const ROMEString &dir, const ROMEString &base, ROMEString& filename);

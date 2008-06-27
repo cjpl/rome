@@ -107,6 +107,8 @@
         <AccumulateAll>false</AccumulateAll>
         <DeactivateAll>false</DeactivateAll>
         <AutoSavePeriod>0</AutoSavePeriod>
+        <SnapShotFileName></SnapShotFileName>
+        <SnapShotEvents>10000</SnapShotEvents>
       </HistogramWrite>
 
       <Macros>
