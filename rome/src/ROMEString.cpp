@@ -266,8 +266,12 @@ ROMEString& ROMEString::StripSpaces()
       --end;
    }
 
-   Remove(end + 1, Length() - end - 1);
-   Remove(0, start);
+   if (start == Length()) {
+      *this = "";
+   } else {
+      Remove(end + 1, Length() - end - 1);
+      Remove(0, start);
+   }
    return *this;
 }
 
