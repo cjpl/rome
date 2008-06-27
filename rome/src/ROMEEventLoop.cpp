@@ -924,6 +924,16 @@ Bool_t ROMEEventLoop::WriteEvent()
    this->CleanUpFolders();
 #endif
    this->FillTrees();
+
+   // Histograms snap shot
+   static ULong64_t histoSnapShotLastEvent = 1;
+   if (histoSnapShotLastEvent >= gROME->GetHistosSnapShotEvents()) {
+      WriteHistograms(kTRUE);
+      histoSnapShotLastEvent = 1;
+   } else {
+      histoSnapShotLastEvent++;
+   }
+
    return true;
 }
 
@@ -1261,7 +1271,7 @@ Bool_t ROMEEventLoop::UserInput()
 }
 
 //______________________________________________________________________________
-Bool_t ROMEEventLoop::WriteHistograms()
+Bool_t ROMEEventLoop::WriteHistograms(Bool_t snapShot)
 {
    // Write Histos
    ROMEString filename;
@@ -1273,7 +1283,11 @@ Bool_t ROMEEventLoop::WriteHistograms()
 
    if (gROME->IsHistosWrite() && !gROME->IsHistosDeactivateAll()) {
       gROME->GetCurrentRunNumberString(runNumberString);
-      filename.SetFormatted("%s%s", gROME->GetHistosOutputPath(), gROME->GetHistosOutputFileName());
+      if (!snapShot) {
+         filename.SetFormatted("%s%s", gROME->GetHistosOutputPath(), gROME->GetHistosOutputFileName());
+      } else {
+         filename.SetFormatted("%s%s", gROME->GetHistosOutputPath(), gROME->GetHistosSnapShotFileName());
+      }
       fHistoFile = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
       ROMEString histoDirectoryName;
 

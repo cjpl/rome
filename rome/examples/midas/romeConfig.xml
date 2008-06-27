@@ -177,6 +177,9 @@
         <!-- If this value is true all the histograms and graphs are deactivated. Default is false. -->
         <DeactivateAll>false</DeactivateAll>
         <AutoSavePeriod>0</AutoSavePeriod>
+        <!-- File name of snap shot of histograms. (e.g. histos_ss_#_##.root, # and ## will be replaced by run number and event number.) (optional) -->
+        <SnapShotFileName></SnapShotFileName>
+        <SnapShotEvents>10000</SnapShotEvents>
       </HistogramWrite>
 
       <Macros>

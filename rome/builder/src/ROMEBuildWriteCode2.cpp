@@ -1294,6 +1294,21 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosAutoSavePeriod(strtoul(##,&cstop, 10));");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%lu\", gAnalyzer->GetHistosAutoSavePeriod());");
+         // SnapShotFileName
+         subSubGroup->AddParameter(new ROMEConfigParameter("SnapShotFileName"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosSnapShotFileName(##.Data());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetHistosSnapShotRawFileName();");
+         // SnapShotEvents
+         subSubGroup->AddParameter(new ROMEConfigParameter("SnapShotEvents"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+#if defined( R__VISUAL_CPLUSPLUS )
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosSnapShotEvents(_strtoui64(##,&cstop, 10));");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%I64u\", gAnalyzer->GetHistosSnapShotEvents());");
+#else
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosSnapShotEvents(strtoull(##,&cstop, 10));");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%llu\", gAnalyzer->GetHistosSnapShotEvents());");
+#endif
       }
 
       // Macros

@@ -601,6 +601,16 @@
 					<xs:documentation>Period of auto saving of histogram file in sec. Auto saving is disabled when this is 0. Auto save works only when OutputFileOption is &quot;RECREATE&quot;. Default is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="SnapShotFileName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>File name of snap shot of histograms. (e.g. histos_ss_#_##.root, # and ## will be replaced by run number and event number.) (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SnapShotEvents" type="xs:integer" default="10000" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Snap shots are created every this number of events, if file name is specified. Default is 10000.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="MacrosDesc">

@@ -16,7 +16,7 @@
 
     <Offline>
       <RunNumbers>1</RunNumbers>
-      <EventNumbers>1-100000</EventNumbers>
+      <EventNumbers>1-10000</EventNumbers>
       <InputFileNames></InputFileNames>
     </Offline>
 
@@ -104,6 +104,8 @@
         <AccumulateAll>false</AccumulateAll>
         <DeactivateAll>false</DeactivateAll>
         <AutoSavePeriod>0</AutoSavePeriod>
+        <SnapShotFileName>snapshot_#(%d)_##(%05d).root</SnapShotFileName>
+        <SnapShotEvents>1000</SnapShotEvents>
       </HistogramWrite>
 
       <Macros>

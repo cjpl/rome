@@ -136,7 +136,7 @@ public:
 
    // Histos
    void   ReadHistograms();
-   Bool_t WriteHistograms();
+   Bool_t WriteHistograms(Bool_t snapShot = kFALSE);
 
 protected:
    // Run Status
