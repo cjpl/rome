@@ -927,11 +927,19 @@ Bool_t ROMEEventLoop::WriteEvent()
 
    // Histograms snap shot
    static ULong64_t histoSnapShotLastEvent = 1;
-   if (histoSnapShotLastEvent >= gROME->GetHistosSnapShotEvents()) {
-      WriteHistograms(kTRUE);
-      histoSnapShotLastEvent = 1;
-   } else {
-      histoSnapShotLastEvent++;
+   static Int_t snapShotFileNameLen = -1;
+
+   if (snapShotFileNameLen < 0) {
+      // check file name only once for speed.
+      snapShotFileNameLen = strlen(gROME->GetHistosSnapShotFileName());
+   }
+   if (snapShotFileNameLen) {
+      if (histoSnapShotLastEvent >= gROME->GetHistosSnapShotEvents()) {
+         WriteHistograms(kTRUE);
+         histoSnapShotLastEvent = 1;
+      } else {
+         histoSnapShotLastEvent++;
+      }
    }
 
    return true;
