@@ -11969,7 +11969,7 @@ Bool_t ROMEBuilder::WriteMain()
    for (i = 0; i < numOfMFSources; i++) {
       if (!mfSourceFileUsed[i])
          continue;
-      tmpName = gSystem->DirName(mfSourceFileName[i].Data());
+      tmpName = mfSourceFilePath[i].Data();
       gSystem->ExpandPathName(tmpName);
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
