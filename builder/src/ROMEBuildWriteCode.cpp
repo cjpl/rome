@@ -12076,8 +12076,8 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("         nographics = true;\n");
    buffer.AppendFormatted("      }\n");
 #if defined( R__UNIX )
-   buffer.AppendFormatted("      if (!nographics && !batch && !daemon && !gSystem->Getenv(\"DISPLAY\")) {\n");
-   buffer.AppendFormatted("         cerr<<\"Graphics is disabled because DISPLAY is not set.\"<<endl;\n");
+   buffer.AppendFormatted("      if (!nographics && !batch && !daemon && (!gSystem->Getenv(\"DISPLAY\") || !gXDisplay)) {\n");
+   buffer.AppendFormatted("         cerr<<\"Graphics is disabled.\"<<endl;\n");
    buffer.AppendFormatted("         nographics = true;\n");
    buffer.AppendFormatted("      }\n");
 #endif
