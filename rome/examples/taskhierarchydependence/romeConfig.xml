@@ -139,7 +139,7 @@
       <Display>
         <WindowScale>1.0</WindowScale>
         <StatusBar>true</StatusBar>
-        <UpdateFrequency>0</UpdateFrequency>
+        <UpdateFrequency>1000</UpdateFrequency>
         <ListTreeView>false</ListTreeView>
         <AnalyzerController>
           <Active>false</Active>
