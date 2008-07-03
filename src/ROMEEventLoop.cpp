@@ -992,18 +992,16 @@ Bool_t ROMEEventLoop::Update()
       fProgressWrite = false;
    }
 
-   // Condition of following 'if' statements can be a problem when 'event type !=1' comes frequently.(EventHandler can be called too frequently.)
    if (!gROME->isBatchMode() &&
-       (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+       (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) &&
+       fUpdateWindow) {
       newUpdateWindowEvent =  gROME->GetCurrentEventNumber();
       if (fUpdateWindowLastEvent != newUpdateWindowEvent ||
-          gROME->GetWindow()->IsEventHandlingRequested() || gROME->GetEventID() != 1) {
+          gROME->GetWindow()->IsEventHandlingRequested()) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
-         if ((fUpdateWindow &&
-              currentTime >
-              static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdatePeriod())) ||
-             gROME->GetWindow()->IsEventHandlingRequested() ||
-             (gROME->GetEventID() != 1 && (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()))) {
+         if ((!fContinuous && !gROME->IsStandAloneARGUS()) ||
+             currentTime > static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdatePeriod()) ||
+             gROME->GetWindow()->IsEventHandlingRequested()) {
             if (!this->isStopped()) {
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
