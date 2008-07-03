@@ -1063,7 +1063,7 @@ void ArgusWindow::CheckActiveFlags()
             }
             for (j = 0; j < ptr->GetNumberOfGraphs(); j++) {
                flag = gROME->IsGraphActive(i,j);
-               ptr->GetHistoParameterAt(j)->SetActive(flag);
+               ptr->GetGraphParameterAt(j)->SetActive(flag);
             }
          } else {
             ptr->SetActive(false);

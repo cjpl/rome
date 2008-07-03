@@ -5062,7 +5062,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i = 0; i < numOfTab; i++) {
       if (tabUsed[i] && tabDependence[i].Length()) {
          for (j = 0; j < numOfTab; j++) {
-            buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[j].Data());
+            if (tabUsed[j]) {
+               buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[j].Data());
+            }
          }
          buffer.AppendFormatted("\n");
          break;
