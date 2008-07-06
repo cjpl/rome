@@ -6137,7 +6137,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    if (ndb > 0) {
       if (midas) {
          buffer.AppendFormatted("   ROMEMidasDAQ* midas = dynamic_cast<ROMEMidasDAQ*>(GetActiveDAQ());\n");
-         buffer.AppendFormatted("   Int_t periodOrg;\n");
+         buffer.AppendFormatted("   Int_t periodOrg = 1000;\n");
          buffer.AppendFormatted("   if (midas) {\n");
          buffer.AppendFormatted("      periodOrg = midas->GetOnlineLoopPeriod();\n");
          buffer.AppendFormatted("      midas->SetOnlineLoopPeriod(1);\n");
@@ -6173,7 +6173,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    if (ndb > 0) {
       if (midas) {
          buffer.AppendFormatted("   ROMEMidasDAQ* midas = dynamic_cast<ROMEMidasDAQ*>(GetActiveDAQ());\n");
-         buffer.AppendFormatted("   Int_t periodOrg;\n");
+         buffer.AppendFormatted("   Int_t periodOrg = 1000;\n");
          buffer.AppendFormatted("   if (midas) {\n");
          buffer.AppendFormatted("      periodOrg = midas->GetOnlineLoopPeriod();\n");
          buffer.AppendFormatted("      midas->SetOnlineLoopPeriod(1);\n");
