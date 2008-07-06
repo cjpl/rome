@@ -6116,6 +6116,10 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
+   if (midas) {
+      buffer.AppendFormatted("#include \"ROMEMidasDAQ.h\"\n");
+   }
+
    buffer.AppendFormatted("\n");
 
    // Count number of databases
@@ -6131,13 +6135,32 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sAnalyzer::ReadSingleDataBaseFolders()\n{\n",shortCut.Data());
    if (ndb > 0) {
+      if (midas) {
+         buffer.AppendFormatted("   ROMEMidasDAQ* midas = dynamic_cast<ROMEMidasDAQ*>(GetActiveDAQ());\n");
+         buffer.AppendFormatted("   Int_t periodOrg;\n");
+         buffer.AppendFormatted("   if (midas) {\n");
+         buffer.AppendFormatted("      periodOrg = midas->GetOnlineLoopPeriod();\n");
+         buffer.AppendFormatted("      midas->SetOnlineLoopPeriod(1);\n");
+         buffer.AppendFormatted("   }\n");
+      }
       for (i = 0 ; i < numOfFolder; i++) {
          if (!folderUsed[i])
             continue;
          if (folderDataBase[i] && folderArray[i] == "1" && !folderSupport[i]) {
-            buffer.AppendFormatted("   if (!fDBAccess->Read%s())\n",folderName[i].Data());
+            buffer.AppendFormatted("   if (!fDBAccess->Read%s()) {\n",folderName[i].Data());
+            if (midas) {
+               buffer.AppendFormatted("      if (midas) {\n");
+               buffer.AppendFormatted("         midas->SetOnlineLoopPeriod(periodOrg);\n");
+               buffer.AppendFormatted("      }\n");
+            }
             buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
          }
+      }
+      if (midas) {
+         buffer.AppendFormatted("   if (midas) {\n");
+         buffer.AppendFormatted("      midas->SetOnlineLoopPeriod(periodOrg);\n");
+         buffer.AppendFormatted("   }\n");
       }
    }
    buffer.AppendFormatted("   return true;\n");
@@ -6148,13 +6171,32 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("Bool_t %sAnalyzer::ReadArrayDataBaseFolders()\n{\n",shortCut.Data());
    if (ndb > 0) {
+      if (midas) {
+         buffer.AppendFormatted("   ROMEMidasDAQ* midas = dynamic_cast<ROMEMidasDAQ*>(GetActiveDAQ());\n");
+         buffer.AppendFormatted("   Int_t periodOrg;\n");
+         buffer.AppendFormatted("   if (midas) {\n");
+         buffer.AppendFormatted("      periodOrg = midas->GetOnlineLoopPeriod();\n");
+         buffer.AppendFormatted("      midas->SetOnlineLoopPeriod(1);\n");
+         buffer.AppendFormatted("   }\n");
+      }
       for (i = 0; i < numOfFolder; i++) {
          if (!folderUsed[i])
             continue;
          if (folderDataBase[i] && folderArray[i] != "1" && !folderSupport[i]) {
-            buffer.AppendFormatted("   if (!fDBAccess->Read%s())\n",folderName[i].Data());
+            buffer.AppendFormatted("   if (!fDBAccess->Read%s()) {\n",folderName[i].Data());
+            if (midas) {
+               buffer.AppendFormatted("      if (midas) {\n");
+               buffer.AppendFormatted("         midas->SetOnlineLoopPeriod(periodOrg);\n");
+               buffer.AppendFormatted("      }\n");
+            }
             buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
          }
+      }
+      if (midas) {
+         buffer.AppendFormatted("   if (midas) {\n");
+         buffer.AppendFormatted("      midas->SetOnlineLoopPeriod(periodOrg);\n");
+         buffer.AppendFormatted("   }\n");
       }
    }
    buffer.AppendFormatted("   return true;\n");
@@ -7224,7 +7266,6 @@ Bool_t ROMEBuilder::WriteDBAccessCpp()
    buffer.AppendFormatted("#include \"generated/%sDBAccess.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"TMath.h\"\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
-
 
    for (i = 0; i < numOfTaskHierarchy; i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]]) {
