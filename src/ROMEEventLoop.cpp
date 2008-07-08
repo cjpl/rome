@@ -467,8 +467,8 @@ Int_t ROMEEventLoop::RunEvent()
          if (this->isTerminate()) {
             return kBreak;
          }
-         fFirstUserInput = false;
       }
+      fFirstUserInput = false;
    }
 
    // Set Fill Event equal true
