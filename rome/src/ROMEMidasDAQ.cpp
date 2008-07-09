@@ -102,6 +102,9 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fValidRawDataEvent(0)
 ,fReadExistingRawData(kFALSE)
 ,fNumberOfEventRequests(0)
+,fEventRequestID(0)
+,fEventRequestMask(0)
+,fEventRequestRate(0)
 ,fMidasOnlineBuffer(0)
 ,fMidasFileHandle(0)
 ,fMidasGzFileHandle()
@@ -125,10 +128,6 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fODBBuffer(new char[fODBBufferSize])
 {
    Int_t i;
-   for (i = 0; i < kMaxMidasEventTypes; i++) {
-      fEventRequestRate[i] = 2;
-      fEventRequestMask[i] = -1;
-   }
 
    if (gROME->isOffline()){
       fNumberOfRawDataEvent = 2;
@@ -153,6 +152,11 @@ ROMEMidasDAQ::~ROMEMidasDAQ()
       SafeDeleteArray(fRawDataEvent[i]);
    }
    SafeDeleteArray(fRawDataDummy);
+
+   SafeDeleteArray(fEventRequestID);
+   SafeDeleteArray(fEventRequestMask);
+   SafeDeleteArray(fEventRequestRate);
+
    SafeDelete(fOdbOffline);
    SafeDelete(fSeqNumToFilePos);
    SafeDelete(fSeqNumToEventNum);
