@@ -8678,9 +8678,15 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("{\n");
    // Event Requests
    buffer.AppendFormatted("   // Event Requests\n");
-   if (maxEventSize.Length()>0)
+   if (maxEventSize.Length() > 0) {
       buffer.AppendFormatted("   fMaxEventSize = %s;\n",maxEventSize.Data());
+   }
    buffer.AppendFormatted("   SetNumberOfEventRequests(%d);\n",numOfEvent);
+   if (numOfEvent > 0) {
+      buffer.AppendFormatted("   fEventRequestID = new Short_t[fNumberOfEventRequests];\n");
+      buffer.AppendFormatted("   fEventRequestMask = new Short_t[fNumberOfEventRequests];\n");
+      buffer.AppendFormatted("   fEventRequestRate = new Int_t[fNumberOfEventRequests];\n");
+   } 
    for (i = 0; i < numOfEvent; i++) {
       buffer.AppendFormatted("   SetEventRequestID(%d,%s);\n",i,eventID[i].Data());
       buffer.AppendFormatted("   SetEventRequestMask(%d,%s);\n",i,eventTriggerMask[i].Data());

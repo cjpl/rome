@@ -90,7 +90,6 @@ const UShort_t TID_LAST      = 17;      //< end of TID list indicator
 #  define MAX_EVENT_SIZE         0xA00000   /**< maximum event size if fixed 10MB */
 #endif
 
-const Int_t kMaxMidasEventTypes           = 5;
 const Int_t kRawDataEvents                = 8;
 const Int_t kMidasInitialOnlineLoopPeriod = 10;
 
@@ -110,9 +109,9 @@ protected:
    Bool_t        fReadExistingRawData;                     //! Flag to use event buffer instead of reading new evnet
 
    Int_t         fNumberOfEventRequests;                   //! Number of Event Requests
-   Short_t       fEventRequestID[kMaxMidasEventTypes];     //! IDs of Event Requests
-   Short_t       fEventRequestMask[kMaxMidasEventTypes];   //! Trigger Masks of Event Requests
-   Int_t         fEventRequestRate[kMaxMidasEventTypes];   //! Sampling Rates of Event Requests
+   Short_t      *fEventRequestID;                          //! IDs of Event Requests
+   Short_t      *fEventRequestMask;                        //! Trigger Masks of Event Requests
+   Int_t        *fEventRequestRate;                        //! Sampling Rates of Event Requests
 
 //   HNDLE         fMidasOnlineDataBase;                     //! Handle to the Midas Online Data Base (Online)
    INT           fMidasOnlineBuffer;                       //! Midas Online Buffer
