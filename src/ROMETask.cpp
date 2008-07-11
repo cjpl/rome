@@ -372,6 +372,9 @@ void ROMETask::Exec(Option_t *option)
                           fMemoryAccumulated);
       }
 #endif
+      gROME->GetApplication()->DisableFPETrap();
+      gSystem->ProcessEvents();
+      gROME->GetApplication()->EnableFPETrap();
       if (fillEventOld && !gROME->isFillEvent()) {
          fSkippedEvents++;
       }
