@@ -84,6 +84,9 @@ ArgusTab::~ArgusTab() {
 void ArgusTab::ArgusEventHandler() {
    while (fBusy) {
       gSystem->Sleep(10);
+      gROME->GetApplication()->DisableFPETrap();
+      gSystem->ProcessEvents();
+      gROME->GetApplication()->EnableFPETrap();
    }
 
    fWatchAll.Start(false);
@@ -93,6 +96,9 @@ void ArgusTab::ArgusEventHandler() {
    fBusy = false;
    fWatchUserEvent.Stop();
    fWatchAll.Stop();
+   gROME->GetApplication()->DisableFPETrap();
+   gSystem->ProcessEvents();
+   gROME->GetApplication()->EnableFPETrap();
 }
 
 //______________________________________________________________________________
