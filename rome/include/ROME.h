@@ -91,5 +91,7 @@ const Long64_t  kMinLong64   = -kMaxLong64 - 1;
 #   define R_05ULLD "%05I64u"
 #endif
 
+const Int_t kTriggerEventID = 1; // event ID of trigger in midas
+
 #endif   // ROME_H
 
