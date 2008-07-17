@@ -46,7 +46,6 @@
 #endif
 
 const Int_t kFilePositionsResizeIncrement = 100000;
-const Int_t kTriggerEventID = 1;
 
 namespace {
    enum EOnlineThreadRequest {

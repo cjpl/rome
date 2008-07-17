@@ -306,6 +306,8 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
          return true;
       }
 
+      gROME->SetEventID(kTriggerEventID);
+
       // read event
       const Int_t nTree = gROME->GetTreeObjectEntries();
       for (j = 0; j < nTree; j++) {
