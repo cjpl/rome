@@ -324,6 +324,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
                }
                tree->GetEntry(treePosition);
                gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
+               fTimeStamp = fTreeInfo->GetTimeStamp();
             }
          }
       }
