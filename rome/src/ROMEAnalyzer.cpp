@@ -819,12 +819,10 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
       }
    }
 
-   // in case that current run number is not in the list,
-   // return first run number larther than current run number
-   for (i = 0; i < nRunNumber; i++) {
-      if (TMath::Abs(fRunNumber.At(i)) > runNumber) {
-         return TMath::Abs(fRunNumber.At(i));
-      }
+   // in case that current run number is negative
+   // return first run number in the list.
+   if (runNumber < 0 && nRunNumber) {
+      return TMath::Abs(fRunNumber.At(0));
    }
 
    return -1;
@@ -833,9 +831,9 @@ Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber) const
 //______________________________________________________________________________
 void ROMEAnalyzer::DecodeNumbers(ROMEString& str, TArrayL64& arr)
 {
-   char cminus = '-';
-   char ccomma = ',';
-   char csemi  =';';
+   const char cminus = '-';
+   const char ccomma = ',';
+   const char csemi  = ';';
    char *tmpStr = new char[str.Length() + 1];
    strcpy(tmpStr, str.Data());
    char *pstr = tmpStr;
