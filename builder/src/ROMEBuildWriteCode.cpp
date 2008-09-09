@@ -9636,24 +9636,34 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          if (!folderUsed[iFold]) {
             continue;
          }
-         buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"%s\"));\n",
+         buffer.AppendFormatted("      bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"%s\"));\n",
                                 branchName[i][j].Data());
-         buffer.AppendFormatted("     if (bb) {\n");
-         buffer.AppendFormatted("        if (romeTree->GetBranchReadAt(%d)) {\n", j);
-         if (folderArray[iFold] == "1") {
-            buffer.AppendFormatted("           bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         buffer.AppendFormatted("      if (!bb)\n");
+         if (branchName[i][j].EndsWith(".")) {
+            tmp = branchName[i][j](0, branchName[i][j].Length() - 1);
+            buffer.AppendFormatted("         bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"%s\"));\n",
+                                   tmp.Data());
          } else {
-            buffer.AppendFormatted("           bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("         bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"%s.\"));\n",
+                                   branchName[i][j].Data());
          }
-         buffer.AppendFormatted("        }\n");
-         buffer.AppendFormatted("        else {\n");
-         buffer.AppendFormatted("           romeTree->GetTree()->SetBranchStatus(\"%s*\", 0);\n",
+         buffer.AppendFormatted("      if (bb) {\n");
+         buffer.AppendFormatted("         if (romeTree->GetBranchReadAt(%d)) {\n", j);
+         if (folderArray[iFold] == "1") {
+            buffer.AppendFormatted("            bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         } else {
+            buffer.AppendFormatted("            bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         buffer.AppendFormatted("         } else {\n");
+         buffer.AppendFormatted("            romeTree->GetTree()->SetBranchStatus(\"%s*\", 0);\n",
                                 branchName[i][j].Data());
-         buffer.AppendFormatted("        }\n");
-         buffer.AppendFormatted("     }\n");
-         buffer.AppendFormatted("     bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"Info\"));\n");
-         buffer.AppendFormatted("     bb->SetAddress(&fTreeInfo);\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("      }\n");
       }
+      buffer.AppendFormatted("      bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"Info\"));\n");
+      buffer.AppendFormatted("      if (!bb)\n");
+      buffer.AppendFormatted("         bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"Info.\"));\n");
+      buffer.AppendFormatted("      if (bb) bb->SetAddress(&fTreeInfo);\n");
       buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("}\n\n");
@@ -9863,6 +9873,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
+   ROMEString tmp;
 
    // File name
    cppFile.SetFormatted("%ssrc/generated/%sRootDAQ.cpp",outDir.Data(),shortCut.Data());
@@ -9939,6 +9950,15 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
       for (j = 0; j < numOfRootBranch[i]; j++) {
          buffer.AppendFormatted("   bb = static_cast<TBranchElement*>(static_cast<TTree*>(fTrees->At(%d))->FindBranch(\"%s\"));\n",i,
                                 rootBranchName[i][j].Data());
+         buffer.AppendFormatted("   if (!bb)\n");
+         if (rootBranchName[i][j].EndsWith(".")) {
+            tmp = rootBranchName[i][j](0, rootBranchName[i][j].Length() - 1);
+            buffer.AppendFormatted("      bb = static_cast<TBranchElement*>(static_cast<TTree*>(fTrees->At(%d))->FindBranch(\"%s\"));\n",i,
+                                   tmp.Data());
+         } else {
+            buffer.AppendFormatted("      bb = static_cast<TBranchElement*>(static_cast<TTree*>(fTrees->At(%d))->FindBranch(\"%s.\"));\n",i,
+                                   rootBranchName[i][j].Data());
+         }
          buffer.AppendFormatted("   if (!bb) {\n");
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Branch '%s' not found in tree '%s'.\\n\");\n",
                                 rootBranchName[i][j].Data(),rootTreeName[i].Data());
