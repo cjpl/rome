@@ -1538,6 +1538,7 @@ void ROMEEventLoop::ReadHistograms()
    Int_t histDirNumber;
    TDirectory *histDirTmp;
    TDirectory *histDir = 0;
+   Bool_t firstWarning;
 
    for (ii = 0; ii < runNumbers.GetSize(); ii++) {
       filename.SetFormatted("%s%s", gROME->GetHistosInputPath(), gROME->GetHistosInputFileName(runNumbers.At(ii)));
@@ -1565,15 +1566,17 @@ void ROMEEventLoop::ReadHistograms()
                histoPar = task->GetHistoParameterAt(j);
                if (histoPar->IsActive() && !gROME->IsHistosDeactivateAll() &&
                    (histoPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
+                  firstWarning = kTRUE;
                   for (k = 0; k < histoPar->GetArraySize(); k++) {
                      name.SetFormatted("%s%s", task->GetHistoNameAt(j)->Data(), task->GetTaskSuffix()->Data());
                      if (histoPar->GetArraySize() > 1) {
                         name.AppendFormatted("_%0*d", 3, k + histoPar->GetArrayStartIndex());
                      }
                      tempObj = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
-                     if (tempObj == 0) {
+                     if (tempObj == 0 && firstWarning) {
                         ROMEPrint::Warning("Histogram '%s' not available in run "R_LLD"!\n", task->GetHistoNameAt(j)->Data(),
                                            runNumbers.At(ii));
+                        firstWarning = kFALSE;
                      } else {
                         if (ii == 0) {
                            if (histoPar->GetArraySize() > 1) {
@@ -1596,15 +1599,17 @@ void ROMEEventLoop::ReadHistograms()
                graphPar = task->GetGraphParameterAt(j);
                if (graphPar->IsActive() && !gROME->IsHistosDeactivateAll()
                    && (graphPar->IsAccumulate() || gROME->IsHistosAccumulateAll())) {
+                  firstWarning = kTRUE;
                   for (k = 0; k < graphPar->GetArraySize(); k++) {
                      name.SetFormatted("%s%s", task->GetGraphNameAt(j)->Data(), task->GetTaskSuffix()->Data());
                      if (graphPar->GetArraySize() > 1) {
                         name.AppendFormatted("_%0*d", 3, k + graphPar->GetArrayStartIndex());
                      }
                      tempObj = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
-                     if (tempObj == 0) {
+                     if (tempObj == 0 && firstWarning) {
                         ROMEPrint::Warning("Graphgram '%s' not available in run "R_LLD"!\n", task->GetGraphNameAt(j)->Data(),
                                            runNumbers.At(ii));
+                        firstWarning = kFALSE;
                      } else {
                         if (ii == 0) {
                            if (graphPar->GetArraySize() > 1) {
