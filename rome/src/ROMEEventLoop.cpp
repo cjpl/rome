@@ -1573,10 +1573,12 @@ void ROMEEventLoop::ReadHistograms()
                         name.AppendFormatted("_%0*d", 3, k + histoPar->GetArrayStartIndex());
                      }
                      tempObj = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
-                     if (tempObj == 0 && firstWarning) {
-                        ROMEPrint::Warning("Histogram '%s' not available in run "R_LLD"!\n", task->GetHistoNameAt(j)->Data(),
-                                           runNumbers.At(ii));
-                        firstWarning = kFALSE;
+                     if (tempObj == 0) {
+                        if (firstWarning) {
+                           ROMEPrint::Warning("Histogram '%s' not available in run "R_LLD"!\n",
+                                              task->GetHistoNameAt(j)->Data(), runNumbers.At(ii));
+                           firstWarning = kFALSE;
+                        }
                      } else {
                         if (ii == 0) {
                            if (histoPar->GetArraySize() > 1) {
@@ -1606,10 +1608,12 @@ void ROMEEventLoop::ReadHistograms()
                         name.AppendFormatted("_%0*d", 3, k + graphPar->GetArrayStartIndex());
                      }
                      tempObj = static_cast<TObject*>(histDir->FindObjectAny(name.Data()));
-                     if (tempObj == 0 && firstWarning) {
-                        ROMEPrint::Warning("Graphgram '%s' not available in run "R_LLD"!\n", task->GetGraphNameAt(j)->Data(),
-                                           runNumbers.At(ii));
-                        firstWarning = kFALSE;
+                     if (tempObj == 0) {
+                        if (firstWarning) {
+                           ROMEPrint::Warning("Graphgram '%s' not available in run "R_LLD"!\n",
+                                              task->GetGraphNameAt(j)->Data(), runNumbers.At(ii));
+                           firstWarning = kFALSE;
+                        }
                      } else {
                         if (ii == 0) {
                            if (graphPar->GetArraySize() > 1) {
