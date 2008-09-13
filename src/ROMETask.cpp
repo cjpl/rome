@@ -236,7 +236,7 @@ void ROMETask::Exec(Option_t *option)
             ROMEPrint::Warning("BeginOfRun is called before Init or after Terminate.");
 #endif
          }
-      } {
+      } else {
          fBorEorState++;
          fCurrentEventMethod = "BeginOfRun";
          fSkippedEvents = 0;
