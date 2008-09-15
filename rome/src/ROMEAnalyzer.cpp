@@ -131,7 +131,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fConfigDir("./")
 ,fConfigDirConstructed("")
 ,fMakeOutputDirectory(kFALSE)
-,fCurrentRunNumber(0)
+,fCurrentRunNumber(-1)
 ,fRunNumber()
 ,fRunNumberString("")
 ,fCurrentEventNumber(0)
