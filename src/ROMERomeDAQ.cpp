@@ -264,9 +264,9 @@ Bool_t ROMERomeDAQ::BeginOfRun()
          if (romeTree->isRead()) {
             for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
                tree->GetBranch("Info")->GetEntry(iEvent);
-            }
-            if (fMaxEventNumber < fTreeInfo->GetEventNumber()) {
-               fMaxEventNumber = fTreeInfo->GetEventNumber();
+               if (fMaxEventNumber < fTreeInfo->GetEventNumber()) {
+                  fMaxEventNumber = fTreeInfo->GetEventNumber();
+               }
             }
          }
       }
