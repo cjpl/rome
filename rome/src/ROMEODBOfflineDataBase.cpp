@@ -123,3 +123,9 @@ Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray * /* values */, const char *
 {
    return true;
 }
+
+//______________________________________________________________________________
+Bool_t ROMEODBOfflineDataBase::DumpToXML(const char *filename) const
+{
+   return fXML->WritePathFile(filename);
+}

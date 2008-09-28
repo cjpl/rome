@@ -30,6 +30,7 @@ public:
    const char* GetType() const { return "odb"; }
    const char* GetDescription() const { return "Midas ODB database for offline use"; }
    Bool_t      SetBuffer(const char *buffer) const;
+   Bool_t      DumpToXML(const char *filename) const;
 
    ClassDef(ROMEODBOfflineDataBase, 0) // Interface to ODB in offline
 };
