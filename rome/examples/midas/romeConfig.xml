@@ -14,7 +14,7 @@
       <!-- Description of the modes in which the framework can run. -->
       <!-- Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline -->
       <AnalyzingMode>online</AnalyzingMode>
-      <!-- Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none. -->
+      <!-- Describes the DAQ system used for IO. This can be 'none', 'midas', 'rome', 'root' or a user defined DAQ system. Default is none. -->
       <DAQSystem>midas</DAQSystem>
     </Modes>
 

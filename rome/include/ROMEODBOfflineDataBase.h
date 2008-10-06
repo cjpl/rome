@@ -10,11 +10,14 @@
 #include "ROMEDataBase.h"
 class ROMEStr2DArray;
 class ROMEXML;
+class TObjString;
+class TFile;
 
 class ROMEODBOfflineDataBase : public ROMEDataBase
 {
 protected:
    ROMEXML      *fXML;
+   TObjString   *fStr;
 
 private:
    ROMEODBOfflineDataBase(const ROMEODBOfflineDataBase &db); // not implemented
@@ -31,6 +34,7 @@ public:
    const char* GetDescription() const { return "Midas ODB database for offline use"; }
    Bool_t      SetBuffer(const char *buffer) const;
    Bool_t      DumpToXML(const char *filename) const;
+   Int_t       WriteToTFile(TFile *file) const;
 
    ClassDef(ROMEODBOfflineDataBase, 0) // Interface to ODB in offline
 };

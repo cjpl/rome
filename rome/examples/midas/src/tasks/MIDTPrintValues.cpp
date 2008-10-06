@@ -34,6 +34,7 @@
 #include "tasks/MIDTPrintValues.h"
 #include "MIDODB.h"
 #include "ROMEiostream.h"
+#include "ROMEODBOfflineDataBase.h"
 
 // uncomment if you want to include headers of all folders
 //#include "MIDAllFolders.h"
@@ -49,6 +50,21 @@ void MIDTPrintValues::BeginOfRun()
 {
    cout << "Run Number : " << gAnalyzer->GetODB()->GetRunNumber() << endl;
    cout << "Start Time : " << gAnalyzer->GetODB()->GetStartTime().Data() << endl;
+
+   // copy ODB to ROOT files.
+   // this can be read in "rome" DAQ mode.
+   Int_t nTree = gAnalyzer->GetTreeObjectEntries();
+   Int_t iTree;
+   ROMETree *tree;
+   ROMEODBOfflineDataBase *db = static_cast<ROMEODBOfflineDataBase*>(gAnalyzer->GetDataBase("odb"));
+   if (db && gAnalyzer->IsActiveDAQ("midas")) {
+      for (iTree = 0; iTree < nTree; iTree++) {
+         tree = gAnalyzer->GetTreeObjectAt(iTree);
+         if (tree->isWrite()) {
+            db->WriteToTFile(tree->GetFile());
+         }
+      }
+   }
 }
 
 void MIDTPrintValues::Event()
