@@ -43,7 +43,7 @@
 			</xs:element>
 			<xs:element name="DAQSystem" type="xs:string" default="none">
 				<xs:annotation>
-					<xs:documentation>Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none.</xs:documentation>
+					<xs:documentation>Describes the DAQ system used for IO. This can be 'none', 'midas', 'rome', 'root' or a user defined DAQ system. Default is none.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
