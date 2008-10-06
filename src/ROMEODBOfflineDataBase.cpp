@@ -14,12 +14,24 @@
 #include "ROMEString.h"
 #include "ROMEXML.h"
 
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TFile.h>
+#include <TObjString.h>
+#include <TROOT.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
+
 ClassImp(ROMEODBOfflineDataBase)
 
 //______________________________________________________________________________
 ROMEODBOfflineDataBase::ROMEODBOfflineDataBase()
 :ROMEDataBase()
 ,fXML(new ROMEXML())
+,fStr(new TObjString())
 {
 }
 
@@ -27,6 +39,7 @@ ROMEODBOfflineDataBase::ROMEODBOfflineDataBase()
 ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase()
 {
    SafeDelete(fXML);
+   SafeDelete(fStr);
 }
 
 //______________________________________________________________________________
@@ -39,6 +52,7 @@ Bool_t ROMEODBOfflineDataBase::Init(const char *name, const char * /* path */, c
 //______________________________________________________________________________
 Bool_t ROMEODBOfflineDataBase::SetBuffer(const char *buffer) const
 {
+   *fStr = buffer;
    return fXML->OpenBufferForPath(buffer);
 }
 
@@ -128,4 +142,21 @@ Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray * /* values */, const char *
 Bool_t ROMEODBOfflineDataBase::DumpToXML(const char *filename) const
 {
    return fXML->WritePathFile(filename);
+}
+
+//______________________________________________________________________________
+Int_t ROMEODBOfflineDataBase::WriteToTFile(TFile *file) const
+{
+   if (!file || !fStr) {
+      return 0;
+   }
+   TDirectory *orgdir = gDirectory;
+   file->cd();
+   Int_t ret = fStr->Write("odb", TObject::kOverwrite);
+   if (orgdir) {
+      orgdir->cd();
+   } else {
+      gROOT->cd();
+   }
+   return ret;
 }

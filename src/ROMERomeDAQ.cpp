@@ -18,6 +18,7 @@
 #include <TROOT.h>
 #include <TBranchElement.h>
 #include <TMath.h>
+#include <TObjString.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
@@ -25,6 +26,7 @@
 #include "ROMERomeDAQ.h"
 #include "ROMETree.h"
 #include "ROMETreeInfo.h"
+#include "ROMEODBOfflineDataBase.h"
 
 ClassImp(ROMERomeDAQ)
 
@@ -287,6 +289,24 @@ Bool_t ROMERomeDAQ::BeginOfRun()
          } else {
             fTreePositionLookup[j] = 0;
          }
+      }
+
+      // read ODB (when there are multiple ODB, the first one is actually used)
+      const char *odbbuffer = 0;
+      TObjString *odbstr    = 0;
+      for (j = 0; j < nTree; j++) {
+         romeTree = static_cast<ROMETree*>(fROMETrees->At(j));
+         if (romeTree->isRead()) {
+            odbstr = static_cast<TObjString*>(romeTree->GetFile()->Get("odb"));
+            if (odbstr) {
+               odbbuffer = odbstr->GetString().Data();
+               break;
+            }
+         }
+      }
+      if (gROME->isDataBaseActive("ODB")) {
+         static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->
+               SetBuffer(odbbuffer);
       }
    }
    return true;
