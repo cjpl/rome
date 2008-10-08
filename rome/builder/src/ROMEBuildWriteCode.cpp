@@ -9673,21 +9673,27 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("void %sRomeDAQ::ReadRunHeaders()\n{\n",shortCut.Data());
    if (numOfTree > 0) {
       buffer.AppendFormatted("   ROMETree* romeTree;\n");
+      buffer.AppendFormatted("   TFile*    file;\n");
    }
    for (i = 0; i < numOfTree; i++) {
       buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
       buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
-      buffer.AppendFormatted("      if (romeTree->GetFile()) {\n");
-      buffer.AppendFormatted("         romeTree->GetFile()->cd();\n");
+      buffer.AppendFormatted("      if ((file = romeTree->GetFile())) {\n");
+      buffer.AppendFormatted("         file->cd();\n");
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
+            buffer.AppendFormatted("         if (file->GetKey(\"%s\")) {\n", runHeaderName[i][j].Data());
             if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
-               buffer.AppendFormatted("         gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(),
+               buffer.AppendFormatted("            gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(),
                                       runHeaderName[i][j].Data());
             } else {
-               buffer.AppendFormatted("         gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(),
+               buffer.AppendFormatted("            gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(),
                                       runHeaderName[i][j].Data());
             }
+            buffer.AppendFormatted("         } else {\n");
+            buffer.AppendFormatted("            ROMEPrint::Warning(\"Run header '%s' not found in '%%s'.\\n\", romeTree->GetFileName().Data());\n",
+                                   runHeaderFolder[i][j].Data());
+            buffer.AppendFormatted("         }\n");
          }
       }
       buffer.AppendFormatted("         gROOT->cd();\n");
