@@ -369,7 +369,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          TimeEventLoop();
          ROMEPrint::Print("\n");
       }
-      ExecuteTasks("PrintSkipped");
+      if (gVerboseLevel >= ROMEPrint::kDebug) {
+         ExecuteTasks("PrintSkipped");
+      }
       CleanTasks();
    }
 
