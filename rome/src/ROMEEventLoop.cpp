@@ -730,6 +730,9 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    if (this->isEndOfRun()) {
       return true;
    }
+   if (this->isTerminate()) {
+      return true;
+   }
 
    // Set alwasy fill flag
    fAlwaysFillTrees = gROME->GetActiveDAQ()->GetAlwaysFillTrees();
