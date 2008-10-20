@@ -25,6 +25,7 @@ protected:
 
    // Tree Info
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object
+   TArrayL64     fCurrentTreePosition;             //! current tree read positions
    Long64_t**    fTreePositionLookup;              //! Array of lookup table of tree read positions
    Long64_t*     fTreeNEntries;                    //! Number of entries
 
