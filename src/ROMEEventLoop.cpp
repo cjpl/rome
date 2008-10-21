@@ -487,7 +487,7 @@ Int_t ROMEEventLoop::RunEvent()
          ROMEPrint::Print("\n\nTerminating Program !\n");
          return kReturn;
       }
-      if (fHaveBeginOfEventMacro) {
+      if (fHaveBeginOfEventMacro && this->isAnalyze()) {
          gROME->GetApplication()->ProcessFile(fBeginOfEventMacro.Data());
       }
       if (this->isEndOfRun()) {
@@ -524,7 +524,7 @@ Int_t ROMEEventLoop::RunEvent()
          ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
          ExecuteTasks(text.Data());
          CleanTasks();
-         if (fHaveEndOfEventMacro) {
+         if (fHaveEndOfEventMacro && this->isAnalyze()) {
             gROME->GetApplication()->ProcessFile(fEndOfEventMacro.Data());
          }
       }
