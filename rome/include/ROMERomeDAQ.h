@@ -8,6 +8,8 @@
 #define ROMERomeDAQ_H
 
 #include <TFile.h>
+#include <TArrayS.h>
+#include <TArrayL64.h>
 #include "ROMEString.h"
 #include "ROMEDAQSystem.h"
 
@@ -25,6 +27,7 @@ protected:
 
    // Tree Info
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object
+   TArrayS       fSkipReadTree;                    //! Flag to skip reading tree next time
    TArrayL64     fCurrentTreePosition;             //! current tree read positions
    Long64_t**    fTreePositionLookup;              //! Array of lookup table of tree read positions
    Long64_t*     fTreeNEntries;                    //! Number of entries

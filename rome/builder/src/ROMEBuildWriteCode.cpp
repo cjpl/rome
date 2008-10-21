@@ -9851,7 +9851,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    // File getter
    for (i = 0; i < numOfTree; i++)
-      buffer.AppendFormatted("   TFile* Get%sFile() const { return fRootFiles ? static_cast<TFile*>(fRootFiles->At(%d)) : 0; }\n",
+      buffer.AppendFormatted("   TFile* Get%sFile() const { return fROMETrees ? static_cast<ROMETree*>(fROMETrees->At(%d))->GetFile() : 0; }\n",
                              treeName[i].Data(), i);
 
    // methods
