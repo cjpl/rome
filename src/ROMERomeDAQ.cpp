@@ -159,8 +159,8 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                   ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
                   return false;
                }
-               ROMEPrint::Print("Reading %s\n", filename.Data());
                if (!fSkipReadTree[j]) {
+                  ROMEPrint::Print("Reading %s\n", filename.Data());
                   if (!tree->Read(romeTree->GetName())) {
                      return false;
                   }
@@ -202,10 +202,10 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                   }
                   gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex).Data());
                   static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->cd();
-                  ROMEPrint::Print("Reading %s\n",
-                                   gROME->ConstructFilePath(gROME->GetRawInputDirString(),
-                                                            gROME->GetCurrentInputFileName(), filename).Data());
+                  gROME->ConstructFilePath(gROME->GetRawInputDirString(),
+                                           gROME->GetCurrentInputFileName(), filename);
                   if (!fSkipReadTree[j]) {
+                     ROMEPrint::Print("Reading %s\n", filename.Data());
                      if (!tree->Read(romeTree->GetName())) {
                         return false;
                      }
@@ -229,7 +229,10 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                      }
                      static_cast<TFile*>(fRootFiles->At(i))->cd();
                      if (static_cast<TFile*>(fRootFiles->At(i))->GetKey(treename)) {
+                        gROME->ConstructFilePath(gROME->GetRawInputDirString(),
+                                                 gROME->GetInputFileNameAt(i), filename);
                         if (!fSkipReadTree[j]) {
+                           ROMEPrint::Print("Reading %s\n", filename.Data());
                            if (!tree->Read(treename.Data())) {
                               return false;
                            }
@@ -240,9 +243,6 @@ Bool_t ROMERomeDAQ::BeginOfRun()
 //                        tree->GetBranch("Info")->GetEntry(0);
 //                        if (fTreeInfo->GetRunNumber() == gROME->GetCurrentRunNumber()) {
                         gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(i));
-                        ROMEPrint::Print("Reading %s\n",
-                                         gROME->ConstructFilePath(gROME->GetRawInputDirString(),
-                                                                  gROME->GetCurrentInputFileName(), filename).Data());
                         tree->SetName(fCurrentTreeName.Data());
                         fInputFileNameIndex = i;
                         break;
