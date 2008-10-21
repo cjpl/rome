@@ -40,6 +40,7 @@ ROMERomeDAQ::ROMERomeDAQ()
 ,fCurrentTreeName("")
 ,fMaxEventNumber(0)
 ,fTreeInfo(new ROMETreeInfo())
+,fSkipReadTree(0)
 ,fCurrentTreePosition(0)
 ,fTreePositionLookup(0)
 ,fTreeNEntries(0)
@@ -89,6 +90,8 @@ Bool_t ROMERomeDAQ::Init()
    Int_t j;
 
    fTreePositionLookup = new Long64_t*[nTree];
+   fSkipReadTree.Set(nTree);
+   fSkipReadTree.Reset();
    fCurrentTreePosition.Set(nTree);
    fCurrentTreePosition.Reset();
    fTreeNEntries = new Long64_t[nTree];
@@ -157,8 +160,12 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                   return false;
                }
                ROMEPrint::Print("Reading %s\n", filename.Data());
-               if (!tree->Read(romeTree->GetName())) {
-                  return false;
+               if (!fSkipReadTree[j]) {
+                  if (!tree->Read(romeTree->GetName())) {
+                     return false;
+                  }
+               } else {
+                  fSkipReadTree[j] = 0;
                }
                romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(j)));
                romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(j))->GetName());
@@ -171,8 +178,12 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                      treename.SetFormatted("%s_%d", fCurrentTreeName.Data(), fTreeIndex);
                      static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->cd();
                      if (static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->GetKey(treename)) {
-                        if (!tree->Read(treename.Data())) {
-                           return false;
+                        if (!fSkipReadTree[j]) {
+                           if (!tree->Read(treename.Data())) {
+                              return false;
+                           }
+                        } else {
+                           fSkipReadTree[j] = 0;
                         }
                         romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex)));
                         romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->GetName());
@@ -194,8 +205,12 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                   ROMEPrint::Print("Reading %s\n",
                                    gROME->ConstructFilePath(gROME->GetRawInputDirString(),
                                                             gROME->GetCurrentInputFileName(), filename).Data());
-                  if (!tree->Read(romeTree->GetName())) {
-                     return false;
+                  if (!fSkipReadTree[j]) {
+                     if (!tree->Read(romeTree->GetName())) {
+                        return false;
+                     }
+                  } else {
+                     fSkipReadTree[j] = 0;
                   }
                   romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex)));
                   romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->GetName());
@@ -214,8 +229,10 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                      }
                      static_cast<TFile*>(fRootFiles->At(i))->cd();
                      if (static_cast<TFile*>(fRootFiles->At(i))->GetKey(treename)) {
-                        if (!tree->Read(treename.Data())) {
-                           return false;
+                        if (!fSkipReadTree[j]) {
+                           if (!tree->Read(treename.Data())) {
+                              return false;
+                           }
                         }
                         romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(i)));
                         romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(i))->GetName());
@@ -233,6 +250,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                      }
                   }
                }
+               fSkipReadTree[j] = 1;
                if (fInputFileNameIndex == -1) {
                   ROMEPrint::Warning("Run " R_LLD " not found in the specified input files !\n",
                                      gROME->GetCurrentRunNumber());
@@ -383,8 +401,10 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
                gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
                fTimeStamp = fTreeInfo->GetTimeStamp();
                if (fTreeInfo->GetRunNumber() != gROME->GetCurrentRunNumber()) {
-                  fTreeIndex--;          // read this file again.
-                  fInputFileNameIndex--; // read this file again.
+                  // read this file again.
+                  fTreeIndex--;
+                  fInputFileNameIndex--;
+                  fSkipReadTree[j] = 1;
                   this->SetEndOfRun();
                   return true;
                }
