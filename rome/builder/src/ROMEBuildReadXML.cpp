@@ -893,6 +893,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   // default task hierarchy
                   for (i = 0; i < numOfTask; i++) {
                      taskHierarchyName[i] = taskName[i];
+                     taskHierarchyNameWOAffiliation[i] = taskName[i];
                      taskHierarchyParentIndex[i] = -1;
                      taskHierarchyClassIndex[i] = i;
                      taskHierarchyMultiplicity[i] = 1;
