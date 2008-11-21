@@ -128,7 +128,9 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBas
          values->SetAt(value.Data(), 0, iValue);
       }
    } else {
-      return kFALSE;
+      ROMEPrint::Warning("Warning: %s was not found in ODB. Default value will be used.\n",
+                         dataBasePath);
+      return !fTreatWarningAsError;
    }
 
    return true;
