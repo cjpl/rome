@@ -231,6 +231,9 @@ ROMEBuilder::ROMEBuilder()
 ,taskHierarchySuffix(0)
 ,numOfTaskHierarchyConnectedFrom(0)
 ,taskHierarchyConnectedFrom(0)
+,numOfTaskHierarchyWOAffiliation(0)
+,taskHierarchyNameWOAffiliation(0)
+,taskHierarchySuffixWOAffiliation(0)
 ,numOfSteering(0)
 ,numOfSteerFields(0)
 ,numOfSteerChildren(0)
@@ -632,6 +635,10 @@ ROMEBuilder::~ROMEBuilder()
    FreeArray(taskHierarchySuffix);
    FreeArray(numOfTaskHierarchyConnectedFrom);
    FreeArray(taskHierarchyConnectedFrom);
+
+   // task hierarchy without affiliation
+   FreeArray(taskHierarchyNameWOAffiliation);
+   FreeArray(taskHierarchySuffixWOAffiliation);
 
    // steering
    FreeArray(numOfSteering);
@@ -1085,6 +1092,29 @@ Bool_t ROMEBuilder::StartBuilder()
             taskHierarchySuffix[i].SetFormatted("_%03d",suffixNumber);
       } else {
          taskHierarchySuffix[i] = "";
+      }
+   }
+
+   // fill task hierarchy index and suffix without affiliation
+   for (i = 0; i < numOfTaskHierarchyWOAffiliation; i++) {
+      suffixNumber = 0;
+      multiplicity = 0;
+      for (j = 0; j < numOfTaskHierarchyWOAffiliation; j++) {
+         if (j != i && taskHierarchyNameWOAffiliation[i] == taskHierarchyNameWOAffiliation[j]) {
+            multiplicity++;
+            if (j<i)
+               suffixNumber++;
+         }
+      }
+      if (multiplicity > 0) {
+         if (multiplicity <= 9)
+            taskHierarchySuffixWOAffiliation[i].SetFormatted("_%01d",suffixNumber);
+         if (multiplicity>9)
+            taskHierarchySuffixWOAffiliation[i].SetFormatted("_%02d",suffixNumber);
+         if (multiplicity>99)
+            taskHierarchySuffixWOAffiliation[i].SetFormatted("_%03d",suffixNumber);
+      } else {
+         taskHierarchySuffixWOAffiliation[i] = "";
       }
    }
 
@@ -1759,20 +1789,18 @@ Bool_t ROMEBuilder::AddConfigParametersFolder()
 
    if (hasDependenceCheck || mainDefinitionVersion != "1") {
       // Task active flag
-      for (i = 0; i < numOfTaskHierarchy; i++) {
-         if (!taskUsed[taskHierarchyClassIndex[i]])
-            continue;
+      for (i = 0; i < numOfTaskHierarchyWOAffiliation; i++) {
          if (numOfValue[numOfFolder] >= maxNumberOfValues) {
             cout<<"Maximal number of fields in folder '"<<folderName[numOfFolder].Data()<<"' reached : "
                 <<maxNumberOfValues<<" !"<<endl;
             cout<<"Terminating program."<<endl;
             return false;
          }
-         tmp.SetFormatted("%s%sTaskActive",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+         tmp.SetFormatted("%s%sTaskActive",taskHierarchyNameWOAffiliation[i].Data(),taskHierarchySuffixWOAffiliation[i].Data());
          valueName[numOfFolder][numOfValue[numOfFolder]] = tmp;
          valueType[numOfFolder][numOfValue[numOfFolder]] = "Bool_t";
          valueComment[numOfFolder][numOfValue[numOfFolder]].SetFormatted("Active flag of %s task",
-                                                                         taskHierarchyName[i].Data());
+                                                                         taskHierarchyNameWOAffiliation[i].Data());
          valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
          valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
          valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;

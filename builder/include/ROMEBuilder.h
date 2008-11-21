@@ -298,6 +298,11 @@ protected:
    Int_t        *numOfTaskHierarchyConnectedFrom;
    ROMEString  **taskHierarchyConnectedFrom;
 
+// task hierarchyWOAffiliation
+   Int_t         numOfTaskHierarchyWOAffiliation;
+   ROMEString   *taskHierarchyNameWOAffiliation;
+   ROMEString   *taskHierarchySuffixWOAffiliation;
+
 // steering
    Int_t        *numOfSteering;
    Int_t       **numOfSteerFields;
