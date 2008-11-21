@@ -355,6 +355,10 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfTaskHierarchyConnectedFrom = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
    taskHierarchyConnectedFrom = static_cast<ROMEString**>(AllocateROMEString(2*maxNumberOfTasks,2*maxNumberOfTasks));
 
+   // task hierarchy
+   taskHierarchyNameWOAffiliation = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
+   taskHierarchySuffixWOAffiliation = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
+
    // steering
    numOfSteering = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1));
    numOfSteerFields = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs + 1,maxNumberOfSteering + 1));
@@ -899,12 +903,14 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      }
                   }
                   numOfTaskHierarchy = numOfTask;
+                  numOfTaskHierarchyWOAffiliation = numOfTask;
                }
                if (!strcmp(name,"TaskHierarchy")) {
                   int depth = 0;
                   int *parentIndex = new int[2*maxNumberOfTasks];
                   parentIndex[0] = -1;
                   numOfTaskHierarchy = -1;
+                  numOfTaskHierarchyWOAffiliation = -1;
                   Bool_t notUsed = kFALSE;
                   while (xml->NextLine()&&!finished) {
                      type = xml->GetType();
@@ -912,6 +918,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      if (type == 1 && !strcmp(name,"TaskName")) {
                         xml->GetValue(taskHierarchyName[numOfTaskHierarchy],taskHierarchyName[numOfTaskHierarchy]);
                         FormatText(taskHierarchyName[numOfTaskHierarchy], kTRUE);
+                        taskHierarchyNameWOAffiliation[numOfTaskHierarchyWOAffiliation] = taskHierarchyName[numOfTaskHierarchy];
                         taskHierarchyClassIndex[numOfTaskHierarchy] = -1;
                         for (i = 0; i < numOfTask; i++) {
                            if (taskName[i] == taskHierarchyName[numOfTaskHierarchy])
@@ -967,6 +974,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      if (type == 1 && !strcmp(name,"Task")) {
                            depth++;
                            numOfTaskHierarchy++;
+                           numOfTaskHierarchyWOAffiliation++;
                            parentIndex[depth] = numOfTaskHierarchy;
                            taskHierarchyName[numOfTaskHierarchy] = "";
                            taskHierarchyParentIndex[numOfTaskHierarchy] = parentIndex[depth-1];
@@ -980,6 +988,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      }
                   }
                   numOfTaskHierarchy++;
+                  numOfTaskHierarchyWOAffiliation++;
                   delete [] parentIndex;
                   continue;
                }
