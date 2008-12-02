@@ -9577,6 +9577,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
+   buffer.AppendFormatted("#include <TKey.h>\n");
    buffer.AppendFormatted("#include <TROOT.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
@@ -9682,11 +9683,14 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       buffer.AppendFormatted("         file->cd();\n");
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
-            buffer.AppendFormatted("         if (file->GetKey(\"%s\")) {\n", runHeaderName[i][j].Data());
             if (folderArray[runHeaderFolderIndex[i][j]] == "1") {
+               buffer.AppendFormatted("         if (file->GetKey(\"%s\") && !strcmp(file->GetKey(\"%s\")->GetClassName(), \"%s%s\")) {\n",
+                                      runHeaderName[i][j].Data(), runHeaderName[i][j].Data(), shortCut.Data(), runHeaderFolder[i][j].Data());
                buffer.AppendFormatted("            gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(),
                                       runHeaderName[i][j].Data());
             } else {
+               buffer.AppendFormatted("         if (file->GetKey(\"%s\") && !strcmp(file->GetKey(\"%s\")->GetClassName(), \"TClonesArray\")) {\n",
+                                      runHeaderName[i][j].Data(), runHeaderName[i][j].Data());
                buffer.AppendFormatted("            gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(),
                                       runHeaderName[i][j].Data());
             }
