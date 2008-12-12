@@ -13102,13 +13102,15 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("void %sReadTrees(Int_t run_num = 1\n", shortCut.Data());
-   buffer.AppendFormatted("                 , Int_t ev_1 = 0\n");
-   buffer.AppendFormatted("                 , Int_t ev_2 = 9\n");
+   buffer.AppendFormatted("void %sReadTrees(Int_t run_num = 1,\n", shortCut.Data());
+   buffer.AppendFormatted("                  Int_t ev_1    = 0,\n");
+   buffer.AppendFormatted("                  Int_t ev_2    = 9");
    for (iTree = 0; iTree < numOfTree; iTree++) {
-      buffer.AppendFormatted("                 , Bool_t read%s = kTRUE\n", treeName[iTree].Data());
+      buffer.AppendFormatted(",\n                  Bool_t read%s = kTRUE", treeName[iTree].Data());
    }
-   buffer.AppendFormatted("                 ) {\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("                 )\n");
+   buffer.AppendFormatted("{\n");
 
    // Open files
    buffer.AppendFormatted("   char filename[100];\n");
@@ -13275,6 +13277,356 @@ Bool_t ROMEBuilder::WriteReadTreesC()
 
    // Write File
    WriteFile(cFile.Data(),buffer.Data(),6);
+
+   delete [] isBranch;
+   for (i = 0; i < maxNumberOfTrees; i++) {
+      delete [] branchFolderNum[i];
+   }
+   delete [] branchFolderNum;
+
+   for (iTree = 0; iTree < numOfTree; iTree++) {
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         delete branchNameTmp[iTree][iBranch];
+      }
+      delete [] branchNameTmp[iTree];
+   }
+   delete [] branchNameTmp;
+
+   return true;
+}
+
+//______________________________________________________________________________
+Bool_t ROMEBuilder::WriteDistillTreesC()
+{
+   // Write sample macro to read output trees
+   int i;
+   int iFold;
+   int iTree;
+   int iBranch;
+   ROMEString cFile;
+   ROMEString buffer;
+   ROMEString tmp,tmp2,tmp3,tmp4;
+   ROMEString macroDescription;
+   buffer.Resize(0);
+   macroDescription.Resize(0);
+
+   // make temporary branch name without '.'.
+   ROMEString ***branchNameTmp = new ROMEString**[numOfTree];
+   for (iTree = 0; iTree < numOfTree; iTree++) {
+      branchNameTmp[iTree] = new ROMEString*[numOfBranch[iTree]];
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         branchNameTmp[iTree][iBranch] = new ROMEString(branchName[iTree][iBranch].Data());
+         branchNameTmp[iTree][iBranch]->ReplaceAll(".", "");
+      }
+   }
+
+   // check if branch
+   Bool_t *isBranch = new Bool_t[maxNumberOfFolders];
+   int **branchFolderNum = new int*[maxNumberOfTrees];
+   for (i = 0; i < maxNumberOfTrees; i++) {
+      branchFolderNum[i] = new int[maxNumberOfBranches];
+   }
+   for (iTree = 0; iTree < numOfTree; iTree++) {
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         branchFolderNum[iTree][iBranch] = -1;
+      }
+   }
+   for (iFold = 0; iFold < numOfFolder; iFold++) {
+      isBranch[iFold] = false;
+      if (!folderUsed[iFold])
+         continue;
+      if (!FolderToBeGenerated(iFold) || folderSupport[iFold])
+         continue;
+      for (iTree = 0; iTree < numOfTree; iTree++) {
+         for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+            if (folderName[iFold] == branchFolder[iTree][iBranch]) {
+               isBranch[iFold] = true;
+                  branchFolderNum[iTree][iBranch] = iFold;
+            }
+         }
+      }
+   }
+
+   const int scl = shortCut.Length();
+   const int ltc = strlen("TClonesArray");
+   int typeLen = ltc;
+   for (iFold = 0; iFold < numOfFolder; iFold++) {
+      if (!folderUsed[iFold])
+         continue;
+      if (!isBranch[iFold])
+         continue;
+      if (typeLen < folderName[iFold].Length() + scl)
+         typeLen = folderName[iFold].Length() + scl;
+   }
+
+
+   for (iTree = 0; iTree < numOfTree; iTree++) {
+      buffer = "";
+      macroDescription = "";
+      // File name
+      cFile.SetFormatted("%ssrc/generated/%sDistill%sTree.C", outDir.Data(), shortCut.Data(), treeName[iTree].Data());
+      WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
+      macroDescription.AppendFormatted("This macro extracts a part of data and makes smaller trees.\n\n");
+      macroDescription.AppendFormatted(" Usage\n");
+      macroDescription.AppendFormatted("   Copy this macro somewhere.\n");
+      macroDescription.AppendFormatted("   Edit \"EventSelection()\" and active flags of branches written below.\n");
+      macroDescription.AppendFormatted("   %% %s%s.exe -I\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
+      macroDescription.AppendFormatted("   %s%s [0] .L src/generated/%sDistill%sTree.C\n", shortCut.ToLower(tmp),
+                                       mainProgName.ToLower(tmp2), shortCut.Data(), treeName[iTree].Data());
+      macroDescription.AppendFormatted("   %s%s [1] %sDistill%sTree(\"./\", \"./\",\n",
+                                       shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), shortCut.Data(), treeName[iTree].Data());
+      macroDescription.AppendFormatted("                                   \"input#.root\", \"output#.root\")\n");
+      macroDescription.AppendFormatted("\n");
+      macroDescription.AppendFormatted(" Arguments\n");
+      macroDescription.AppendFormatted("   indir   : Input directory path\n");
+      macroDescription.AppendFormatted("   outdir  : Output directory path\n");
+      macroDescription.AppendFormatted("   infile  : Input file name. # is replaced by run number\n");
+      macroDescription.AppendFormatted("   outfile : Output file name. # is replaced by run number\n");
+      macroDescription.AppendFormatted("   run     : Run number to be used for replacement of #.\n");
+      macroDescription.AppendFormatted("\n");
+      WriteDescription(buffer, gSystem->BaseName(cFile.Data()), macroDescription.Data(), false);
+      buffer.AppendFormatted("\n\n");
+
+      // Header
+      buffer.AppendFormatted("#include <RConfig.h>\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#pragma warning( push )\n");
+      buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+//   buffer.AppendFormatted("#include <TSystem.h>\n");
+      buffer.AppendFormatted("#include <TTree.h>\n");
+      buffer.AppendFormatted("#include <TFile.h>\n");
+      buffer.AppendFormatted("#include <TClonesArray.h>\n");
+      buffer.AppendFormatted("#include <Riostream.h>\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+
+      // Folder includes
+      buffer.AppendFormatted("#if !defined(__CINT__)\n");
+      buffer.AppendFormatted("#   include <ROMEString.h>\n");
+      buffer.AppendFormatted("#   include <ROMETreeInfo.h>\n");
+      buffer.AppendFormatted("#   include \"include/generated/%sAllFolders.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#else\n");
+      buffer.AppendFormatted("class ROMETreeInfo;\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         if (!folderUsed[branchFolderNum[iTree][iBranch]]) {
+            continue;
+         }
+         buffer.AppendFormatted("class %s%s;\n", shortCut.Data(),
+                                branchFolder[iTree][iBranch].Data());
+      }
+      buffer.AppendFormatted("#endif\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("// Compression level of output tree\n");
+      buffer.AppendFormatted("const Bool_t kCompression = 1;\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("// Active flags\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         buffer.AppendFormatted("const Bool_t  kRead%s %*s= 1;\n", branchNameTmp[iTree][iBranch]->Data(), typeLen -
+                                branchNameTmp[iTree][iBranch]->Length(), "");
+         buffer.AppendFormatted("const Bool_t kWrite%s %*s= 1;\n", branchNameTmp[iTree][iBranch]->Data(), typeLen -
+                                branchNameTmp[iTree][iBranch]->Length(), "");
+      }
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("// Objects to hold data\n");
+      buffer.AppendFormatted("ROMETreeInfo*%*s info;\n",
+                             typeLen - static_cast<int>(strlen("ROMETreeInfo")), "");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         if (!folderUsed[branchFolderNum[iTree][iBranch]]) {
+            continue;
+         }
+         if (folderArray[branchFolderNum[iTree][iBranch]] == "1") {
+            buffer.AppendFormatted("%s%s*%*s %s;\n", shortCut.Data(),
+                                   branchFolder[iTree][iBranch].Data(),
+                                   typeLen - branchFolder[iTree][iBranch].Length() - scl, "",
+                                   branchFolder[iTree][iBranch].Data());
+         } else {
+            buffer.AppendFormatted("TClonesArray*%*s %s;\n", typeLen - ltc, "",
+                                   branchFolder[iTree][iBranch].Data());
+         }
+      }
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("Bool_t EventSelection() {\n");
+      buffer.AppendFormatted("   // This is a place holder of a function for event selection. This function is\n");
+      buffer.AppendFormatted("   // called at every events between reading input file and wring output file.\n");
+      buffer.AppendFormatted("   // When it returns kTRUE, an event is written to output file. When it returns\n");
+      buffer.AppendFormatted("   // kFALSE, an event is not written to output file. It is also possible to\n");
+      buffer.AppendFormatted("   // modify data. Global variables defined above are available.\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   return kTRUE;\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("void %sDistill%sTree(const char *indir = \"\",\n", shortCut.Data(), treeName[iTree].Data());
+      buffer.AppendFormatted("                     const char *outdir = \"\",\n");
+      buffer.AppendFormatted("                     const char *infile = \"\",\n");
+      buffer.AppendFormatted("                     const char *outfile = \"\",\n");
+      buffer.AppendFormatted("                     Int_t run = 1)\n");
+      buffer.AppendFormatted("{\n");
+
+      // Open files
+      buffer.AppendFormatted("   TString  inFileName = indir;\n");
+      buffer.AppendFormatted("   TFile   *inFile = 0;\n");
+      buffer.AppendFormatted("   TString  outFileName = outdir;\n");
+      buffer.AppendFormatted("   TFile   *outFile = 0;\n");
+      buffer.AppendFormatted("   TString  runNumberString;\n");
+      buffer.AppendFormatted("   runNumberString.Form(\"%%05d\", run);\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("   if (!inFileName.Length()) {\n");
+      buffer.AppendFormatted("      inFileName = \".\";\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (!inFileName.EndsWith(\"/\")) {\n");
+      buffer.AppendFormatted("      inFileName += \"/\";\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (!infile || infile[0] == '\\0') {\n");
+      buffer.AppendFormatted("      inFileName += \"%s#.root\";\n", treeName[iTree].Data());
+      buffer.AppendFormatted("   } else {\n");
+      buffer.AppendFormatted("      inFileName += infile;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   inFileName.ReplaceAll(\"#\", runNumberString.Data());\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("   if (!outFileName.Length()) {\n");
+      buffer.AppendFormatted("      outFileName = \".\";\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (!outFileName.EndsWith(\"/\")) {\n");
+      buffer.AppendFormatted("      outFileName += \"/\";\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (!outfile || outfile[0] == '\\0') {\n");
+      buffer.AppendFormatted("      outFileName += \"%s#_new.root\";\n", treeName[iTree].Data());
+      buffer.AppendFormatted("   } else {\n");
+      buffer.AppendFormatted("      outFileName += outfile;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   outFileName.ReplaceAll(\"#\", runNumberString.Data());\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("   // Open files\n");
+      buffer.AppendFormatted("   TTree *inTree;\n");
+      buffer.AppendFormatted("   TTree *outTree;\n");
+
+      buffer.AppendFormatted("   inFile  = new TFile(inFileName);\n");
+      buffer.AppendFormatted("   if (!inFile) {\n");
+      buffer.AppendFormatted("      cerr<<\"Failed to open input file\"<<endl;\n");
+      buffer.AppendFormatted("      return;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   outFile = new TFile(outFileName, \"RECREATE\");\n");
+      buffer.AppendFormatted("   if (!outFile) {\n");
+      buffer.AppendFormatted("      cerr<<\"Failed to open output file\"<<endl;\n");
+      buffer.AppendFormatted("      return;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("   inTree = static_cast<TTree*>(inFile->Get(\"%s\"));\n", treeName[iTree].Data());
+      buffer.AppendFormatted("   if (!inTree) {\n");
+      buffer.AppendFormatted("      cerr<<\"Failed to read input tree\"<<endl;\n");
+      buffer.AppendFormatted("      return;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   outTree = new TTree(inTree->GetName(), inTree->GetTitle());\n");
+      buffer.AppendFormatted("\n");
+
+      // Folder Fields
+      buffer.AppendFormatted("   // Create objects to fill data\n");
+      buffer.AppendFormatted("   info = new ROMETreeInfo();\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         if (!folderUsed[branchFolderNum[iTree][iBranch]]) {
+            continue;
+         }
+         if (folderArray[branchFolderNum[iTree][iBranch]] == "1") {
+            buffer.AppendFormatted("   %s = new %s%s();\n",
+                                   branchFolder[iTree][iBranch].Data(), shortCut.Data(),
+                                   branchFolder[iTree][iBranch].Data());
+         } else {
+            buffer.AppendFormatted("   %s = new TClonesArray(\"%s%s\");\n",
+                                   branchFolder[iTree][iBranch].Data(), shortCut.Data(),
+                                   branchFolder[iTree][iBranch].Data());
+         }
+      }
+      buffer.AppendFormatted("\n");
+
+      // Set address
+      buffer.AppendFormatted("   // Map input branchs and objects\n");
+      buffer.AppendFormatted("   TBranch *branchInfo = 0;\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         buffer.AppendFormatted("   TBranch *branch%s = 0;\n", branchNameTmp[iTree][iBranch]->Data());
+      }
+
+      buffer.AppendFormatted("   branchInfo = inTree->GetBranch(\"Info\");\n");
+      buffer.AppendFormatted("   if (branchInfo)\n");
+      buffer.AppendFormatted("      branchInfo->SetAddress(&info);\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         buffer.AppendFormatted("   branch%s = inTree->GetBranch(\"%s\");\n", branchNameTmp[iTree][iBranch]->Data(),
+                                branchName[iTree][iBranch].Data());
+         buffer.AppendFormatted("   if (kRead%s && branch%s)\n", branchNameTmp[iTree][iBranch]->Data(),
+                                branchNameTmp[iTree][iBranch]->Data());
+         buffer.AppendFormatted("      branch%s->SetAddress(&%s);\n", branchNameTmp[iTree][iBranch]->Data(),
+                                branchFolder[iTree][iBranch].Data());
+      }
+      buffer.AppendFormatted("\n");
+
+      // Create branch
+      buffer.AppendFormatted("   // Add branches to output tree\n");
+      buffer.AppendFormatted("   outTree->Branch(\"Info\",\"ROMETreeInfo\", &info)->SetCompressionLevel(kCompression);\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         buffer.AppendFormatted("   if (kWrite%s)\n", branchNameTmp[iTree][iBranch]->Data());
+         if (folderArray[branchFolderNum[iTree][iBranch]] == "1") {
+            buffer.AppendFormatted("      outTree->Branch(\"%s\",\"%s%s\", &%s, %s, %s)->SetCompressionLevel(kCompression);\n",
+                                   branchName[iTree][iBranch].Data(), shortCut.Data(), branchFolder[iTree][iBranch].Data(),
+                                   branchFolder[iTree][iBranch].Data(), branchBufferSize[iTree][iBranch].Data(),
+                                   branchSplitLevel[iTree][iBranch].Data());
+         } else {
+            buffer.AppendFormatted("      outTree->Branch(\"%s\", \"TClonesArray\", &%s, %s, %s)->SetCompressionLevel(kCompression);\n",
+                                   branchName[iTree][iBranch].Data(), branchFolder[iTree][iBranch].Data(),
+                                   branchBufferSize[iTree][iBranch].Data(),
+                                   branchSplitLevel[iTree][iBranch].Data());
+         }
+      }
+      buffer.AppendFormatted("\n");
+
+      // Event loop
+      buffer.AppendFormatted("   // Event loop\n");
+      buffer.AppendFormatted("   Int_t ev;\n");
+      buffer.AppendFormatted("   Int_t n = inTree->GetEntries();\n");
+      buffer.AppendFormatted("   for (ev = 0; ev < n; ev++) {\n");
+      buffer.AppendFormatted("      inTree->GetEntry(ev);\n");
+      buffer.AppendFormatted("      if (EventSelection()) {\n");
+      buffer.AppendFormatted("         outTree->Fill();\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   outTree->Write(0, TObject::kOverwrite);\n");
+      buffer.AppendFormatted("   outFile->Close();\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   return;\n");
+      buffer.AppendFormatted("}\n\n");
+
+      // Write File
+      WriteFile(cFile.Data(), buffer.Data(), 6);
+   }
 
    delete [] isBranch;
    for (i = 0; i < maxNumberOfTrees; i++) {

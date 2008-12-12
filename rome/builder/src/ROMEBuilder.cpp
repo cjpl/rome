@@ -1321,6 +1321,7 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteNetFolderServerH()) return false;
    if (!WriteMain()) return false;
    if (!WriteReadTreesC()) return false;
+   if (!WriteDistillTreesC()) return false;
    if (!WriteDOT()) return false;
    if (!WriteVersionH()) return false;
 
