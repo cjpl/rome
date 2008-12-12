@@ -712,6 +712,7 @@ private:
    Bool_t  WriteEventLoopH();
    Bool_t  WriteMain();
    Bool_t  WriteReadTreesC();
+   Bool_t  WriteDistillTreesC();
    Bool_t  WriteDOT();
    Bool_t  WriteVersionH();
    Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* dictionaryName);
