@@ -15,6 +15,7 @@
 // This task accesses the following folders :                                 //
 //     RunInfo                                                                //
 //     Calibration                                                            //
+//     EventData                                                              //
 //                                                                            //
 //                                                                            //
 //                                                                            //
@@ -67,6 +68,7 @@ void RUNHTTask1::BeginOfRun()
 
 void RUNHTTask1::Event()
 {
+   gAnalyzer->GetEventData()->SetADCAt(0, 1);
 }
 
 void RUNHTTask1::EndOfRun()
