@@ -13321,6 +13321,19 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
          branchNameTmp[iTree][iBranch]->ReplaceAll(".", "");
       }
    }
+   // make temporary run header name
+   ROMEString ***runHeaderNameTmp = new ROMEString**[numOfTree];
+   for (iTree = 0; iTree < numOfTree; iTree++) {
+      runHeaderNameTmp[iTree] = new ROMEString*[numOfRunHeader[iTree]];
+      for (iRunHeader = 0; iRunHeader < numOfRunHeader[iTree]; iRunHeader++) {
+         runHeaderNameTmp[iTree][iRunHeader] = new ROMEString(runHeaderName[iTree][iRunHeader].Data());
+         if (runHeaderName[iTree][iRunHeader] == shortCut + runHeaderFolder[iTree][iRunHeader]) {
+            *runHeaderNameTmp[iTree][iRunHeader] =
+                  (*runHeaderNameTmp[iTree][iRunHeader])(shortCut.Length(),
+                                                         runHeaderNameTmp[iTree][iRunHeader]->Length() - shortCut.Length());
+         }
+      }
+   }
 
    // check if branch
    Bool_t *isBranch = new Bool_t[maxNumberOfFolders];
@@ -13391,11 +13404,11 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       macroDescription.AppendFormatted("                                   \"input#.root\", \"output#.root\")\n");
       macroDescription.AppendFormatted("\n");
       macroDescription.AppendFormatted(" Arguments\n");
+      macroDescription.AppendFormatted("   run     : Run number to be used for replacement of #.\n");
       macroDescription.AppendFormatted("   indir   : Input directory path\n");
       macroDescription.AppendFormatted("   outdir  : Output directory path\n");
       macroDescription.AppendFormatted("   infile  : Input file name. # is replaced by run number\n");
       macroDescription.AppendFormatted("   outfile : Output file name. # is replaced by run number\n");
-      macroDescription.AppendFormatted("   run     : Run number to be used for replacement of #.\n");
       macroDescription.AppendFormatted("\n");
       WriteDescription(buffer, gSystem->BaseName(cFile.Data()), macroDescription.Data(), false);
       buffer.AppendFormatted("\n\n");
@@ -13483,10 +13496,10 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
                buffer.AppendFormatted("%s%s*%*s %s;\n", shortCut.Data(),
                                       runHeaderFolder[iTree][iRunHeader].Data(),
                                       typeLen - runHeaderFolder[iTree][iRunHeader].Length() - scl, "",
-                                      runHeaderName[iTree][iRunHeader].Data());
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data());
             } else {
                buffer.AppendFormatted("TClonesArray*%*s %s;\n", typeLen - ltc, "",
-                                      runHeaderName[iTree][iRunHeader].Data());
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data());
             }
          }
       }
@@ -13575,11 +13588,11 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
          if (folderUsed[runHeaderFolderIndex[iTree][iRunHeader]]) {
             if (folderArray[runHeaderFolderIndex[iTree][iRunHeader]] == "1") {
                buffer.AppendFormatted("   %s = new %s%s();\n",
-                                      runHeaderName[iTree][iRunHeader].Data(), shortCut.Data(),
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data(), shortCut.Data(),
                                       runHeaderFolder[iTree][iRunHeader].Data());
             } else {
                buffer.AppendFormatted("   %s = new TClonesArray(\"%s%s\");\n",
-                                      runHeaderName[iTree][iRunHeader].Data(), shortCut.Data(),
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data(), shortCut.Data(),
                                       runHeaderFolder[iTree][iRunHeader].Data());
             }
          }
@@ -13622,11 +13635,11 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
                                       runHeaderName[iTree][iRunHeader].Data(), runHeaderName[iTree][iRunHeader].Data(),
                                       shortCut.Data(), runHeaderFolder[iTree][iRunHeader].Data());
                buffer.AppendFormatted("      %s->Read(\"%s\");\n",
-                                      runHeaderName[iTree][iRunHeader].Data(), runHeaderName[iTree][iRunHeader].Data());
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data(), runHeaderName[iTree][iRunHeader].Data());
             } else {
                buffer.AppendFormatted("   if (inFile->GetKey(\"%s\") && !strcmp(inFile->GetKey(\"%s\")->GetClassName(), \"TClonesArray\")) {\n",
                                       runHeaderName[iTree][iRunHeader].Data(), runHeaderName[iTree][iRunHeader].Data());
-               buffer.AppendFormatted("      %s->Read(\"%s\");\n", runHeaderName[iTree][iRunHeader].Data(),
+               buffer.AppendFormatted("      %s->Read(\"%s\");\n", runHeaderNameTmp[iTree][iRunHeader]->Data(),
                                       runHeaderName[iTree][iRunHeader].Data());
             }
             buffer.AppendFormatted("   }\n");
@@ -13706,6 +13719,14 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       delete [] branchNameTmp[iTree];
    }
    delete [] branchNameTmp;
+
+   for (iTree = 0; iTree < numOfTree; iTree++) {
+      for (iRunHeader = 0; iRunHeader < numOfRunHeader[iTree]; iRunHeader++) {
+         delete runHeaderNameTmp[iTree][iRunHeader];
+      }
+      delete [] runHeaderNameTmp[iTree];
+   }
+   delete [] runHeaderNameTmp;
 
    return true;
 }
