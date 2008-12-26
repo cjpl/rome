@@ -58,7 +58,15 @@
         <PortNumber>9090</PortNumber>
       </SocketServer>
 
-      <DataBases/>
+      <DataBases>
+
+        <DataBase>
+          <Name>myxml</Name>
+          <Connection>..;FODataBase</Connection>
+          <Type>xml</Type>
+          <EventBased>false</EventBased>
+        </DataBase>
+      </DataBases>
     </Common>
 
     <Analyzer>

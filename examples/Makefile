@@ -321,7 +321,7 @@ check : remove $(ROMEProjects) $(ARGUSProjects) dbwrapper
 	killall -9 hgframework.exe
 
 	cd argus/folders/romeproject; $(VALGRIND) ./foframework.exe -i romeConfig.xml -b -r 1 & \
-	cd ..; $(VALGRIND) ./fomonitor.exe -i argusConfig.xml -q -p 1 -nc & sleep 10; killall -9 fomonitor.exe; \
+	cd ..; $(VALGRIND) ./fomonitor.exe -i argusConfig.xml -q -p 3 -nc & sleep 10; killall -9 fomonitor.exe; \
 	killall -9 foframework.exe
 
 clean :
