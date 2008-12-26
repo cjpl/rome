@@ -5,7 +5,7 @@
 
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
-    <ProgramMode>1</ProgramMode>
+    <ProgramMode>2</ProgramMode>
   </ProgramConfiguration>
 
   <MainConfiguration>
