@@ -207,7 +207,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             return;
          }
          if (this->isEndOfRun()) {
+#if 0 /* increasing eventLoopIndex when an error in DAQBeginOfRun may skip initialization of array folder */
             eventLoopIndex++;
+#endif
             continue;
          }
          if (this->isTerminate()) {
