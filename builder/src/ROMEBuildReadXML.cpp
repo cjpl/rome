@@ -2239,6 +2239,24 @@ Bool_t ROMEBuilder::ReadXMLTask()
             cout<<"Terminating program."<<endl;
             return false;
          }
+         if (histoType[numOfTask][numOfHistos[numOfTask]] == "TH1") {
+            cout<<"Histogram '"<<histoName[numOfTask][numOfHistos[numOfTask]].Data()<<"' of Task '"
+                <<taskName[numOfTask].Data()<<"' has no data type(TH1F, TH1S...) specified !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+         if (histoType[numOfTask][numOfHistos[numOfTask]] == "TH2") {
+            cout<<"Histogram '"<<histoName[numOfTask][numOfHistos[numOfTask]].Data()<<"' of Task '"
+                <<taskName[numOfTask].Data()<<"' has no data type(TH2F, TH2S...) specified !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
+         if (histoType[numOfTask][numOfHistos[numOfTask]] == "TH3") {
+            cout<<"Histogram '"<<histoName[numOfTask][numOfHistos[numOfTask]].Data()<<"' of Task '"
+                <<taskName[numOfTask].Data()<<"' has no data type(TH3F, TH3S...) specified !"<<endl;
+            cout<<"Terminating program."<<endl;
+            return false;
+         }
          for (i = 0; i < numOfHistos[numOfTask]; i++) {
             for (j = i + 1; j < numOfHistos[numOfTask]; j++) {
                if (histoName[numOfTask][i] == histoName[numOfTask][j]) {
