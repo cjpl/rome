@@ -544,8 +544,10 @@ void ROMETask::BookHisto(void)
          // create histos
          if (!fHistoArray[i]) {
             if (false) {
-               //} else if (fHistoType[i] == "TH1") {
-               //fHisto->AddAt(new TH1(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax));
+#if 0
+            } else if (fHistoType[i] == "TH1") {
+               fHisto->AddAt(new TH1(fHistoName[i]+fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax));
+#endif
             } else if (fHistoType[i] == "TH1S") {
                fHisto->AddAt(new TH1S(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
             } else if (fHistoType[i] == "TH1K") {
@@ -558,8 +560,10 @@ void ROMETask::BookHisto(void)
                fHisto->AddAt(new TH1D(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
             } else if (fHistoType[i] == "TH1C") {
                fHisto->AddAt(new TH1C(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax), i);
+#if 0
             } else if (fHistoType[i] == "TH2") {
                fHisto->AddAt(new TH2(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+#endif
             } else if (fHistoType[i] == "TH2S") {
                fHisto->AddAt(new TH2S(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
             } else if (fHistoType[i] == "TH2I") {
@@ -570,9 +574,11 @@ void ROMETask::BookHisto(void)
                fHisto->AddAt(new TH2D(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
             } else if (fHistoType[i] == "TH2C") {
                fHisto->AddAt(new TH2C(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax), i);
+#if 0
             } else if (fHistoType[i] == "TH3") {
                fHisto->AddAt(new TH3(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax,
                                      zNbins, zmin, zmax), i);
+#endif
             } else if (fHistoType[i] == "TH3S") {
                fHisto->AddAt(new TH3S(fHistoName[i] + fTaskSuffix, histoTitle.Data(), xNbins, xmin, xmax, yNbins, ymin, ymax,
                                       zNbins, zmin, zmax), i);
@@ -641,9 +647,11 @@ void ROMETask::BookHisto(void)
                } else if (fHistoType[i] == "TH1C") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH1C(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax), j);
+#if 0
                } else if (fHistoType[i] == "TH2") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH2(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+#endif
                } else if (fHistoType[i] == "TH2S") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH2S(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax), j);
@@ -659,10 +667,12 @@ void ROMETask::BookHisto(void)
                } else if (fHistoType[i] == "TH2C") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH2C(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+#if 0
                } else if (fHistoType[i] == "TH3") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH3(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax,
                                                                         zNbins, zmin, zmax), j);
+#endif
                } else if (fHistoType[i] == "TH3S") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH3S(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax,
@@ -818,8 +828,10 @@ void ROMETask::ReBookHisto(void)
                histoArrayTitle.AppendFormatted("_%0*d", 3, j + arrayStartIndex);
 
                if (false) {
-                  //} else if (fHistoType[i] == "TH1") {
-                  //((TObjArray*)fHisto->At(i))->AddAt(new TH1(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+#if 0
+               } else if (fHistoType[i] == "TH1") {
+                  ((TObjArray*)fHisto->At(i))->AddAt(new TH1(histoArrayName.Data(), histoArrayTitle.Data(), xNbins, xmin, xmax), j);
+#endif
                } else if (fHistoType[i] == "TH1S") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH1S(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax), j);
@@ -838,9 +850,11 @@ void ROMETask::ReBookHisto(void)
                } else if (fHistoType[i] == "TH1C") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH1C(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax), j);
+#if 0
                } else if (fHistoType[i] == "TH2") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH2(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+#endif
                } else if (fHistoType[i] == "TH2S") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH2S(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax), j);
@@ -856,10 +870,12 @@ void ROMETask::ReBookHisto(void)
                } else if (fHistoType[i] == "TH2C") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH2C(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax), j);
+#if 0
                } else if (fHistoType[i] == "TH3") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH3(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                         xNbins, xmin, xmax, yNbins, ymin, ymax,
                                                                         zNbins, zmin, zmax), j);
+#endif
                } else if (fHistoType[i] == "TH3S") {
                   static_cast<TObjArray*>(fHisto->At(i))->AddAt(new TH3S(histoArrayName.Data(), histoArrayTitle.Data(),
                                                                          xNbins, xmin, xmax, yNbins, ymin, ymax,
