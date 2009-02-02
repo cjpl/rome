@@ -13460,6 +13460,8 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       buffer.AppendFormatted("\n");
 
       buffer.AppendFormatted("// Active flags\n");
+      buffer.AppendFormatted("const Bool_t  kRead_Info  %*s= 0;\n", static_cast<Int_t>(typeLen - sizeof("Info")), "");
+      buffer.AppendFormatted("const Bool_t kWrite_Info  %*s= 0;\n", static_cast<Int_t>(typeLen - sizeof("Info")), "");
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
          if (branchFolderNum[iTree][iBranch] == -1) {
             continue;
@@ -13613,7 +13615,7 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       // Set address
       buffer.AppendFormatted("   // Map input branchs and objects\n");
       buffer.AppendFormatted("   TBranch *branchInfo = inTree->GetBranch(\"Info\");\n");
-      buffer.AppendFormatted("   if (branchInfo) branchInfo->SetAddress(&info);\n");
+      buffer.AppendFormatted("   if (kRead_Info && branchInfo) branchInfo->SetAddress(&info);\n");
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
          if (branchFolderNum[iTree][iBranch] == -1) {
             continue;
@@ -13658,7 +13660,7 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
 
       // Create branch
       buffer.AppendFormatted("   // Add branches to output tree\n");
-      buffer.AppendFormatted("   outTree->Branch(\"Info\",\"ROMETreeInfo\", &info)->SetCompressionLevel(kCompression);\n");
+      buffer.AppendFormatted("   if (kWrite_Info) outTree->Branch(\"Info\",\"ROMETreeInfo\", &info)->SetCompressionLevel(kCompression);\n");
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
          if (branchFolderNum[iTree][iBranch] == -1) {
             continue;
@@ -13684,6 +13686,7 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       buffer.AppendFormatted("   Int_t ev;\n");
       buffer.AppendFormatted("   Int_t n = inTree->GetEntries();\n");
       buffer.AppendFormatted("   for (ev = 0; ev < n; ev++) {\n");
+      buffer.AppendFormatted("      if (kRead_Info) branchInfo->GetEntry(ev);\n");
       for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
          if (branchFolderNum[iTree][iBranch] == -1) {
             continue;
