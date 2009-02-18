@@ -913,6 +913,27 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
+      // UpdateVariableSize
+      buffer.Append(kMethodLine);
+      buffer.AppendFormatted("void %s::UpdateVariableSize()\n",clsName.Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("   // Set size of variable length array to be the same with length specifier.\n");
+      buffer.AppendFormatted("   // This function is used internally in ROME when the folder is read from TTree.\n");
+      for (i = 0; i < numOfValue[iFold]; i++) {
+         if (!isFolder(valueType[iFold][i].Data()) &&
+             !valueIsTObject[iFold][i] &&
+             !isTArrayType(valueType[iFold][i]) &&
+             valueDimension[iFold][i] != 0 &&
+             valueArray[iFold][i][0] == "variable" &&
+             valueArraySpecifier[iFold][i].Length()) {
+            buffer.AppendFormatted("   if (!(%sSize = (%s ? %s : 0))) %s = 0;\n", valueName[iFold][i].Data(),
+                                   valueName[iFold][i].Data(), valueArraySpecifier[iFold][i].Data(),
+                                   valueName[iFold][i].Data());
+         }
+      }
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
       // Set All
       if (folderInheritName[iFold].Length() == 0) { // only base class can have SetAll
          if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
@@ -950,7 +971,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             buffer.AppendFormatted("\n");
          }
       }
+
       // Reset
+      buffer.Append(kMethodLine);
       buffer.AppendFormatted("void %s::Reset()\n",clsName.Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   if (!isModified()) return;\n");
@@ -1290,7 +1313,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else if (valueArray[iFold][i][0] == "variable") {
-#if 0 // disabled because no way to know array size when the folder is read from TFile.
+#if 1 // enabled this, probably UpdateVariableSize works // disabled because no way to know array size when the folder is read from TFile.
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("Bool_t %s::%sBoundsOk(const char* where, Int_t at) const\n",clsName.Data(),
                                       valueName[iFold][i].Data());
@@ -1987,6 +2010,10 @@ Bool_t ROMEBuilder::WriteFolderH()
       } else {
          buffer.AppendFormatted("   void ResetModified();\n");
       }
+      buffer.AppendFormatted("\n");
+
+      // UpdateVariableSize
+      buffer.AppendFormatted("   void UpdateVariableSize();\n");
       buffer.AppendFormatted("\n");
 
       // Set All
@@ -9550,8 +9577,10 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
 }
 
 //______________________________________________________________________________
-Bool_t ROMEBuilder::WriteRomeDAQCpp() {
+Bool_t ROMEBuilder::WriteRomeDAQCpp()
+{
    int i ,j;
+   int iFold = 0, k;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -9589,7 +9618,27 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    for (i = 0; i < numOfTree; i++) {
       for (j = 0; j < numOfRunHeader[i]; j++) {
          if (folderUsed[runHeaderFolderIndex[i][j]]) {
-            tmp.SetFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
+            if (folderUserCode[runHeaderFolderIndex[i][j]]) {
+               tmp.SetFormatted("#include \"generated/%s%s_Base.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
+            } else {
+               tmp.SetFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
+            }
+            if (!buffer.ContainsFast(tmp)) {
+               buffer.Append(tmp);
+            }
+         }
+      }
+      for (j = 0; j < numOfBranch[i]; j++) {
+         for (k = 0; k < numOfFolder; k++) {
+            if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
+         if (folderUsed[iFold]) {
+            if (folderUserCode[iFold]) {
+               tmp.SetFormatted("#include \"generated/%s%s_Base.h\"\n",shortCut.Data(), folderName[iFold].Data());
+            } else {
+               tmp.SetFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), folderName[iFold].Data());
+            }
             if (!buffer.ContainsFast(tmp)) {
                buffer.Append(tmp);
             }
@@ -9606,7 +9655,6 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("\n");
 
    // Connect Trees
-   int iFold = 0, k;
    bool found = false;
    buffer.AppendFormatted("// Connect Trees\n");
    buffer.Append(kMethodLine);
@@ -9668,6 +9716,54 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       buffer.AppendFormatted("      if (bb) bb->SetAddress(&fTreeInfo);\n");
       buffer.AppendFormatted("   }\n");
    }
+   buffer.AppendFormatted("}\n\n");
+
+   // UpdateVariableSize
+   buffer.AppendFormatted("// UpdateVariableSize\n");
+   buffer.Append(kMethodLine);
+   buffer.AppendFormatted("void %sRomeDAQ::UpdateVariableSize(Int_t treeNum)\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMETree     *romeTree;\n");
+   buffer.AppendFormatted("   TClonesArray *cl;\n");
+   buffer.AppendFormatted("   Int_t         i, n;\n");
+   buffer.AppendFormatted("   romeTree = 0;\n"); // warning suppression
+   buffer.AppendFormatted("   cl       = 0;\n"); // warning suppression
+   buffer.AppendFormatted("   i        = 0;\n"); // warning suppression
+   buffer.AppendFormatted("   n        = 0;\n"); // warning suppression
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   switch (treeNum) {\n");
+   for (i = 0; i < numOfTree; i++) {
+      buffer.AppendFormatted("   case %d:\n", i);
+      buffer.AppendFormatted("      romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
+      buffer.AppendFormatted("      if (romeTree->isRead()) {\n");
+      for (j = 0; j < numOfBranch[i]; j++) {
+         for (k = 0; k < numOfFolder; k++) {
+            if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
+         if (!folderUsed[iFold]) {
+            continue;
+         }
+         buffer.AppendFormatted("         if (romeTree->GetBranchReadAt(%d)) {\n", j);
+         if (folderArray[iFold] == "1") {
+            buffer.AppendFormatted("            gAnalyzer->Get%s()->UpdateVariableSize();\n",folderName[iFold].Data());
+         } else {
+            buffer.AppendFormatted("            cl = gAnalyzer->Get%ss();\n",folderName[iFold].Data());
+            buffer.AppendFormatted("            n = cl->GetEntriesFast();\n");
+            buffer.AppendFormatted("            for (i = 0; i < n; i++) {\n");
+            if (folderUserCode[iFold]) {
+               buffer.AppendFormatted("               static_cast<%s%s_Base*>(cl->At(i))->UpdateVariableSize();\n",shortCut.Data(),folderName[iFold].Data());
+            } else {
+               buffer.AppendFormatted("               static_cast<%s%s*>(cl->At(i))->UpdateVariableSize();\n",shortCut.Data(),folderName[iFold].Data());            }
+            buffer.AppendFormatted("            }\n");
+         }
+         buffer.AppendFormatted("         }\n");
+      }
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("      break;\n");
+   }
+   buffer.AppendFormatted("   default:\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("}\n\n");
 
    // Read run header
@@ -9862,6 +9958,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    // methods
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   void ConnectTrees();\n");
+   buffer.AppendFormatted("   void UpdateVariableSize(Int_t treeNum);\n");
 
    buffer.AppendFormatted("\n");
    // Footer

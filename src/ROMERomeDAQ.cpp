@@ -398,6 +398,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
                   tree->SetDirectory(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex)));
                }
                tree->GetEntry(treePosition);
+               UpdateVariableSize(j);
                gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
                fTimeStamp = fTreeInfo->GetTimeStamp();
                if (fTreeInfo->GetRunNumber() != gROME->GetCurrentRunNumber()) {
