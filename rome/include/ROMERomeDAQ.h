@@ -55,6 +55,7 @@ public:
 
    virtual void ReadRunHeaders() = 0;
    virtual void ConnectTrees() = 0;
+   virtual void UpdateVariableSize(Int_t treeNum) = 0;
 
    ClassDef(ROMERomeDAQ, 0) // Base DAQ class for trees
 };
