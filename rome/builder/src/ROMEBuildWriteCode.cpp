@@ -1313,7 +1313,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("\n");
             } else if (valueArray[iFold][i][0] == "variable") {
-#if 1 // enabled this, probably UpdateVariableSize works // disabled because no way to know array size when the folder is read from TFile.
+#if 0 /* disabled because no way to know array size when the folder is read from TFile. */
                buffer.Append(kMethodLine);
                buffer.AppendFormatted("Bool_t %s::%sBoundsOk(const char* where, Int_t at) const\n",clsName.Data(),
                                       valueName[iFold][i].Data());
