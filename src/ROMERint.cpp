@@ -283,17 +283,25 @@ Long_t ROMERint::ProcessLine(const char *line, Bool_t sync, Int_t *err)
 }
 
 //______________________________________________________________________________
-Long_t ROMERint::ProcessFile(const char *name, int *error)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,23,1)
+Long_t ROMERint::ProcessFile(const char *file, Int_t *error)
+#else
+Long_t ROMERint::ProcessFile(const char *file, Int_t *error, Bool_t keep)
+#endif
 {
    // process macro file in local session or remote application over a socket.
 
-   if (!name || !*name) return 0;
+   if (!file || !*file) return 0;
 
    if (!fRemoteProcess) {
-      return TRint::ProcessFile(name, error);
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,23,1)
+      return TRint::ProcessFile(file, error);
+#else
+      return TRint::ProcessFile(file, error, keep);
+#endif
    }
    if (ConnectSocketClient()) {
-      fSocketClientNetFolder->ExecuteMacro(name);
+      fSocketClientNetFolder->ExecuteMacro(file);
    }
 
    return 0;

@@ -46,7 +46,11 @@ public:
 
    Bool_t          HandleTermInput();
    Long_t          ProcessLine(const char *line, Bool_t sync = kFALSE, Int_t *error = 0);
-   Long_t          ProcessFile(const char *name, int *error = 0);
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,23,1)
+   Long_t          ProcessFile(const char *file, Int_t *error = 0);
+#else
+   Long_t          ProcessFile(const char *file, Int_t *error = 0, Bool_t keep = kFALSE);
+#endif
    void            Run(Bool_t retrn);
    Bool_t          isUseRintInterruptHandler() const { return fUseRintInterruptHandler; }
    TSignalHandler* GetRintInterruptHandler() const { return fRintInterruptHandler; }
