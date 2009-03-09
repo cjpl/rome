@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <map>
 #include <vector>
+#include <algorithm>
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
@@ -4876,6 +4877,9 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
    Ssiz_t p, pLast;
 #if defined ( ALIGN_DESC )
    Ssiz_t pSpace;
+   Ssiz_t pAmp;
+   Ssiz_t pTag;
+   Ssiz_t pMin;
 #endif
    Int_t i;
    char *tmp = new char[desc.Length() + 1];
@@ -4885,6 +4889,8 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
       pLast = 0;
 #if defined ( ALIGN_DESC )
       pSpace = 0;
+      pAmp   = 0;
+      pTag   = 0;
 #endif
       for (p = 0; p < desc.Length(); p++) {
          if (p == desc.Length() - 1) {
@@ -4913,17 +4919,21 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
 #if defined ( ALIGN_DESC )
          else if (isspace(desc[p])) {
             pSpace = p;
-         } else if (p >= pLast + nc - static_cast<Ssiz_t>(strlen("//  //")) - 1) {
-            if (pLast > pSpace) {
-               if (p - pLast > 0) {
-                  strcpy(tmp, desc(pLast, p - pLast).Data());
-                  tmp[p - pLast + 1] = '\0';
-                  descs.Add(tmp);
-               } else {
-                  descs.Add("");
-               }
-               pLast = p + 1;
-            } else {
+         } else if (desc[p] == '&') {
+            pAmp = p;
+         } else if (desc[p] == ';') {
+            if (pAmp - pLast >= 0) {
+               pAmp = 0;
+            }
+         } else if (desc[p] == '<') {
+            pTag = p;
+         } else if (desc[p] == '>') {
+            if (pTag - pLast >= 0) {
+               pTag = 0;
+            }
+         }
+         if (p >= pLast + nc - static_cast<Ssiz_t>(strlen("//  //")) - 1) {
+            if (pLast <= pSpace) {
                if (pSpace - pLast + 1 > 0) {
                   strcpy(tmp, desc(pLast, pSpace - pLast + 1).Data());
                   tmp[pSpace - pLast + 1] = '\0';
@@ -4932,6 +4942,20 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
                   descs.Add("");
                }
                pLast = pSpace + 1;
+            } else if (pLast < (pMin = (pAmp && pTag) ? min(pAmp, pTag) : max(pAmp, pTag))) {
+               strcpy(tmp, desc(pLast, pMin - pLast).Data());
+               tmp[pMin - pLast] = '\0';
+               descs.Add(tmp);
+               pLast = pMin;
+            } else {
+               if (p - pLast > 0) {
+                  strcpy(tmp, desc(pLast, p - pLast).Data());
+                  tmp[p - pLast + 1] = '\0';
+                  descs.Add(tmp);
+               } else {
+                  descs.Add("");
+               }
+               pLast = p + 1;
             }
             continue;
          }
