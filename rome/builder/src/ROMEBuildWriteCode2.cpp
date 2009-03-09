@@ -4922,7 +4922,7 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
                } else {
                   descs.Add("");
                }
-               pLast = p;
+               pLast = p + 1;
             } else {
                if (pSpace - pLast + 1 > 0) {
                   strcpy(tmp, desc(pLast, pSpace - pLast + 1).Data());
