@@ -1307,27 +1307,30 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("## Object specific comiple options\n");
    buffer.AppendFormatted("NOOPT                     %s -O0\n",kEqualSign);
+   buffer.AppendFormatted("NOWFMTNLIT                %s -Wno-format-nonliteral\n",kEqualSign);
    Int_t n;
    // equal signs below should be '=' to allow change in Makefile.usr
    n = dictionaryHeaders->GetEntriesFast();
    if (n > 0) {
       for (i = 0; i < (n - 1) / maxNumberOfClassesInDictionary + 1; i++) {
-         buffer.AppendFormatted("Dict%dOpt                        = $(NOOPT)\n", i);
+         buffer.AppendFormatted("Dict%dOpt                       += $(NOOPT)\n", i);
       }
    }
-   buffer.AppendFormatted("%sUserDictOpt                    = $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sUserDictOpt                   += $(NOOPT)\n",shortCut.Data());
 
-   buffer.AppendFormatted("%sAnalyzer3Opt                   = $(NOOPT)\n",shortCut.Data());
-   buffer.AppendFormatted("%sAnalyzer4Opt                   = $(NOOPT)\n",shortCut.Data());
-   buffer.AppendFormatted("%sConfigOpt                      = $(NOOPT)\n",shortCut.Data());
-   buffer.AppendFormatted("%sConfig2Opt                     = $(NOOPT)\n",shortCut.Data());
-   buffer.AppendFormatted("%sConfig3Opt                     = $(NOOPT)\n",shortCut.Data());
-   buffer.AppendFormatted("%sConfig4Opt                     = $(NOOPT)\n",shortCut.Data());
-   buffer.AppendFormatted("%sConfigToFormOpt                = $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer3Opt                  += $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer4Opt                  += $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfigOpt                     += $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfig2Opt                    += $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfig3Opt                    += $(NOOPT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfig4Opt                    += $(NOOPT) $(NOWFMTNLIT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sConfigToFormOpt               += $(NOOPT) $(NOWFMTNLIT)\n",shortCut.Data());
+   buffer.AppendFormatted("%sDBAccessOpt                   += $(NOOPT) $(NOWFMTNLIT)\n",shortCut.Data());
    if (midas) {
-     buffer.AppendFormatted("%sMidasDAQOpt                    = -fno-strict-aliasing\n",shortCut.Data());
+     buffer.AppendFormatted("%sMidasDAQOpt                   += -fno-strict-aliasing\n",shortCut.Data());
    }
-     buffer.AppendFormatted("ROMEMidasDAQOpt                  = -fno-strict-aliasing\n");
+   buffer.AppendFormatted("ROMEMidasDAQOpt                 += -fno-strict-aliasing\n");
+   buffer.AppendFormatted("ROMEAnalyzerOpt                 += $(NOWFMTNLIT)\n");
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
 }
@@ -1372,12 +1375,12 @@ void ROMEBuilder::GetIncludeDirString(ROMEString& buffer,const char* separator,c
    buffer = "";
    for (i = 0; i < includeDirectories->GetEntriesFast(); i++) {
       if (i > 0)
-         buffer.AppendFormatted(separator);
+         buffer.Append(separator);
       buffer.AppendFormatted("%sI%s",flagSign,includeDirectories->At(i).Data());
    }
    for (i = 0; i < numOfMFIncDirs; i++) {
       if (i > 0 || includeDirectories->GetEntriesFast() > 0)
-         buffer.AppendFormatted(separator);
+         buffer.Append(separator);
       buffer.AppendFormatted("%sI%s",flagSign,mfIncDir[i].Data());
    }
 }
@@ -1477,13 +1480,13 @@ void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,c
    for (i = iFile * maxNumberOfClassesInDictionary;
         i < headers->GetEntriesFast() && i < (iFile + 1) * maxNumberOfClassesInDictionary; i++) {
       if (i > iFile * maxNumberOfClassesInDictionary) {
-         buffer.AppendFormatted(separator);
+         buffer.Append(separator);
       }
       str = headers->At(i);
       if (withoutPath) {
          str = str(str.Last('/') + 1, str.Length());
       }
-      buffer.AppendFormatted(str.Data());
+      buffer.Append(str.Data());
    }
 }
 
@@ -1519,14 +1522,14 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 #endif
       //dummy source file
       WriteMakefileDictDummyCpp(dictionaryNameMod.Data());
-      dictionaryNames->AddFormatted(dictionaryNameMod.Data());
+      dictionaryNames->Add(dictionaryNameMod.Data());
 
       // Output files
       bufferT.SetFormatted("dict/%s%d.h dict/%s%d.cpp:",dictionaryName, iFile, dictionaryName, iFile);
-      buffer.AppendFormatted(bufferT.Data());
+      buffer.Append(bufferT.Data());
       bufferT.ReplaceAll(" ",";");
       bufferT.ReplaceAll(":","");
-      dictionaryOutputs->AddFormatted(bufferT.Data());
+      dictionaryOutputs->Add(bufferT.Data());
 
       // Dependencies
       buffer.AppendFormatted(" $(%sionaryHeaders%d)",dictionaryName, iFile);
@@ -1556,7 +1559,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
       // (this might cause side effect)
       arguments.AppendFormatted(" -D__builtin_va_list=va_list");
 #endif
-      buffer.AppendFormatted(arguments.Data());
+      buffer.Append(arguments.Data());
 #if defined( R__UNIX )
       buffer.AppendFormatted(" $(Includes)");
 #endif // R__UNIX
@@ -1568,7 +1571,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
       buffer.AppendFormatted("\n\n\n");
 
       GetDictHeaderString(bufferT,headers,";",false,iFile);
-      dictionaryDependencies->AddFormatted(bufferT.Data());
+      dictionaryDependencies->Add(bufferT.Data());
       GetIncludeDirString(includedirs," ","-");
       GetDictHeaderString(includes,headers," ",true,iFile);
 
@@ -1637,7 +1640,7 @@ void ROMEBuilder::GetUserDictIncludeDirString(ROMEString& buffer,const char* sep
       str.ReplaceAll(")","%");
 #endif
       if (i > 0)
-         buffer.AppendFormatted(separator);
+         buffer.Append(separator);
       buffer.AppendFormatted("-I%s",str.Data());
    }
 }
@@ -1692,10 +1695,10 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 
    // Output files
    bufferT.SetFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted(bufferT.Data());
+   buffer.Append(bufferT.Data());
    bufferT.ReplaceAll(" ",";");
    bufferT.ReplaceAll(":","");
-   dictionaryOutputs->AddFormatted(bufferT.Data());
+   dictionaryOutputs->Add(bufferT.Data());
 
    // Dependencies
    buffer.AppendFormatted(" $(DictionaryHeaders)\n");
@@ -1715,7 +1718,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    for (i = 0; i < affiliations.GetEntriesFast(); i++) {
       arguments.AppendFormatted(" -DHAVE_%s", static_cast<ROMEString>(affiliations.At(i)).ToUpper(tmp));
    }
-   buffer.AppendFormatted(arguments.Data());
+   buffer.Append(arguments.Data());
 #if defined( R__UNIX )
    buffer.AppendFormatted(" $(Includes)");
 #endif // R__UNIX

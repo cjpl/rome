@@ -366,7 +366,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          ExecuteTasks("Time");
          CleanTasks();
          if (gROME->IsROMEAndARGUS()) {
-            ROMEPrint::Print(gROME->GetWindow()->GetTimeStatisticsString(str));
+            ROMEPrint::Print("%s", gROME->GetWindow()->GetTimeStatisticsString(str));
          }
          TimeEventLoop();
          ROMEPrint::Print("\n");

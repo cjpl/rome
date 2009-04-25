@@ -196,7 +196,6 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,
    ROMEString buffer;
    ROMEString fileName;
    ROMEString valueName;
-   ROMEString format;
    Int_t      iRow,iCol;
    Bool_t     append  = false;
    Bool_t     prepend = false;
@@ -258,11 +257,10 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,
       buffer += "\n";
    for(iRow=0;iRow<values->GetEntries();iRow++){
       for(iCol=0;iCol<fieldLen.GetSize();iCol++){
-         format.SetFormatted(" %%%ds",fieldLen.At(iCol%kColPerLine));
          if(iCol<values->GetEntriesAt(iRow)) {
-            buffer.AppendFormatted(format.Data(),values->At(iRow,iCol).Data());
+            buffer.AppendFormatted(" %*s",fieldLen.At(iCol%kColPerLine),values->At(iRow,iCol).Data());
          } else {
-            buffer.AppendFormatted(format.Data(),"");
+            buffer.AppendFormatted(" %*s",fieldLen.At(iCol%kColPerLine),"");
          }
          if(iCol == fieldLen.GetSize()-1){
             if(values->GetEntries()>numbering)
