@@ -179,7 +179,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
                   value.Remove(is,ie-is+1);
                   value.Insert(is,ConstraintValue.At(0,0));
                }
-               newDataBasePath.InsertFormatted(istart, value.Data());
+               newDataBasePath.Insert(istart, value.Data());
                // decode new path
                if (write) {
                   if (Write(values,newDataBasePath.Data(),runNumber,eventNumber)) {

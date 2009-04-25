@@ -586,10 +586,10 @@ const char* ArgusWindow::GetTimeStatisticsString(ROMEString& str1)
    }
    for (iTab = 0; iTab < nTabs; iTab++) {
       static_cast<ArgusTab*>(fTabObjects->At(iTab))->GetTimeStatisticsString(str2);
-      str1.AppendFormatted(str2.Data());
+      str1.Append(str2.Data());
    }
    for (iSub = 0; iSub < nSubs; iSub++) {
-      str1.AppendFormatted(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str2));
+      str1.Append(static_cast<ArgusWindow*>(fSubWindows->At(iSub))->GetTimeStatisticsString(str2));
    }
    return str1.Data();
 }

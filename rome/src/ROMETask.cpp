@@ -314,7 +314,7 @@ void ROMETask::Exec(Option_t *option)
       if (name.Last('_') > 0) {
          name = name(0, name.Last('_'));
       }
-      ROMEPrint::Print(name.Data());
+      ROMEPrint::Print("%s", name.Data());
       for (i = 0; i < 35 - name.Length() - fLevel - nchars; i++) {
          ROMEPrint::Print(".");
       }

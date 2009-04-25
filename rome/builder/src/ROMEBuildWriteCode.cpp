@@ -4377,16 +4377,16 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("         fMenuDisplay->RCheckEntry(M_DISPLAY_%s",
                                       tabObjectDisplayName[iTab][i].ToUpper(str));
                if (tabObjectDisplayTaskHierarchyIndex[iTab][i] > -1) {
-                  buffer.AppendFormatted(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data());
+                  buffer.Append(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data());
                }
                buffer.AppendFormatted(",M_DISPLAY_%s",tabObjectDisplayName[iTab][0].ToUpper(str1));
                if (tabObjectDisplayTaskHierarchyIndex[iTab][0] > -1) {
-                  buffer.AppendFormatted(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][0]].Data());
+                  buffer.Append(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][0]].Data());
                }
                buffer.AppendFormatted(",M_DISPLAY_%s",
                                       tabObjectDisplayName[iTab][numOfTabObjectDisplays[iTab] - 1].ToUpper(str2));
                if (tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab] - 1] > -1) {
-                  buffer.AppendFormatted(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab] - 1]].Data());
+                  buffer.Append(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab] - 1]].Data());
                }
                buffer.AppendFormatted(");\n");
                buffer.AppendFormatted("         gAnalyzer->GetWindow()->RequestEventHandling();\n");

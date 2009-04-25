@@ -667,7 +667,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       for (i = 0; i < daqNameArray->GetEntriesFast(); i++) {
          str = daqNameArray->At(i);
          str.ToLower();
-         subGroup->GetLastParameter()->AddComboBoxEntry(str.Data());
+         subGroup->GetLastParameter()->AddComboBoxEntry("%s", str.Data());
       }
       subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isActiveDAQSet()) {");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetActiveDAQ()->GetName();");
@@ -995,7 +995,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubGroup->GetLastParameter()->AddSetLine("      return false;");
             subSubGroup->GetLastParameter()->AddSetLine("   }");
             subSubGroup->GetLastParameter()->AddSetLine("}");
-            subSubGroup->GetLastParameter()->AddComboBoxEntry(dbName[i].Data());
+            subSubGroup->GetLastParameter()->AddComboBoxEntry("%s", dbName[i].Data());
          }
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBase(i)->GetType();");
          // DataBase/EventBased
