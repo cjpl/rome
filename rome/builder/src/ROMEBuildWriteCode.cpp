@@ -1536,12 +1536,19 @@ Bool_t ROMEBuilder::WriteFolderH()
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+
+      tmp = "";
       for (i = 0; i < numOfValue[iFold]; i++) {
          if (isTArrayType(valueType[iFold][i])) {
             str1 = valueType[iFold][i](0, 7);
-            buffer.AppendFormatted("#include <%s.h>\n",str1.Data());
-            break;
+            str2.SetFormatted("#include <%s.h>\n",str1.Data());
+            if (!tmp.Contains(str2.Data())) {
+               tmp.Append(str2.Data());
+            }
          }
+      }
+      if (tmp.Length()) {
+         buffer.Append(tmp.Data());
       }
 
       for (i = 0; i < numOfValue[iFold]; i++) {
