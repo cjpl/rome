@@ -11062,7 +11062,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("         continue;\n");
    buffer.AppendFormatted("      } else {\n");
    buffer.AppendFormatted("         if ((sock = lsock->Accept()) > 0) {\n");
-   buffer.AppendFormatted("            TThread *thread = new TThread(\"Server\", %sNetFolderServer::Server, sock);\n",
+   buffer.AppendFormatted("            thread = new TThread(\"Server\", %sNetFolderServer::Server, sock);\n",
                           shortCut.Data());
    buffer.AppendFormatted("            fServerThreadList->Add(thread);\n");
    buffer.AppendFormatted("            thread->Run();\n");
