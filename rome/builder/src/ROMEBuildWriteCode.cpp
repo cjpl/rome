@@ -12330,8 +12330,9 @@ void ROMEBuilder::WriteHTMLDoku()
    if (dotexe) {
       dotCommand.SetFormatted("dot -V");
       cmdRes.ReadCommandOutput(dotCommand.Data());
-      cmdRes.Replace(0, sizeof("dot version ") - 1, "");
-      cmdRes.Replace(0, sizeof("dot - graphviz version ") - 1, "");
+      cmdRes.ReplaceAll("dot version ", "");
+      cmdRes.ReplaceAll("dot - graphviz version ", "");
+      cmdRes.ReplaceAll("dot - Graphviz version ", "");
       if (cmdRes.Index(" ", 1, TString::kExact) != -1) {
          cmdRes.Resize(cmdRes.Index(" ", 1, TString::kExact));
       }
