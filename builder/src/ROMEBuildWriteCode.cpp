@@ -9712,8 +9712,20 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
             buffer.AppendFormatted("            bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
          buffer.AppendFormatted("         } else {\n");
-         buffer.AppendFormatted("            romeTree->GetTree()->SetBranchStatus(\"%s*\", 0);\n",
-                                branchName[i][j].Data());
+         found = kFALSE;
+         for (k = 0; k < numOfBranch[i]; k++) {
+            if (k != j && branchName[i][k].BeginsWith(branchName[i][j])) {
+               found = kTRUE;
+               break;
+            }
+         }
+         if (!found) {
+            buffer.AppendFormatted("            romeTree->GetTree()->SetBranchStatus(\"%s*\", 0);\n",
+                                   branchName[i][j].Data());
+         } else if(branchName[i][j][branchName[i][j].Length() - 1] != '.') {
+            buffer.AppendFormatted("            romeTree->GetTree()->SetBranchStatus(\"%s.*\", 0);\n",
+                                   branchName[i][j].Data());
+         }
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("      }\n");
       }
