@@ -484,6 +484,8 @@ public:
    Long64_t        GetCurrentRunNumber();
    Int_t           GetNumberOfRunNumbers() const { return fRunNumber.GetSize(); }
    const char     *GetRunNumberStringOriginal() const { return fRunNumberString.Data(); }
+   Long64_t        GetFirstRunNumber();
+   Long64_t        GetLastRunNumber();
 
    void            SetCurrentRunNumber(Long64_t runNumber);
    void            SetRunNumbers(ROMEString &numbers) {
@@ -716,6 +718,7 @@ public:
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;
 
+   static char     GetChar();
    static Int_t    ss_getchar(UInt_t reset);
    static UInt_t   ss_kbhit();
    Int_t           ss_daemon_init(Bool_t keep_stdout);
