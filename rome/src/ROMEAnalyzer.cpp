@@ -896,6 +896,22 @@ Bool_t ROMEAnalyzer::toBool(Int_t value)
 }
 
 //______________________________________________________________________________
+char ROMEAnalyzer::GetChar()
+{
+   // get a characer from terminal.
+   // weight until input
+   char s = -1;
+   while (1) {
+      gSystem->Sleep(100);
+      if (ROMEAnalyzer::ss_kbhit()) {
+         s = ROMEAnalyzer::ss_getchar(0);
+         break;
+      }
+   }
+   return s;
+}
+
+//______________________________________________________________________________
 UInt_t ROMEAnalyzer::ss_kbhit()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -1614,6 +1630,23 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
 #endif
    }
    buffer.SetFormatted(form.Data(), GetCurrentRunNumber());
+}
+
+//______________________________________________________________________________
+Long64_t ROMEAnalyzer::GetFirstRunNumber()
+{
+   return GetNextRunNumber(-1);
+}
+
+//______________________________________________________________________________
+Long64_t ROMEAnalyzer::GetLastRunNumber()
+{
+   Long64_t run = -1;
+   Long64_t tmp;
+   while ((tmp = GetNextRunNumber(run)) > 0) {
+      run = tmp;
+   }
+   return run;
 }
 
 //______________________________________________________________________________
