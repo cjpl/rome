@@ -834,10 +834,13 @@ void ROMEAnalyzer::DecodeNumbers(ROMEString& str, TArrayL64& arr)
    const char cminus = '-';
    const char ccomma = ',';
    const char csemi  = ';';
-   char *tmpStr = new char[str.Length() + 1];
-   strcpy(tmpStr, str.Data());
+   ROMEString temp = str;
+   temp.ReplaceAll(" ", "");
+   temp.ReplaceAll("\n", "");
+   char *tmpStr = new char[temp.Length() + 1];
+   strcpy(tmpStr, temp.Data());
    char *pstr = tmpStr;
-   char *pend = pstr + str.Length();
+   char *pend = pstr + temp.Length();
    Long64_t num;
    Int_t na  = 0;
    Int_t nat = 1;
