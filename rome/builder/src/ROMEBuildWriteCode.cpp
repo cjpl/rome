@@ -331,7 +331,11 @@ Bool_t ROMEBuilder::WriteFolderCpp()
          } else if (valueIsTObject[iFold][i] && !isTArrayType(valueType[iFold][i])) {
             if (valueDimension[iFold][i] == 0) {
                if (isPointerType(valueType[iFold][i].Data()) || valueType[iFold][i] == "TRef") {
-                  buffer.AppendFormatted(",%s(%s_value)\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+                  if (numOfValue[iFold] < maxNumberOfArguments) { // rootcint does not accept more than 40
+                     buffer.AppendFormatted(",%s(%s_value)\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+                  } else {
+                     buffer.AppendFormatted(",%s(0)\n",valueName[iFold][i].Data());
+                  }
                } else {
                   buffer.AppendFormatted(",%s()\n",valueName[iFold][i].Data());
                }
