@@ -280,7 +280,7 @@
   <User>sawada</User>
   <Host>lcmeg00</Host>
   <Directory>/scratch2/sawada/rome-trunk</Directory>
-  <LastCompile>Mon, 02 Feb 2009 13:34:02 +0000 (GMT) +895669000 nsec</LastCompile>
+  <LastCompile>Mon, 06 Jul 2009 10:03:30 +0000 (GMT) +760901000 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>sawada</User>
@@ -371,4 +371,10 @@
   <Host>mpc1222</Host>
   <Directory>/scratch0/users/sawada/analysis/rome</Directory>
   <LastCompile>Tue, 30 Jun 2009 09:25:43 +0000 (GMT) +900346000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>lcmeg01</Host>
+  <Directory>/scratch2/sawada/rome-trunk</Directory>
+  <LastCompile>Wed, 08 Jul 2009 19:28:52 +0000 (GMT) +911689000 nsec</LastCompile>
 </Entry>

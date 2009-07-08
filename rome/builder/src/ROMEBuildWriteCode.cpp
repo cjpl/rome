@@ -739,12 +739,14 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   if (number < 0) return;\n");
+#if 0 /* this part cause memory error when the instance is read from TTree, thus %sSize can be wrong. */
                buffer.AppendFormatted("   if (number == %sSize) {\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      if (fillZero && !copyOldData && number != 0)\n");
                buffer.AppendFormatted("         memset(%s, 0, number * sizeof(%s));\n",
                                       valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
+#endif
                buffer.AppendFormatted("   %s *tmp = %s;\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   if (number != 0) {\n");
                buffer.AppendFormatted("      %s = new %s[number];\n",valueName[iFold][i].Data(),
