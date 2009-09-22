@@ -54,7 +54,8 @@ namespace {
       kReadEventDummy,
       kReadDB,
       kWriteDB,
-      kCheckTransition
+      kCheckTransition,
+      kFlushBuffer
    };
 
    // inter thread communication
@@ -709,6 +710,7 @@ Bool_t ROMEMidasDAQ::EndOfRun()
       if (!isTerminate()) {
          SetContinue();
       }
+      FlushBuffer();
    }
    return kTRUE;
 }
@@ -1285,6 +1287,9 @@ THREADTYPE ROMEMidasDAQ::OnlineConnectionLoop(void *arg)
             fgDBWriteReturn = ret;
          }
          break;
+      case kFlushBuffer:
+         localThis->FlushOnlineBuffer(localThis);
+         break;
       default:
          break;
       };
@@ -1487,6 +1492,43 @@ void ROMEMidasDAQ::ReadOnlineEventDummy(ROMEMidasDAQ *localThis)
 #if defined( HAVE_MIDAS )
    INT size = localThis->GetRawDataEventSize();
    bm_receive_event(localThis->fMidasOnlineBuffer, localThis->fRawDataDummy, &size, ASYNC);
+#else
+   WarningSuppression(localThis)
+#endif
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::FlushBuffer()
+{
+#if defined( HAVE_MIDAS )
+   if (fOnlineThread) {
+      if (!fOnlineHandlerThread) {
+         return;
+      }
+      {
+         ROME_LOCKGUARD(fgMutex);
+         fgOnlineThreadRequest = kFlushBuffer;
+      }
+      while (fgOnlineThreadRequest) {
+         // wait until thread finish process
+         gSystem->Sleep(1);
+      }
+   } else {
+      FlushOnlineBuffer(this);
+   }
+#else
+#endif
+}
+
+//______________________________________________________________________________
+void ROMEMidasDAQ::FlushOnlineBuffer(ROMEMidasDAQ *localThis)
+{
+#if defined( HAVE_MIDAS )
+   INT size = localThis->GetRawDataEventSize();
+   INT status;
+   do {
+      status = bm_receive_event(localThis->fMidasOnlineBuffer, localThis->fRawDataDummy, &size, ASYNC);
+   } while(status == BM_SUCCESS);
 #else
    WarningSuppression(localThis)
 #endif
