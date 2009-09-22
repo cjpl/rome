@@ -194,6 +194,8 @@ public:
    Bool_t         EndOfRun();
    Bool_t         Terminate();
    void           DummyRead();
+   void           FlushBuffer();
+   void           FlushOnlineBuffer(ROMEMidasDAQ *localThis);
 
    Bool_t         ReadODBOffline();
    Bool_t         ReadODBOnline(ROMEStr2DArray *values, const char *dataBasePath,
