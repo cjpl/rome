@@ -1524,9 +1524,10 @@ void ROMEMidasDAQ::FlushBuffer()
 void ROMEMidasDAQ::FlushOnlineBuffer(ROMEMidasDAQ *localThis)
 {
 #if defined( HAVE_MIDAS )
-   INT size = localThis->GetRawDataEventSize();
+   INT size;
    INT status;
    do {
+      size = localThis->GetRawDataEventSize();
       status = bm_receive_event(localThis->fMidasOnlineBuffer, localThis->fRawDataDummy, &size, ASYNC);
    } while(status == BM_SUCCESS);
 #else
