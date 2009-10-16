@@ -5222,7 +5222,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   gAnalyzer = this;\n");
    buffer.AppendFormatted("   gROME = static_cast<ROMEAnalyzer*>(this);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   if (!isNoGraphics()) {\n");
+   buffer.AppendFormatted("   if (!isNoGraphics() && !IsStandAloneROME()) {\n");
    buffer.AppendFormatted("      fWindow = new %sWindow(gClient->GetRoot(),kTRUE);\n",shortCut.Data());
    buffer.AppendFormatted("   } else {\n");
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,4))
