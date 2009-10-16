@@ -565,6 +565,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
          if (readError) {
             if (readError && n > 0) {
                ROMEPrint::Warning("Unexpected end of file\n");
+               gROME->AddErrorCode(kROMEECodeUnexpectedEndOfInputFile);
                fMaxDataSeqNumber = fCurrentSeqNumber - 2;
                SetEndOfRun();
             } else {

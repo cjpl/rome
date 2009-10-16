@@ -216,6 +216,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fWindow(0)
 ,fWindowUpdatePeriod(1000)
 ,fMidasOnlineDataBase(0)
+,fErrorCode(0)
 {
 // Initialisations
    fQuitMode = fQuitMode || !STDOutIsTerminal();

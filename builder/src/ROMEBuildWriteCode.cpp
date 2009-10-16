@@ -12300,8 +12300,10 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      TRY {\n");
    buffer.AppendFormatted("         if (!gAnalyzer->Start(argc, argv)) {\n");
+   buffer.AppendFormatted("            Int_t errCode = gAnalyzer->GetErrorCode();\n");
+   buffer.AppendFormatted("            errCode |= kROMEECodeAnyError;\n");
    buffer.AppendFormatted("            delete gAnalyzer;\n");
-   buffer.AppendFormatted("            return 1;\n");
+   buffer.AppendFormatted("            return errCode;\n");
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      } CATCH(excode) {\n");
    buffer.AppendFormatted("         ROMEAnalyzer::Cleaning();\n");

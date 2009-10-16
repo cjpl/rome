@@ -64,6 +64,9 @@ const Long64_t kEventNumberBeginOfRun = -1;
 const Long64_t kEventNumberEndOfRun   = kMaxLong64 - 1;
 const Long64_t kEventNumberTerminate  = kMaxLong64;
 
+const Int_t kROMEECodeAnyError                 = 1<<0;
+const Int_t kROMEECodeUnexpectedEndOfInputFile = 1<<1;
+
 class ROMEAnalyzer : public TObject
 {
 friend class ArgusWindow;
@@ -273,6 +276,8 @@ protected:
 
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
+
+   Int_t          fErrorCode;                    //! Exit code in case ::Start returns false.
 
 private:
    ROMEAnalyzer(const ROMEAnalyzer &analyzer); // not implemented
@@ -710,6 +715,11 @@ public:
    Int_t           GetWindowUpdatePeriod() const { return fWindowUpdatePeriod; }
    void            SetWindowUpdatePeriod(Int_t period) { fWindowUpdatePeriod = period; }
    Bool_t          IsWindowBusy() const;
+
+   // Error code
+   Int_t           GetErrorCode() const { return fErrorCode; }
+   void            SetErrorCode(Int_t ecode) { fErrorCode = ecode; }
+   void            AddErrorCode(Int_t ecode) { fErrorCode |= ecode; }
 
    // Program Steering
    void            NextEvent();
