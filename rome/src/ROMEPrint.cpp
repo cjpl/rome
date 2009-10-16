@@ -178,7 +178,7 @@ Int_t ROMEPrint::Alarm(const char *name, const char *message,
    // Trigger alarm of midas system.
    // Do nothing when midas library is not linked.
 #if defined( HAVE_MIDAS )
-   if (gROME->isOnline()) {
+   if (gROME && gROME->isOnline()) {
       return al_trigger_alarm(const_cast<char*>(name),
                               const_cast<char*>(message),
                               const_cast<char*>(alarmClass),
