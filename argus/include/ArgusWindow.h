@@ -86,6 +86,8 @@ protected:
    UInt_t                   fInitialHeight;        //! Default height of the window at startup
    Bool_t                   fRequestEventHandling; //! Event handling request flag
    Bool_t                   fForceEventHandling;   //! Force event handling even if it is the same event
+   ULong_t                  fScreenShotPeriod;     //!
+   ULong_t                  fScreenShotLastTime;   //!
 
 public:
    enum CommandIdentifiers {
@@ -176,6 +178,10 @@ public:
    //
    TGDimension      GetInitialSize() const { return TGDimension(fInitialWidth, fInitialHeight); }
 
+   // Screen shot
+   void             SetScreenShotPeriod(Int_t period) { fScreenShotPeriod = period; }
+   Int_t            GetScreenShotPeriod() const { return fScreenShotPeriod; }
+
    // Event Handling
 public:
    void             RequestEventHandling();
@@ -194,6 +200,8 @@ public:
    Bool_t           ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
 protected:
    virtual Bool_t   ProcessMessageNetFolder(Long_t param1) = 0;
+   Bool_t           OpenNewWindow(Int_t tabIndex);
+   void             ChangeTab(Int_t tabIndex);
 
    // Active. This might be dangerouse because it overload TGFrame::IsActive
 public:

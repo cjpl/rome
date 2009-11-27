@@ -1382,6 +1382,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdatePeriod(##.ToInteger());");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdatePeriod());");
+         // ScreenShotPeriod
+         subSubGroup->AddParameter(new ROMEConfigParameter("ScreenShotPeriod"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetScreenShotPeriod(##.ToInteger());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->GetScreenShotPeriod());");
          // ListTreeView
          subSubGroup->AddParameter(new ROMEConfigParameter("ListTreeView","1","CheckButton"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
@@ -1983,6 +1988,20 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
       subGroup->GetLastParameter()->AddSetLine("tabObject%d->SetTabActive(## != \"false\");",
                                                tabUsedIndex[iTab]);
       subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[tabObject%d->IsSwitch()?1:0];",
+                                                 tabUsedIndex[iTab]);
+      // Screen shot
+      subGroup->AddParameter(new ROMEConfigParameter("ScreenShotFileName"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+      subGroup->GetLastParameter()->AddSetLine("tabObject%d->SetScreenShotName(##);",
+                                               tabUsedIndex[iTab]);
+      subGroup->GetLastParameter()->AddWriteLine("writeString = tabObject%d->GetScreenShotName();",
+                                                 tabUsedIndex[iTab]);
+      // New window
+      subGroup->AddParameter(new ROMEConfigParameter("NewWindow"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+      subGroup->GetLastParameter()->AddSetLine("tabObject%d->SetNewWindow(## != \"false\");",
+                                               tabUsedIndex[iTab]);
+      subGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[tabObject%d->IsNewWindow()?1:0];",
                                                  tabUsedIndex[iTab]);
       if (tabObjectDisplay[iTab]) {
          for (j = 0; j < numOfTabObjectDisplays[iTab]; j++) {

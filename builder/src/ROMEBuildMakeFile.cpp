@@ -1285,7 +1285,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    for (i = 0; i < daqLibraries->GetEntriesFast(); i++) {
       buffer.AppendFormatted("daqlibs   += %s\n",daqLibraries->At(i).Data());
    }
-   buffer.AppendFormatted("clibs     := -lz $(SYSLIBS)\n");
+   buffer.AppendFormatted("clibs     := -lz -lX11 $(SYSLIBS)\n");
    buffer.AppendFormatted("\n");
 
    // Flags
