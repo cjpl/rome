@@ -51,6 +51,10 @@ protected:
    TArrayI       *fLogScaleY;             //!
    TArrayI       *fLogScaleZ;             //!
 
+   TString        fScreenShotName;        //!
+
+   Bool_t         fNewWindow;             //! Open new window at start up.
+
 private:
    ArgusTab(const ArgusTab &tab); // not implemented
    ArgusTab &operator=(const ArgusTab &rhs); // not implemented
@@ -98,6 +102,13 @@ public:
 
    void           SetID(const int id) { fID = id; }
    Int_t          GetID() const { return fID; }
+
+   void           SetScreenShotName(const char *fname) { fScreenShotName = fname; }
+   const char    *GetScreenShotName() const { return fScreenShotName; }
+   Int_t          GetScreenShotNameLength() const { return fScreenShotName.Length(); }
+   void           ScreenShot(const char *fname = 0);
+   void           SetNewWindow(Bool_t flag) { fNewWindow = flag; }
+   Bool_t         IsNewWindow() const { return fNewWindow; }
 
    TGPopupMenu   *GetUserPopupMenuAt(int i) const { return static_cast<TGPopupMenu*>(fUserPopupMenus->At(i)); }
 

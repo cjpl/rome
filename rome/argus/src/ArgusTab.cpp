@@ -14,14 +14,31 @@
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
+#include <TROOT.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
+
+#if defined( R__UNIX )
+#   include <TGX11.h>
+#endif
 
 #include "ArgusTab.h"
 #include "ArgusWindow.h"
 #include "ROMEAnalyzer.h"
 #include "ROMEiostream.h"
+
+
+#if defined( R__UNIX )
+//______________________________________________________________________________
+static Int_t DummyX11ErrorHandler(Display *, XErrorEvent *)
+{
+   // Dummy error handler for X11.
+
+   return 0;
+}
+#endif
+
 
 ClassImp(ArgusTab)
 
@@ -49,6 +66,8 @@ ArgusTab::ArgusTab(ArgusWindow* window, const char* title, ROMEStrArray *drawOpt
 ,fLogScaleX(logX)
 ,fLogScaleY(logY)
 ,fLogScaleZ(logZ)
+,fScreenShotName("")
+,fNewWindow(kFALSE)
 {
    // Reset stopwatches
    fWatchAll.Reset();
@@ -96,9 +115,34 @@ void ArgusTab::ArgusEventHandler() {
    fBusy = false;
    fWatchUserEvent.Stop();
    fWatchAll.Stop();
+
    gROME->GetApplication()->DisableFPETrap();
    gSystem->ProcessEvents();
    gROME->GetApplication()->EnableFPETrap();
+}
+
+//______________________________________________________________________________
+void ArgusTab::ScreenShot(const char *fname)
+{
+   TString filename;
+   if (!fname || fname[0] == '\0') {
+      filename = fScreenShotName;
+   }
+   if (!filename.Length()) {
+      return;
+   }
+
+   RaiseWindow();
+
+#if defined( R__UNIX )
+   gVirtualX->Update(1);
+   Int_t (*oldErrorHandler)(Display *, XErrorEvent *) =
+      XSetErrorHandler(DummyX11ErrorHandler);
+#endif
+   GetMainFrame()->SaveAs(filename);
+#if defined( R__UNIX )
+   XSetErrorHandler(oldErrorHandler);
+#endif
 }
 
 //______________________________________________________________________________
