@@ -1074,6 +1074,7 @@ Bool_t ArgusWindow::OpenNewWindow(Int_t tabIndex)
    newTab = subWindow->GetTabObjectAt(fCurrentTabIndex);
    newTab->SetTabActive(kTRUE);
    newTab->SetSwitch(kTRUE);
+   newTab->SetScreenShotName(tab->GetScreenShotName());
 
    // switch on all the ancestor tabs
    Int_t iTab = tabIndex;
