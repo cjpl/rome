@@ -835,6 +835,28 @@ void ArgusWindow::TriggerEventHandler()
       firstCall = kFALSE;
    }
 
+   static Bool_t screenShot = kFALSE;
+   if (fTabWindow) {
+      ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
+      if(currentTime - fScreenShotLastTime > fScreenShotPeriod *1000 || !fScreenShotPeriod) {
+         screenShot = kTRUE;
+         fScreenShotLastTime = currentTime;
+      }
+   }
+
+   // call event handlers for sub-windows
+   for (iSub = 0; iSub < nSub; iSub++) {
+      if (IsSubWindowRunningAt(iSub)) {
+         static_cast<ArgusWindow*>(fSubWindows->At(iSub))->TriggerEventHandler();
+      }
+   }
+
+   if (screenShot) {
+      if (GetTabObjectAt(fCurrentTabIndex)->GetScreenShotNameLength()) {
+         RaiseWindow();
+      }
+   }
+
    if (!gROME->IsStandAloneARGUS()) {
       // run#
 #if defined(R__UNIX)
@@ -876,24 +898,15 @@ void ArgusWindow::TriggerEventHandler()
    }
    delete [] tabStack;
 
-   static Bool_t screenShot = kFALSE;
-   if (fTabWindow) {
-      ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
-      if(currentTime - fScreenShotLastTime > fScreenShotPeriod || !fScreenShotPeriod) {
-         screenShot = kTRUE;
-         fScreenShotLastTime = currentTime;
-      }
-   }
-
-   // call event handlers for sub-windows
-   for (iSub = 0; iSub < nSub; iSub++) {
-      if (IsSubWindowRunningAt(iSub)) {
-         static_cast<ArgusWindow*>(fSubWindows->At(iSub))->TriggerEventHandler();
-      }
-   }
-
    // call Layout() method to force updating of size of labels in the infoFrame, including UserInfoFrame
    ((TGCompositeFrame*)(fUserInfoFrame->GetParent()))->Layout();
+
+   // clear requests
+   ClearEventHandlingRequest();
+   ClearEventHandlingForced();
+
+   fWatchAll.Stop();
+   SetStatus(2, "", 0);
 
    if (screenShot) {
       if (GetTabObjectAt(fCurrentTabIndex)->GetScreenShotNameLength()) {
@@ -905,12 +918,6 @@ void ArgusWindow::TriggerEventHandler()
       screenShot = kFALSE;
    }
 
-   // clear requests
-   ClearEventHandlingRequest();
-   ClearEventHandlingForced();
-
-   fWatchAll.Stop();
-   SetStatus(2, "", 0);
 }
 
 //______________________________________________________________________________
