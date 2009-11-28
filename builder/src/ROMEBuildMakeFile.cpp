@@ -1164,7 +1164,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 
    buffer.AppendFormatted("## Compile and link flags\n");
    buffer.AppendFormatted("rootlibs  := $(shell $(ROOTCONFIG) --libs) -lHtml -lThread\n");
-   buffer.AppendFormatted("rootglibs := $(shell $(ROOTCONFIG) --glibs) -lHtml -lThread\n");
+   buffer.AppendFormatted("rootglibs := $(shell $(ROOTCONFIG) --glibs) -lHtml -lThread -lGX11\n");
    buffer.AppendFormatted("rootcflags:= $(shell $(ROOTCONFIG) --cflags)\n");
    buffer.AppendFormatted("defflags  :=");
    for (i = 0; i < flags.GetEntriesFast(); i++) {
@@ -1285,7 +1285,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    for (i = 0; i < daqLibraries->GetEntriesFast(); i++) {
       buffer.AppendFormatted("daqlibs   += %s\n",daqLibraries->At(i).Data());
    }
-   buffer.AppendFormatted("clibs     := -lz -lX11 $(SYSLIBS)\n");
+   buffer.AppendFormatted("clibs     := -lz $(SYSLIBS)\n");
    buffer.AppendFormatted("\n");
 
    // Flags
