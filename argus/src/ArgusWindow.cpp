@@ -817,7 +817,6 @@ void ArgusWindow::TriggerEventHandler()
                                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
    const Bool_t iUTC = kTRUE;
 
-   SetStatus(0, "", 0);
    fWatchAll.Start(false);
    if (fController) {
       fController->Update();
@@ -856,6 +855,8 @@ void ArgusWindow::TriggerEventHandler()
          RaiseWindow();
       }
    }
+
+   SetStatus(0, "", 0);
 
    if (!gROME->IsStandAloneARGUS()) {
       // run#
