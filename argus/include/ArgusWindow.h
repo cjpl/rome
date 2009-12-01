@@ -88,6 +88,7 @@ protected:
    Bool_t                   fForceEventHandling;   //! Force event handling even if it is the same event
    ULong_t                  fScreenShotPeriod;     //!
    ULong_t                  fScreenShotLastTime;   //!
+   TString                  fTimeZone;             //!
 
 public:
    enum CommandIdentifiers {
@@ -208,6 +209,9 @@ public:
    Bool_t           IsActive() const { return fArgusActive; }
 //   Int_t            GetActiveTabObjectIndex();
    void             CheckActiveFlags();
+
+   void             SetTimeZone(const char* timezone) { fTimeZone = timezone; fTimeZone.ToLower(); }
+   const char*      GetTimeZone() { return fTimeZone; }
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window
 };

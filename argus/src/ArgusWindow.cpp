@@ -83,6 +83,7 @@ ArgusWindow::ArgusWindow(Bool_t statusBarSwitch, Int_t numberOfTabs)
 ,fForceEventHandling(kFALSE)
 ,fScreenShotPeriod(60)
 ,fScreenShotLastTime(0)
+,fTimeZone("local")
 {
    memset(fListTreeItem, 0, sizeof(TGListTreeItem*) * numberOfTabs);
    fWatchAll.Reset();
@@ -130,6 +131,7 @@ ArgusWindow::ArgusWindow(const TGWindow* p, Bool_t statusBarSwitch, Int_t number
 ,fForceEventHandling(kFALSE)
 ,fScreenShotPeriod(60)
 ,fScreenShotLastTime(0)
+,fTimeZone("local")
 {
    memset(fListTreeItem, 0, sizeof(TGListTreeItem*) * numberOfTabs);
    fWatchAll.Reset();
@@ -279,7 +281,7 @@ Bool_t ArgusWindow::Start()
          TGHorizontalFrame *YearMonDayFrame = new TGHorizontalFrame(vFrame);
          vFrame->AddFrame(YearMonDayFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 15, 10, 2, 2));
 
-         TGLabel *fYearMonDayLabel = new TGLabel(YearMonDayFrame, "Date(UTC) : ");
+         TGLabel *fYearMonDayLabel = new TGLabel(YearMonDayFrame, "Date : ");
          fYearMonDayLabel->SetTextJustify(kTextLeft | kTextCenterY);
          YearMonDayFrame->AddFrame(fYearMonDayLabel, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
 
@@ -815,7 +817,9 @@ void ArgusWindow::TriggerEventHandler()
    UInt_t       year, mon, day, hour, min, sec;
    const char   month[12][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-   const Bool_t iUTC = kTRUE;
+
+   const Bool_t iUTC = (fTimeZone == "utc");
+
 
    fWatchAll.Start(false);
    if (fController) {
