@@ -134,7 +134,7 @@ void ArgusTab::ScreenShot(const char *fname)
 
    TString tmpfilename = gSystem->DirName(filename);
    if (tmpfilename == ".") {
-      tmpflename = "";
+      tmpfilename = "";
    } else {
 #if defined( R__UNIX )
       tmpfilename += "/.";
