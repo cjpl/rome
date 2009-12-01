@@ -939,6 +939,11 @@
 					<xs:documentation>Use ListTree to select displays rather than tabs.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="TimeZone" type="xs:string" default="local" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Time offset used for time display. &quot;local&quot; or &quot;utc&quot; are valid.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>

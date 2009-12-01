@@ -1392,6 +1392,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetListTreeView(## != \"false\");");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->GetWindow()->IsListTreeView()?1:0];");
+         // TimeZone
+         subSubGroup->AddParameter(new ROMEConfigParameter("TimeZone","1","ComboBox"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetTimeZone(##);");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetWindow()->GetTimeZone();");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("utc");
+         subSubGroup->GetLastParameter()->AddComboBoxEntry("local");
          // AnalyzerController
          {
             ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
