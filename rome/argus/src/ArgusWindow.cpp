@@ -269,7 +269,7 @@ Bool_t ArgusWindow::Start()
          TGHorizontalFrame *eventFrame = new TGHorizontalFrame(vFrame);
          vFrame->AddFrame(eventFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 15, 10, 2, 2));
 
-         TGLabel *fEventLabel   = new TGLabel(eventFrame, "Eevent : ");
+         TGLabel *fEventLabel   = new TGLabel(eventFrame, "Event : ");
          fEventLabel->SetTextJustify(kTextLeft | kTextCenterY);
          eventFrame->AddFrame(fEventLabel, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
 
