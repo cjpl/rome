@@ -132,6 +132,18 @@ void ArgusTab::ScreenShot(const char *fname)
       return;
    }
 
+   TString tmpfilename = gSystem->DirName(filename);
+   if (tmpfilename == ".") {
+      tmpflename = "";
+   } else {
+#if defined( R__UNIX )
+      tmpfilename += "/.";
+#else
+      tmpfilename += "\.";
+#endif
+   }
+   tmpfilename += gSystem->BaseName(filename);
+
    RaiseWindow();
 
 #if defined( R__UNIX )
@@ -139,7 +151,8 @@ void ArgusTab::ScreenShot(const char *fname)
    Int_t (*oldErrorHandler)(Display *, XErrorEvent *) =
       XSetErrorHandler(DummyX11ErrorHandler);
 #endif
-   GetMainFrame()->SaveAs(filename);
+   GetMainFrame()->SaveAs(tmpfilename);
+   gSystem->Rename(tmpfilename, filename);
 #if defined( R__UNIX )
    XSetErrorHandler(oldErrorHandler);
 #endif
