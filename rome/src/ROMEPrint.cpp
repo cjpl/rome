@@ -263,7 +263,7 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
    fgReportPrintCount.AddAt(fgReportPrintCount.At(indx) + 1, indx); // increment
 
 #if defined( HAVE_MIDAS )
-   const Int_t kMidasMessageSendingLevel = kNormal;
+   const Int_t kMidasMessageSendingLevel = kWarning;
 #else
    const Int_t kMidasMessageSendingLevel = -1; // never use cm_msg
 #endif
