@@ -1360,7 +1360,7 @@ void ROMEEventLoop::AutoSave()
    }
 
    // Histograms auto save
-   static ULong_t histoSaveLastTime = 0;
+   static ULong_t histoSaveLastTime = static_cast<ULong_t>(gSystem->Now());
    ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
    if (gROME->GetHistosAutoSavePeriod() > 0 &&
        currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() * 1000 &&
