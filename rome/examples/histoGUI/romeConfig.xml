@@ -109,7 +109,9 @@
         <WindowScale>1.0</WindowScale>
         <StatusBar>true</StatusBar>
         <UpdateFrequency>100</UpdateFrequency>
+        <ScreenShotPeriod>60</ScreenShotPeriod>
         <ListTreeView>false</ListTreeView>
+        <TimeZone>local</TimeZone>
         <AnalyzerController>
           <Active>false</Active>
           <NetFolderName></NetFolderName>
@@ -125,6 +127,8 @@
         <Tab>
           <TabName>GeneratedHisto</TabName>
           <Active>true</Active>
+          <ScreenShotFileName></ScreenShotFileName>
+          <NewWindow>false</NewWindow>
           <SingleObject>
             <SingleObjectName>MyHisto</SingleObjectName>
             <DrawOption></DrawOption>

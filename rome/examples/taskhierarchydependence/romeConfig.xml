@@ -140,7 +140,9 @@
         <WindowScale>1.0</WindowScale>
         <StatusBar>true</StatusBar>
         <UpdateFrequency>1000</UpdateFrequency>
+        <ScreenShotPeriod>60</ScreenShotPeriod>
         <ListTreeView>false</ListTreeView>
+        <TimeZone>local</TimeZone>
         <AnalyzerController>
           <Active>false</Active>
           <NetFolderName></NetFolderName>
@@ -156,14 +158,20 @@
         <Tab>
           <TabName>TabA</TabName>
           <Active>true</Active>
+          <ScreenShotFileName></ScreenShotFileName>
+          <NewWindow>false</NewWindow>
         </Tab>
 
         <Tab>
           <TabName>TabB</TabName>
           <Active>true</Active>
+          <ScreenShotFileName></ScreenShotFileName>
+          <NewWindow>false</NewWindow>
           <Tab>
             <TabName>TabC</TabName>
             <Active>true</Active>
+            <ScreenShotFileName></ScreenShotFileName>
+            <NewWindow>false</NewWindow>
           </Tab>
         </Tab>
       </Tabs>
