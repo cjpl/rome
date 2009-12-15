@@ -384,3 +384,9 @@
   <Directory>/scratch2/sawada/rome-trunk</Directory>
   <LastCompile>Tue, 15 Dec 2009 19:02:14 +0000 (GMT) +114800000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>sawada</User>
+  <Host>lcmeg16</Host>
+  <Directory>/userdata/sawada/rome</Directory>
+  <LastCompile>Tue, 15 Dec 2009 19:43:14 +0000 (GMT) +738643000 nsec</LastCompile>
+</Entry>
