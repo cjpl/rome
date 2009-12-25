@@ -106,6 +106,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
 ,fHaveEndOfRunMacro(kFALSE)
 ,fLastNetFolderServerUpdateTime(0)
 ,fNetFolderServerUpdateThread(0)
+,fMaxTreeMemory(1000000000)
 {
 }
 
@@ -1343,7 +1344,7 @@ Bool_t ROMEEventLoop::WriteHistograms(Bool_t snapShot)
 //______________________________________________________________________________
 void ROMEEventLoop::AutoSave()
 {
-   // Trees auto save
+   // Trees auto save and flush
    Bool_t saveTrees = kFALSE;
    const Int_t nTree = gROME->GetTreeObjectEntries();
    Int_t iTree;
@@ -1356,6 +1357,13 @@ void ROMEEventLoop::AutoSave()
    if (saveTrees) {
       for (iTree = 0; iTree < nTree; iTree++) {
          gROME->GetTreeObjectAt(iTree)->AutoSave("SaveSelf");
+      }
+   }
+
+   OptimizeTreeMaxMemory();
+   for (iTree = 0; iTree < nTree; iTree++) {
+      if (gROME->GetTreeObjectAt(iTree)->CheckAutoFlush()) {
+         gROME->GetTreeObjectAt(iTree)->AutoFlush("");
       }
    }
 
@@ -1714,4 +1722,34 @@ Bool_t ROMEEventLoop::TimeEventLoop()
                     fWatchWriteEvent.GetCpuTimeString(str2));
 //   ROMEPrint::Print("  %s\n", fWatchEvent.GetCpuTimeString(str1));
    return true;
+}
+
+//______________________________________________________________________________
+void ROMEEventLoop::OptimizeTreeMaxMemory() const
+{
+   // Assign memory size of each tree
+   if (fMaxTreeMemory <= 0) {
+      return;
+   }
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   vector<Double_t> maxMemory(nTree);
+   Double_t totalSize = 0;
+   Int_t iTree;
+   TTree *tree;
+   for (iTree = 0; iTree < nTree; iTree++) {
+      if (gROME->GetTreeObjectAt(iTree)->isWrite()) {
+         tree = gROME->GetTreeObjectAt(iTree)->GetTree();
+         maxMemory[iTree] = static_cast<Double_t>(tree->GetZipBytes());
+         totalSize += maxMemory[iTree];
+      }
+   }
+   if (totalSize) {
+      for (iTree = 0; iTree < nTree; iTree++) {
+         if (gROME->GetTreeObjectAt(iTree)->isWrite()) {
+            if (maxMemory[iTree]) {
+               gROME->GetTreeObjectAt(iTree)->SetMaxMemory(static_cast<Long64_t>(maxMemory[iTree] / totalSize * fMaxTreeMemory));
+            }
+         }
+      }
+   }
 }

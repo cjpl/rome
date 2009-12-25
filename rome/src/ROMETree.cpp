@@ -36,8 +36,11 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
                  "Save Config = BOOL : 0\n"
                  "Compression Level = INT : 1\n"
                  "Max Entries = INT : 0\n")
-,fAutoSaveSize(100000000)
+,fAutoSaveSize(30000000)
 ,fLastSaveSize(0)
+,fAutoFlushSize(30000000)
+,fLastFlushSize(0)
+,fMaxMemory(kMaxLong64)
 ,fBranchActive(0)
 ,fNBranchActive(0)
 ,fBranchRead(0)
@@ -122,6 +125,11 @@ Long64_t ROMETree::AutoSave(Option_t *option)
 #else
       fLastSaveSize = static_cast<Long64_t>(fTree->GetCurrentFile()->GetBytesWritten());
 #endif
+      TString opt = option;
+      opt.ToLower();
+      if (opt.Contains("flushbaskets")) {
+          fLastFlushSize = fLastSaveSize;
+      }
    }
    return ret;
 }
@@ -141,6 +149,49 @@ Bool_t ROMETree::CheckAutoSave()
          fLastSaveSize = 0;
       }
       if (currentSize > fLastSaveSize + fAutoSaveSize) {
+         return kTRUE;
+      }
+   }
+   return kFALSE;
+}
+
+//______________________________________________________________________________
+void ROMETree::AutoFlush(Option_t *option)
+{
+   // Flush baskets.
+   // When fAutoFlushSize <=0, trees must be flushed by ROOT when filling,
+   // unless a user configured the tree.
+   // (i.e. ROME must not change TTree::fAutoFlush.
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+   if (fAutoFlushSize > 0 && isWrite() && fTree && fTree->GetCurrentFile()) {
+      fTree->OptimizeBaskets(fMaxMemory == kMaxLong64 ?
+                             fTree->GetTotBytes() : fMaxMemory, 1, option);
+      fLastFlushSize = fTree->GetCurrentFile()->GetBytesWritten();
+   }
+#else
+   WarningSuppression(option);
+#endif
+}
+
+//______________________________________________________________________________
+Bool_t ROMETree::CheckAutoFlush()
+{
+   Long64_t currentSize;
+   if (fAutoFlushSize > 0 && isWrite() && fTree && fTree->GetCurrentFile()) {
+      if (fTree->GetAutoFlush()) {
+         fTree->SetAutoFlush(0); // ROME flush trees in event loop with optimizing memory size.
+      }
+
+#if (ROOT_VERSION_CODE > ROOT_VERSION(4,4,2))
+      currentSize = fTree->GetCurrentFile()->GetBytesWritten();
+#else
+      currentSize = static_cast<Long64_t>(fTree->GetCurrentFile()->GetBytesWritten());
+#endif
+      if (currentSize < fLastFlushSize) {
+         // probably new file is created.
+         fLastFlushSize = 0;
+      }
+      if (currentSize > fLastFlushSize + fAutoFlushSize) {
          return kTRUE;
       }
    }

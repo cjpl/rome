@@ -1434,6 +1434,9 @@ setState('type_BranchDesc_scbox', false);
 <div style="margin-left: 1.5em">&lt;Accumulate&gt; <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span> &lt;/Accumulate&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Trees can be accumulated over certain runs. Default is false.'); viewDocumentation('Element', 'Accumulate', docArray);">?</a>
 </div>
+<div style="margin-left: 1.5em">&lt;MaxMemory&gt; <span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/MaxMemory&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Total memory size to store trees on memory. When the size of trees exceed it, trees are flushed to disk. When this is 0 or negative, the limit will be the size of current tree size.'); viewDocumentation('Element', 'MaxMemory', docArray);">?</a>
+</div>
 <div style="margin-left: 1.5em">&lt;Tree&gt; <span class="type">
 <a title="Jump to &quot;TreeDesc&quot; type definition." href="#type_TreeDesc">TreeDesc</a>
 </span> &lt;/Tree&gt; <span class="occurs">[1..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Describes the tree configuration. (optional)'); viewDocumentation('Element', 'Tree', docArray);">?</a>
@@ -1489,6 +1492,10 @@ setState('type_CommonDesc_xibox', true);
 <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span>
 </span>" <span class="scTag">default</span>="<span class="scContent">false</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">MaxMemory</span>" <span class="scTag">type</span>="<span class="scContent">
+<span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span>
+</span>" <span class="scTag">default</span>="<span class="scContent">1000000000</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
 <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Tree</span>" <span class="scTag">type</span>="<span class="scContent">
 <span class="type">
 <a title="Jump to &quot;TreeDesc&quot; type definition." href="#type_TreeDesc">TreeDesc</a>
@@ -1867,6 +1874,9 @@ setState('type_DataBasesDesc_scbox', false);
 <div style="margin-left: 1.5em">&lt;ListTreeView&gt; <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span> &lt;/ListTreeView&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Use ListTree to select displays rather than tabs.'); viewDocumentation('Element', 'ListTreeView', docArray);">?</a>
 </div>
+<div style="margin-left: 1.5em">&lt;TimeZone&gt; <span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt;/TimeZone&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Time offset used for time display. \&quot;local\&quot; or \&quot;utc\&quot; are valid.'); viewDocumentation('Element', 'TimeZone', docArray);">?</a>
+</div>
 <div style="margin-left: 1.5em">&lt;AnalyzerController&gt; <span class="type">
 <a title="Jump to &quot;AnalyzerControllerDesc&quot; type definition." href="#type_AnalyzerControllerDesc">AnalyzerControllerDesc</a>
 </span> &lt;/AnalyzerController&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Description of the Analyzer Contoller Settings.'); viewDocumentation('Element', 'AnalyzerController', docArray);">?</a>
@@ -1903,6 +1913,10 @@ setState('type_DisplayDesc_xibox', true);
 <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span>
 </span>" <span class="scTag">default</span>="<span class="scContent">false</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">TimeZone</span>" <span class="scTag">type</span>="<span class="scContent">
+<span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span>
+</span>" <span class="scTag">default</span>="<span class="scContent">local</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
 <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AnalyzerController</span>" <span class="scTag">type</span>="<span class="scContent">
 <span class="type">
 <a title="Jump to &quot;AnalyzerControllerDesc&quot; type definition." href="#type_AnalyzerControllerDesc">AnalyzerControllerDesc</a>
@@ -4510,7 +4524,10 @@ setState('type_TaskDesc_scbox', false);
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/CompressionLevel&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Compression level for all branches of the tree. Default is 1.'); viewDocumentation('Element', 'CompressionLevel', docArray);">?</a>
 </div>
 <div style="margin-left: 1.5em">&lt;AutoSaveSize&gt; <span class="type">
-<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/AutoSaveSize&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Number of bytes for auto saving. Auto saving is disabled when this is 0. Saving one tree triggers saving all trees to keep consistency of output files. Default is 100000000 (about 100 MB).'); viewDocumentation('Element', 'AutoSaveSize', docArray);">?</a>
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/AutoSaveSize&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Number of bytes for auto saving. Auto saving is disabled when this is 0. Saving one tree triggers saving all trees to keep consistency of output files. Default is 30000000 (about 30 MB).'); viewDocumentation('Element', 'AutoSaveSize', docArray);">?</a>
+</div>
+<div style="margin-left: 1.5em">&lt;AutoFlushSize&gt; <span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/AutoFlushSize&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Number of bytes for auto flushing. Default behaviour of ROOT is used when this is 0. Flushing is done independent of other trees. Default is 30000000 (about 30 MB).'); viewDocumentation('Element', 'AutoFlushSize', docArray);">?</a>
 </div>
 <div style="margin-left: 1.5em">&lt;MaxNumberOfEntries&gt; <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/MaxNumberOfEntries&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0.'); viewDocumentation('Element', 'MaxNumberOfEntries', docArray);">?</a>
@@ -4563,7 +4580,11 @@ setState('type_TreeDesc_xibox', true);
 <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AutoSaveSize</span>" <span class="scTag">type</span>="<span class="scContent">
 <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span>
-</span>" <span class="scTag">default</span>="<span class="scContent">100000000</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+</span>" <span class="scTag">default</span>="<span class="scContent">30000000</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AutoFlushSize</span>" <span class="scTag">type</span>="<span class="scContent">
+<span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span>
+</span>" <span class="scTag">default</span>="<span class="scContent">30000000</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
 <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">MaxNumberOfEntries</span>" <span class="scTag">type</span>="<span class="scContent">
 <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span>

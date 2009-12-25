@@ -83,8 +83,10 @@ protected:
    Bool_t        fHaveEndOfRunMacro;               //! flag if it has macro to execute at the end of run
 
    // NetFolderServer update
-   ULong_t       fLastNetFolderServerUpdateTime;    //! Time of the last NetFolderServers update
+   ULong_t       fLastNetFolderServerUpdateTime;   //! Time of the last NetFolderServers update
    TThread      *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
+
+   Long64_t      fMaxTreeMemory;                   //! maximum memory size used for baskets
 
 public:
    // Static Hot Links
@@ -138,6 +140,10 @@ public:
    void   ReadHistograms();
    Bool_t WriteHistograms(Bool_t snapShot = kFALSE);
 
+   // Max Tree Memory
+   void         SetMaxTreeMemory(Long64_t size) { fMaxTreeMemory = size; }
+   Long64_t     GetMaxTreeMemory() const { return fMaxTreeMemory; }
+
 protected:
    // Run Status
    Bool_t        isRunning() const { return gROME->GetActiveDAQ()->isRunning(); }
@@ -172,6 +178,7 @@ protected:
    TFile       *CreateTFile(const char *fname, Option_t *option = "",
                             const char *ftitle = "", Int_t compress = 1);
    void         AutoSave();
+   void         OptimizeTreeMaxMemory() const;
 
    // stopwatch
    Bool_t TimeEventLoop();
