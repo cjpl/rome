@@ -806,6 +806,9 @@ void ArgusWindow::RequestEventHandling()
 //______________________________________________________________________________
 void ArgusWindow::TriggerEventHandler()
 {
+   while (!IsMapped()) {
+      return;
+   }
    int          iSub;
    const Int_t  nSub = fSubWindows->GetEntriesFast();
    Int_t        tabLevel = 0;
@@ -854,7 +857,7 @@ void ArgusWindow::TriggerEventHandler()
       }
    }
 
-   if (screenShot) {
+   if (screenShot && fCurrentTabIndex >= 0) {
       if (GetTabObjectAt(fCurrentTabIndex)->GetScreenShotNameLength()) {
          RaiseWindow();
       }
