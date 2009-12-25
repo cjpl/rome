@@ -176,17 +176,14 @@ void ROMETree::AutoFlush(Option_t *option)
 //______________________________________________________________________________
 Bool_t ROMETree::CheckAutoFlush()
 {
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
    Long64_t currentSize;
    if (fAutoFlushSize > 0 && isWrite() && fTree && fTree->GetCurrentFile()) {
       if (fTree->GetAutoFlush()) {
          fTree->SetAutoFlush(0); // ROME flush trees in event loop with optimizing memory size.
       }
 
-#if (ROOT_VERSION_CODE > ROOT_VERSION(4,4,2))
       currentSize = fTree->GetCurrentFile()->GetBytesWritten();
-#else
-      currentSize = static_cast<Long64_t>(fTree->GetCurrentFile()->GetBytesWritten());
-#endif
       if (currentSize < fLastFlushSize) {
          // probably new file is created.
          fLastFlushSize = 0;
@@ -195,5 +192,6 @@ Bool_t ROMETree::CheckAutoFlush()
          return kTRUE;
       }
    }
+#endif
    return kFALSE;
 }
