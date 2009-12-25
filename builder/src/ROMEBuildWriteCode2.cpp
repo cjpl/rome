@@ -1079,9 +1079,18 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subGroup->AddSubGroup(subSubGroup);
          // Accumulate
          subSubGroup->AddParameter(new ROMEConfigParameter("Accumulate","1","CheckButton"));
-         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName(),"/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Trees']/xs:annotation/xs:documentation");
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName(),
+                                                      "/xs:schema/xs:complexType[@name='CommonDesc']/xs:sequence/xs:element[@name='Trees']/"
+                                                      "xs:complexType/xs:sequence/xs:element[@name='Accumulate']/xs:annotation/xs:documentation");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetTreeAccumulation(## == \"true\");");
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = kFalseTrueString[gAnalyzer->isTreeAccumulation()?1:0];");
+         // MaxMemory
+         subSubGroup->AddParameter(new ROMEConfigParameter("MaxMemory"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName(),
+                                                      "/xs:schema/xs:complexType[@name='CommonDesc']/xs:sequence/xs:element[@name='Trees']/"
+                                                      "xs:complexType/xs:sequence/xs:element[@name='MaxMemory']/xs:annotation/xs:documentation");
+         subSubGroup->GetLastParameter()->AddSetLine("static_cast<ROMEEventLoop*>(gAnalyzer->GetMainTask())->SetMaxTreeMemory(##.ToLong64());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(R_LLD,static_cast<ROMEEventLoop*>(gAnalyzer->GetMainTask())->GetMaxTreeMemory());");
          // Tree
          for (i = 0; i < numOfTree; i++) {
             ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
@@ -1137,6 +1146,15 @@ Bool_t ROMEBuilder::AddConfigParameters()
                                                            i);
             subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
             subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(R_LLD,gAnalyzer->GetTreeObjectAt(%d)->GetAutoSaveSize());",
+                                                             i);
+            // AutoFlushSize
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("AutoFlushSize"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetAutoFlushSize(##.ToLong64());",
+                                                           i);
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(R_LLD,gAnalyzer->GetTreeObjectAt(%d)->GetAutoFlushSize());",
                                                              i);
             // MaxNumberOfEntries
             subSubSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));

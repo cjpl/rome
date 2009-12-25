@@ -33,6 +33,9 @@ private:
    ROMEString  fSwitchesString;    //!   Switches String
    Long64_t    fAutoSaveSize;      //!   Auto save size
    Long64_t    fLastSaveSize;      //!   The last saved size
+   Long64_t    fAutoFlushSize;     //!   Auto flush size
+   Long64_t    fLastFlushSize;     //!   The last flushed size
+   Long64_t    fMaxMemory;         //!   Maximum memory size of the basket.
    Bool_t     *fBranchActive;      //!   Flag if brahch is active
    Int_t       fNBranchActive;     //!   Number of branch active
    Bool_t     *fBranchRead;        //!   Flag if brahch is active for reading
@@ -84,6 +87,8 @@ public:
    Bool_t      isSaveConfig() const        { return fSwitches.fSaveConfig != 0; }
    Int_t       GetCompressionLevel() const { return fSwitches.fCompressionLevel; }
    Long64_t    GetAutoSaveSize() const     { return fAutoSaveSize; }
+   Long64_t    GetAutoFlushSize() const    { return fAutoFlushSize; }
+   Long64_t    GetMaxMemory() const        { return fMaxMemory; }
    Bool_t      isCircular() const {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
                   return fSwitches.fMaxEntries != 0;
@@ -121,6 +126,10 @@ public:
    void        SetAutoSaveSize(Long64_t size)   { fAutoSaveSize = size; }
    Long64_t    AutoSave(Option_t *option);
    Bool_t      CheckAutoSave();
+   void        SetAutoFlushSize(Long64_t size)   { fAutoFlushSize = size; }
+   void        AutoFlush(Option_t *option);
+   Bool_t      CheckAutoFlush();
+   void        SetMaxMemory(Long64_t size)   { fMaxMemory = size; }
    void        SetMaxEntries(Long64_t maxEntries) {
                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
                   /* note: use 4byte integer for odb */
