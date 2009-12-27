@@ -352,7 +352,7 @@
 			</xs:element>
 			<xs:element name="AutoFlushSize" type="xs:integer" default="30000000" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Number of bytes for auto flushing. Default behaviour of ROOT is used when this is 0. Flushing is done independent of other trees. Default is 30000000 (about 30 MB).</xs:documentation>
+					<xs:documentation>Number of bytes for auto flushing. Default behaviour of ROOT is used when this is 0. Flushing is done independent of other trees. Default is 30000000 (about 30 MB). Available from ROOT 5.26</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="MaxNumberOfEntries" type="xs:integer" default="0" minOccurs="0">
@@ -517,7 +517,7 @@
 						</xs:element>
 						<xs:element name="MaxMemory" type="xs:integer" default="1000000000" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>Total memory size to store trees on memory. When the size of trees exceed it, trees are flushed to disk. When this is 0 or negative, the limit will be the size of current tree size.</xs:documentation>
+								<xs:documentation>Total memory size to store trees on memory. When the size of trees exceed it, trees are flushed to disk. When this is 0 or negative, the limit will be the size of current tree size. This works for trees with positive AutoFlushSize. Available from ROOT 5.26</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="Tree" type="TreeDesc" maxOccurs="unbounded">
