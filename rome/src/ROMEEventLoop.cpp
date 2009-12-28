@@ -1366,7 +1366,9 @@ void ROMEEventLoop::AutoSave()
    for (iTree = 0; iTree < nTree; iTree++) {
       if (gROME->GetTreeObjectAt(iTree)->isFill() &&
           (tree = gROME->GetTreeObjectAt(iTree)->GetTree()) &&
+          gROME->GetMaxTreeMemory() > 0 &&
           tree->GetAutoFlush() < 0 && // OptimizeBaskets not called yet
+          tree->GetAutoFlush() < -gROME->GetMaxTreeMemory() &&
           (nEntries = tree->GetEntries()) &&
           tree->GetTotBytes() * (1 + 1. / nEntries) >= gROME->GetMaxTreeMemory()) {
          // force flush next Fill()
