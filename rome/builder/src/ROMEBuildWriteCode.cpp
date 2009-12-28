@@ -9691,6 +9691,10 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
    for (i = 0; i < numOfTree; i++) {
       buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
       buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
+      buffer.AppendFormatted("      romeTree->GetTree()->SetCacheSize(romeTree->GetCacheSize());\n");
+      buffer.AppendFormatted("      if (gROME->GetMaxTreeMemory() > 0 && romeTree->GetTree()->GetCacheSize() > gROME->GetMaxTreeMemory()) {\n");
+      buffer.AppendFormatted("         romeTree->GetTree()->SetCacheSize(gROME->GetMaxTreeMemory());\n");
+      buffer.AppendFormatted("      }\n");
       for (j = 0; j < numOfBranch[i]; j++) {
          for (k = 0; k < numOfFolder; k++) {
             if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
@@ -9717,6 +9721,9 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
          } else {
             buffer.AppendFormatted("            bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+         buffer.AppendFormatted("            romeTree->GetTree()->AddBranchToCache(bb, kTRUE);\n");
+#endif
          buffer.AppendFormatted("         } else {\n");
          found = kFALSE;
          for (k = 0; k < numOfBranch[i]; k++) {
@@ -9738,7 +9745,15 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
       buffer.AppendFormatted("      bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"Info\"));\n");
       buffer.AppendFormatted("      if (!bb)\n");
       buffer.AppendFormatted("         bb = static_cast<TBranchElement*>(romeTree->GetTree()->FindBranch(\"Info.\"));\n");
-      buffer.AppendFormatted("      if (bb) bb->SetAddress(&fTreeInfo);\n");
+      buffer.AppendFormatted("      if (bb) {\n");
+      buffer.AppendFormatted("         bb->SetAddress(&fTreeInfo);\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+      buffer.AppendFormatted("         romeTree->GetTree()->AddBranchToCache(bb, kTRUE);\n");
+#endif
+      buffer.AppendFormatted("      }\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+      buffer.AppendFormatted("      romeTree->GetTree()->StopCacheLearningPhase();\n");
+#endif
       buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("}\n\n");
