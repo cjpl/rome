@@ -1089,8 +1089,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName(),
                                                       "/xs:schema/xs:complexType[@name='CommonDesc']/xs:sequence/xs:element[@name='Trees']/"
                                                       "xs:complexType/xs:sequence/xs:element[@name='MaxMemory']/xs:annotation/xs:documentation");
-         subSubGroup->GetLastParameter()->AddSetLine("static_cast<ROMEEventLoop*>(gAnalyzer->GetMainTask())->SetMaxTreeMemory(##.ToLong64());");
-         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(R_LLD,static_cast<ROMEEventLoop*>(gAnalyzer->GetMainTask())->GetMaxTreeMemory());");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetMaxTreeMemory(##.ToLong64());");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(R_LLD,gAnalyzer->GetMaxTreeMemory());");
          // Tree
          for (i = 0; i < numOfTree; i++) {
             ROMEConfigParameterGroup* subSubSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
@@ -1155,6 +1155,15 @@ Bool_t ROMEBuilder::AddConfigParameters()
                                                            i);
             subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
             subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(R_LLD,gAnalyzer->GetTreeObjectAt(%d)->GetAutoFlushSize());",
+                                                             i);
+            // CacheSize
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("CacheSize"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetCacheSize(##.ToLong64());",
+                                                           i);
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(R_LLD,gAnalyzer->GetTreeObjectAt(%d)->GetCacheSize());",
                                                              i);
             // MaxNumberOfEntries
             subSubSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));

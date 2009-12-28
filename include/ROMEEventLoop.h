@@ -86,8 +86,6 @@ protected:
    ULong_t       fLastNetFolderServerUpdateTime;   //! Time of the last NetFolderServers update
    TThread      *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
 
-   Long64_t      fMaxTreeMemory;                   //! maximum memory size used for baskets
-
 public:
    // Static Hot Links
 #if defined( HAVE_MIDAS )
@@ -139,10 +137,6 @@ public:
    // Histos
    void   ReadHistograms();
    Bool_t WriteHistograms(Bool_t snapShot = kFALSE);
-
-   // Max Tree Memory
-   void         SetMaxTreeMemory(Long64_t size) { fMaxTreeMemory = size; }
-   Long64_t     GetMaxTreeMemory() const { return fMaxTreeMemory; }
 
 protected:
    // Run Status

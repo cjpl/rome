@@ -106,7 +106,6 @@ ROMEEventLoop::ROMEEventLoop(const char *name, const char *title)
 ,fHaveEndOfRunMacro(kFALSE)
 ,fLastNetFolderServerUpdateTime(0)
 ,fNetFolderServerUpdateThread(0)
-,fMaxTreeMemory(1000000000)
 {
 }
 
@@ -1360,12 +1359,24 @@ void ROMEEventLoop::AutoSave()
       }
    }
 
-   OptimizeTreeMaxMemory();
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+   // check if size of TTree does not exceed a limit.
+   TTree *tree;
+   Int_t nEntries;
    for (iTree = 0; iTree < nTree; iTree++) {
-      if (gROME->GetTreeObjectAt(iTree)->CheckAutoFlush()) {
-         gROME->GetTreeObjectAt(iTree)->AutoFlush("");
+      if (gROME->GetTreeObjectAt(iTree)->isFill() &&
+          (tree = gROME->GetTreeObjectAt(iTree)->GetTree()) &&
+          tree->GetAutoFlush() < 0 && // OptimizeBaskets not called yet
+          (nEntries = tree->GetEntries()) &&
+          tree->GetTotBytes() * (1 + 1. / nEntries) >= gROME->GetMaxTreeMemory()) {
+         // force flush next Fill()
+         // ROME does not call OptimizeBaskets
+         // because I can not update fFlushedBytes. 
+         // So the actual size can be larger than limit by one event amount.
+         gROME->GetTreeObjectAt(iTree)->SetAutoFlushSize(-gROME->GetMaxTreeMemory());
       }
    }
+#endif
 
    // Histograms auto save
    static ULong_t histoSaveLastTime = static_cast<ULong_t>(gSystem->Now());
@@ -1415,6 +1426,12 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
             if (romeTree->isSaveConfig()) {
                gROME->SaveConfigParametersFolder();
             }
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+            // save absolute auto flush size, instead of # of entries.
+            if (romeTree->GetAutoFlushSize() < 0) {
+               tree->SetAutoFlush(romeTree->GetAutoFlushSize());
+            }
+#endif
             if (tree->Write(0, gROME->GetOutputObjOption()) == 0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
@@ -1478,6 +1495,12 @@ Bool_t ROMEEventLoop::DAQTerminate()
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             ROMEPrint::Print("\nWriting Root-File %s\n", romeTree->GetFileName().Data());
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
+            // save absolute auto flush size, instead of # of entries.
+            if (romeTree->GetAutoFlushSize() < 0) {
+               tree->SetAutoFlush(romeTree->GetAutoFlushSize());
+            }
+#endif
             if (tree->Write(0, gROME->GetOutputObjOption()) == 0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
@@ -1722,34 +1745,4 @@ Bool_t ROMEEventLoop::TimeEventLoop()
                     fWatchWriteEvent.GetCpuTimeString(str2));
 //   ROMEPrint::Print("  %s\n", fWatchEvent.GetCpuTimeString(str1));
    return true;
-}
-
-//______________________________________________________________________________
-void ROMEEventLoop::OptimizeTreeMaxMemory() const
-{
-   // Assign memory size of each tree
-   if (fMaxTreeMemory <= 0) {
-      return;
-   }
-   const Int_t nTree = gROME->GetTreeObjectEntries();
-   vector<Double_t> maxMemory(nTree);
-   Double_t totalSize = 0;
-   Int_t iTree;
-   TTree *tree;
-   for (iTree = 0; iTree < nTree; iTree++) {
-      if (gROME->GetTreeObjectAt(iTree)->isWrite()) {
-         tree = gROME->GetTreeObjectAt(iTree)->GetTree();
-         maxMemory[iTree] = static_cast<Double_t>(tree->GetZipBytes());
-         totalSize += maxMemory[iTree];
-      }
-   }
-   if (totalSize) {
-      for (iTree = 0; iTree < nTree; iTree++) {
-         if (gROME->GetTreeObjectAt(iTree)->isWrite()) {
-            if (maxMemory[iTree]) {
-               gROME->GetTreeObjectAt(iTree)->SetMaxMemory(static_cast<Long64_t>(maxMemory[iTree] / totalSize * fMaxTreeMemory));
-            }
-         }
-      }
-   }
 }

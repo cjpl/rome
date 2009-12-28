@@ -279,6 +279,9 @@ protected:
 
    Int_t          fErrorCode;                    //! Exit code in case ::Start returns false.
 
+   // Max Tree Memory
+   Long64_t      fMaxTreeMemory;                 //! maximum memory size used for baskets
+
 private:
    ROMEAnalyzer(const ROMEAnalyzer &analyzer); // not implemented
    ROMEAnalyzer &operator=(const ROMEAnalyzer &rhs); // not implemented
@@ -749,6 +752,10 @@ public:
    Bool_t          ConnectSocketClient(const char* hostname = 0, Int_t port = 0);
    virtual void    ConstructHistoFolders(TFolder *f, Bool_t addToArray) = 0;
    virtual void    ConstructHistoDirectories(TDirectory *d, TObjArray *cratedDir) = 0;
+
+   // Max Tree Memory
+   void         SetMaxTreeMemory(Long64_t size) { fMaxTreeMemory = size; }
+   Long64_t     GetMaxTreeMemory() const { return fMaxTreeMemory; }
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *) const;
