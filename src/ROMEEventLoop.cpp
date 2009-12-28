@@ -1426,12 +1426,6 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
             if (romeTree->isSaveConfig()) {
                gROME->SaveConfigParametersFolder();
             }
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
-            // save absolute auto flush size, instead of # of entries.
-            if (romeTree->GetAutoFlushSize() < 0) {
-               tree->SetAutoFlush(romeTree->GetAutoFlushSize());
-            }
-#endif
             if (tree->Write(0, gROME->GetOutputObjOption()) == 0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
@@ -1495,12 +1489,6 @@ Bool_t ROMEEventLoop::DAQTerminate()
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             ROMEPrint::Print("\nWriting Root-File %s\n", romeTree->GetFileName().Data());
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
-            // save absolute auto flush size, instead of # of entries.
-            if (romeTree->GetAutoFlushSize() < 0) {
-               tree->SetAutoFlush(romeTree->GetAutoFlushSize());
-            }
-#endif
             if (tree->Write(0, gROME->GetOutputObjOption()) == 0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
