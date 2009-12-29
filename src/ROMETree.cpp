@@ -37,12 +37,12 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
                  "Compression Level = INT : 1\n"
                  "Max Entries = INT : 0\n")
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
-,fAutoSaveSize(30000000)
+,fAutoSaveSize(300000000)
 ,fLastSaveSize(0)
 ,fAutoFlushSize(-30000000)
 ,fCacheSize(-1)
 #else
-,fAutoSaveSize(10000000)
+,fAutoSaveSize(100000000)
 ,fLastSaveSize(0)
 ,fAutoFlushSize(-30000000)
 ,fCacheSize(10000000)
