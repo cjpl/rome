@@ -282,6 +282,10 @@ protected:
    // Max Tree Memory
    Long64_t      fMaxTreeMemory;                 //! maximum memory size used for baskets
 
+   // Report summary output
+   TString       fReportSummaryFileName;         //! File name of report summary output
+   Int_t         fReportSummaryFileLevel;        //! Verbose level of report summary output
+
 private:
    ROMEAnalyzer(const ROMEAnalyzer &analyzer); // not implemented
    ROMEAnalyzer &operator=(const ROMEAnalyzer &rhs); // not implemented
@@ -756,6 +760,12 @@ public:
    // Max Tree Memory
    void         SetMaxTreeMemory(Long64_t size) { fMaxTreeMemory = size; }
    Long64_t     GetMaxTreeMemory() const { return fMaxTreeMemory; }
+
+   // Report Summary File
+   void         SetReportSummaryFileName(const char *name) { fReportSummaryFileName = name; }
+   const char  *GetReportSummaryFileName() const { return fReportSummaryFileName; }
+   void         SetReportSummaryFileLevel(Int_t level) { fReportSummaryFileLevel = level; }
+   Int_t        GetReportSummaryFileLevel() const { return fReportSummaryFileLevel; }
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *) const;

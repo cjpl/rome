@@ -36,11 +36,15 @@ ROMEStrArray       fgReportMessage;          // function name of reports
 Int_t              fgReportHeaderLength;     // length of line header
 
 //______________________________________________________________________________
-void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_t countLength)
+void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_t countLength, ostream *out = 0)
 {
    ROMEString funcFileLine;
    ROMEString report;
    Int_t      messageLength;
+
+   if (!out) {
+      out = &cout;
+   }
 
    if (fgReportLevel.At(reportIndex) == level || level < 0) {
       funcFileLine.SetFormatted("%s:%d:%s", gSystem->BaseName(fgReportFile.At(reportIndex).Data()),
@@ -59,10 +63,10 @@ void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_
       } else {
          report.Resize(0);
       }
-      cout<<setw(countLength)<<fgReportPrintCount.At(reportIndex)<<" "
-          <<kReportLevelLetter[fgReportLevel.At(reportIndex)]<<" "
-          <<left<<setw(funcFileLineLength)<<funcFileLine<<" "
-          <<report<<right<<flush;
+      *out<<setw(countLength)<<fgReportPrintCount.At(reportIndex)<<" "
+         <<kReportLevelLetter[fgReportLevel.At(reportIndex)]<<" "
+         <<left<<setw(funcFileLineLength)<<funcFileLine<<" "
+         <<report<<right<<flush;
    }
 }
 
@@ -330,7 +334,7 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
 }
 
 //______________________________________________________________________________
-void ROMEPrint::ReportSummary()
+void ROMEPrint::ReportSummary(Int_t level, ostream *out)
 {
    Int_t i;
    Int_t n = fgReportMap.size();
@@ -368,7 +372,11 @@ void ROMEPrint::ReportSummary()
 
    strArraySort.Sort(sortIndex, kFALSE);
 
-   cout<<"*************************** Report Message Summary ***************************"<<endl<<endl;
+   if (!out) {
+      out = &cout;
+   }
+
+   *out<<"*************************** Report Message Summary ***************************"<<endl<<endl;
 #if 0
    // error
    for (i = 1; i <= n; i++) {
@@ -392,10 +400,10 @@ void ROMEPrint::ReportSummary()
    }
 #else
    for (i = 1; i <= n; i++) {
-      PrintSummary(-1, sortIndex[i], maxFuncFileLineLength, maxCountLength);
+      PrintSummary(level, sortIndex[i], maxFuncFileLineLength, maxCountLength, out);
    }
 #endif
-   cout<<endl<<"******************************************************************************"<<endl;
+   *out<<endl<<"******************************************************************************"<<endl;
 
    delete [] sortIndex;
 }

@@ -49,7 +49,7 @@ namespace ROMEPrint
    void  Report(const Int_t verboseLevel, const char* fileName, const char *funcName, Int_t lineNumber,
                 const Long64_t run, const Long64_t event, const Bool_t printHeader, const char* va_(fmt),...) G_GNUC_PRINTF(8, 9);
 #endif
-   void  ReportSummary();
+   void  ReportSummary(Int_t level = -1, ostream* out = 0);
 
    inline Int_t GetVerboseLevel() { return gVerboseLevel; }
    inline void  SetVerboseLevel(Int_t level = kNormal) { gVerboseLevel = level; }
