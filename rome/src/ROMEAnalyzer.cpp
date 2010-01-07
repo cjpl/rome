@@ -218,6 +218,8 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fMidasOnlineDataBase(0)
 ,fErrorCode(0)
 ,fMaxTreeMemory(100000000)
+,fReportSummaryFileName("")
+,fReportSummaryFileLevel(ROMEPrint::kWarning)
 {
 // Initialisations
    fQuitMode = fQuitMode || !STDOutIsTerminal();
@@ -358,6 +360,17 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    fMainTask->ExecuteTask("start");
 
    ROMEPrint::ReportSummary();
+   if (fReportSummaryFileName != "") {
+      ROMEString dirName  = gSystem->DirName(fReportSummaryFileName);
+      ROMEString baseName = gSystem->BaseName(fReportSummaryFileName);
+      ROMEString filename;
+      ConstructFilePath(dirName, baseName, filename);
+      ofstream summaryFile(filename);
+      if (summaryFile) {
+         ROMEPrint::ReportSummary(fReportSummaryFileLevel, &summaryFile);
+      }
+      summaryFile.close();
+   }
 
    StopNetFolderServer();
 

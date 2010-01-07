@@ -3592,6 +3592,12 @@ setState('type_ProgramConfigurationDesc_scbox', false);
 <div style="margin-left: 1.5em">&lt;ReportMaxCount&gt; <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/ReportMaxCount&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Specify max number of prints of an identical error or warning by ROMEPrint::Report. No limit when this is 0.'); viewDocumentation('Element', 'ReportMaxCount', docArray);">?</a>
 </div>
+<div style="margin-left: 1.5em">&lt;ReportSummaryFileName&gt; <span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt;/ReportSummaryFileName&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('File name of text output of message summary.'); viewDocumentation('Element', 'ReportSummaryFileName', docArray);">?</a>
+</div>
+<div style="margin-left: 1.5em">&lt;ReportSummaryFileLevel&gt; <span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt;/ReportSummaryFileLevel&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Verbose level of text output of message summary. mute, error, warning, normal, verbose or debug. default is warning.'); viewDocumentation('Element', 'ReportSummaryFileLevel', docArray);">?</a>
+</div>
 <div style="margin-left: 1.5em">&lt;ConfigCommentLevel&gt; <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span> &lt;/ConfigCommentLevel&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1.'); viewDocumentation('Element', 'ConfigCommentLevel', docArray);">?</a>
 </div>
@@ -3627,6 +3633,14 @@ setState('type_SettingsDesc_xibox', true);
 <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span>
 </span>" <span class="scTag">default</span>="<span class="scContent">20</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ReportSummaryFileName</span>" <span class="scTag">type</span>="<span class="scContent">
+<span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span>
+</span>" <span class="scTag">default</span>="" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ReportSummaryFileLevel</span>" <span class="scTag">type</span>="<span class="scContent">
+<span class="type">
+<a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span>
+</span>" <span class="scTag">default</span>="<span class="scContent">warning</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
 <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ConfigCommentLevel</span>" <span class="scTag">type</span>="<span class="scContent">
 <span class="type">
 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:integer</span>
