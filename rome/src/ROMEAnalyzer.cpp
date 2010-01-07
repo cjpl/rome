@@ -361,7 +361,12 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    ROMEPrint::ReportSummary();
    if (fReportSummaryFileName != "") {
-      ROMEString dirName  = gSystem->DirName(fReportSummaryFileName);
+      ROMEString dirName;
+      if (fReportSummaryFileName.Contains("/")) {
+         dirName = gSystem->DirName(fReportSummaryFileName);
+      } else {
+         dirName = GetOutputDir();
+      }
       ROMEString baseName = gSystem->BaseName(fReportSummaryFileName);
       ROMEString filename;
       ConstructFilePath(dirName, baseName, filename);
