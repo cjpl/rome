@@ -34,6 +34,7 @@
 #include "ROMEString.h"
 #include "ArgusWindow.h"
 #include "ArgusTab.h"
+#include "ArgusHistoDisplay.h"
 #include "ArgusAnalyzerController.h"
 #include "ArgusTextDialog.h"
 #include "ROMECompositeFrame.h"
@@ -1090,6 +1091,13 @@ Bool_t ArgusWindow::OpenNewWindow(Int_t tabIndex)
    newTab->SetTabActive(kTRUE);
    newTab->SetSwitch(kTRUE);
    newTab->SetScreenShotName(tab->GetScreenShotName());
+   ArgusHistoDisplay *newHistoDisplay;
+   ArgusHistoDisplay *histoDisplay;
+   if ((newHistoDisplay = dynamic_cast<ArgusHistoDisplay*>(newTab)) &&
+       (histoDisplay = dynamic_cast<ArgusHistoDisplay*>(tab))) {
+      newHistoDisplay->SetNumberOfPadsX(histoDisplay->GetNumberOfPadsX());
+      newHistoDisplay->SetNumberOfPadsY(histoDisplay->GetNumberOfPadsY());
+   }
 
    // switch on all the ancestor tabs
    Int_t iTab = tabIndex;
