@@ -1239,7 +1239,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 #   endif
    buffer.AppendFormatted(" -fno-common -Wno-unused-function  "
                           "$(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
-   buffer.AppendFormatted("oslibs    := $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+   buffer.AppendFormatted("oslibs    := $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib) -L/usr/X11/lib -lX11\n");
    buffer.AppendFormatted("osldflags := -bind_at_load -multiply_defined suppress\n");
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
    buffer.AppendFormatted("ossoflags := -dynamiclib -single_module -undefined suppress\n");

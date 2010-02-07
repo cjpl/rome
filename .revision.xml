@@ -274,7 +274,7 @@
   <User>ryu</User>
   <Host>mackro.psi.ch</Host>
   <Directory>/Users/ryu/Analysis/rome</Directory>
-  <LastCompile>Mon, 28 Dec 2009 21:21:02 UTC +207825000 nsec</LastCompile>
+  <LastCompile>Sun, 07 Feb 2010 11:19:06 UTC +178741000 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>sawada</User>
@@ -389,4 +389,16 @@
   <Host>lcmeg16</Host>
   <Directory>/userdata/sawada/rome</Directory>
   <LastCompile>Tue, 15 Dec 2009 19:43:14 +0000 (GMT) +738643000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>ryu</User>
+  <Host>mackro.local</Host>
+  <Directory>/Users/ryu/Analysis/rome</Directory>
+  <LastCompile>Sat, 06 Feb 2010 19:24:12 UTC +669844000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>ryu</User>
+  <Host>217-162-75-151.dclient.hispeed.ch</Host>
+  <Directory>/Users/ryu/Analysis/rome</Directory>
+  <LastCompile>Sat, 06 Feb 2010 20:13:41 UTC +167658000 nsec</LastCompile>
 </Entry>
