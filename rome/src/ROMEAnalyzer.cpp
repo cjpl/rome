@@ -930,6 +930,7 @@ char ROMEAnalyzer::GetChar()
          s = ROMEAnalyzer::ss_getchar(0);
          break;
       }
+      gSystem->ProcessEvents();
    }
    return s;
 }
