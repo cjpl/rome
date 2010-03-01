@@ -64,7 +64,7 @@ endif
 
 INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTCONFIG) --cflags)
 LIBRARY := $(shell $(ROOTCONFIG) --glibs) -lHtml -lThread
-TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
+TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config bin/hadd
 
 # Required ROOT version
 ROOT_MAJOR_MIN = 4
@@ -177,6 +177,10 @@ BldDictHeaders := include/ROMEString.h \
                   include/ROMEStrArray.h \
                   include/ROMEStr2DArray.h \
                   include/ROMEXML.h
+
+HAddObjects := obj/ROMETGraph.o \
+               obj/HAddDict.o
+HAddDictHeaders := include/ROMETGraph.h
 
 UpHObjects := obj/ROMEString.o \
               obj/ROMEStrArray.o \
@@ -320,6 +324,10 @@ bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
 	$(call romeechoing, "linking   $@")
 	$(Q)$(CXXLD) $(LDFLAGS) -W -Wall $(INCLUDE) -o $@ $< $(LIBRARY)
 
+bin/hadd: tools/hadd/hadd.cxx $(HAddObjects)
+	$(call romeechoing, "linking   $@")
+	$(Q)$(CXXLD) $(LDFLAGS) -W -Wall $(INCLUDE) -o $@ $< $(HAddObjects) $(LIBRARY)
+
 include/ROMEVersion.h: bin/updateVersionH.exe
 	$(call romeechoing, "creating  $@")
 	@./bin/updateVersionH.exe
@@ -350,6 +358,10 @@ ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) Makefile
 UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders) Makefile
 	$(call romeechoing, "creating  $@")
 	$(Q)$(ROOTCINT) -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(CINTFLAGS) $(UpHDictHeaders) include/UpdateVersionHLinkDef.h
+
+HAddDict.h HAddDict.cpp: $(HAddDictHeaders) Makefile
+	$(call romeechoing, "creating  $@")
+	$(Q)$(ROOTCINT) -f HAddDict.cpp -c -p $(INCLUDE) $(CINTFLAGS) $(HAddDictHeaders) include/HAddLinkDef.h
 
 obj/mxml.o: src/mxml.c include/mxml.h
 	$(call romeechoing, "compiling $@")
@@ -394,6 +406,7 @@ clean:
 	ROMELibDict.h ROMELibDict.cpp \
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
 	UpdateVersionHDict.h UpdateVersionHDict.cpp \
+	HAddDict.h HAddDict.cpp \
 	G__auto*LinkDef.h \
 
 SkipDepInclude = no
