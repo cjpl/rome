@@ -402,12 +402,14 @@ obj/%.o: src/%.cpp include/%.h
 
 
 clean:
-	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) obj/*.d\
+	-$(RM) $(BldObjects) $(UpHObjects) $(HAddObjects) $(LibObjects) \
 	ROMELibDict.h ROMELibDict.cpp \
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
 	UpdateVersionHDict.h UpdateVersionHDict.cpp \
-	HAddDict.h HAddDict.cpp \
-	G__auto*LinkDef.h \
+	HAddDict.h HAddDict.cpp
+	-find .   -name "G__auto*LinkDef.h" -maxdepth 1 | xargs $(RM)
+	-find obj -name "*.d" | xargs $(RM)
+	-find obj -name "*.o" | xargs $(RM)
 
 SkipDepInclude = no
 
