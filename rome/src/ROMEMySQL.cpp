@@ -86,7 +86,10 @@ Bool_t ROMEMySQL::StoreResult()
 //______________________________________________________________________________
 void ROMEMySQL::FreeResult()
 {
-   mysql_free_result(result);
+   if (result) {
+      mysql_free_result(result);
+   }
+   result = 0;
 }
 
 //______________________________________________________________________________
