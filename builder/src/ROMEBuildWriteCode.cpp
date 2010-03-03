@@ -9691,10 +9691,12 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
    for (i = 0; i < numOfTree; i++) {
       buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
       buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,12,0))
       buffer.AppendFormatted("      romeTree->GetTree()->SetCacheSize(romeTree->GetCacheSize());\n");
       buffer.AppendFormatted("      if (gROME->GetMaxTreeMemory() > 0 && romeTree->GetTree()->GetCacheSize() > gROME->GetMaxTreeMemory()) {\n");
       buffer.AppendFormatted("         romeTree->GetTree()->SetCacheSize(gROME->GetMaxTreeMemory());\n");
       buffer.AppendFormatted("      }\n");
+#endif
       for (j = 0; j < numOfBranch[i]; j++) {
          for (k = 0; k < numOfFolder; k++) {
             if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
@@ -13270,6 +13272,9 @@ Bool_t ROMEBuilder::WriteReadTreesC()
       buffer.AppendFormatted("      %sFile = new TFile(filename);\n", treeName[iTree].Data());
       buffer.AppendFormatted("      %s = ((TTree*) %sFile->Get(\"%s\"));\n", treeName[iTree].Data(),
                              treeName[iTree].Data(), treeName[iTree].Data());
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,12,0))
+      buffer.AppendFormatted("      if (%s) %s->SetCacheSize();\n", treeName[iTree].Data(), treeName[iTree].Data());
+#endif
       buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("\n");
@@ -13752,6 +13757,9 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       buffer.AppendFormatted("      cerr<<\"Failed to read input tree\"<<endl;\n");
       buffer.AppendFormatted("      return;\n");
       buffer.AppendFormatted("   }\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,12,0))
+      buffer.AppendFormatted("   inTree->SetCacheSize();\n");
+#endif
 
       // Set address
       buffer.AppendFormatted("   // Map input branchs and objects\n");
