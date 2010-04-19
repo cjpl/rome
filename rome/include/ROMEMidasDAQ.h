@@ -21,8 +21,12 @@ typedef int    BOOL;
 #else
 typedef UInt_t   DWORD;
 typedef DWORD    BOOL;
-const BOOL TRUE = 1;
-const BOOL FALSE = 0;
+#ifndef TRUE
+   const BOOL TRUE = 1;
+#endif
+#ifndef FALSE
+   const BOOL FALSE = 0;
+#endif
 #endif
 typedef Int_t    HNDLE;
 typedef Int_t    INT;
