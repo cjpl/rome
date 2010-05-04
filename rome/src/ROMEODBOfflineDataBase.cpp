@@ -69,6 +69,8 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBas
    ROMEString tmp;
    ROMEString odbPath;
    ROMEString odbArrayPath;
+   Int_t      startIndex = -1;
+   Int_t      endIndex   = -2;
    if (!fXML->isPathOpen()) {
       return true;
    }
@@ -78,12 +80,26 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBas
    // remove () for array
    Int_t ind = path.First('(');
    Int_t ind2;
+   ROMEString elements;
    while (ind != -1) {
       ind2 = path.Index(")", 1, ind, TString::kIgnoreCase);
       if (ind2 == -1) {
          // wrong path
          break;
       }
+
+      elements = path(ind + 1, ind2 - ind - 1);
+
+      if (elements.Contains(",")) {
+         tmp = elements(0, elements.First(","));
+         startIndex = tmp.ToInteger();
+         tmp = elements(elements.First(",") + 1, elements.Length() - elements.First(","));
+         endIndex = tmp.ToInteger();
+      } else {
+         startIndex = elements.ToInteger();
+         endIndex = startIndex;
+      }
+
       path.Remove(ind, ind2 - ind + 1);
       ind = path.First('(');
    }
@@ -121,11 +137,25 @@ Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray * values, const char *dataBas
       // key array
       Int_t iValue;
       ROMEString elemPath;
-      for (iValue = 0; iValue < nValue; iValue++) {
-         elemPath = odbArrayPath;
-         elemPath.AppendFormatted("[%d]", iValue + 1);
-         fXML->GetPathValue(elemPath.Data(), value);
-         values->SetAt(value.Data(), 0, iValue);
+
+      if (endIndex >= startIndex) {
+         Int_t jValue;
+         for (iValue = 0; iValue < endIndex - startIndex + 1; iValue++) {
+            jValue = startIndex + iValue;
+            if (jValue < nValue) {
+               elemPath = odbArrayPath;
+               elemPath.AppendFormatted("[%d]", jValue + 1);
+               fXML->GetPathValue(elemPath.Data(), value);
+               values->SetAt(value.Data(), 0, iValue);
+            }
+         }
+      } else {
+         for (iValue = 0; iValue < nValue; iValue++) {
+            elemPath = odbArrayPath;
+            elemPath.AppendFormatted("[%d]", iValue + 1);
+            fXML->GetPathValue(elemPath.Data(), value);
+            values->SetAt(value.Data(), 0, iValue);
+         }
       }
    } else {
       ROMEPrint::Warning("Warning: %s was not found in ODB. Default value will be used.\n",
