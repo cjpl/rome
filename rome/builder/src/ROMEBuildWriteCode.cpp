@@ -5112,6 +5112,27 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
 
+   for (i = 0; i < numOfTask; i++) {
+      Bool_t steerFieldCLFound = kFALSE;
+      if (!taskUsed[i]) {
+         continue;
+      }
+      for (j = 0; j < numOfSteering[i]; j++) {
+         for (k = 0; k < numOfSteerFields[i][j]; k++) {
+            if (!steerFieldUsed[i][j][k])
+               continue;
+            if (steerFieldCLOption[i][j][k].Length()) {
+               if (!steerFieldUsed[i][j][k])
+                  continue;
+               steerFieldCLFound = kTRUE;
+            }
+         }
+         if (steerFieldCLFound) {
+            buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n", shortCut.Data(), taskName[i].Data());
+         }
+      }
+   }
+
    buffer.AppendFormatted("ClassImp(%sAnalyzer)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sAnalyzer *gAnalyzer;  // global Analyzer Handle\n",shortCut.Data());
