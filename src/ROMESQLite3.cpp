@@ -144,6 +144,7 @@ void ROMESQLite3::FreeResult()
    if (stmt) {
       sqlite3_finalize(stmt);
    }
+   stmt = 0;
    numOfFields = 0;
    numOfRows = 0;
    currentRow = 0;
