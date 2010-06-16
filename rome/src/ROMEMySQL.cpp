@@ -37,6 +37,10 @@ Bool_t ROMEMySQL::Connect(const char *server,const char *user,const char *passwd
       ROMEPrint::Error("Could not connect to the data base '%s' : Error: %s\n", database, GetErrorMessage());
       return false;
    }
+#if MYSQL_VERSION_ID >= 50000
+   my_bool reconnect = 1;
+   mysql_options(&mysql, MYSQL_OPT_RECONNECT, &reconnect);
+#endif
    return true;
 }
 
