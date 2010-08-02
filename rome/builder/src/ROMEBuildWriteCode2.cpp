@@ -871,6 +871,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddComboBoxEntry("normal");
          subSubGroup->GetLastParameter()->AddComboBoxEntry("verbose");
          subSubGroup->GetLastParameter()->AddComboBoxEntry("debug");
+         // ReportSummaryLineLength
+         subSubGroup->AddParameter(new ROMEConfigParameter("ReportSummaryLineLength"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetReportSummaryFileLineLength(strtol(##,&cstop, 10));");
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetReportSummaryFileLineLength());");
          // ConfigCommentLevel
          subSubGroup->AddParameter(new ROMEConfigParameter("ConfigCommentLevel","1","ComboBox"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());

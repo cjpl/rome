@@ -285,6 +285,7 @@ protected:
    // Report summary output
    TString       fReportSummaryFileName;         //! File name of report summary output
    Int_t         fReportSummaryFileLevel;        //! Verbose level of report summary output
+   Int_t         fReportSummaryFileLineLength;   //! Line legth limit for report summary output
 
 private:
    ROMEAnalyzer(const ROMEAnalyzer &analyzer); // not implemented
@@ -766,6 +767,8 @@ public:
    const char  *GetReportSummaryFileName() const { return fReportSummaryFileName; }
    void         SetReportSummaryFileLevel(Int_t level) { fReportSummaryFileLevel = level; }
    Int_t        GetReportSummaryFileLevel() const { return fReportSummaryFileLevel; }
+   void         SetReportSummaryFileLineLength(Int_t l) { fReportSummaryFileLineLength = l; }
+   Int_t        GetReportSummaryFileLineLength() const { return fReportSummaryFileLineLength; }
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *) const;
