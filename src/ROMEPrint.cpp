@@ -36,7 +36,8 @@ ROMEStrArray       fgReportMessage;          // function name of reports
 Int_t              fgReportHeaderLength;     // length of line header
 
 //______________________________________________________________________________
-void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_t countLength, ostream *out = 0)
+void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength,
+                  Int_t countLength, ostream *out = 0, Int_t width = 76)
 {
    ROMEString funcFileLine;
    ROMEString report;
@@ -51,7 +52,7 @@ void PrintSummary(Int_t level, Int_t reportIndex, Int_t funcFileLineLength, Int_
                                 fgReportLine.At(reportIndex), fgReportFunction.At(reportIndex).Data());
       report = fgReportMessage.At(reportIndex);
       report.ReplaceAll("\n", " ");
-      messageLength = 76 - countLength - funcFileLineLength - 4;
+      messageLength = width - countLength - funcFileLineLength - 4;
       if (messageLength > 0) {
          if (report.Length() > messageLength + 1) {
             report.Resize(messageLength + 1);
@@ -334,7 +335,7 @@ void ROMEPrint::Report(const Int_t verboseLevel, const char* fileName, const cha
 }
 
 //______________________________________________________________________________
-void ROMEPrint::ReportSummary(Int_t level, ostream *out)
+void ROMEPrint::ReportSummary(Int_t level, ostream *out, Int_t width)
 {
    Int_t i;
    Int_t n = fgReportMap.size();
@@ -400,7 +401,7 @@ void ROMEPrint::ReportSummary(Int_t level, ostream *out)
    }
 #else
    for (i = 1; i <= n; i++) {
-      PrintSummary(level, sortIndex[i], maxFuncFileLineLength, maxCountLength, out);
+      PrintSummary(level, sortIndex[i], maxFuncFileLineLength, maxCountLength, out, width);
    }
 #endif
    *out<<endl<<"******************************************************************************"<<endl;

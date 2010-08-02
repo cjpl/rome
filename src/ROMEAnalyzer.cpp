@@ -220,6 +220,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fMaxTreeMemory(100000000)
 ,fReportSummaryFileName("")
 ,fReportSummaryFileLevel(ROMEPrint::kWarning)
+,fReportSummaryFileLineLength(2048)
 {
 // Initialisations
    fQuitMode = fQuitMode || !STDOutIsTerminal();
@@ -372,7 +373,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       ConstructFilePath(dirName, baseName, filename);
       ofstream summaryFile(filename);
       if (summaryFile) {
-         ROMEPrint::ReportSummary(fReportSummaryFileLevel, &summaryFile);
+         ROMEPrint::ReportSummary(fReportSummaryFileLevel, &summaryFile, fReportSummaryFileLineLength);
       }
       summaryFile.close();
    }

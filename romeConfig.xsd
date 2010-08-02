@@ -149,6 +149,11 @@
 					<xs:documentation>Verbose level of text output of message summary. mute, error, warning, normal, verbose or debug. default is warning.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ReportSummaryLineLength" type="xs:integer" default="2048" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Line length of text output of message summary.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="ConfigCommentLevel" type="xs:integer" default="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1.</xs:documentation>
