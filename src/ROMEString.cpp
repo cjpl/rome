@@ -381,6 +381,8 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
       slowBuffer = new char[slowBufferSize];
    }
 
+   va_list apcopy;
+   va_copy(apcopy, ap);
    int n = vsnprintf(slowBuffer, slowBufferSize, format, ap);
    // old vsnprintf's return -1 if string is truncated new ones return
    // total number of characters that would have been written
@@ -394,8 +396,11 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
       if (n <= 0) {
          return 0; // int overflow!
       }
-      return SlowFormat(format, ap, n);
+      char *c = SlowFormat(format, apcopy, n);
+      va_end(apcopy);
+      return c;
    }
+   va_end(apcopy);
 
    return slowBuffer;
 }
@@ -414,12 +419,17 @@ char* ROMEString::Format(const char *format, va_list ap)
       buf = gFormbuf;
    }
 
+   va_list apcopy;
+   va_copy(apcopy, ap);
    int n = vsnprintf(buf, fld_size, format, ap);
    // old vsnprintf's return -1 if string is truncated new ones return
    // total number of characters that would have been written
    if (n == -1 || n >= fld_size) {
-      return SlowFormat(format, ap, n);
+      char *c = SlowFormat(format, apcopy, n);
+      va_end(apcopy);
+      return c;
    }
+   va_end(apcopy);
 
    gBfree = buf + n + 1;
    return buf;
