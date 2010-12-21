@@ -1313,7 +1313,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("Bool_t %s::%sOutOfBoundsError(const char* where, Int_t i) const",clsName.Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   Error(where, \"index %%d out of bounds (size: %%d, this: 0x%%08x)\", i, Get%sSize(), this);\n",
+               buffer.AppendFormatted("   Error(where, \"index %%d out of bounds (size: %%d, this: %%p)\", i, Get%sSize(), this);\n",
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("   return kFALSE;\n");
                buffer.AppendFormatted("}\n");
@@ -1333,7 +1333,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("Bool_t %s::%sOutOfBoundsError(const char* where, Int_t i) const\n",clsName.Data(),
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   Error(where, \"index %%d out of bounds (size: %%d, this: 0x%%08x)\", i, Get%sSize(), this);\n",
+               buffer.AppendFormatted("   Error(where, \"index %%d out of bounds (size: %%d, this: %%p)\", i, Get%sSize(), this);\n",
                                       valueName[iFold][i].Data());
                buffer.AppendFormatted("   return kFALSE;\n");
                buffer.AppendFormatted("}\n");
@@ -1400,7 +1400,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                   buffer.AppendFormatted("%%d:");
                buffer.Resize(buffer.Length() - 1);
-               buffer.AppendFormatted(" , this: 0x%%08x)\",");
+               buffer.AppendFormatted(" , this: %%p)\",");
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                   buffer.AppendFormatted(" %c,",valueCounter[iDm]);
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
