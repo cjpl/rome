@@ -13872,6 +13872,45 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       buffer.AppendFormatted("   outTree->Write(0, TObject::kOverwrite);\n");
       buffer.AppendFormatted("   outFile->Close();\n");
       buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   SafeDelete(inFile);\n");
+      buffer.AppendFormatted("   SafeDelete(outFile);\n");
+      buffer.AppendFormatted("\n");
+      // Delete objects to fill data
+      buffer.AppendFormatted("   // Delete objects to fill data\n");
+      buffer.AppendFormatted("   SafeDelete(info);\n");
+      for (iBranch = 0; iBranch < numOfBranch[iTree]; iBranch++) {
+         if (branchFolderNum[iTree][iBranch] == -1) {
+            continue;
+         }
+         if (!folderUsed[branchFolderNum[iTree][iBranch]]) {
+            continue;
+         }
+         if (folderArray[branchFolderNum[iTree][iBranch]] == "1") {
+            buffer.AppendFormatted("   SafeDelete(%s);\n",
+                                   branchNameTmp[iTree][iBranch]->Data());
+         } else {
+            buffer.AppendFormatted("   if (%s) %s->Delete();\n",
+                                   branchNameTmp[iTree][iBranch]->Data(),
+                                   branchNameTmp[iTree][iBranch]->Data());
+            buffer.AppendFormatted("   SafeDelete(%s);\n",
+                                   branchNameTmp[iTree][iBranch]->Data());
+         }
+      }
+      for (iRunHeader = 0; iRunHeader < numOfRunHeader[iTree]; iRunHeader++) {
+         if (folderUsed[runHeaderFolderIndex[iTree][iRunHeader]]) {
+            if (folderArray[runHeaderFolderIndex[iTree][iRunHeader]] == "1") {
+               buffer.AppendFormatted("   SafeDelete(%s);\n",
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data());
+            } else {
+               buffer.AppendFormatted("   if (%s) %s->Delete();\n",
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data(),
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data());
+               buffer.AppendFormatted("   SafeDelete(%s);\n",
+                                      runHeaderNameTmp[iTree][iRunHeader]->Data());
+            }
+         }
+      }
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   return;\n");
       buffer.AppendFormatted("}\n\n");
 
