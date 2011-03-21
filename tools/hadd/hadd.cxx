@@ -202,7 +202,7 @@ int MergeRootfile( TDirectory *target, TList *sourcelist)
    ((THashList*)target->GetListOfKeys())->Rehash(nguess);
    TList listH;
    TString listHargs;
-   listHargs.Form("((TCollection*)0x%lx)",&listH);
+   listHargs.Form("((TCollection*)%p)",&listH);
    while(first_source) {
       TDirectory *current_sourcedir = first_source->GetDirectory(path);
       if (!current_sourcedir) {
