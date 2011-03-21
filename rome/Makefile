@@ -122,7 +122,7 @@ ROMEPICDEF = -DUSE_PIC_UPPER
 endif
 endif
 
-DICTIONARIES = ROMEBuilderDict.h UpdateVersionHDict.h
+DICTIONARIES = ROMEBuilderDict.h UpdateVersionHDict.h HAddDict.h
 
 NEED_TARRAYL64 = no
 ifeq ($(ROOT_MAJOR), 5)
