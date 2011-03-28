@@ -61,7 +61,11 @@ namespace {
    // inter thread communication
 #if defined( HAVE_MIDAS )
    Int_t           fgOnlineLoopPeriod         = kMidasInitialOnlineLoopPeriod;
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t         fgLastLoopTime             = 0;
+#else
+   ULong64_t       fgLastLoopTime             = 0;
+#endif
    Int_t           fgOnlineThreadRequest      = 0;
    Bool_t          fgReadEventReturn          = kFALSE;
    Bool_t          fgDBReadReturn             = kFALSE;
@@ -274,11 +278,17 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event)
 
       // check loop period
       if (fgOnlineLoopPeriod > 0) {
-         if(static_cast<ULong_t>(gSystem->Now()) - fgLastLoopTime < static_cast<ULong_t>(fgOnlineLoopPeriod)) {
+         if(gROME->Now() - fgLastLoopTime <
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+            static_cast<ULong_t>(fgOnlineLoopPeriod)
+#else
+            static_cast<ULong64_t>(fgOnlineLoopPeriod)
+#endif
+            ) {
             this->SetContinue();
             return kTRUE;
          }
-         fgLastLoopTime = static_cast<ULong_t>(gSystem->Now());
+         fgLastLoopTime = gROME->Now();
       }
 
       // check transition

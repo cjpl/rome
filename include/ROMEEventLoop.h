@@ -42,17 +42,29 @@ protected:
    Long64_t      fStopAtEvent;                     //! Stop execution at this event
 
    // Statistics update
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t      *fStatisticsTimeOfLastEvent;       //! Time of last Event
+#else
+   ULong64_t    *fStatisticsTimeOfLastEvent;       //! Time of last Event
+#endif
    Double_t     *fStatisticsLastEvent;             //! Last Event
 
    // Progress Display
    Int_t         fProgressDelta;                   //! Maximal time difference
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t       fProgressTimeOfLastEvent;         //! Last time for display
+#else
+   ULong64_t     fProgressTimeOfLastEvent;         //! Last time for display
+#endif
    Long64_t      fProgressLastEvent;               //! Last Event
    Bool_t        fProgressWrite;                   //! Write flag
 
    // user input
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t       fUserInputLastTime;               //! Last time for user input
+#else
+   ULong64_t     fUserInputLastTime;               //! Last time for user input
+#endif
    Bool_t        fContinuous;                      //! Continuous Mode
 
    // Output Tree Files
@@ -68,7 +80,11 @@ protected:
 
    // Monitor
    Bool_t        fUpdateWindow;                    //! Window update activation flag
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t       fLastUpdateTime;                  //! Time of the last window update
+#else
+   ULong64_t     fLastUpdateTime;                  //! Time of the last window update
+#endif
 //   Bool_t        fWindowFirstDraw;                 //! Window first time draw flag
    Long64_t      fUpdateWindowLastEvent;           //! Last event event updated on the window
 
@@ -83,7 +99,11 @@ protected:
    Bool_t        fHaveEndOfRunMacro;               //! flag if it has macro to execute at the end of run
 
    // NetFolderServer update
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t       fLastNetFolderServerUpdateTime;   //! Time of the last NetFolderServers update
+#else
+   ULong64_t     fLastNetFolderServerUpdateTime;   //! Time of the last NetFolderServers update
+#endif
    TThread      *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
 
 public:

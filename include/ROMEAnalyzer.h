@@ -16,6 +16,7 @@
 #include <TTask.h>
 #include <TFolder.h>
 #include <TFile.h>
+#include <TSystem.h>
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2))
 #   include <TDirectoryFile.h>
 #endif
@@ -216,7 +217,11 @@ protected:
    ROMEString     fHistoOutputFileNameConstructed; //! Output filename to the Histograms of this Run after replacing #,##...
    Bool_t         fHistoAccumulateAll;           //! Accmulate all histograms and graphs
    Bool_t         fHistoDeactivateAll;           //! Deactivate all histograms and graphs
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t        fHistoAutoSavePeriod;          //! Period for auto save
+#else
+   ULong64_t      fHistoAutoSavePeriod;          //! Period for auto save
+#endif
    ROMEString     fHistoSnapShotFileName;        //! Output filename to the Histograms of snap shot. "##" is replaced with event number
    ROMEString     fHistoSnapShotFileNameConstructed; //! Output filename to the Histograms of snap shot after replacing #,##...
    ULong64_t      fHistoSnapShotEvents;          //! Snap shot is written every n-th events.
@@ -466,7 +471,11 @@ public:
    const char*     GetHistosOutputFileName();
    Bool_t          IsHistosAccumulateAll() const { return fHistoAccumulateAll; }
    Bool_t          IsHistosDeactivateAll() const { return fHistoDeactivateAll; }
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t         GetHistosAutoSavePeriod() const { return fHistoAutoSavePeriod; }
+#else
+   ULong64_t       GetHistosAutoSavePeriod() const { return fHistoAutoSavePeriod; }
+#endif
    const char*     GetHistosSnapShotRawFileName() { return fHistoSnapShotFileName; }
    const char*     GetHistosSnapShotFileName();
    ULong64_t       GetHistosSnapShotEvents() const { return fHistoSnapShotEvents; }
@@ -481,7 +490,11 @@ public:
    void            SetHistosOutputFileName(const char* file) { fHistoOutputFileName = file; }
    void            SetHistosAccumulateAll(Bool_t flag) { fHistoAccumulateAll = flag; }
    void            SetHistosDeactivateAll(Bool_t flag) { fHistoDeactivateAll = flag; }
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    void            SetHistosAutoSavePeriod(ULong_t period) { fHistoAutoSavePeriod = period; }
+#else
+   void            SetHistosAutoSavePeriod(ULong64_t period) { fHistoAutoSavePeriod = period; }
+#endif
    void            SetHistosSnapShotFileName(const char* file) { fHistoSnapShotFileName = file; }
    void            SetHistosSnapShotEvents(ULong64_t n) { fHistoSnapShotEvents = n; }
 
@@ -769,6 +782,12 @@ public:
    Int_t        GetReportSummaryFileLevel() const { return fReportSummaryFileLevel; }
    void         SetReportSummaryFileLineLength(Int_t l) { fReportSummaryFileLineLength = l; }
    Int_t        GetReportSummaryFileLineLength() const { return fReportSummaryFileLineLength; }
+
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+   ULong_t   Now() { return static_cast<ULong_t>(gSystem->Now()); }
+#else
+   ULong64_t Now() { return static_cast<ULong64_t>(gSystem->Now()); }
+#endif
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *) const;

@@ -247,6 +247,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
                   gROME->GetApplication()->ProcessFile(fBeginOfRunMacro.Data());
                }
             }
+
             WriteRunHeaders();
 
             eventLoopIndex++;
@@ -573,10 +574,14 @@ Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
    if (!gROME->IsROMEMonitor() && !gROME->IsStandAloneARGUS() &&
        gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
-      const ULong_t kInterval = 10; // this should be changed to parameter
-      if (static_cast<ULong_t>(gSystem->Now()) > fLastNetFolderServerUpdateTime + kInterval) {
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+      const ULong_t   kInterval = 10; // this should be changed to parameter
+#else
+      const ULong64_t kInterval = 10; // this should be changed to parameter
+#endif
+      if (gROME->Now() > fLastNetFolderServerUpdateTime + kInterval) {
          if (ROME_TRYLOCK(gObjectStorageMutex) == 0) {
-            fLastNetFolderServerUpdateTime = static_cast<ULong_t>(gSystem->Now());
+            fLastNetFolderServerUpdateTime = gROME->Now();
             gROME->FillObjectStorage();
             if (fNetFolderServerUpdateThread) {
                TThread::Delete(fNetFolderServerUpdateThread);
@@ -766,7 +771,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 
    // Progress Display
    fProgressDelta = 10000;
-   fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+   fProgressTimeOfLastEvent = gROME->Now();
    fProgressLastEvent = 0;
    fProgressWrite = false;
 
@@ -908,7 +913,11 @@ Bool_t ROMEEventLoop::DAQEvent()
    }
    if (stat) {
       stat->processedEvents++;
-      ULong_t time = static_cast<ULong_t>(gSystem->Now());
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+      ULong_t   time = gROME->Now();
+#else
+      ULong64_t time = gROME->Now();
+#endif
       if (fStatisticsTimeOfLastEvent[eventIndex] == 0) {
          fStatisticsTimeOfLastEvent[eventIndex] = time;
       }
@@ -961,7 +970,11 @@ Bool_t ROMEEventLoop::Update()
 
    ROMEString text;
    Long64_t newUpdateWindowEvent;
-   ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+   ULong_t   currentTime = gROME->Now();
+#else
+   ULong64_t currentTime = gROME->Now();
+#endif
 
    // Progress Display
    ROMEPrint::Debug("ROMEEventLoop::Update() Progress Display");
@@ -972,7 +985,13 @@ Bool_t ROMEEventLoop::Update()
          fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5);
          fProgressWrite = true;
       } else {
-         if (currentTime > static_cast<ULong_t>(fProgressTimeOfLastEvent + 1000)) {
+         if (
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+             currentTime > static_cast<ULong_t>(fProgressTimeOfLastEvent + 1000)
+#else
+             currentTime >                      fProgressTimeOfLastEvent + 1000
+#endif
+             ) {
             fProgressDelta /= 10;
          }
       }
@@ -1009,7 +1028,11 @@ Bool_t ROMEEventLoop::Update()
           gROME->GetWindow()->IsEventHandlingRequested()) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
          if ((!fContinuous && !gROME->IsStandAloneARGUS()) ||
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
              currentTime > static_cast<ULong_t>(fLastUpdateTime + gROME->GetWindowUpdatePeriod()) ||
+#else
+             currentTime >                      fLastUpdateTime + gROME->GetWindowUpdatePeriod()  ||
+#endif
              gROME->GetWindow()->IsEventHandlingRequested()) {
             if (!this->isStopped()) {
                fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
@@ -1062,10 +1085,15 @@ Bool_t ROMEEventLoop::UserInput()
       ROMEPrint::Print("Stopped after event "R_LLD"                   \r", gROME->GetCurrentEventNumber());
       wait = true;
    } else if (!gROME->HasUserEvent() && fContinuous &&
-              static_cast<ULong_t>(gSystem->Now()) < static_cast<ULong_t>(fUserInputLastTime + 300)) {
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+              gROME->Now() < static_cast<ULong_t>(fUserInputLastTime + 300)
+#else
+              gROME->Now() <                      fUserInputLastTime + 300
+#endif
+              ) {
       return true;
    }
-   fUserInputLastTime = static_cast<ULong_t>(gSystem->Now());
+   fUserInputLastTime = gROME->Now();
 
    while (wait || first) {
       if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
@@ -1136,7 +1164,7 @@ Bool_t ROMEEventLoop::UserInput()
                wait = false;
                fUpdateWindow = true;
                fProgressDelta = 1000;
-               fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+               fProgressTimeOfLastEvent = gROME->Now();
                fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5);
             }
          }
@@ -1144,7 +1172,7 @@ Bool_t ROMEEventLoop::UserInput()
             if (fContinuous) {
                ROMEPrint::Print("                                  \r");
                fProgressDelta = 1000;
-               fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+               fProgressTimeOfLastEvent = gROME->Now();
                fProgressLastEvent = static_cast<Long64_t>(gROME->GetTriggerStatistics()->processedEvents + 0.5);
             } else {
                if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
@@ -1279,7 +1307,7 @@ Bool_t ROMEEventLoop::UserInput()
       }
    }
    if (hit) {
-      fProgressTimeOfLastEvent = static_cast<ULong_t>(gSystem->Now());
+      fProgressTimeOfLastEvent = gROME->Now();
    }
 
    return true;
@@ -1381,8 +1409,13 @@ void ROMEEventLoop::AutoSave()
 #endif
 
    // Histograms auto save
-   static ULong_t histoSaveLastTime = static_cast<ULong_t>(gSystem->Now());
-   ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+   static ULong_t histoSaveLastTime   = static_cast<ULong_t>(gSystem->Now());
+   ULong_t currentTime                = static_cast<ULong_t>(gSystem->Now());
+#else
+   static ULong64_t histoSaveLastTime = gROME->Now();
+   ULong64_t currentTime              = gROME->Now();
+#endif
    if (gROME->GetHistosAutoSavePeriod() > 0 &&
        currentTime > histoSaveLastTime + gROME->GetHistosAutoSavePeriod() * 1000 &&
        !strcmp(gROME->GetOutputFileOption(), "RECREATE")) {

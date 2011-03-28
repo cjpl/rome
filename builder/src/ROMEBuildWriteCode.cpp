@@ -11490,7 +11490,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("%sEventLoop::%sEventLoop(const char *name,const char *title):ROMEEventLoop(name,title)\n{\n",
                           shortCut.Data(),shortCut.Data());
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    buffer.AppendFormatted("   fStatisticsTimeOfLastEvent = new ULong_t[gAnalyzer->GetMaxEventID()];\n");
+#else
+   buffer.AppendFormatted("   fStatisticsTimeOfLastEvent = new ULong64_t[gAnalyzer->GetMaxEventID()];\n");
+#endif
    buffer.AppendFormatted("   fStatisticsLastEvent = new Double_t[gAnalyzer->GetMaxEventID()];\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -11874,7 +11878,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    // Reset statistics
    buffer.Append(kMethodLine);
    buffer.AppendFormatted("void %sEventLoop::ResetStatistics()\n{\n",shortCut.Data());
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    buffer.AppendFormatted("   memset(fStatisticsTimeOfLastEvent, 0, sizeof(ULong_t) * gAnalyzer->GetMaxEventID());\n");
+#else
+   buffer.AppendFormatted("   memset(fStatisticsTimeOfLastEvent, 0, sizeof(ULong64_t) * gAnalyzer->GetMaxEventID());\n");
+#endif
    buffer.AppendFormatted("   memset(fStatisticsLastEvent, 0, sizeof(Double_t) * gAnalyzer->GetMaxEventID());\n");
    buffer.AppendFormatted("   Statistics *stat;\n");
    buffer.AppendFormatted("   Int_t i;\n");
