@@ -86,8 +86,13 @@ protected:
    UInt_t                   fInitialHeight;        //! Default height of the window at startup
    Bool_t                   fRequestEventHandling; //! Event handling request flag
    Bool_t                   fForceEventHandling;   //! Force event handling even if it is the same event
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
    ULong_t                  fScreenShotPeriod;     //!
    ULong_t                  fScreenShotLastTime;   //!
+#else
+   ULong64_t                fScreenShotPeriod;     //!
+   ULong64_t                fScreenShotLastTime;   //!
+#endif
    TString                  fTimeZone;             //!
 
 public:
@@ -210,7 +215,7 @@ public:
 //   Int_t            GetActiveTabObjectIndex();
    void             CheckActiveFlags();
 
-   void             SetTimeZone(const char* timezone) { fTimeZone = timezone; fTimeZone.ToLower(); }
+   void             SetTimeZone(const char* tz) { fTimeZone = tz; fTimeZone.ToLower(); }
    const char*      GetTimeZone() { return fTimeZone; }
 
    ClassDef(ArgusWindow,0) // Base class of ARGUS main window

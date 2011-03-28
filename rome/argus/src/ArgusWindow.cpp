@@ -844,7 +844,11 @@ void ArgusWindow::TriggerEventHandler()
 
    static Bool_t screenShot = kFALSE;
    if (fTabWindow) {
-      ULong_t currentTime = static_cast<ULong_t>(gSystem->Now());
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
+      ULong_t   currentTime = gROME->Now();
+#else
+      ULong64_t currentTime = gROME->Now();
+#endif
       if(currentTime - fScreenShotLastTime > fScreenShotPeriod *1000 || !fScreenShotPeriod) {
          screenShot = kTRUE;
          fScreenShotLastTime = currentTime;

@@ -1369,7 +1369,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->AddParameter(new ROMEConfigParameter("AutoSavePeriod"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosAutoSavePeriod(strtoul(##,&cstop, 10));");
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,27,6))
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%lu\", gAnalyzer->GetHistosAutoSavePeriod());");
+#else
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(R_ULLD, gAnalyzer->GetHistosAutoSavePeriod());");
+#endif
          // SnapShotFileName
          subSubGroup->AddParameter(new ROMEConfigParameter("SnapShotFileName"));
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subSubGroup->GetGroupName());
