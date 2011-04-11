@@ -299,12 +299,15 @@ Bool_t ROMERomeDAQ::BeginOfRun()
          romeTree = static_cast<ROMETree*>(fROMETrees->At(j));
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
+            Long64_t autoFlush = tree->GetAutoFlush(); 
+            tree->SetAutoFlush(0); 
             for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
                tree->GetBranch("Info")->GetEntry(iEvent);
                if (fMaxEventNumber < fTreeInfo->GetEventNumber()) {
                   fMaxEventNumber = fTreeInfo->GetEventNumber();
                }
             }
+            tree->SetAutoFlush(autoFlush); 
          }
       }
       Bool_t eventFound = kFALSE;
@@ -316,6 +319,8 @@ Bool_t ROMERomeDAQ::BeginOfRun()
             for (iEvent = 0; iEvent < fMaxEventNumber + 1; iEvent++) {
                fTreePositionLookup[j][iEvent] = -1;
             }
+            Long64_t autoFlush = tree->GetAutoFlush(); 
+            tree->SetAutoFlush(0); 
             for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
                tree->GetBranch("Info")->GetEntry(iEvent);
                if (fTreeInfo->GetRunNumber() == run) {
@@ -325,6 +330,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                   }
                }
             }
+            tree->SetAutoFlush(autoFlush); 
          } else {
             fTreePositionLookup[j] = 0;
          }
