@@ -137,7 +137,7 @@ const char* ROMEString::ReadCommandOutput(const char* command, Bool_t readError)
    if (EndsWith("\n")) {
        Resize(Length() - 1);
    }
-   return fData;
+   return *this;
 }
 
 //______________________________________________________________________________
