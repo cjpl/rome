@@ -143,7 +143,7 @@ const char *ROMESQLite::GetField(Int_t fieldNumber)
       ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
-   return result.At(fieldNumber, currentRow).Data();
+   return result.At2(fieldNumber, currentRow).Data();
 }
 
 //______________________________________________________________________________

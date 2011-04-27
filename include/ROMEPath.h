@@ -48,12 +48,12 @@ public:
 
    // getters for decode
    Int_t       GetNumberOfTables() const { return fTableNames->GetEntriesFast(); }
-   const char *GetTableNameAt(Int_t i) const { return fTableNames->At(i).Data(); }
-//   const char *GetTableAbsolutePathAt(Int_t i) const { return fTableAbsolutePaths->At(i).Data(); }
-   const char *GetTableConstraintAt(Int_t i) const   { return fTableConstraints->At(i).Data(); }
-   const char *GetTableDBConstraintAt(Int_t i) const { return fTableDBConstraints->At(i).Data(); }
-   const char *GetTableIDNameAt(Int_t i) const { return fTableIDName->At(i).Data(); }
-   const char *GetTableIDXNameAt(Int_t i) const { return fTableIDXName->At(i).Data(); }
+   const char *GetTableNameAt(Int_t i) const { return fTableNames->At2(i).Data(); }
+//   const char *GetTableAbsolutePathAt(Int_t i) const { return fTableAbsolutePaths->At2(i).Data(); }
+   const char *GetTableConstraintAt(Int_t i) const   { return fTableConstraints->At2(i).Data(); }
+   const char *GetTableDBConstraintAt(Int_t i) const { return fTableDBConstraints->At2(i).Data(); }
+   const char *GetTableIDNameAt(Int_t i) const { return fTableIDName->At2(i).Data(); }
+   const char *GetTableIDXNameAt(Int_t i) const { return fTableIDXName->At2(i).Data(); }
    const char *GetOrderTableName() const { return fOrderTableName.Data(); }
    const char *GetOrderFieldName() const { return fOrderFieldName.Data(); }
    Int_t       GetOrderIndexAt(Int_t i) const  { return fOrderIndex[i]; }
@@ -67,8 +67,8 @@ public:
 
    // getters for decode constraint
    Int_t       GetNumberOfConstraints() const { return fConstraintField->GetEntriesFast(); }
-   const char *GetConstraintFieldAt(Int_t i) const   { return fConstraintField->At(i).Data(); }
-   const char *GetConstraintValueAt(Int_t i) const   { return fConstraintValue->At(i).Data(); }
+   const char *GetConstraintFieldAt(Int_t i) const   { return fConstraintField->At2(i).Data(); }
+   const char *GetConstraintValueAt(Int_t i) const   { return fConstraintValue->At2(i).Data(); }
 
 protected:
    // setters for decode

@@ -93,7 +93,7 @@ public:
    Int_t   GetWidth() const { return fWidth; }
    void    SetWidth(Int_t width) { fWidth = width; }
    void    AddEntryAt(const char* entry,Int_t i) { return fEntry.AddAt(entry,i); }
-   TString GetEntryAt(Int_t i) const { return fEntry.At(i).Data(); }
+   TString GetEntryAt(Int_t i) const { return fEntry.At2(i).Data(); }
    Int_t   GetNumberOfEntries() const { return fEntry.GetEntriesFast(); }
    Int_t   GetSelectedEntry() const { return fSelectedEntry; }
    void    SetSelectedEntry(Int_t index) { fSelectedEntry = index; }

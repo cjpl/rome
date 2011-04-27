@@ -48,6 +48,7 @@ public:
    virtual void     RemoveAll();
 
    TString          At(Int_t idx) const { return static_cast<TObjString*>(array->At(idx))->GetString(); }
+   TString&         At2(Int_t idx) const { return static_cast<TObjString*>(array->At(idx))->String(); }
    TString          UncheckedAt(Int_t i) const { return static_cast<TObjString*>(array->UncheckedAt(i))->GetString(); }
    TString          First() const { return static_cast<TObjString*>(array->First())->GetString(); }
    TString          Last() const { return static_cast<TObjString*>(array->Last())->GetString(); }

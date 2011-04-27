@@ -14,12 +14,12 @@
 class ROMEString : public TString
 {
 public:
-   ROMEString() : TString() {}
-   ROMEString(Ssiz_t s) : TString(s) {}
-   ROMEString(char c) : TString(c) {}
-   ROMEString(const char* s) : TString(s) {}
-   ROMEString(const TString& s) : TString(s) {}
-   ROMEString(const TSubString& s) : TString(s) {}
+   ROMEString();
+   ROMEString(Ssiz_t s);
+   ROMEString(char c);
+   ROMEString(const char* s);
+   ROMEString(const TString& s);
+   ROMEString(const TSubString& s);
    virtual ~ROMEString() {}
 
 #ifndef __MAKECINT__
@@ -54,6 +54,9 @@ public:
    ROMEString&  ChopSpaces();
    Bool_t       ContainsFast(const char* s) const { return strstr(Data(), s) != 0; }
    Bool_t       ContainsInLongString(const char* str);
+#ifndef __CINT__
+   static void  SetLongMode(Int_t length = (1<<15));
+#endif
 
    ClassDef(ROMEString, 1) // Functional TString for ROME
 };
