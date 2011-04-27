@@ -43,26 +43,26 @@ public:
    void           ReadComment(Int_t level, const char* parentName, const char* path = 0);
 
    Int_t          GetNumberOfReadModifiedTrueLines() { return fReadModifiedTrueLines->GetEntriesFast(); }
-   const char*    GetReadModifiedTrueLineAt(Int_t i) { return fReadModifiedTrueLines->At(i).Data(); }
+   const char*    GetReadModifiedTrueLineAt(Int_t i) { return fReadModifiedTrueLines->At2(i); }
    void           AddReadModifiedTrueLine(const char* line) { fReadModifiedTrueLines->AddLast(line); }
 
    void           SetDeclaration(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
    const char*    GetDeclaration() const { return fDeclaration.Data(); }
 
    Int_t          GetNumberOfSetLines() { return fSetLines->GetEntriesFast(); }
-   const char*    GetSetLineAt(Int_t i) { return fSetLines->At(i).Data(); }
+   const char*    GetSetLineAt(Int_t i) { return fSetLines->At2(i).Data(); }
    void           AddSetLine(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Int_t          GetNumberOfWriteLines() { return fWriteLines->GetEntriesFast(); }
-   const char*    GetWriteLineAt(Int_t i) { return fWriteLines->At(i).Data(); }
+   const char*    GetWriteLineAt(Int_t i) { return fWriteLines->At2(i).Data(); }
    void           AddWriteLine(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Int_t          GetNumberOfAdditionalWriteLines() { return fAdditionalWriteLines->GetEntriesFast(); }
-   const char*    GetAdditionalWriteLineAt(Int_t i) { return fAdditionalWriteLines->At(i).Data(); }
+   const char*    GetAdditionalWriteLineAt(Int_t i) { return fAdditionalWriteLines->At2(i).Data(); }
    void           AddAdditionalWriteLine(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Int_t          GetNumberOfComboBoxEntries() { return fComboBoxEntries->GetEntriesFast(); }
-   const char*    GetComboBoxEntryAt(Int_t i) { return fComboBoxEntries->At(i).Data(); }
+   const char*    GetComboBoxEntryAt(Int_t i) { return fComboBoxEntries->At2(i).Data(); }
    void           AddComboBoxEntry(const char* line = NULL,...) G_GNUC_PRINTF(2, 3);
 
    Bool_t         IsWriteLinesAlways() { return fWriteLinesAlways; }
@@ -139,15 +139,15 @@ public:
    void                       AddSubGroup(ROMEConfigParameterGroup* subGroup) { fSubGroups->AddLast(subGroup); subGroup->SetHierarchyLevel(fHierarchyLevel+1); }
 
    Int_t                      GetNumberOfReadGroupArrayInitLines() { return fReadGroupArrayInitLines->GetEntriesFast(); }
-   const char*                GetReadGroupArrayInitLineAt(Int_t i) { return fReadGroupArrayInitLines->At(i).Data(); }
+   const char*                GetReadGroupArrayInitLineAt(Int_t i) { return fReadGroupArrayInitLines->At2(i).Data(); }
    void                       AddReadGroupArrayInitLine(const char* line) { fReadGroupArrayInitLines->AddLast(line); }
 
    Int_t                      GetNumberOfWriteStartLines() { return fWriteStartLines->GetEntriesFast(); }
-   const char*                GetWriteStartLineAt(Int_t i) { return fWriteStartLines->At(i).Data(); }
+   const char*                GetWriteStartLineAt(Int_t i) { return fWriteStartLines->At2(i).Data(); }
    void                       AddWriteStartLine(const char* line) { fWriteStartLines->AddLast(line); }
 
    Int_t                      GetNumberOfWriteEndLines() { return fWriteEndLines->GetEntriesFast(); }
-   const char*                GetWriteEndLineAt(Int_t i) { return fWriteEndLines->At(i).Data(); }
+   const char*                GetWriteEndLineAt(Int_t i) { return fWriteEndLines->At2(i).Data(); }
    void                       AddWriteEndLine(const char* line) { fWriteEndLines->AddLast(line); }
 };
 

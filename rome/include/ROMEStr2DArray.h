@@ -40,6 +40,7 @@ public:
    virtual void     RemoveAll();
 
    TString          At(Int_t idx, Int_t idy) const;
+   TString&         At2(Int_t idx, Int_t idy) const;
 
    ClassDef(ROMEStr2DArray, 1) // Two dimensional ROMEString array
 };

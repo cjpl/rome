@@ -1243,8 +1243,7 @@ Bool_t ROMEBuilder::StartBuilder()
    CopyFile(oldFile.Data(),newFile.Data());
 
    // set TString increments
-   TString::MaxWaste(kTStringResizeIncrement - 1);
-   TString::ResizeIncrement(kTStringResizeIncrement);
+   ROMEString::SetLongMode(kTStringResizeIncrement);
 
    // write classes
    if (!AddConfigParameters()) return false;

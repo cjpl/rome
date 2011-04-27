@@ -210,3 +210,25 @@ TString ROMEStr2DArray::At(Int_t idx, Int_t idy) const
    }
    return static_cast<TObjString*>(subArray->At(idy))->GetString();
 }
+
+//______________________________________________________________________________
+TString& ROMEStr2DArray::At2(Int_t idx, Int_t idy) const
+{
+#if 0
+   if (idx<0||idx>=array->GetEntriesFast()) {
+      return "";
+   }
+   if (array->At(idx)==NULL) {
+      return "";
+   }
+   TObjArray *subArray = static_cast<TObjArray*>(array->At(idx));
+   if (idy<0||idy>=subArray->GetEntriesFast()) {
+      return "";
+   }
+   if (subArray->At(idy)==NULL) {
+      return "";
+   }
+#endif
+   TObjArray *subArray = static_cast<TObjArray*>(array->At(idx));
+   return static_cast<TObjString*>(subArray->At(idy))->String();
+}

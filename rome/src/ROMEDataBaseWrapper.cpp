@@ -332,7 +332,7 @@ const char *romesqldb_get_string_value(void *romedb, int row, int column)
    if (!work || work->type != kROMEDBWrapperDBTypeSQL) {
       return 0;
    }
-   return work->sqlvalues->At(row, column).Data();
+   return work->sqlvalues->At2(row, column).Data();
 }
 
 void romesqldb_set_int_value(void *romedb, int row, int column, int val)
@@ -594,7 +594,7 @@ const char *rometextdb_get_string_value(void *romedb, int row, int column)
    if (!work || work->type != kROMEDBWrapperDBTypeText) {
       return 0;
    }
-   return work->textvalues->At(row, column).Data();
+   return work->textvalues->At2(row, column).Data();
 }
 
 void rometextdb_set_int_value(void *romedb, int row, int column, int val)
