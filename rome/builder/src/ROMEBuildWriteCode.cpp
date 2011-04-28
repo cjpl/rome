@@ -14269,15 +14269,16 @@ Bool_t ROMEBuilder::WritePrecompiledHeaders()
 }
 
 //______________________________________________________________________________
-Long64_t ROMEBuilder::SetCapacity(const char* filename, TString* str)
+Long64_t ROMEBuilder::SetCapacity(const char* filename, TString* str, Long64_t defaultSize)
 {
    if (!filename) return 0;
-   if (gSystem->AccessPathName(filename, kFileExists)) {
-      return 0;
-   }
    Long_t   fileId, fileFlags, fileModtime;
    Long64_t fileSize;
-   gSystem->GetPathInfo(filename, &fileId, &fileSize, &fileFlags, &fileModtime);
+   if (gSystem->AccessPathName(filename, kFileExists)) {
+      fileSize = defaultSize;
+   } else {
+      gSystem->GetPathInfo(filename, &fileId, &fileSize, &fileFlags, &fileModtime);
+   }
    if (str) {
       str->Capacity(static_cast<Long64_t>(fileSize * 1.2));
    }

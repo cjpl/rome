@@ -858,7 +858,7 @@ private:
    ROMEString& ProcessAddressHTML(ROMEString& org, ROMEString& result);
 
    ROMEString& ParseDependences(ROMEString& org, ROMEString& result);
-   Long64_t    SetCapacity(const char* filename, TString *str);
+   Long64_t    SetCapacity(const char* filename, TString *str, Long64_t defaultSize = (1<<23) /* 8MB */);
 };
 
 #endif   // ROMEBuilder_H
