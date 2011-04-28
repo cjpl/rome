@@ -407,7 +407,7 @@ clean:
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
 	UpdateVersionHDict.h UpdateVersionHDict.cpp \
 	HAddDict.h HAddDict.cpp
-	-find .   -name "G__auto*LinkDef.h" -maxdepth 1 | xargs $(RM)
+	-find . -maxdepth 1 -name "G__auto*LinkDef.h" | xargs $(RM)
 	-find obj -name "*.d" | xargs $(RM)
 	-find obj -name "*.o" | xargs $(RM)
 

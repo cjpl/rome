@@ -858,6 +858,7 @@ private:
    ROMEString& ProcessAddressHTML(ROMEString& org, ROMEString& result);
 
    ROMEString& ParseDependences(ROMEString& org, ROMEString& result);
+   Long64_t    SetCapacity(const char* filename, TString *str);
 };
 
 #endif   // ROMEBuilder_H
