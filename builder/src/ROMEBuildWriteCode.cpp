@@ -2269,7 +2269,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       if (!taskUsed[iTask])
          continue;
       header.Resize(0);
-      buffer.Resize(0);
+
       // File name
       cppFile.SetFormatted("%ssrc/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
       fileBuffer.ReadFile(cppFile.Data(), kTRUE);
@@ -2425,6 +2425,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE, genInclude.Data());
 
       buffer.Resize(0);
+      buffer.Capacity((1<<20));
       buffer.AppendFormatted("\n\n");
       // Header
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
@@ -3149,7 +3150,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
       WriteFile(genFile.Data(), buffer.Data(),6);
 
       // Description
-      buffer.Resize(0);
+      clsDescription.Resize(0);
+      clsDescription.Capacity((1<<20));
       WriteHeader(header, numOfTabAuthors[iTab], tabAuthor[iTab], tabAuthorEmail[iTab], kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = "Begin_Html\n\n";
@@ -3199,7 +3201,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE, genInclude.Data());
 
       buffer.Resize(0);
-
+      buffer.Capacity((1<<20));
       buffer.AppendFormatted("\n\n");
       // Header
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
@@ -13176,6 +13178,7 @@ void ROMEBuilder::WriteHTMLDoku()
       css.SetFormatted("%s/%s",outDir.Data(),styleSheet.Data());
       if (gSystem->AccessPathName(css.Data(),kFileExists)) {
          buffer.Resize(0);
+         SetCapacity(css, &buffer);
          WriteHTMLStyle(buffer);
          WriteFile(css.Data(),buffer.Data(), 0);
       }
@@ -13187,6 +13190,7 @@ void ROMEBuilder::WriteHTMLDoku()
    userHtmlFile.SetFormatted("%sUserHTML.html",shortCut.Data()); // we are already in outputDir
    if (gSystem->AccessPathName(userHtmlFile.Data(),kFileExists)) {
       buffer.Resize(0);
+      SetCapacity(userHtmlFile, &buffer);
       buffer.AppendFormatted("<html>\n");
       buffer.AppendFormatted("<head>\n");
       buffer.AppendFormatted("  <title>%s%s Additional Info</title>\n",shortCut.Data(),mainProgName.Data());
@@ -13541,7 +13545,6 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
    ROMEString buffer;
    ROMEString tmp,tmp2,tmp3,tmp4;
    ROMEString macroDescription;
-   buffer.Resize(0);
    macroDescription.Resize(0);
    set<Int_t> branchFolderNumber;
 
@@ -14019,7 +14022,6 @@ Bool_t ROMEBuilder::WriteDOT()
    ROMEString dotFile;
    ROMEString buffer;
    ROMEString dotDescription;
-   buffer.Resize(0);
    dotDescription.Resize(0);
 
    int i, j, k;
