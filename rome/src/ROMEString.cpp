@@ -22,10 +22,6 @@ ClassImp(ROMEString)
 
 static TVirtualMutex *fgROMEStringMutex = 0;
 
-
-static Bool_t fgROMEStrLongMode   = kFALSE;
-static Int_t  fgROMEStrLongLength = 0;
-
 //______________________________________________________________________________
 ROMEString::ROMEString()
 :TString()
@@ -78,21 +74,6 @@ ROMEString::ROMEString(const TSubString& s)
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
    Capacity(fgROMEStrLongLength);
 #endif
-}
-
-//______________________________________________________________________________
-void ROMEString::SetLongMode(Int_t length)
-{
-   if (length <= 16) {
-      fgROMEStrLongMode = kFALSE;
-   } else {
-      fgROMEStrLongMode = kTRUE;
-   }
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,29,2)
-   TString::MaxWaste(length - 1);
-   TString::ResizeIncrement(length);
-#endif
-   fgROMEStrLongLength = length;
 }
 
 //______________________________________________________________________________
