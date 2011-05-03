@@ -54,9 +54,6 @@ public:
    ROMEString&  ChopSpaces();
    Bool_t       ContainsFast(const char* s) const { return strstr(Data(), s) != 0; }
    Bool_t       ContainsInLongString(const char* str);
-#ifndef __CINT__
-   static void  SetLongMode(Int_t length = (1<<15));
-#endif
 
    ClassDef(ROMEString, 1) // Functional TString for ROME
 };
