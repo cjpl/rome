@@ -14,12 +14,12 @@
 class ROMEString : public TString
 {
 public:
-   ROMEString();
-   ROMEString(Ssiz_t s);
-   ROMEString(char c);
-   ROMEString(const char* s);
-   ROMEString(const TString& s);
-   ROMEString(const TSubString& s);
+   ROMEString():TString() {}
+   ROMEString(Ssiz_t s):TString(s) {}
+   ROMEString(char c):TString(c) {}
+   ROMEString(const char* s):TString(s) {}
+   ROMEString(const TString& s):TString(s) {}
+   ROMEString(const TSubString& s):TString(s) {}
    virtual ~ROMEString() {}
 
 #ifndef __MAKECINT__

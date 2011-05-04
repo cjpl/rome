@@ -23,60 +23,6 @@ ClassImp(ROMEString)
 static TVirtualMutex *fgROMEStringMutex = 0;
 
 //______________________________________________________________________________
-ROMEString::ROMEString()
-:TString()
-{
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
-   Capacity(fgROMEStrLongLength);
-#endif
-}
-
-//______________________________________________________________________________
-ROMEString::ROMEString(Ssiz_t s)
-:TString(s)
-{
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
-   Capacity(fgROMEStrLongLength);
-#endif
-}
-
-//______________________________________________________________________________
-ROMEString::ROMEString(char c)
-:TString(c)
-{
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
-   Capacity(fgROMEStrLongLength);
-#endif
-}
-
-//______________________________________________________________________________
-ROMEString::ROMEString(const char* s)
-:TString(s)
-{
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
-   Capacity(fgROMEStrLongLength);
-#endif
-}
-
-//______________________________________________________________________________
-ROMEString::ROMEString(const TString& s)
-:TString(s)
-{
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
-   Capacity(fgROMEStrLongLength);
-#endif
-}
-
-//______________________________________________________________________________
-ROMEString::ROMEString(const TSubString& s)
-:TString(s)
-{
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,2)
-   Capacity(fgROMEStrLongLength);
-#endif
-}
-
-//______________________________________________________________________________
 ROMEString& ROMEString::AppendFormatted(const char* va_(fmt), ...)
 {
    if (!va_(fmt)) {
