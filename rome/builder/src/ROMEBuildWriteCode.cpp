@@ -10006,6 +10006,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    buffer.AppendFormatted("\n\n");
 
    buffer.AppendFormatted("#include \"ROMERomeDAQ.h\"\n");
+   buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    Int_t j;
    buffer.AppendFormatted("class TClonesArray;\n");
    for (i = 0; i < numOfTree; i++) {
