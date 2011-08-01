@@ -1326,7 +1326,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sConfig4Opt                    += $(NOOPT) $(NOWFMTNLIT)\n",shortCut.Data());
    buffer.AppendFormatted("%sConfigToFormOpt               += $(NOOPT) $(NOWFMTNLIT)\n",shortCut.Data());
    buffer.AppendFormatted("%sDBAccessOpt                   += $(NOOPT) $(NOWFMTNLIT)\n",shortCut.Data());
-   if (midas) {
+   if (numOfEvent > 0 || midas) {
      buffer.AppendFormatted("%sMidasDAQOpt                   += -fno-strict-aliasing\n",shortCut.Data());
    }
    buffer.AppendFormatted("ROMEMidasDAQOpt                 += -fno-strict-aliasing\n");
