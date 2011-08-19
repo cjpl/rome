@@ -129,6 +129,7 @@ void ROMEPrint::Info(const char* va_(fmt),...)
    va_start(ap,va_(fmt));
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
+   text.StripSpaces();
    cm_msg(MINFO, "ROMEPrint::Info", text.Data());
 #else
    cout<<ROMEString::Format(va_(fmt), ap)<<flush;
@@ -149,6 +150,7 @@ void ROMEPrint::Warning(const char* va_(fmt),...)
    va_start(ap,va_(fmt));
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
+   text.StripSpaces();
    cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
@@ -169,6 +171,7 @@ void ROMEPrint::Error(const char* va_(fmt),...)
    va_start(ap,va_(fmt));
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
+   text.StripSpaces();
    cm_msg(MERROR, "ROMEPrint::Error", text.Data());
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
