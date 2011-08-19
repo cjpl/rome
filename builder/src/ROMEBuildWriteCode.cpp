@@ -8959,10 +8959,12 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("         ROMEPrint::Warning(\"\\nCan not change access mode for %s statistics record\\n\");\n",
                                 eventName[i].Data());
          buffer.AppendFormatted("      } else {\n");
-         buffer.AppendFormatted("         status = db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetStatisticsAt(%d),\n",
-                                static_cast<Int_t>(strtol(eventID[i], &cstop, 10) - 1));
-         buffer.AppendFormatted("                                 sizeof(Statistics), MODE_WRITE, 0, 0);\n");
+         buffer.AppendFormatted("         ROMEPrint::Info(\"\\nRecovered access mode for record for %s statistics record\\n\");\n",
+                                eventName[i].Data());
          buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      status = db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetStatisticsAt(%d),\n",
+                                static_cast<Int_t>(strtol(eventID[i], &cstop, 10) - 1));
+         buffer.AppendFormatted("                              sizeof(Statistics), MODE_WRITE, 0, 0);\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   if (status != DB_SUCCESS) {\n");
          buffer.AppendFormatted("      ROMEPrint::Warning(\"\\nCan not open %s statistics record.\\n\");\n",
