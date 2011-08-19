@@ -8833,6 +8833,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       buffer.AppendFormatted("Bool_t %sMidasDAQ::InitODB()\n{\n",shortCut.Data());
       ROMEString steerPath;
       buffer.AppendFormatted("   HNDLE hKey;\n");
+      buffer.AppendFormatted("   Int_t status;\n");
       buffer.AppendFormatted("   ROMEString str;\n");
       buffer.AppendFormatted("   ROMEString hotLinkString;\n");
       buffer.AppendFormatted("   // Hot Links\n");
@@ -8948,14 +8949,26 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()),\n");
          buffer.AppendFormatted("                   triggerStatisticsString, TRUE);\n");
          buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, const_cast<char*>(str.Data()), &hKey);\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetStatisticsAt(%d),\n",
+         buffer.AppendFormatted("   status = db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetStatisticsAt(%d),\n",
                                 static_cast<Int_t>(strtol(eventID[i], &cstop, 10) - 1));
-         buffer.AppendFormatted("                      sizeof(Statistics), MODE_WRITE, 0, 0) != DB_SUCCESS) {\n");
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"\\nCan not open %s statistics record, probably other analyzer is using it\\n\");\n",
+         buffer.AppendFormatted("                           sizeof(Statistics), MODE_WRITE, 0, 0);\n");
+         buffer.AppendFormatted("   if (status == DB_NO_ACCESS) {\n");
+         buffer.AppendFormatted("      // record is probably still in exclusive access by dead FE, so reset it\n");
+         buffer.AppendFormatted("      status = db_set_mode(gAnalyzer->GetMidasOnlineDataBase(), hKey, MODE_READ | MODE_WRITE | MODE_DELETE, TRUE);\n");
+         buffer.AppendFormatted("      if (status != DB_SUCCESS) {\n");
+         buffer.AppendFormatted("         ROMEPrint::Warning(\"\\nCan not change access mode for %s statistics record\\n\");\n",
+                                eventName[i].Data());
+         buffer.AppendFormatted("      } else {\n");
+         buffer.AppendFormatted("         status = db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetStatisticsAt(%d),\n",
+                                static_cast<Int_t>(strtol(eventID[i], &cstop, 10) - 1));
+         buffer.AppendFormatted("                                 sizeof(Statistics), MODE_WRITE, 0, 0);\n");
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (status != DB_SUCCESS) {\n");
+         buffer.AppendFormatted("      ROMEPrint::Warning(\"\\nCan not open %s statistics record.\\n\");\n",
                                 eventName[i].Data());
          buffer.AppendFormatted("   }\n");
       }
-
       buffer.AppendFormatted("   return true;\n");
       buffer.AppendFormatted("}\n\n");
    }
