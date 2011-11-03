@@ -985,7 +985,9 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   if (!isModified()) return;\n");
       for (i = 0; i < numOfValue[iFold]; i++) {
-         if (isFolder(valueType[iFold][i].Data()) && valueDimension[iFold][i] > 0) {
+         if ((isFolder(valueType[iFold][i].Data()) ||
+              (valueIsTObject[iFold][i] && valueArray[iFold][i][0] == "variable")) &&
+             valueDimension[iFold][i] > 0) {
             buffer.AppendFormatted("   int nentry;\n");
             break;
          }
