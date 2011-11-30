@@ -190,6 +190,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    maxNumberOfAuthors = xml->NumberOfOccurrenceOfPath(path); // this will be updated in following functions
 
    CountXMLOccurrenceFolder(xml, "ROMEFrameworkDefinition/Folders");
+   CountXMLOccurrenceFolder(xml, "ROMEFrameworkDefinition/SupportFolders");
 
    Int_t nTaskHierarchy = 0;
    CountXMLOccurrenceTaskHierarchy(xml, "ROMEFrameworkDefinition/TaskHierarchy", nTaskHierarchy);
@@ -5189,9 +5190,10 @@ Bool_t ROMEBuilder::CountXMLOccurrenceFolder(const ROMEXML *xmlfile, const char*
       maxNumberOfAffiliations = nAffiliation;
    }
 
-   // Fieldss
+   // Fields
    path.SetFormatted("%s/Field", root);
    Int_t nField = xmlfile->NumberOfOccurrenceOfPath(path);
+   dbgcout<<root<<" "<<nField<<endl;
    if (nField > maxNumberOfValues) {
       maxNumberOfValues = nField;
    }
@@ -5202,6 +5204,14 @@ Bool_t ROMEBuilder::CountXMLOccurrenceFolder(const ROMEXML *xmlfile, const char*
    Int_t iSubFolder;
    for (iSubFolder = 0; iSubFolder < nSubFolder; iSubFolder++) {
       path.SetFormatted("%s/Folder[%d]", root, iSubFolder + 1);
+      CountXMLOccurrenceFolder(xmlfile, path.Data());
+   }
+
+   // Sub folder
+   path.SetFormatted("%s/SupportFolder", root);
+   nSubFolder = xmlfile->NumberOfOccurrenceOfPath(path);
+   for (iSubFolder = 0; iSubFolder < nSubFolder; iSubFolder++) {
+      path.SetFormatted("%s/SupportFolder[%d]", root, iSubFolder + 1);
       CountXMLOccurrenceFolder(xmlfile, path.Data());
    }
 
