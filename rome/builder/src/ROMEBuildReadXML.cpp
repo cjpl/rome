@@ -5193,7 +5193,6 @@ Bool_t ROMEBuilder::CountXMLOccurrenceFolder(const ROMEXML *xmlfile, const char*
    // Fields
    path.SetFormatted("%s/Field", root);
    Int_t nField = xmlfile->NumberOfOccurrenceOfPath(path);
-   dbgcout<<root<<" "<<nField<<endl;
    if (nField > maxNumberOfValues) {
       maxNumberOfValues = nField;
    }
