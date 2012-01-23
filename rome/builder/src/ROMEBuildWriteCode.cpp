@@ -14142,34 +14142,57 @@ Bool_t ROMEBuilder::WriteVersionH()
    ROMEString revNumber = "0";
 
    // read current revision
-   ROMEString path;
+   ROMEString path, path2;
    path.SetFormatted("%s.svn/entries", outDir.Data());
+   ROMEString cmd;
 
-   if (!gSystem->AccessPathName(path,kFileExists)) {
-      // check format
-      ifstream entryStream(path.Data());
-      if (entryStream.good()) {
-         ROMEString entryLine;
-         entryLine.ReadLine(entryStream);
-         if (entryLine.Length() && entryLine.IsDigit()) {
-            // This is maybe text format (Subversion 1.4 or lator)
+   if (gSystem->AccessPathName(path,kFileExists)) {
+      // not using SVN, or SVN >= ver1.7
+      cmd.SetFormatted("svn info %s | grep \"Working Copy Root Path:\" | cut -d : -f 2", outDir.Data());
+      path2.ReadCommandOutput(cmd.Data());
+   }
+   if (path2.Length() || !gSystem->AccessPathName(path,kFileExists)) {
+      if (path2.Length()) {
+         // SQL format (Subversion 1.7 or lator)
+#if defined( R__UNIX )
+#if 1 /* using svn info */
+         cmd.SetFormatted("svn info %s | grep Revision | cut -d : -f 2", outDir.Data());
+         revNumber.ReadCommandOutput(cmd.Data());
+         revNumber.StripSpaces();
+#else /* using SQL */
+         // read .svn/wc.db
+         // "SELECT revision FROM NODES ORDER BY revision DESC LIMIT 1;:
+#endif
+#else
+         // Windows not supported
+         revNumber = "0";
+#endif
+      } else {
+         // check format
+         ifstream entryStream(path.Data());
+         if (entryStream.good()) {
+            ROMEString entryLine;
             entryLine.ReadLine(entryStream);
-            entryLine.ReadLine(entryStream);
-            entryLine.ReadLine(entryStream);
-            revNumber = entryLine;
-            entryStream.close();
-         } else {
-            // This is maybe XML format (Subversion 1.3 or older)
-            entryStream.close();
-            ROMEXML *svnxml = new ROMEXML();
-            if (!svnxml->OpenFileForPath(path.Data())) {
-               revNumber = "0";
+            if (entryLine.Length() && entryLine.IsDigit()) {
+               // This is maybe text format (Subversion 1.4 or lator)
+               entryLine.ReadLine(entryStream);
+               entryLine.ReadLine(entryStream);
+               entryLine.ReadLine(entryStream);
+               revNumber = entryLine;
+               entryStream.close();
             } else {
-               if (!svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0")) {
+               // This is maybe XML format (Subversion 1.3 or older)
+               entryStream.close();
+               ROMEXML *svnxml = new ROMEXML();
+               if (!svnxml->OpenFileForPath(path.Data())) {
                   revNumber = "0";
+               } else {
+                  if (!svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0")) {
+                     revNumber = "0";
+                  }
                }
+               delete svnxml;
             }
-            delete svnxml;
          }
       }
    }
