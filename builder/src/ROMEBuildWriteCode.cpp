@@ -12370,6 +12370,9 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gSystem->AddIncludePath(kAdditionalInclude);\n");
+   buffer.AppendFormatted("   TString makeSharedLib = gSystem->GetMakeSharedLib();\n");
+   buffer.AppendFormatted("   makeSharedLib.ReplaceAll(\"-Wl,--no-undefined\", \" \");\n");
+   buffer.AppendFormatted("   gSystem->SetMakeSharedLib(makeSharedLib.Data());\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (remote) {\n");
    buffer.AppendFormatted("      ROMERint *intapp = new ROMERint(\"App\", &argc, argv, 0, 0, kTRUE);\n");
