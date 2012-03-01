@@ -12309,8 +12309,12 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   Int_t rootVersion = gROOT->GetVersionInt();\n");
    buffer.AppendFormatted("   Int_t rootMajor = rootVersion / 10000;\n");
    buffer.AppendFormatted("   Int_t rootMinor = (rootVersion - 10000 * rootMajor) / 100;\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   buffer.AppendFormatted("   if (ROOT_VERSION(rootMajor, rootMinor, 0) != (ROOT_VERSION_CODE & 0xFFFFFF00)) {\n");
+#else
    buffer.AppendFormatted("   Int_t rootPatch = rootVersion - 10000 * rootMajor - 100 * rootMinor;\n");
    buffer.AppendFormatted("   if (ROOT_VERSION(rootMajor, rootMinor, rootPatch) != ROOT_VERSION_CODE) {\n");
+#endif
    buffer.AppendFormatted("      cerr<<\"Version of ROOT which is used when compiling and running are different.\"<<endl;\n");
    buffer.AppendFormatted("      cerr<<\"(\"<<ROOT_RELEASE<<\" and \"<<gROOT->GetVersion()<<\")\"<<endl;\n");
    buffer.AppendFormatted("      cerr<<\"Please rebuild\"<<endl;\n");
