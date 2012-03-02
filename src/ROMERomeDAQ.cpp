@@ -349,7 +349,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
          if (romeTree->isRead()) {
             odbstr = static_cast<TObjString*>(romeTree->GetFile()->Get("odb"));
             if (odbstr) {
-               odbbuffer = odbstr->GetString().Data();
+               odbbuffer = odbstr->String().Data();
                break;
             }
          }
