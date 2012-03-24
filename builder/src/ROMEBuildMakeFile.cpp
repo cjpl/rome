@@ -1088,9 +1088,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted(" /D%s_%s",shortCut.ToUpper(tmp),mainProgName.ToUpper(tmp2));
    buffer.AppendFormatted("\n");
 #if 0
-   buffer.AppendFormatted("!IFDEF MIDAS_MAX_EVENT_SIZE\n");
+   buffer.AppendFormatted("!ifdef MIDAS_MAX_EVENT_SIZE\n");
    buffer.AppendFormatted("Flags = $(Flags) /DMAX_EVENT_SIZE=$(MIDAS_MAX_EVENT_SIZE)\n");
-   buffer.AppendFormatted("!ENDIF\n");
+   buffer.AppendFormatted("!endif\n");
 #endif
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortCut.ToLower(tmp));
@@ -2177,6 +2177,10 @@ void ROMEBuilder::WriteMakefile() {
 #   endif
 #endif
    buffer.AppendFormatted("\n");
+
+   for (i = 0; i < affiliations.GetEntriesFast(); i++)
+      buffer.AppendFormatted("HAVE_%s = 1\n",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+   buffer.Append("\n");
 
    WriteMakefileLibsAndFlags(buffer);
    WriteMakefileIncludes(buffer);
