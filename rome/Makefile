@@ -77,6 +77,12 @@ ROOT_MAJOR := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'.' -f1)
 ROOT_MINOR := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'/' -f1 | cut -d'.' -f2)
 ROOT_PATCH := $(shell $(ROOTCONFIG) --version 2>&1 | cut -d'/' -f2)
 
+# Local compiler version
+GCC_VERSION := $(shell $(CXX) -dumpversion)
+GCC_MAJOR := $(shell $(CXX) -dumpversion 2>&1 | cut -d'.' -f1)
+GCC_MINOR := $(shell $(CXX) -dumpversion 2>&1 | cut -d'.' -f2)
+GCC_PATCH := $(shell $(CXX) -dumpversion 2>&1 | cut -d'.' -f3)
+
 ROOT_VERSION_ERROR := no
 ifeq ($(shell expr $(ROOT_MAJOR) \< $(ROOT_MAJOR_MIN)), 1)
   ROOT_VERSION_ERROR := yes
@@ -108,6 +114,19 @@ endif
 CFLAGS += $(ROMECFLAGS) $(OSCFLAGS)
 CXXFLAGS += $(ROMECXXFLAGS) $(OSCXXFLAGS)
 LDFLAGS += $(ROMELDFLAGS) $(OSLDFLAGS)
+
+# -Wno-unused-but-set is available from GCC 4.5.3
+ifeq ($(shell expr $(GCC_MAJOR) \> 4), 1)
+  CFLAGS   += -Wno-unused-but-set-variable
+  CXXFLAGS += -Wno-unused-but-set-variable
+else
+  ifeq ($(GCC_MAJOR), 4)
+    ifeq ($(shell expr $(GCC_MINOR) \> 4), 1)
+      CFLAGS   += -Wno-unused-but-set-variable
+      CXXFLAGS += -Wno-unused-but-set-variable
+    endif
+  endif
+endif
 
 ifeq ($(ROMEPIC), pic)
 ROMEPICOPT = -fpic

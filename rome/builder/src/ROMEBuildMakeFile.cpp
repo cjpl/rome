@@ -1150,6 +1150,12 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("%sCFLAGS   ?= -pipe -Wall -W\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("%sCXXFLAGS ?= -pipe -Wall -W -Woverloaded-virtual\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("%sFFLAGS   ?= -pipe -Wall -W\n",shortCut.ToUpper(tmp));
+#if defined(__GNUC__)
+#  if __GNUC__ >= 5 || (__GNUC__ >= 4 && __GNUC_MINOR__ >= 6) 
+   buffer.AppendFormatted("%sCFLAGS   += -Wno-unused-but-set-variable\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCXXFLAGS += -Wno-unused-but-set-variable\n",shortCut.ToUpper(tmp));
+#  endif
+#endif
    buffer.AppendFormatted("%sCFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),
                           shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),
