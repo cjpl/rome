@@ -5,7 +5,8 @@
   $Id$
 
 ********************************************************************/
-#include <stdlib.h>
+#include <cstdlib>
+#include <cassert>
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 #include "ROMEXML.h"
@@ -910,14 +911,15 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                if (!strcmp(name,"TaskHierarchy")) {
                   int depth = 0;
                   int *parentIndex = new int[2*maxNumberOfTasks];
+                  Bool_t *notUsed = new Bool_t[2*maxNumberOfTasks];
                   parentIndex[0] = -1;
+                  notUsed[0] = false;
                   numOfTaskHierarchy = -1;
                   numOfTaskHierarchyWOAffiliation = -1;
-                  Bool_t notUsed = kFALSE;
                   while (xml->NextLine()&&!finished) {
                      type = xml->GetType();
                      name = xml->GetName();
-                     if (type == 1 && !strcmp(name,"TaskName")) {
+                     if (type == 1 && !strcmp(name,"TaskName") && !notUsed[depth]) {
                         xml->GetValue(taskHierarchyName[numOfTaskHierarchy],taskHierarchyName[numOfTaskHierarchy]);
                         FormatText(taskHierarchyName[numOfTaskHierarchy], kTRUE);
                         taskHierarchyNameWOAffiliation[numOfTaskHierarchyWOAffiliation] = taskHierarchyName[numOfTaskHierarchy];
@@ -944,43 +946,47 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         taskHierarchyMultiplicity[numOfTaskHierarchy] = 1;
                         for (i = 0; i < numOfTaskHierarchy; i++) {
                            if (taskHierarchyName[i] == taskHierarchyName[numOfTaskHierarchy] &&
-                               taskHierarchyParentIndex[i] == taskHierarchyParentIndex[numOfTaskHierarchy])
+                               taskHierarchyParentIndex[i] == taskHierarchyParentIndex[numOfTaskHierarchy]/* why check also parent ? */)
                               taskHierarchyMultiplicity[numOfTaskHierarchy]++;
                         }
-                        notUsed = kFALSE;
+                        notUsed[depth] = kFALSE;
                         if (!taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]]) {
                            numOfTaskHierarchy--;
-                           notUsed = kTRUE;
+                           notUsed[depth] = kTRUE;
                         }
                      }
-                     if (type == 1 && !strcmp(name,"TaskConnectedFrom")) {
-                        if (!notUsed) {
-                           if (firstTaskHierarchyConnectedFrom) {
-                              firstTaskHierarchyConnectedFrom = kFALSE;
-                              numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] = 0;
-                           }
-                           if (numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] == 2 * maxNumberOfTasks) {
-                              cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
-                                    taskHierarchyName[numOfTaskHierarchy].Data()<<"' reached : "<<
-                                    2 * maxNumberOfTasks<<" !"<<endl;
-                              cout<<"Terminating program."<<endl;
-                              return false;
-                           }
-                           xml->GetValue(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
-                                         "");
-                           FormatText(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
-                                      kTRUE);
-                           numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]++;
+                     if (type == 1 && !strcmp(name,"TaskConnectedFrom") && !notUsed[depth]) {
+                        if (firstTaskHierarchyConnectedFrom) {
+                           firstTaskHierarchyConnectedFrom = kFALSE;
+                           numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] = 0;
                         }
+                        if (numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy] == 2 * maxNumberOfTasks) {
+                           cout<<"Maximal number of 'TaskConnectedFrom' in task '"<<
+                              taskHierarchyName[numOfTaskHierarchy].Data()<<"' reached : "<<
+                              2 * maxNumberOfTasks<<" !"<<endl;
+                           cout<<"Terminating program."<<endl;
+                           return false;
+                        }
+                        xml->GetValue(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
+                                      "");
+                        FormatText(taskHierarchyConnectedFrom[numOfTaskHierarchy][numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]],
+                                   kTRUE);
+                        numOfTaskHierarchyConnectedFrom[numOfTaskHierarchy]++;
                      }
                      if (type == 1 && !strcmp(name,"Task")) {
-                           depth++;
+                        assert(depth >= 0);
+                        depth++;
+                        if (notUsed[depth - 1]) {
+                           notUsed[depth] = kTRUE;
+                        } else {
+                           notUsed[depth] = kFALSE;
                            numOfTaskHierarchy++;
                            numOfTaskHierarchyWOAffiliation++;
                            parentIndex[depth] = numOfTaskHierarchy;
                            taskHierarchyName[numOfTaskHierarchy] = "";
                            taskHierarchyParentIndex[numOfTaskHierarchy] = parentIndex[depth-1];
                            taskHierarchyLevel[numOfTaskHierarchy] = depth;
+                        }
                      }
                      if (type == 15 && !strcmp(name,"Task")) {
                         depth--;
