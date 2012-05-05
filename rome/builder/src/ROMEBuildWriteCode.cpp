@@ -9772,7 +9772,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
       buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
       buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,12,0))
-      buffer.AppendFormatted("      useCache = (romeTree->GetUseReadCache() != 0);\n");
+      buffer.AppendFormatted("      useCache = (romeTree->GetCacheSize() != 0);\n");
       buffer.AppendFormatted("      romeTree->GetTree()->SetCacheSize(romeTree->GetCacheSize());\n");
       buffer.AppendFormatted("      if (gROME->GetMaxTreeMemory() > 0 && romeTree->GetTree()->GetCacheSize() > gROME->GetMaxTreeMemory()) {\n");
       buffer.AppendFormatted("         romeTree->GetTree()->SetCacheSize(gROME->GetMaxTreeMemory());\n");
