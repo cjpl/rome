@@ -118,6 +118,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
       romeTree->SetConfigInputFileName(gROME->GetTreeObjectAt(j)->GetConfigInputFileName());
       romeTree->SetRead(gROME->GetTreeObjectAt(j)->isRead());
       romeTree->SetName(gROME->GetTreeObjectAt(j)->GetName());
+      romeTree->SetCacheSize(gROME->GetTreeObjectAt(j)->GetCacheSize());
       romeTree->AllocateBranchRead(gROME->GetTreeObjectAt(j)->GetNBranchRead());
       memcpy(romeTree->GetBranchRead(),
              gROME->GetTreeObjectAt(j)->GetBranchRead(),

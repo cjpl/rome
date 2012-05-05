@@ -9763,7 +9763,6 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
          if (!folderUsed[iFold])
             continue;
          buffer.AppendFormatted("   TBranchElement *bb;\n");
-         buffer.AppendFormatted("   bool            useCache;\n");
          found = true;
          break;
       }
@@ -9772,7 +9771,6 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
       buffer.AppendFormatted("   romeTree = static_cast<ROMETree*>(fROMETrees->At(%d));\n", i);
       buffer.AppendFormatted("   if (romeTree->isRead()) {\n");
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,12,0))
-      buffer.AppendFormatted("      useCache = (romeTree->GetCacheSize() != 0);\n");
       buffer.AppendFormatted("      romeTree->GetTree()->SetCacheSize(romeTree->GetCacheSize());\n");
       buffer.AppendFormatted("      if (gROME->GetMaxTreeMemory() > 0 && romeTree->GetTree()->GetCacheSize() > gROME->GetMaxTreeMemory()) {\n");
       buffer.AppendFormatted("         romeTree->GetTree()->SetCacheSize(gROME->GetMaxTreeMemory());\n");
@@ -9805,7 +9803,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
             buffer.AppendFormatted("            bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
-         buffer.AppendFormatted("            if (useCache) { romeTree->GetTree()->AddBranchToCache(bb, kTRUE); }\n");
+         buffer.AppendFormatted("            romeTree->GetTree()->AddBranchToCache(bb, kTRUE);\n");
 #endif
          buffer.AppendFormatted("         } else {\n");
          found = kFALSE;
@@ -9831,7 +9829,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
       buffer.AppendFormatted("      if (bb) {\n");
       buffer.AppendFormatted("         bb->SetAddress(&fTreeInfo);\n");
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
-      buffer.AppendFormatted("         if (useCache) { romeTree->GetTree()->AddBranchToCache(bb, kTRUE); }\n");
+      buffer.AppendFormatted("         romeTree->GetTree()->AddBranchToCache(bb, kTRUE);\n");
 #endif
       buffer.AppendFormatted("      }\n");
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0))
