@@ -52,6 +52,8 @@ public:
    TString          UncheckedAt(Int_t i) const { return static_cast<TObjString*>(array->UncheckedAt(i))->GetString(); }
    TString          First() const { return static_cast<TObjString*>(array->First())->GetString(); }
    TString          Last() const { return static_cast<TObjString*>(array->Last())->GetString(); }
+   TString&         First2() const { return static_cast<TObjString*>(array->First())->String(); }
+   TString&         Last2() const { return static_cast<TObjString*>(array->Last())->String(); }
    virtual TString  operator[](Int_t i) const;
    Int_t            LowerBound() const { return array->LowerBound(); }
    virtual void     Expand(Int_t newSize);
