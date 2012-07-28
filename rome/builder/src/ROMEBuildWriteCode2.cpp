@@ -2782,22 +2782,22 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
                                     subGroup->GetMultiplicity());
          }
          if (subGroup->GetGroupIdentifier() == "Histogram") {
-            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d = %sf%s;\n", sTab.Data(),
+            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s_%d = %sf%s;\n", sTab.Data(),
                                    subGroup->GetGroupName().Data(), *iSub,
                                    pointer.Data(), subGroup->GetGroupName().Data());
          } else if (subGroup->GetGroupIdentifier() == "Graph") {
-            buffer.AppendFormatted("%sROMEConfigGraph* tmp%s%d = %sf%s;\n", sTab.Data(),
+            buffer.AppendFormatted("%sROMEConfigGraph* tmp%s_%d = %sf%s;\n", sTab.Data(),
                                    subGroup->GetGroupName().Data(), *iSub,
                                    pointer.Data(),subGroup->GetGroupName().Data());
          } else {
             temp = classNameT(0, classNameT.Length() - 2);
-            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n", sTab.Data(), // for suppresion compiler warning
+            buffer.AppendFormatted("%sConfigData::%s* tmp%s_%d;\n", sTab.Data(), // for suppresion compiler warning
                                    temp.Data(), subGroup->GetGroupName().Data(), *iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n", sTab.Data(),
+            buffer.AppendFormatted("%stmp%s_%d = %sf%s;\n", sTab.Data(),
                                    subGroup->GetGroupName().Data(), *iSub,
                                    pointer.Data(), subGroup->GetGroupName().Data());
          }
-         pointerT.SetFormatted("tmp%s%d->",subGroup->GetGroupName().Data(),*iSub);
+         pointerT.SetFormatted("tmp%s_%d->",subGroup->GetGroupName().Data(),*iSub);
          (*iSub)++;
          WriteConfigRead(buffer,subGroup,tab,groupNameT,classNameT,pointerT,indexes,iSub);
       }
@@ -2886,23 +2886,23 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
                                     subGroup->GetMultiplicity());
          }
          if (subGroup->GetGroupIdentifier() == "Histogram") {
-            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d;\n",sTab.Data(),
+            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s_%d;\n",sTab.Data(),
                                    subGroup->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
+            buffer.AppendFormatted("%stmp%s_%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
                                    *iSub,pointer.Data(),subGroup->GetGroupName().Data());
          } else if (subGroup->GetGroupIdentifier() == "Graph") {
-            buffer.AppendFormatted("%sROMEConfigGraph* tmp%s%d;\n",sTab.Data(),
+            buffer.AppendFormatted("%sROMEConfigGraph* tmp%s_%d;\n",sTab.Data(),
                                    subGroup->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
+            buffer.AppendFormatted("%stmp%s_%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
                                    *iSub,pointer.Data(),subGroup->GetGroupName().Data());
          } else {
             temp = classNameT(0, classNameT.Length()-2);
-            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n",sTab.Data(),temp.Data(),
+            buffer.AppendFormatted("%sConfigData::%s* tmp%s_%d;\n",sTab.Data(),temp.Data(),
                                    subGroup->GetGroupName().Data(),*iSub);
-            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
+            buffer.AppendFormatted("%stmp%s_%d = %sf%s;\n",sTab.Data(),subGroup->GetGroupName().Data(),
                                    *iSub,pointer.Data(),subGroup->GetGroupName().Data());
          }
-         pointerT.SetFormatted("tmp%s%d->",subGroup->GetGroupName().Data(),*iSub);
+         pointerT.SetFormatted("tmp%s_%d->",subGroup->GetGroupName().Data(),*iSub);
          iSubSave = *iSub;
          (*iSub)++;
          WriteConfigCheckModified(buffer,subGroup,tab,groupNameT,classNameT,pointerT,indexes,iSub);
@@ -2929,7 +2929,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
                                          subGroup->GetHierarchyLevel(),
                                          subGroup->GetParameterAt(j)->GetName());
                } else {
-                  buffer.AppendFormatted("tmp%s%d->f%sModified",subGroup->GetGroupName().Data(),
+                  buffer.AppendFormatted("tmp%s_%d->f%sModified",subGroup->GetGroupName().Data(),
                                          iSubSave,subGroup->GetParameterAt(j)->GetName());
                }
                if (j < subGroup->GetNumberOfParameters() - 1 ||
@@ -2948,7 +2948,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
                                          subGroup->GetHierarchyLevel(),
                                          subsubGroup->GetGroupName().Data());
                } else {
-                  buffer.AppendFormatted("tmp%s%d->f%sModified",subGroup->GetGroupName().Data(),
+                  buffer.AppendFormatted("tmp%s_%d->f%sModified",subGroup->GetGroupName().Data(),
                                          iSubSave,subsubGroup->GetGroupName().Data());
                }
                if (j < subGroup->GetNumberOfSubGroups() - 1)
