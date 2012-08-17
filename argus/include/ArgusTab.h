@@ -106,7 +106,7 @@ public:
    void           SetScreenShotName(const char *fname) { fScreenShotName = fname; }
    const char    *GetScreenShotName() const { return fScreenShotName; }
    Int_t          GetScreenShotNameLength() const { return fScreenShotName.Length(); }
-   void           ScreenShot(const char *fname = 0);
+   void           ScreenShot(const char *fname = 0, Bool_t saveframe = kTRUE, Bool_t savetab = kTRUE);
    void           SetNewWindow(Bool_t flag) { fNewWindow = flag; }
    Bool_t         IsNewWindow() const { return fNewWindow; }
 

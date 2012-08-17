@@ -122,14 +122,23 @@ void ArgusTab::ArgusEventHandler() {
 }
 
 //______________________________________________________________________________
-void ArgusTab::ScreenShot(const char *fname)
+void ArgusTab::ScreenShot(const char *fname, Bool_t saveframe, Bool_t savetab)
 {
    TString filename;
+   TString filename_tab;
    if (!fname || fname[0] == '\0') {
       filename = fScreenShotName;
    }
    if (!filename.Length()) {
       return;
+   }
+
+   filename_tab = filename;
+   Ssiz_t pos;
+   if ((pos = filename_tab.Last('.')) >= 0) {
+      filename_tab.Insert(pos,"_tab");
+   } else {
+      savetab = kFALSE;
    }
 
    TString tmpfilename = gSystem->DirName(filename);
@@ -151,8 +160,15 @@ void ArgusTab::ScreenShot(const char *fname)
    Int_t (*oldErrorHandler)(Display *, XErrorEvent *) =
       XSetErrorHandler(DummyX11ErrorHandler);
 #endif
-   GetMainFrame()->SaveAs(tmpfilename);
-   gSystem->Rename(tmpfilename, filename);
+   if (saveframe) {
+      GetMainFrame()->SaveAs(tmpfilename);
+      gSystem->Rename(tmpfilename, filename);
+   }
+
+   if (savetab) {
+      SaveAs(tmpfilename);
+      gSystem->Rename(tmpfilename, filename_tab);
+   }
 #if defined( R__UNIX )
    XSetErrorHandler(oldErrorHandler);
 #endif
