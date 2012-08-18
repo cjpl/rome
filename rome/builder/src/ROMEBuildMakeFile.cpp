@@ -901,25 +901,25 @@ void ROMEBuilder::AddDAQLibraries()
 #if defined( R__UNIX )
 #if defined( R__ALPHA )
    if (this->midas)
-      daqLibraries->AddFormatted("-L$(MIDASSYS)/osf1/lib -lmidas");
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/osf1/lib -lmidas -lrt");
 #elif defined( R__SGI )
    if (this->midas)
-      daqLibraries->AddFormatted("-L$(MIDASSYS)/ultrix/lib -lmidas");
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/ultrix/lib -lmidas -lrt");
 #elif defined( R__FBSD )
    if (this->midas)
-      daqLibraries->AddFormatted("-L$(MIDASSYS)/freeBSD/lib -lmidas");
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/freeBSD/lib -lmidas -lrt");
 #elif defined( R__MACOSX )
    if (this->midas)
-      daqLibraries->AddFormatted("-L$(MIDASSYS)/darwin/lib -lmidas");
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/darwin/lib -lmidas -lrt");
 #elif defined( R__LINUX )
    if (this->midas)
       daqLibraries->AddFormatted("-L$(MIDASSYS)/linux/lib -lmidas -lrt");
 #elif defined( R__SOLARIS )
    if (this->midas)
-      daqLibraries->AddFormatted("-L$(MIDASSYS)/solaris/lib -lmidas");
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/solaris/lib -lmidas -lrt");
 #else
    if (this->midas)
-      daqLibraries->AddFormatted("-lmidas");
+      daqLibraries->AddFormatted("-lmidas -lrt");
 #endif
 #endif
 }
