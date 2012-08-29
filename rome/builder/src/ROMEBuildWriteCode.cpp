@@ -14156,7 +14156,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    if (gSystem->AccessPathName(path,kFileExists)) {
       // not using SVN, or SVN >= ver1.7
       cmd.SetFormatted("svn info %s | grep \"Working Copy Root Path:\" | cut -d : -f 2", outDir.Data());
-      path2.ReadCommandOutput(cmd.Data());
+      path2.ReadCommandOutput(cmd.Data(), false);
    }
    if (path2.Length() || !gSystem->AccessPathName(path,kFileExists)) {
       if (path2.Length()) {
