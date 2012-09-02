@@ -49,7 +49,7 @@ public:
    Int_t        ReadFile(const char *filename, Bool_t useCache = kFALSE);
    istream&     ReadFile(istream& str);
    istream&     ReadLine(istream& str);
-   const char*  ReadCommandOutput(const char* command, Bool_t readError = kTRUE);
+   const char*  ReadCommandOutput(const char* command, Bool_t readError = kTRUE, Bool_t suppressError = kFALSE);
    ROMEString&  StripSpaces();
    ROMEString&  ChopSpaces();
    Bool_t       ContainsFast(const char* s) const { return strstr(Data(), s) != 0; }

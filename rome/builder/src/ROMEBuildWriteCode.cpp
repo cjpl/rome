@@ -14156,7 +14156,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    if (gSystem->AccessPathName(path,kFileExists)) {
       // not using SVN, or SVN >= ver1.7
       cmd.SetFormatted("svn info %s | grep \"Working Copy Root Path:\" | cut -d : -f 2", outDir.Data());
-      path2.ReadCommandOutput(cmd.Data(), false);
+      path2.ReadCommandOutput(cmd.Data(), false, true);
    }
    if (path2.Length() || !gSystem->AccessPathName(path,kFileExists)) {
       if (path2.Length()) {
@@ -14164,7 +14164,7 @@ Bool_t ROMEBuilder::WriteVersionH()
 #if defined( R__UNIX )
 #if 1 /* using svn info */
          cmd.SetFormatted("svn info %s | grep Revision | cut -d : -f 2", outDir.Data());
-         revNumber.ReadCommandOutput(cmd.Data());
+         revNumber.ReadCommandOutput(cmd.Data(), false, true);
          revNumber.StripSpaces();
 #else /* using SQL */
          // read .svn/wc.db
