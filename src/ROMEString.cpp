@@ -116,13 +116,18 @@ istream& ROMEString::ReadFile(istream& str)
 }
 
 //______________________________________________________________________________
-const char* ROMEString::ReadCommandOutput(const char* command, Bool_t readError)
+const char* ROMEString::ReadCommandOutput(const char* command, Bool_t readError, Bool_t suppressError)
 {
    Resize(0);
    TString cmd = command;
    TString tmp;
    if (readError) {
       cmd += " 2>&1";
+   }
+   if (suppressError) {
+      tmp = cmd;
+      cmd = "exec 3>&2 2> /dev/null;";
+      cmd += tmp;
    }
    FILE *pipe = gSystem->OpenPipe(cmd.Data(), "r");
    if (!pipe) {
