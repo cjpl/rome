@@ -152,7 +152,7 @@ public:
    Bool_t   Open(const char* const dir, const char* const runStr);
    void     Close();
    off_t    CurrentPosition() const;
-   ssize_t  Read(void *buf, size_t size) const;
+   ssize_t  Read(void *buf, size_t size);
    off_t    Seek(Long64_t pos) const;
 };
 
