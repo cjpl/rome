@@ -1687,7 +1687,7 @@ Bool_t ROMEMidasFile::Open(const char* const dir, const char* const runStr)
       retbz2 = errno;
       Int_t bzerror;
       if (fBZ2FileHandle) {
-         fBZ2File = BZ2_bzReadOpen(&bzerror, fBZ2FileHandle, 0, 0, 0, 0);
+         fBZ2File = BZ2_bzReadOpen(&bzerror, fBZ2FileHandle, 0/* verbose 0-4 */, 0, 0, 0);
          if (bzerror == BZ_OK) {
             fType = ROMEMidasFile::BZ2;
             fFileName = tmpname;
@@ -1790,7 +1790,7 @@ off_t ROMEMidasFile::CurrentPosition() const
 }
 
 //______________________________________________________________________________
-ssize_t ROMEMidasFile::Read(void *buf, size_t size) const
+ssize_t ROMEMidasFile::Read(void *buf, size_t size)
 {
    ssize_t n = 0;
 
@@ -1882,6 +1882,46 @@ ssize_t ROMEMidasFile::Read(void *buf, size_t size) const
       {
          Int_t bzerror;
          n = BZ2_bzRead(&bzerror, fBZ2File, buf, size);
+         if (bzerror != BZ_OK) {
+            switch (bzerror) {
+            case BZ_MEM_ERROR:
+               ROMEPrint::Error("bzip2: insufficient memory is available\n");
+               break;
+            case BZ_OUTBUFF_FULL:
+               ROMEPrint::Error("bzip2: the size of the compressed data exceeds size of the out buffer\n");
+               break;
+            case BZ_DATA_ERROR:
+               ROMEPrint::Error("bzip2: a data integrity error was detected in the compressed data\n");
+               break;
+            case BZ_DATA_ERROR_MAGIC:
+               ROMEPrint::Error("bzip2: the compressed data doesn't begin with the right magic bytes\n");
+               break;
+            case BZ_UNEXPECTED_EOF:
+               ROMEPrint::Error("bzip2: the compressed data ends unexpectedly\n");
+            }
+            if (bzerror == BZ_STREAM_END) {
+               // end of stream, but not necessarily end of
+               // file: get unused bits, close stream, and
+               // open again with the saved unused bits
+               void *punused;
+               int   nunused;
+               char  unused[BZ_MAX_UNUSED];
+               BZ2_bzReadGetUnused(&bzerror, fBZ2File, &punused, &nunused);
+               if (bzerror == BZ_OK && (nunused > 0 || !feof(fBZ2FileHandle))) {
+                  if (nunused > 0) {
+                     memcpy(unused, punused, nunused);
+                  }
+                  BZ2_bzReadClose(&bzerror, fBZ2File);
+                  fBZ2File = BZ2_bzReadOpen(&bzerror, fBZ2FileHandle, 0, 0, unused, nunused);
+                  union {
+                     void *vbuf;
+                     char *cbuf;
+                  };
+                  vbuf = buf;
+                  n += Read(cbuf + n, size - n);
+               }
+            }
+         }
       }
       break;
 #endif
