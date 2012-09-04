@@ -89,6 +89,8 @@ protected:
    Bool_t        makeOutput;
    Bool_t        noLink;
    Bool_t        midas;
+   Bool_t        xz;
+   Bool_t        bzip2;
    Bool_t        orca;
    Bool_t        sql;
    Bool_t        mysql;

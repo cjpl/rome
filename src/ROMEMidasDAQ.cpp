@@ -110,9 +110,7 @@ ROMEMidasDAQ::ROMEMidasDAQ()
 ,fEventRequestMask(0)
 ,fEventRequestRate(0)
 ,fMidasOnlineBuffer(0)
-,fMidasFileHandle(0)
-,fMidasGzFileHandle()
-,fGZippedMidasFile(kFALSE)
+,fMidasFile(0)
 ,fRequestAll(kFALSE)
 ,fOdbOffline(0)
 ,fTimeStamp(0)
@@ -208,39 +206,20 @@ Bool_t ROMEMidasDAQ::Init()
 Bool_t ROMEMidasDAQ::BeginOfRun()
 {
    if (gROME->isOffline()) {
-      ROMEString filename;
-      ROMEString gzfilename;
-      ROMEString fileExtension = ".mid";
-      ROMEString gzfileExtension = ".mid.gz";
       ROMEString runNumberString;
 
       this->SetAnalyze();
       this->SetRunning();
       // Open Midas File
       if (gROME->IsRunNumberBasedIO()) {
+         fMidasFile = new ROMEMidasFile();
+         ROMEString runNumberString;
          gROME->GetCurrentRunNumberString(runNumberString);
-         fGZippedMidasFile = kFALSE;
-         filename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), fileExtension.Data());
-         gzfilename.SetFormatted("%srun%s%s", gROME->GetInputDir(), runNumberString.Data(), gzfileExtension.Data());
-         fMidasFileHandle = open(filename.Data(), O_RDONLY_BINARY);
-         Int_t ret =  errno;
-         if (fMidasFileHandle == -1) {
-            fMidasGzFileHandle = gzopen(gzfilename.Data(), "rb");
-            Int_t gzret =  errno;
-            if (fMidasGzFileHandle == 0) {
-               ROMEPrint::Error("Failed to open input file '%s' : %s \n", filename.Data(), strerror(ret));
-               ROMEPrint::Error("Failed to open input file '%s' : %s \n", gzfilename.Data(), strerror(gzret));
-               return kFALSE;
-            }
-            fGZippedMidasFile = kTRUE;
+         if (!fMidasFile->Open(gROME->GetInputDir(), runNumberString.Data())) {
+            return kFALSE;
          }
-      }
-
-      ROMEPrint::Print("Reading Midas-File ");
-      if(!fGZippedMidasFile){
-         ROMEPrint::Print("%s\n", filename.Data());
-      } else {
-         ROMEPrint::Print("%s\n", gzfilename.Data());
+         ROMEPrint::Print("Reading Midas-File ");
+         ROMEPrint::Print("%s\n", fMidasFile->GetFileName().Data());
       }
 
       fMaxDataSeqNumber = kMaxLong64;
@@ -511,11 +490,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
             fSeqNumToEventNum->Set(fSeqNumToEventNum->GetSize() + kFilePositionsResizeIncrement);
             fEventNumToSeqNum->Set(fEventNumToSeqNum->GetSize() + kFilePositionsResizeIncrement);
          }
-         if(!fGZippedMidasFile) {
-            fSeqNumToFilePos->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
-         } else {
-            fSeqNumToFilePos->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
-         }
+         fSeqNumToFilePos->AddAt(fMidasFile->CurrentPosition(), static_cast<Int_t>(fCurrentSeqNumber));
          // default event number, this will be overwritten later, if this event is trigger event.
          fSeqNumToEventNum->AddAt(fCurrentSeqNumber == 0 ? 0 :
                                   static_cast<Int_t>(fSeqNumToEventNum->At(static_cast<Int_t>(fCurrentSeqNumber - 1))),
@@ -523,11 +498,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
          if (fValidSeqNumber < fCurrentSeqNumber + 1) {
             fValidSeqNumber = fCurrentSeqNumber + 1;
          }
-         if(!fGZippedMidasFile) {
-            n = read(fMidasFileHandle, pevent, sizeof(EVENT_HEADER));
-         } else {
-            n = gzread(fMidasGzFileHandle, pevent, sizeof(EVENT_HEADER));
-         }
+         n = fMidasFile->Read(pevent, sizeof(EVENT_HEADER));
 
          if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
             readError = kTRUE;
@@ -551,11 +522,7 @@ Long64_t ROMEMidasDAQ::StepEvent(Bool_t forward)
             if (pevent->data_size <= 0) {
                readError = kTRUE;
             } else {
-               if(!fGZippedMidasFile) {
-                  n = read(fMidasFileHandle, pevent + 1, pevent->data_size);
-               } else {
-                  n = gzread(fMidasGzFileHandle, pevent + 1, pevent->data_size);
-               }
+               n = fMidasFile->Read(pevent + 1, pevent->data_size);
                if (n != static_cast<Long_t>(pevent->data_size)) {
                   readError = kTRUE;
                }
@@ -650,11 +617,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
          readPosition = fSeqNumToFilePos->At(readSeqNumber);
          // use stored position
          if(readPosition != -1) {
-            if(!fGZippedMidasFile) {
-               lseek(fMidasFileHandle, static_cast<Long_t>(readPosition), SEEK_SET);
-            } else {
-               gzseek(fMidasGzFileHandle, static_cast<Long_t>(readPosition), SEEK_SET);
-            }
+            fMidasFile->Seek(static_cast<Long_t>(readPosition));
             fCurrentSeqNumber = readSeqNumber;
             gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
             return fSeqNumToEventNum->At(readSeqNumber);
@@ -685,11 +648,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
       readPosition = fSeqNumToFilePos->At(readSeqNumber);
       // use stored position
       if(readPosition != -1) {
-         if(!fGZippedMidasFile) {
-            lseek(fMidasFileHandle, readPosition, SEEK_SET);
-         } else {
-            gzseek(fMidasGzFileHandle, readPosition, SEEK_SET);
-         }
+         fMidasFile->Seek(readPosition);
          fCurrentSeqNumber = readSeqNumber;
          gROME->SetCurrentEventNumber(fSeqNumToEventNum->At(readSeqNumber));
          return fSeqNumToEventNum->At(readSeqNumber);
@@ -708,11 +667,7 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event)
 Bool_t ROMEMidasDAQ::EndOfRun()
 {
    if (gROME->isOffline()) {
-      if(!fGZippedMidasFile) {
-         close(fMidasFileHandle);
-      } else {
-         gzclose(fMidasGzFileHandle);
-      }
+      delete fMidasFile;
 
       if (fByteSwapFlagMightBeWrong && gROME->GetProcessedEvents() < 0.5) {
          ROMEPrint::Warning("\nWarning : A flag <MidasByteSwap> in your config XML file might be wrong.\n\n");
@@ -977,18 +932,10 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
       Long64_t posOld = -1;
 
       // store current position
-      if(!fGZippedMidasFile) {
-         posOld = lseek(fMidasFileHandle, 0L, SEEK_CUR);
-      } else {
-         posOld = gzseek(fMidasGzFileHandle, 0L, SEEK_CUR);
-      }
+      posOld = fMidasFile->CurrentPosition();
 
       Long_t n;
-      if(!fGZippedMidasFile) {
-         n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
-      } else {
-         n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
-      }
+      n = fMidasFile->Read(pevent, sizeof(EVENT_HEADER));
       if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
          readError = kTRUE;
       } else {
@@ -1003,11 +950,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
          if (pevent->data_size <= 0) {
             readError = kTRUE;
          } else {
-            if(!fGZippedMidasFile) {
-               n = read(fMidasFileHandle, pevent + 1, pevent->data_size);
-            } else {
-               n = gzread(fMidasGzFileHandle, pevent + 1, pevent->data_size);
-            }
+            n = fMidasFile->Read(pevent + 1, pevent->data_size);
             if (n != static_cast<Long_t>(pevent->data_size)) {
                readError = kTRUE;
             }
@@ -1035,19 +978,11 @@ Bool_t ROMEMidasDAQ::ReadODBOffline()
             static_cast<ROMEODBOfflineDataBase*>(gROME->GetDataBase("ODB"))->
                   SetBuffer(reinterpret_cast<char*>(pevent + 1));
          }
-         if(!fGZippedMidasFile) {
-            fSeqNumToFilePos->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
-         } else {
-            fSeqNumToFilePos->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), static_cast<Int_t>(fCurrentSeqNumber));
-         }
+         fSeqNumToFilePos->AddAt(fMidasFile->CurrentPosition(), static_cast<Int_t>(fCurrentSeqNumber));
          fValidSeqNumber = 1;
       } else {
          if(posOld != -1) {
-            if(!fGZippedMidasFile) {
-               lseek(fMidasFileHandle, static_cast<Long_t>(posOld), SEEK_SET);
-            } else {
-               gzseek(fMidasGzFileHandle, static_cast<Long_t>(posOld), SEEK_SET);
-            }
+            fMidasFile->Seek(static_cast<Long_t>(posOld));
          }
          fSeqNumToFilePos->AddAt(posOld, static_cast<Int_t>(fCurrentSeqNumber));
          fValidSeqNumber = 1;
@@ -1641,4 +1576,348 @@ Int_t ROMEMidasDAQ::GetOnlineLoopPeriod() const
 #else
    return kMidasInitialOnlineLoopPeriod;
 #endif
+}
+
+//______________________________________________________________________________
+ROMEMidasFile::ROMEMidasFile()
+:fType(ROMEMidasFile::NONE)
+,fFileName("")
+,fPlainFileHandle(0)
+,fGZFileHandle()
+#ifdef HAVE_XZ
+,fXZFileHandle(0)
+,fXZStream(0)
+,fXZInputBuffer(0)
+#endif
+#ifdef HAVE_BZ2
+,fBZ2FileHandle(0)
+,fBZ2File(0)
+#endif
+{
+}
+
+//______________________________________________________________________________
+Bool_t ROMEMidasFile::Open(const char* const dir, const char* const runStr)
+{
+   ROMEString filename;
+   ROMEString tmpname;
+
+   Int_t retplain = -1;
+   Int_t retgz    = -1;
+#ifdef HAVE_XZ
+   Int_t retxz    = -1;
+#endif
+#ifdef HAVE_BZ2
+   Int_t retbz2   = -1;
+#endif
+
+   Close();
+
+   filename.SetFormatted("%srun%s.mid", dir, runStr);
+
+   // Plain
+   tmpname.SetFormatted("%s", filename.Data());
+
+   fPlainFileHandle = open(tmpname.Data(), O_RDONLY_BINARY);
+   retplain = errno;
+   if (fPlainFileHandle != -1) {
+      fType = ROMEMidasFile::PLAIN;
+      fFileName = tmpname;
+   }
+
+   // GZ
+   if (fType == ROMEMidasFile::NONE) {
+      tmpname.SetFormatted("%s.gz", filename.Data());
+      fGZFileHandle = gzopen(tmpname.Data(), "rb");
+      retgz = errno;
+      if (fGZFileHandle) {
+         fType = ROMEMidasFile::GZ;
+         fFileName = tmpname;
+      }
+   }
+
+   // XZ
+#ifdef HAVE_XZ
+   if (fType == ROMEMidasFile::NONE) {
+      tmpname.SetFormatted("%s.xz", filename.Data());
+      fXZFileHandle = fopen(tmpname.Data(), "rb");
+      retxz = errno;
+      if (fXZFileHandle) {
+         fXZStream = new lzma_stream;
+         lzma_stream lzma_init = LZMA_STREAM_INIT;
+         *fXZStream = lzma_init;
+#if 0 /* check usage */
+         UInt_t level = 9;
+         ULong64_t memlimit = lzma_easy_decoder_memusage(level);
+#else /* set by hand */
+         ULong64_t memlimit = (128 << 20);
+#endif
+#if 0
+         lzma_ret ret = lzma_stream_decoder(fXZStream, memlimit, LZMA_TELL_UNSUPPORTED_CHECK | LZMA_CONCATENATED);
+#else
+         lzma_ret ret = lzma_stream_decoder(fXZStream, memlimit, 0);
+#endif
+         if (ret == LZMA_OK) {
+            fType = ROMEMidasFile::XZ;
+            fFileName = tmpname;
+            fXZInputBuffer = new uint8_t[kXZBufferSize];
+         } else {
+            switch (ret) {
+            case LZMA_MEM_ERROR:
+               ROMEPrint::Error("XZ: Memory allocation failed\n");
+               break;
+            case LZMA_OPTIONS_ERROR:
+               ROMEPrint::Error("XZ: Unsupported decompressor flags\n");
+               break;
+            default:
+               ROMEPrint::Error("XZ: Unknown error, possibly a bug\n");
+               break;
+            }
+            fclose(fXZFileHandle);
+         }
+      }
+   }
+#endif
+
+   // BZ2
+#ifdef HAVE_BZ2
+   if (fType == ROMEMidasFile::NONE) {
+      tmpname.SetFormatted("%s.bz2", filename.Data());
+      fBZ2FileHandle = fopen(tmpname.Data(), "rb");
+      retbz2 = errno;
+      Int_t bzerror;
+      if (fBZ2FileHandle) {
+         fBZ2File = BZ2_bzReadOpen(&bzerror, fBZ2FileHandle, 0, 0, 0, 0);
+         if (bzerror == BZ_OK) {
+            fType = ROMEMidasFile::BZ2;
+            fFileName = tmpname;
+         } else {
+            BZ2_bzReadClose(&bzerror, fBZ2File);
+            fBZ2File = 0;
+            ROMEPrint::Error("Failed to read a bzip2 midas file.\n");
+            fclose(fBZ2FileHandle);
+         }
+      }
+   }
+#endif
+
+   if (fType == ROMEMidasFile::NONE) {
+      ROMEPrint::Error("Failed to open input file\n");
+      if (retplain != -1) ROMEPrint::Error("   '%s'     : %s \n", filename.Data(), strerror(retplain));
+      if (retgz    != -1) ROMEPrint::Error("   '%s.gz'  : %s \n", filename.Data(), strerror(retgz));
+#ifdef HAVE_XZ
+      if (retxz    != -1) ROMEPrint::Error("   '%s.xz'  : %s \n", filename.Data(), strerror(retxz));
+#endif
+#ifdef HAVE_BZ2
+      if (retbz2   != -1) ROMEPrint::Error("   '%s.bz2' : %s \n", filename.Data(), strerror(retbz2));
+#endif
+      return kFALSE;
+   }
+
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+void ROMEMidasFile::Close()
+{
+   switch (fType) {
+   case ROMEMidasFile::PLAIN:
+      close(fPlainFileHandle);
+      break;
+   case ROMEMidasFile::GZ:
+      gzclose(fGZFileHandle);
+      break;
+#ifdef HAVE_XZ
+   case ROMEMidasFile::XZ:
+      lzma_end(fXZStream);
+      fclose(fXZFileHandle);
+      fXZFileHandle = 0;
+      SafeDelete(fXZStream);
+      SafeDeleteArray(fXZInputBuffer);
+      break;
+#endif
+#ifdef HAVE_BZ2
+   case ROMEMidasFile::BZ2:
+      {
+         Int_t bzerror;
+         BZ2_bzReadClose(&bzerror, fBZ2File);
+         fBZ2File = 0;
+         fclose(fBZ2FileHandle);
+         fBZ2FileHandle = 0;
+      }
+      break;
+#endif
+   default:
+      break;
+   }
+
+   fType = ROMEMidasFile::NONE;
+   fFileName = "";
+}
+
+//______________________________________________________________________________
+ROMEMidasFile::~ROMEMidasFile()
+{
+   Close();
+}
+
+//______________________________________________________________________________
+off_t ROMEMidasFile::CurrentPosition() const
+{
+   off_t pos = -1;
+   switch (fType) {
+   case ROMEMidasFile::PLAIN:
+      pos = lseek(fPlainFileHandle, 0L, SEEK_CUR);
+      break;
+   case ROMEMidasFile::GZ:
+      pos = gzseek(fGZFileHandle, 0L, SEEK_CUR);
+      break;
+#ifdef HAVE_XZ
+   case ROMEMidasFile::XZ:
+      // not implemented
+      break;
+#endif
+#ifdef HAVE_BZ2
+   case ROMEMidasFile::BZ2:
+      // not implemented
+      break;
+#endif
+   default:
+      break;
+   }
+
+   return pos;
+}
+
+//______________________________________________________________________________
+ssize_t ROMEMidasFile::Read(void *buf, size_t size) const
+{
+   ssize_t n = 0;
+
+   switch (fType) {
+   case ROMEMidasFile::PLAIN:
+      n = read(fPlainFileHandle, buf, size);
+      break;
+   case ROMEMidasFile::GZ:
+      n = gzread(fGZFileHandle, buf, size);
+      break;
+#ifdef HAVE_XZ
+   case ROMEMidasFile::XZ:
+      {
+         lzma_action action = LZMA_RUN;
+         lzma_ret ret = LZMA_OK;
+
+         union {
+            void    *unpnt;
+            uint8_t *ucpnt;
+         };
+         unpnt = buf;
+         fXZStream->next_out = ucpnt;
+         fXZStream->avail_out = size;
+
+         while (1) {
+            if (ferror(fXZFileHandle)) {
+               return 0;
+            }
+
+            if (!fXZStream->avail_in && !feof(fXZFileHandle)) {
+               fXZStream->avail_in = fread(fXZInputBuffer, 1, kXZBufferSize, fXZFileHandle);
+               fXZStream->next_in = fXZInputBuffer;
+               if (ferror(fXZFileHandle)) {
+                  ROMEPrint::Error("Read error\n");
+                  return 0;
+               } else if (feof(fXZFileHandle)) {
+                  action = LZMA_FINISH;
+               }
+            }
+
+            ret = lzma_code(fXZStream, action);
+            if (ret != LZMA_OK) {
+               if (ret != LZMA_STREAM_END) {
+                  switch (ret) {
+                  case LZMA_MEM_ERROR:
+                     ROMEPrint::Error("Memory allocation failed\n");
+                     break;
+                  case LZMA_FORMAT_ERROR:
+                     // .xz magic bytes weren't found.
+                     ROMEPrint::Error("The input is not in the .xz format\n");
+                     break;
+                  case LZMA_OPTIONS_ERROR:
+                     ROMEPrint::Error("Unsupported compression options\n");
+                     break;
+                  case LZMA_DATA_ERROR:
+                     ROMEPrint::Error("Compressed file is corrupt\n");
+                     break;
+                  case LZMA_BUF_ERROR:
+                     ROMEPrint::Error("Compressed file is truncated or otherwise corrupt\n");
+                     break;
+                  default:
+                     ROMEPrint::Error("Unknown error, possibly a bug\n");
+                     break;
+                  }
+                  return 0;
+               } else {
+                  // read short than requested
+                  n = size - fXZStream->avail_out;
+               }
+            } else {
+               if (feof(fXZFileHandle) &&
+                   fXZStream->avail_in == 0 && fXZStream->avail_out > 0) {
+                  ROMEPrint::Error("Unexpected end of file\n");
+                  return 0;
+               } else if (fXZStream->avail_out == 0) {
+                  // ok
+                  n = size;
+               }
+            }
+            if (n == size) {
+               break;
+            }
+         }
+      }
+      break;
+#endif
+#ifdef HAVE_BZ2
+   case ROMEMidasFile::BZ2:
+      {
+         Int_t bzerror;
+         n = BZ2_bzRead(&bzerror, fBZ2File, buf, size);
+      }
+      break;
+#endif
+   default:
+      break;
+   }
+
+   return n;
+}
+
+//______________________________________________________________________________
+off_t ROMEMidasFile::Seek(Long64_t pos) const
+{
+   off_t ret = -1;
+   switch (fType) {
+   case ROMEMidasFile::PLAIN:
+      ret = lseek(fPlainFileHandle, static_cast<Long_t>(pos), SEEK_SET);
+      break;
+   case ROMEMidasFile::GZ:
+      ret = gzseek(fGZFileHandle, static_cast<Long_t>(pos), SEEK_SET);
+      break;
+#ifdef HAVE_XZ
+   case ROMEMidasFile::XZ:
+      ROMEPrint::Error("Seek for xz midas files is not implemented. Please decompress the file.\n");
+      gROME->GetApplication()->Terminate(1);
+      break;
+#endif
+#ifdef HAVE_BZ2
+   case ROMEMidasFile::BZ2:
+      ROMEPrint::Error("Seek for bzip2 midas files is not implemented. Please decompress the file.\n");
+      gROME->GetApplication()->Terminate(1);
+      break;
+#endif
+   default:
+      break;
+   }
+
+   return ret;
 }
