@@ -918,9 +918,16 @@ void ROMEBuilder::AddDAQLibraries()
    if (this->midas)
       daqLibraries->AddFormatted("-L$(MIDASSYS)/solaris/lib -lmidas -lrt");
 #else
-   if (this->midas)
+   if (this->midas) {
       daqLibraries->AddFormatted("-lmidas -lrt");
+   }
 #endif
+   if (this->xz) {
+      daqLibraries->AddFormatted("-llzma");
+   }
+   if (this->bzip2) {
+      daqLibraries->AddFormatted("-lbz2");
+   }
 #endif
 }
 
@@ -957,6 +964,12 @@ void ROMEBuilder::AddDAQFlags()
    if (this->midas)
       daqFlags->AddFormatted("-I$(MIDASSYS)/include/ -DHAVE_MIDAS");
 #endif
+   if (this->xz) {
+      daqFlags->AddFormatted("-DHAVE_XZ");
+   }
+   if (this->bzip2) {
+      daqFlags->AddFormatted("-DHAVE_BZ2");
+   }
 #endif
 }
 

@@ -43,6 +43,8 @@ ROMEBuilder::ROMEBuilder()
 ,makeOutput(kFALSE)
 ,noLink(kFALSE)
 ,midas(kFALSE)
+,xz(kFALSE)
+,bzip2(kFALSE)
 ,orca(kFALSE)
 ,sql(kFALSE)
 ,mysql(kFALSE)
@@ -1367,6 +1369,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, const char *argv[])
    makeOutput = false;
    noLink = false;
    midas = false;
+   xz = false;
+   bzip2 = false;
    orca = false;
    sql = false;
    mysql = false;
@@ -1624,6 +1628,10 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, const char *argv[])
          sqlite = true;
       } else if (!strcmp(argv[i],"-sqlite3")) {
          sqlite3 = true;
+      } else if (!strcmp(argv[i],"-xz")) {
+         xz = true;
+      } else if (!strcmp(argv[i],"-bzip2")) {
+         bzip2 = true;
       } else if (!strcmp(argv[i],"-midas")) {
          midas = true;
          ROMEString midasFile;
@@ -1871,6 +1879,8 @@ void ROMEBuilder::Usage()
    cout<<"  -qm       Quiet make. Not print compile commands in make procedure."<<endl;
 #endif
    cout<<"  -midas    Generated program can be connected to a midas online system (no Argument)"<<endl;
+   cout<<"  -xz       Generated program can read compressed midas files by xz"<<endl;
+   cout<<"  -bzip2    Generated program can read compressed midas files by bzip2"<<endl;
    cout<<"  -orca     Generated program can be connected to a orca DAQ system (no Argument)"<<endl;
    cout<<"  -mysql    Generated program can be connected to a MySQL server (no Argument)"<<endl;
    cout<<"  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)"<<endl;
