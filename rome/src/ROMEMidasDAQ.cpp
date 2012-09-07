@@ -1898,28 +1898,34 @@ ssize_t ROMEMidasFile::Read(void *buf, size_t size)
                break;
             case BZ_UNEXPECTED_EOF:
                ROMEPrint::Error("bzip2: the compressed data ends unexpectedly\n");
-            }
-            if (bzerror == BZ_STREAM_END) {
-               // end of stream, but not necessarily end of
-               // file: get unused bits, close stream, and
-               // open again with the saved unused bits
-               void *punused;
-               int   nunused;
-               char  unused[BZ_MAX_UNUSED];
-               BZ2_bzReadGetUnused(&bzerror, fBZ2File, &punused, &nunused);
-               if (bzerror == BZ_OK && (nunused > 0 || !feof(fBZ2FileHandle))) {
-                  if (nunused > 0) {
-                     memcpy(unused, punused, nunused);
+               break;
+            case BZ_STREAM_END:
+               {
+                  // end of stream, but not necessarily end of
+                  // file: get unused bits, close stream, and
+                  // open again with the saved unused bits
+                  void *punused;
+                  int   nunused;
+                  char  unused[BZ_MAX_UNUSED];
+                  BZ2_bzReadGetUnused(&bzerror, fBZ2File, &punused, &nunused);
+                  if (bzerror == BZ_OK && (nunused > 0 || !feof(fBZ2FileHandle))) {
+                     if (nunused > 0) {
+                        memcpy(unused, punused, nunused);
+                     }
+                     BZ2_bzReadClose(&bzerror, fBZ2File);
+                     fBZ2File = BZ2_bzReadOpen(&bzerror, fBZ2FileHandle, 0, 0, unused, nunused);
+                     union {
+                        void *vbuf;
+                        char *cbuf;
+                     };
+                     vbuf = buf;
+                     n += Read(cbuf + n, size - n);
                   }
-                  BZ2_bzReadClose(&bzerror, fBZ2File);
-                  fBZ2File = BZ2_bzReadOpen(&bzerror, fBZ2FileHandle, 0, 0, unused, nunused);
-                  union {
-                     void *vbuf;
-                     char *cbuf;
-                  };
-                  vbuf = buf;
-                  n += Read(cbuf + n, size - n);
                }
+               break;
+            default:
+               ROMEPrint::Error("bzip2: unknown error\n");
+               break;
             }
          }
       }
