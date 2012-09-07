@@ -5665,10 +5665,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       buffer.AppendFormatted("   if ((%s) &&\n",tmp.Data());
       ParseDependences(taskDependence[taskHierarchyClassIndex[i]], tmp);
       buffer.AppendFormatted("       !(%s)) {\n", tmp.Data());
+      tmp2 = taskDependence[taskHierarchyClassIndex[i]].Data();
+      tmp2.ReplaceAll("\"", "\\\"");
       buffer.AppendFormatted("      cerr<<\"Error: Dependence for the '%s' task is not satisfied.\"<<endl;\n",
                              taskHierarchyName[i].Data());
       buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n",
-                             taskDependence[taskHierarchyClassIndex[i]].Data());
+                             tmp2.Data());
       buffer.AppendFormatted("      ret = kFALSE;\n");
       buffer.AppendFormatted("   }\n");
    }
@@ -5680,9 +5682,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       buffer.AppendFormatted("   if ((%s) &&\n",tmp.Data());
       ParseDependences(tabDependence[i], tmp);
       buffer.AppendFormatted("       !(%s)) {\n", tmp.Data());
+      tmp2 = tabDependence[i].Data();
+      tmp2.ReplaceAll("\"", "\\\"");
       buffer.AppendFormatted("      cerr<<\"Error: Dependence for the '%s' tab is not satisfied.\"<<endl;\n",
                              tabName[i].Data());
-      buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n", tabDependence[i].Data());
+      buffer.AppendFormatted("      cerr<<\"       '%s'\"<<endl<<endl;\n", tmp2.Data());
       buffer.AppendFormatted("      ret = kFALSE;\n");
       buffer.AppendFormatted("   }\n");
    }
