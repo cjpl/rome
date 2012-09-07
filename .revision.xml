@@ -432,3 +432,9 @@
   <Directory>/net/megsrv00/megpv00/nfs/users/sawada/rome</Directory>
   <LastCompile>Sat, 24 Mar 2012 13:54:55 +0000 (GMT) +647017000 nsec</LastCompile>
 </Entry>
+<Entry>
+  <User>ryu</User>
+  <Host>mapro.psi.ch</Host>
+  <Directory>/Users/ryu/Analysis/rome</Directory>
+  <LastCompile>Mon, 03 Sep 2012 09:52:14 UTC +173030000 nsec</LastCompile>
+</Entry>

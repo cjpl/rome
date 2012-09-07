@@ -44,6 +44,9 @@ OSCXXFLAGS = -fno-common
 # __builtin_va_list in _types.h
 # (this might cause side effect)
 CINTFLAGS = -D__builtin_va_list=va_list
+ifeq ($(shell expr $(MACOSX_MINOR) \> 7), 1)
+OSCFLAGS += -I/opt/X11/include
+endif
 endif
 
 ifeq ($(OSTYPE),linux)
