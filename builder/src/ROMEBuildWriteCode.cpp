@@ -274,9 +274,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                   buffer.AppendFormatted("   Set%sSize(%s);\n",
                                          valueName[iFold][i].Data(), valueArraySpecifier[iFold][i].Data());
                   buffer.AppendFormatted("   for (i = 0; i < %s; i++) {\n", valueArraySpecifier[iFold][i].Data());
-                  buffer.AppendFormatted("      %s[i] = rhs.%s[i];\n",
-                                         valueName[iFold][i].Data(), valueName[iFold][i].Data());
+                  buffer.AppendFormatted("      %s[i] = rhs.%s ? rhs.%s[i] : (%s);\n",
+                                         valueName[iFold][i].Data(), valueName[iFold][i].Data(),
+                                         valueName[iFold][i].Data(), valueInit[iFold][i].Data());
                   buffer.AppendFormatted("   }\n");
+                  // set the initial value when the org pointer is 0.
+                  // better to resize to 0 when the org pointer is 0 ?
                }
             }
          }
