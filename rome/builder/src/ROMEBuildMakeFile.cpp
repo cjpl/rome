@@ -2111,6 +2111,10 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
       buffer.AppendFormatted(" -sqlite");
    if (sqlite3)
       buffer.AppendFormatted(" -sqlite3");
+   if (xz)
+      buffer.AppendFormatted(" -xz");
+   if (bzip2)
+      buffer.AppendFormatted(" -bzip2");
    if (pch)
       buffer.AppendFormatted(" -pch");
    if (minRebuild)
