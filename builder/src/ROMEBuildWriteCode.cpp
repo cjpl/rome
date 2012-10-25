@@ -559,8 +559,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("void %s::Get%sCopy(Int_t n,%s* array) const\n",clsName.Data(),
                                       valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (!%s || !n) return;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("   if (!array) array = new %s[n];\n",valueType[iFold][i].Data());
+               buffer.AppendFormatted("   if (!%s || !n || !array) return;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   memcpy(array,%s,n*sizeof(%s));\n",valueName[iFold][i].Data(),
                                       valueType[iFold][i].Data());
                buffer.AppendFormatted("   return;\n");
@@ -593,8 +592,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("void %s::Get%sCopy(Int_t n,%s* array) const\n",clsName.Data(),
                                       valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("{\n");
-               buffer.AppendFormatted("   if (!%s || !n) return;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("   if (!array) array = new %s[n];\n",valueType[iFold][i].Data());
+               buffer.AppendFormatted("   if (!%s || !n || !array) return;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   memcpy(array,&%s",valueName[iFold][i].Data());
                for (iDm = 0; iDm < valueDimension[iFold][i]; iDm++)
                   buffer.AppendFormatted("[0]");
@@ -9920,8 +9918,10 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp()
                                       runHeaderName[i][j].Data());
             }
             buffer.AppendFormatted("         } else {\n");
+#if 0
             buffer.AppendFormatted("            ROMEPrint::Warning(\"Run header '%s' not found in '%%s'.\\n\", romeTree->GetFileName().Data());\n",
                                    runHeaderFolder[i][j].Data());
+#endif
             buffer.AppendFormatted("         }\n");
          }
       }
