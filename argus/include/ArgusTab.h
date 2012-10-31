@@ -83,7 +83,7 @@ public:
    Int_t          IsLogScaleZAt(Int_t displayTypeIndex) { return fLogScaleZ->At(displayTypeIndex); }
 
    void           SetDrawOptionAt(Int_t displayTypeIndex,const char* option) { fDrawOption->AddAt(option,displayTypeIndex); }
-   const char    *GetDrawOptionAt(Int_t displayTypeIndex) { return fDrawOption->At(displayTypeIndex); }
+   const char    *GetDrawOptionAt(Int_t displayTypeIndex) { return fDrawOption->At2(displayTypeIndex).Data(); }
 
    // User Methods
    void           SetTitle(const char* title) { fTitle = title; }

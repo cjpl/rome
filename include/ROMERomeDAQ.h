@@ -7,6 +7,8 @@
 #ifndef ROMERomeDAQ_H
 #define ROMERomeDAQ_H
 
+#include <vector>
+#include <map>
 #include <TFile.h>
 #include <TArrayS.h>
 #include <TArrayL64.h>
@@ -29,7 +31,8 @@ protected:
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object
    TArrayS       fSkipReadTree;                    //! Flag to skip reading tree next time
    TArrayL64     fCurrentTreePosition;             //! current tree read positions
-   Long64_t**    fTreePositionLookup;              //! Array of lookup table of tree read positions
+   std::vector<std::vector<Long64_t> > fTreePositionLookup; //! Array of lookup table of tree read positions
+   std::vector<std::map<std::pair<Long64_t, Long64_t>, Long64_t> > fTreePositionMap; //! Array of lookup table of tree read positions. key:<run,event>, value:position
    Long64_t*     fTreeNEntries;                    //! Number of entries
 
    Int_t         fTimeStamp;                       //! Current time stamp

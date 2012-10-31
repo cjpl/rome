@@ -28,6 +28,8 @@
 #include "ROMETreeInfo.h"
 #include "ROMEODBOfflineDataBase.h"
 
+using namespace std;
+
 ClassImp(ROMERomeDAQ)
 
 //______________________________________________________________________________
@@ -42,7 +44,8 @@ ROMERomeDAQ::ROMERomeDAQ()
 ,fTreeInfo(new ROMETreeInfo())
 ,fSkipReadTree(0)
 ,fCurrentTreePosition(0)
-,fTreePositionLookup(0)
+,fTreePositionLookup()
+,fTreePositionMap()
 ,fTreeNEntries(0)
 ,fTimeStamp(0)
 {
@@ -52,7 +55,6 @@ ROMERomeDAQ::ROMERomeDAQ()
 ROMERomeDAQ::~ROMERomeDAQ()
 {
    SafeDelete(fTreeInfo);
-   SafeDeleteArray(fTreePositionLookup);
    SafeDeleteArray(fTreeNEntries);
    if (fROMETrees) {
       fROMETrees->Delete();
@@ -89,7 +91,8 @@ Bool_t ROMERomeDAQ::Init()
    const Int_t nTree = gROME->GetTreeObjectEntries();
    Int_t j;
 
-   fTreePositionLookup = new Long64_t*[nTree];
+   fTreePositionLookup.resize(nTree);
+   fTreePositionMap.resize(nTree);
    fSkipReadTree.Set(nTree);
    fSkipReadTree.Reset();
    fCurrentTreePosition.Set(nTree);
@@ -109,6 +112,8 @@ Bool_t ROMERomeDAQ::BeginOfRun()
    const Int_t nTree      = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
    Int_t       run        = static_cast<Int_t>(gROME->GetCurrentRunNumber());
+   vector<map<Long64_t, Long64_t> > treePositionMap(nTree); // key:tree#, value:position
+   vector<Bool_t> skipBuildPositionLookup(nTree, kFALSE);
 
    int i, j, k;
    ROMETree *romeTree;
@@ -167,6 +172,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                   }
                } else {
                   fSkipReadTree[j] = 0;
+                  skipBuildPositionLookup[j] = kTRUE;
                }
                romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(j)));
                romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(j))->GetName());
@@ -185,6 +191,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                            }
                         } else {
                            fSkipReadTree[j] = 0;
+                           skipBuildPositionLookup[j] = kTRUE;
                         }
                         romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex)));
                         romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->GetName());
@@ -212,6 +219,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                      }
                   } else {
                      fSkipReadTree[j] = 0;
+                     skipBuildPositionLookup[j] = kTRUE;
                   }
                   romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex)));
                   romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(fInputFileNameIndex))->GetName());
@@ -237,6 +245,8 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                            if (!tree->Read(treename.Data())) {
                               return false;
                            }
+                        } else {
+                           skipBuildPositionLookup[j] = kTRUE;
                         }
                         romeTree->SetFile(static_cast<TFile*>(fRootFiles->At(i)));
                         romeTree->SetFileName(static_cast<TFile*>(fRootFiles->At(i))->GetName());
@@ -292,50 +302,67 @@ Bool_t ROMERomeDAQ::BeginOfRun()
 
       // Prepare event number array
       Int_t iEvent;
-      fMaxEventNumber = 0;
       fTreeInfo->SetEventNumber(0);
 
       // Check max event number
-      for (j = 0; j < nTree; j++) {
-         romeTree = static_cast<ROMETree*>(fROMETrees->At(j));
-         tree = romeTree->GetTree();
-         if (romeTree->isRead()) {
-            Long64_t autoFlush = tree->GetAutoFlush(); 
-            tree->SetAutoFlush(0); 
-            for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
-               tree->GetBranch("Info")->GetEntry(iEvent);
-               if (fMaxEventNumber < fTreeInfo->GetEventNumber()) {
-                  fMaxEventNumber = fTreeInfo->GetEventNumber();
-               }
-            }
-            tree->SetAutoFlush(autoFlush); 
-         }
-      }
       Bool_t eventFound = kFALSE;
       for (j = 0; j < nTree; j++) {
          romeTree = static_cast<ROMETree*>(fROMETrees->At(j));
          tree = romeTree->GetTree();
+         treePositionMap[j].clear();
          if (romeTree->isRead()) {
-            fTreePositionLookup[j] = new Long64_t[static_cast<Int_t>(fMaxEventNumber + 1)];    // Warning : potential loss of data (int)
-            for (iEvent = 0; iEvent < fMaxEventNumber + 1; iEvent++) {
-               fTreePositionLookup[j][iEvent] = -1;
-            }
-            Long64_t autoFlush = tree->GetAutoFlush(); 
-            tree->SetAutoFlush(0); 
-            for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
-               tree->GetBranch("Info")->GetEntry(iEvent);
-               if (fTreeInfo->GetRunNumber() == run) {
-                  fTreePositionLookup[j][fTreeInfo->GetEventNumber()] = iEvent;
-                  if (!eventFound) {
-                     eventFound = kTRUE;
+            if (!skipBuildPositionLookup[j]) {
+               Long64_t autoFlush = tree->GetAutoFlush(); 
+               tree->SetAutoFlush(0); 
+               for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
+                  tree->GetBranch("Info")->GetEntry(iEvent);
+                  fTreePositionMap[j][pair<Long64_t, Long64_t>(fTreeInfo->GetRunNumber(), fTreeInfo->GetEventNumber())] =
+                     iEvent;
+                  if (fTreeInfo->GetRunNumber() == run) {
+                     treePositionMap[j][fTreeInfo->GetEventNumber()] = iEvent;
+                     if (!eventFound) {
+                        eventFound = kTRUE;
+                     }
+                  }
+               }
+               tree->SetAutoFlush(autoFlush); 
+            } else {
+               std::map<std::pair<Long64_t, Long64_t>, Long64_t>::iterator posmap;
+               for (posmap = fTreePositionMap[j].begin();
+                    posmap != fTreePositionMap[j].end();
+                    ++posmap) {
+                  if (posmap->first.first == run) {
+                     treePositionMap[j][posmap->first.second] = posmap->second;
+                     if (!eventFound) {
+                        eventFound = kTRUE;
+                     }
                   }
                }
             }
-            tree->SetAutoFlush(autoFlush); 
-         } else {
-            fTreePositionLookup[j] = 0;
          }
       }
+
+      map<Long64_t, Long64_t>::iterator treePosition;
+      fMaxEventNumber = 0;
+      for (j = 0; j < nTree; j++) {
+         for (treePosition = treePositionMap[j].begin();
+              treePosition != treePositionMap[j].end();
+              ++treePosition) {
+            if (fMaxEventNumber < treePosition->first) {
+               fMaxEventNumber = treePosition->first;
+            }
+         }
+      }
+      for (j = 0; j < nTree; j++) {
+         fTreePositionLookup[j].resize(fMaxEventNumber + 1, -1);
+         fill(fTreePositionLookup[j].begin(), fTreePositionLookup[j].end(), -1);
+         for (treePosition = treePositionMap[j].begin();
+              treePosition != treePositionMap[j].end();
+              ++treePosition) {
+            fTreePositionLookup[j][treePosition->first] = treePosition->second;
+         }
+      }
+
       if (!eventFound) {
          this->SetEndOfRun();
          return kTRUE;
@@ -364,7 +391,8 @@ Bool_t ROMERomeDAQ::BeginOfRun()
 }
 
 //______________________________________________________________________________
-Bool_t ROMERomeDAQ::Event(Long64_t event) {
+Bool_t ROMERomeDAQ::Event(Long64_t event)
+{
    if (gROME->isOffline()) {
       int       j;
       ROMETree *romeTree;
@@ -385,7 +413,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
          romeTree = static_cast<ROMETree*>(fROMETrees->At(j));
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
-            if (gROME->IsFileNameBasedIO()) {
+            if (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO()) {
                treePosition = fCurrentTreePosition[j];
                if (treePosition >= fTreeNEntries[j]) {
                   // next file
@@ -462,10 +490,6 @@ Bool_t ROMERomeDAQ::EndOfRun()
             fRootFiles->Delete();
          }
          SafeDelete(fRootFiles);
-      }
-      // delete sequential number array
-      for (j = 0; j < nTree; j++) {
-         SafeDeleteArray(fTreePositionLookup[j]);
       }
    }
    return true;
