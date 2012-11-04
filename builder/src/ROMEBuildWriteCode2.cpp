@@ -1186,6 +1186,22 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
             subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",
                                                              i);
+            // CompressionAlgorithm
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("CompressionAlgorithm"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (!gAnalyzer->IsROMEMonitor()) {");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   if (## == LZMA)");
+            subSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetTreeObjectAt(%d)->SetCompressionAlgorithm(ROOT::kLZMA);", i);
+            subSubSubGroup->GetLastParameter()->AddSetLine("   else");
+            subSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetTreeObjectAt(%d)->SetCompressionAlgorithm(ROOT::kZLIB);", i);
+            subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (!gAnalyzer->IsROMEMonitor())");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   if (gAnalyzer->GetTreeObjectAt(%d)->GetCompressionAlgorithm() == ROOT::kLZMA)", i);
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"LZMA\"");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   else");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"ZLIB\"");
+#endif
             // AutoSaveSize
             subSubSubGroup->AddParameter(new ROMEConfigParameter("AutoSaveSize"));
             subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");

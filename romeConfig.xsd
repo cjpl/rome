@@ -360,6 +360,11 @@
 					<xs:documentation>Compression level for all branches of the tree. Default is 1.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="CompressionAlgorithm" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Compression algorithm for the output file. ZLIB or LZMA is valid. Default is ZLIB.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="AutoSaveSize" type="xs:integer" default="300000000" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Number of bytes for auto saving. Auto saving is disabled when this is 0. Saving one tree triggers saving all trees to keep consistency of output files. Default is 100000000 for ROOT&lt;v5.26 and 300000000 for ROOT&gt;=v5.26.</xs:documentation>
