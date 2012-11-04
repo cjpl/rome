@@ -6438,6 +6438,9 @@ Bool_t ROMEBuilder::WriteAnalyzer4Cpp()
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
 #endif // R__VISUAL_CPLUSPLUS
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   buffer.AppendFormatted("#include \"Compression.h\"\n");
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -7724,6 +7727,9 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <typeinfo>\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   buffer.AppendFormatted("#include \"Compression.h\"\n");
+#endif
    buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
    buffer.AppendFormatted("#include \"XMLToFormFrame.h\"\n");
    buffer.AppendFormatted("#include \"ROMEDataBase.h\"\n");
@@ -8416,6 +8422,9 @@ Bool_t ROMEBuilder::WriteConfig3Cpp() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <Windows4Root.h>\n");
 #endif // R__VISUAL_CPLUSPLUS
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   buffer.AppendFormatted("#include \"Compression.h\"\n");
+#endif
    buffer.AppendFormatted("#include <typeinfo>\n");
    buffer.AppendFormatted("#include \"ROME.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
@@ -8536,6 +8545,9 @@ Bool_t ROMEBuilder::WriteConfig4Cpp() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <typeinfo>\n");
    buffer.AppendFormatted("#include \"ROME.h\"\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   buffer.AppendFormatted("#include \"Compression.h\"\n");
+#endif
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    for (i = 0; i < numOfFolder; i++) {
