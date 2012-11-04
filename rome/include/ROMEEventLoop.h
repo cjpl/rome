@@ -19,6 +19,10 @@
 #include "ROME.h"
 #include "ROMETask.h"
 #include "ROMEAnalyzer.h"
+#include "TFile.h"
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+#   include "Compression.h"
+#endif
 
 class ROMETreeInfo;
 class TFile;
@@ -190,7 +194,13 @@ protected:
    Bool_t       DAQTerminate();
    static Bool_t IsTerminal() { return ROMEAnalyzer::STDOutIsTerminal() && ROMEAnalyzer::STDErrIsTerminal();}
    TFile       *CreateTFile(const char *fname, Option_t *option = "",
-                            const char *ftitle = "", Int_t compress = 1);
+                            const char *ftitle = "", Int_t compressionLevel = 1, Int_t compressAlgorithm
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+                            = ROOT::kZLIB
+#else
+                            = 0
+#endif
+                           );
    void         AutoSave();
    void         OptimizeTreeMaxMemory() const;
 

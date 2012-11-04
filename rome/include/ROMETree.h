@@ -10,6 +10,9 @@
 #include <TObject.h>
 #include <TTree.h>
 #include <TFile.h>
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+#   include "Compression.h"
+#endif
 #include "ROMEString.h"
 
 class ROMETree : public TNamed
@@ -30,23 +33,24 @@ private:
      /* note: use 4byte integer for odb */
    } fSwitches;                    //!   Switches Structure
 
-   ROMEString  fSwitchesString;    //!   Switches String
-   Long64_t    fAutoSaveSize;      //!   Auto save size
-   Long64_t    fLastSaveSize;      //!   The last saved size
-   Long64_t    fAutoFlushSize;     //!   Auto flush size
-   Long64_t    fCacheSize;         //!   Cache size
-   Bool_t     *fBranchActive;      //!   Flag if brahch is active
-   Int_t       fNBranchActive;     //!   Number of branch active
-   Bool_t     *fBranchRead;        //!   Flag if brahch is active for reading
-   Int_t       fNBranchRead;       //!   Number of branch active
+   ROMEString  fSwitchesString;       // !   Switches String
+   Long64_t    fAutoSaveSize;         // !   Auto save size
+   Long64_t    fLastSaveSize;         // !   The last saved size
+   Long64_t    fAutoFlushSize;        // !   Auto flush size
+   Long64_t    fCacheSize;            // !   Cache size
+   Bool_t     *fBranchActive;         // !   Flag if brahch is active
+   Int_t       fNBranchActive;        // !   Number of branch active
+   Bool_t     *fBranchRead;           // !   Flag if brahch is active for reading
+   Int_t       fNBranchRead;          // !   Number of branch active
 
 protected:
-   TTree      *fTree;              //    Tree
-   ROMEString  fFileName;          //!   Name of the File for the Tree Object
-   ROMEString  fConfigInputFileName;  //!   Name of the File for the Tree Object in the romeConfig file
-   ROMEString  fConfigOutputFileName; //!   Name of the File for the Tree Object in the romeConfig file
-   TFile*      fFile;              //!   File Handle for the Tree Object
-   Int_t       fFileOption;        //!   File Option for the Tree Object
+   TTree      *fTree;                 // Tree
+   ROMEString  fFileName;             // !   Name of the File for the Tree Object
+   ROMEString  fConfigInputFileName;  // !   Name of the File for the Tree Object in the romeConfig file
+   ROMEString  fConfigOutputFileName; // !   Name of the File for the Tree Object in the romeConfig file
+   TFile*      fFile;                 // !   File Handle for the Tree Object
+   Int_t       fFileOption;           // !   File Option for the Tree Object
+   Int_t       fCompressionAlgorithm; // !   Compression algorithm
 
 private:
    ROMETree(const ROMETree &tree); // not implemented
@@ -56,7 +60,13 @@ public:
    ROMETree(TTree *tree = 0, ROMEString fileName = "", ROMEString configInputFileName = "",
             ROMEString configOUtputFileName = "", TFile* file = 0, Int_t fileOption = kOverWrite,
             Bool_t read = 0,Bool_t write = 0,Bool_t fill = 0,Bool_t saveConfig = kFALSE,
-            Int_t compressionLevel = 1, Long64_t maxEntries = 0);
+            Int_t compressionLevel = 1, Long64_t maxEntries = 0, Int_t compressionAlgorithm
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+            = ROOT::kZLIB
+#else
+            = 0
+#endif 
+           );
    virtual ~ROMETree();
 
    void        AllocateBranchActive(Int_t n);
@@ -72,22 +82,23 @@ public:
       SafeDelete(fTree);
 #endif
    }
-   ROMEString &GetFileName()               { return fFileName; }
-   ROMEString &GetConfigInputFileName()    { return fConfigInputFileName; }
-   ROMEString &GetConfigOutputFileName()   { return fConfigOutputFileName; }
-   void        UpdateFilePointer()         { fFile = fTree->GetCurrentFile(); }
-   TFile      *GetFile() const             { return fFile; }
-   void        DeleteFile()                { SafeDelete(fFile); }
-   Bool_t      IsFileOverWrite() const     { return fFileOption == kOverWrite; }
-   Bool_t      IsFileUpdate() const        { return fFileOption == kUpdate; }
-   Bool_t      isRead() const              { return fSwitches.fRead != 0; }
-   Bool_t      isWrite() const             { return fSwitches.fWrite != 0; }
-   Bool_t      isFill() const              { return fSwitches.fFill != 0; }
-   Bool_t      isSaveConfig() const        { return fSwitches.fSaveConfig != 0; }
-   Int_t       GetCompressionLevel() const { return fSwitches.fCompressionLevel; }
-   Long64_t    GetAutoSaveSize() const     { return fAutoSaveSize; }
-   Long64_t    GetAutoFlushSize() const    { return fAutoFlushSize; }
-   Long64_t    GetCacheSize() const        { return fCacheSize; }
+   ROMEString &GetFileName()                   { return fFileName; }
+   ROMEString &GetConfigInputFileName()        { return fConfigInputFileName; }
+   ROMEString &GetConfigOutputFileName()       { return fConfigOutputFileName; }
+   void        UpdateFilePointer()             { fFile = fTree->GetCurrentFile(); }
+   TFile      *GetFile() const                 { return fFile; }
+   void        DeleteFile()                    { SafeDelete(fFile); }
+   Bool_t      IsFileOverWrite() const         { return fFileOption == kOverWrite; }
+   Bool_t      IsFileUpdate() const            { return fFileOption == kUpdate; }
+   Bool_t      isRead() const                  { return fSwitches.fRead != 0; }
+   Bool_t      isWrite() const                 { return fSwitches.fWrite != 0; }
+   Bool_t      isFill() const                  { return fSwitches.fFill != 0; }
+   Bool_t      isSaveConfig() const            { return fSwitches.fSaveConfig != 0; }
+   Int_t       GetCompressionLevel() const     { return fSwitches.fCompressionLevel; }
+   Int_t       GetCompressionAlgorithm() const { return fCompressionAlgorithm; }
+   Long64_t    GetAutoSaveSize() const         { return fAutoSaveSize; }
+   Long64_t    GetAutoFlushSize() const        { return fAutoFlushSize; }
+   Long64_t    GetCacheSize() const            { return fCacheSize; }
    Bool_t      isCircular() const {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
                   return fSwitches.fMaxEntries != 0;
@@ -118,9 +129,15 @@ public:
    void        SetSaveConfig(Bool_t saveConfig) { fSwitches.fSaveConfig = saveConfig; }
    void        SetCompressionLevel(Int_t compressionLevel) {
                   fSwitches.fCompressionLevel = compressionLevel;
-                  TObjArray *branches = fTree->GetListOfBranches();
-                  for (Int_t i=0;i<branches->GetEntriesFast();i++)
-                     (static_cast<TBranch*>(branches->At(i)))->SetCompressionLevel(compressionLevel);
+                  if (fTree) {
+                     TObjArray *branches = fTree->GetListOfBranches();
+                     for (Int_t i=0;i<branches->GetEntriesFast();i++)
+                        (static_cast<TBranch*>(branches->At(i)))->SetCompressionLevel(compressionLevel);
+                  }
+               }
+   void        SetCompressionAlgorithm(Int_t compressionAlgorithm) {
+                  fCompressionAlgorithm = compressionAlgorithm;
+                  if (fFile) { fFile->SetCompressionAlgorithm(compressionAlgorithm); }
                }
    void        SetAutoSaveSize(Long64_t size)   { fAutoSaveSize = size; }
    Long64_t    AutoSave(Option_t *option);

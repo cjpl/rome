@@ -687,7 +687,8 @@ Bool_t ROMEEventLoop::DAQInit()
                   path += "/"; // trailing "/" is needed to work mkdir() correctly.
                   gSystem->mkdir(path.Data(), kTRUE);
                }
-               file = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
+               file = CreateTFile(filename.Data(), gROME->GetOutputFileOption(), "", 1,
+                                  romeTree->GetCompressionAlgorithm());
                if (!file || file->IsZombie()) {
                   return false;
                }
@@ -825,7 +826,8 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
                      path += "/"; // trailing "/" is needed to work mkdir() correctly.
                      gSystem->mkdir(path.Data(), kTRUE);
                   }
-                  file = CreateTFile(filename.Data(), gROME->GetOutputFileOption());
+                  file = CreateTFile(filename.Data(), gROME->GetOutputFileOption(), "", 1,
+                                     romeTree->GetCompressionAlgorithm());
                   if (!file || file->IsZombie()) {
                      return false;
                   }
@@ -1707,7 +1709,11 @@ void ROMEEventLoop::ReadHistograms()
 }
 
 //______________________________________________________________________________
-TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const char *ftitle, Int_t compress)
+TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const char *ftitle, Int_t compressionLevel, Int_t
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+                                  compressionAlgorithm
+#endif
+                                 )
 {
    Int_t num = 1;
    Int_t extPos ,pos;
@@ -1751,7 +1757,14 @@ TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const cha
       opt = "RECREATE";
    }
 
-   return new TFile(filename.Data(), opt.Data(), ftitle, compress);
+   TFile *ret = new TFile(filename.Data(), opt.Data(), ftitle, compressionLevel);
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   if (ret) {
+      ret->SetCompressionAlgorithm(compressionAlgorithm);
+   }
+#endif
+
+   return ret;
 }
 
 //______________________________________________________________________________

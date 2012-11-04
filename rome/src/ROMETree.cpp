@@ -27,7 +27,7 @@ ClassImp(ROMETree)
 ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileName,
                    ROMEString configOutputFileName, TFile *file, Int_t fileOption,
                    Bool_t read, Bool_t write, Bool_t fill, Bool_t saveConfig, Int_t compressionLevel,
-                   Long64_t maxEntries)
+                   Long64_t maxEntries, Int_t compressionAlgorithm)
 :TNamed()
 ,fSwitches()
 ,fSwitchesString("Read = BOOL : 0\n"
@@ -57,6 +57,7 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
 ,fConfigOutputFileName(configOutputFileName)
 ,fFile(file)
 ,fFileOption(fileOption)
+,fCompressionAlgorithm(compressionAlgorithm)
 {
    fSwitches.fRead = read;
    fSwitches.fWrite = write;
