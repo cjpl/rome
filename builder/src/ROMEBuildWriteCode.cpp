@@ -11548,6 +11548,9 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
    buffer.AppendFormatted("#include <TFile.h>\n");
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+   buffer.AppendFormatted("#include \"Compression.h\"\n");
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -11617,12 +11620,17 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("void %sEventLoop::AddTreeBranches()\n{\n",shortCut.Data());
    buffer.AppendFormatted("   if (!gAnalyzer->IsROMEMonitor()) {\n");
    if (numOfTree>0) {
-      buffer.AppendFormatted("      TTree *tree;\n");
+      buffer.AppendFormatted("      TTree    *tree;\n");
+      buffer.AppendFormatted("      ROMETree *romeTree;\n");
    }
    for (i = 0; i < numOfTree; i++) {
-      buffer.AppendFormatted("      tree = gAnalyzer->GetTreeObjectAt(%d)->GetTree();\n",i);
-      buffer.AppendFormatted("      tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000, 99)->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",
-                             i);
+      buffer.AppendFormatted("      romeTree = gAnalyzer->GetTreeObjectAt(%d);\n",i);
+      buffer.AppendFormatted("      tree     = romeTree->GetTree();\n");
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,30,0))
+      buffer.AppendFormatted("      tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000, 99)->SetCompressionLevel(romeTree->GetCompressionLevel());\n");
+#else
+      buffer.AppendFormatted("      tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000, 99)->SetCompressionSettings(ROOT::CompressionSettings(ROOT::ECompressionAlgorithm(romeTree->GetCompressionAlgorithm()), romeTree->GetCompressionLevel()));\n");
+#endif
       for (j = 0; j < numOfBranch[i]; j++) {
          for (k = 0; k < numOfFolder; k++) {
             if (branchFolder[i][j] == folderName[k] && !folderSupport[k])
@@ -11630,16 +11638,29 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          }
          if (!folderUsed[iFold])
             continue;
-         buffer.AppendFormatted("      if(gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)) {\n",i,j);
+         buffer.AppendFormatted("      if(romeTree->GetBranchActiveAt(%d)) {\n",j);
          if (folderArray[iFold] == "1") {
-            buffer.AppendFormatted("         tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,30,0))
+            buffer.AppendFormatted("         tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionLevel(romeTree->GetCompressionLevel());\n",
                                    branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),
                                    branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),
-                                   branchSplitLevel[i][j].Data(),i);
+                                   branchSplitLevel[i][j].Data());
+#else
+            buffer.AppendFormatted("         tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionSettings(ROOT::CompressionSettings(ROOT::ECompressionAlgorithm(romeTree->GetCompressionAlgorithm()), romeTree->GetCompressionLevel()));\n",
+                                   branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),
+                                   branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),
+                                   branchSplitLevel[i][j].Data());
+#endif
          } else {
-            buffer.AppendFormatted("         tree->Branch(\"%s\", \"TClonesArray\", gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",
+#if (ROOT_VERSION_CODE < ROOT_VERSION(5,30,0))
+            buffer.AppendFormatted("         tree->Branch(\"%s\", \"TClonesArray\", gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionLevel(romeTree->GetCompressionLevel());\n",
                                    branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),
-                                   branchSplitLevel[i][j].Data(),i);
+                                   branchSplitLevel[i][j].Data());
+#else
+            buffer.AppendFormatted("         tree->Branch(\"%s\", \"TClonesArray\", gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionAlgorithm(ROOT::CompressionSettings(ROOT::ECompressionAlgorithm(romeTree->GetCompressionAlgorithm()), romeTree->GetCompressionLevel()));\n",
+                                   branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),
+                                   branchSplitLevel[i][j].Data());
+#endif
          }
          buffer.AppendFormatted("      }\n");
       }
