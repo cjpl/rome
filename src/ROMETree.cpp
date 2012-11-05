@@ -72,6 +72,9 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configInputFileN
    TObjArray *branches = fTree->GetListOfBranches();
    for (Int_t i = 0; i < branches->GetEntriesFast(); i++) {
       static_cast <TBranch*>(branches->At(i))->SetCompressionLevel(compressionLevel);
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+      static_cast <TBranch*>(branches->At(i))->SetCompressionAlgorithm(compressionAlgorithm);
+#endif
    }
 }
 
