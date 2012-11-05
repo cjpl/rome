@@ -129,6 +129,7 @@ public:
    void        SetSaveConfig(Bool_t saveConfig) { fSwitches.fSaveConfig = saveConfig; }
    void        SetCompressionLevel(Int_t compressionLevel) {
                   fSwitches.fCompressionLevel = compressionLevel;
+                  if (fFile) fFile->SetCompressionLevel(compressionLevel);
                   if (fTree) {
                      TObjArray *branches = fTree->GetListOfBranches();
                      for (Int_t i=0;i<branches->GetEntriesFast();i++)
@@ -137,7 +138,14 @@ public:
                }
    void        SetCompressionAlgorithm(Int_t compressionAlgorithm) {
                   fCompressionAlgorithm = compressionAlgorithm;
-                  if (fFile) { fFile->SetCompressionAlgorithm(compressionAlgorithm); }
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+                  if (fFile) fFile->SetCompressionAlgorithm(compressionAlgorithm);
+                  if (fTree) {
+                     TObjArray *branches = fTree->GetListOfBranches();
+                     for (Int_t i=0;i<branches->GetEntriesFast();i++)
+                        (static_cast<TBranch*>(branches->At(i)))->SetCompressionAlgorithm(compressionAlgorithm);
+                  }
+#endif
                }
    void        SetAutoSaveSize(Long64_t size)   { fAutoSaveSize = size; }
    Long64_t    AutoSave(Option_t *option);
