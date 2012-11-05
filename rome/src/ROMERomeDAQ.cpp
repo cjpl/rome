@@ -40,7 +40,7 @@ ROMERomeDAQ::ROMERomeDAQ()
 ,fTreeIndex(0)
 ,fInputFileNameIndex(-1)
 ,fCurrentTreeName("")
-,fMaxEventNumber(0)
+,fMaxEventNumber(-1)
 ,fTreeInfo(new ROMETreeInfo())
 ,fSkipReadTree(0)
 ,fCurrentTreePosition(0)
@@ -112,7 +112,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
    const Int_t nTree      = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
    Int_t       run        = static_cast<Int_t>(gROME->GetCurrentRunNumber());
-   vector<map<Long64_t, Long64_t> > treePositionMap(nTree); // key:tree#, value:position
+   vector<map<Long64_t, Long64_t> > treePositionMap(nTree); // key:event#, value:position
    vector<Bool_t> skipBuildPositionLookup(nTree, kFALSE);
 
    int i, j, k;
@@ -343,7 +343,7 @@ Bool_t ROMERomeDAQ::BeginOfRun()
       }
 
       map<Long64_t, Long64_t>::iterator treePosition;
-      fMaxEventNumber = 0;
+      fMaxEventNumber = -1;
       for (j = 0; j < nTree; j++) {
          for (treePosition = treePositionMap[j].begin();
               treePosition != treePositionMap[j].end();
@@ -399,11 +399,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event)
       TTree    *tree;
       bool      found = false;
       int       treePosition;
-
-      if (event > fMaxEventNumber) {
-         this->SetEndOfRun();
-         return true;
-      }
+      vector<vector<Long64_t> >::iterator lookUpIt;
 
       gROME->SetEventID(kTriggerEventID);
 
@@ -422,8 +418,12 @@ Bool_t ROMERomeDAQ::Event(Long64_t event)
                   return true;
                }
             } else {
-               treePosition = static_cast<Int_t>(fTreePositionLookup[j][event]);
-               fCurrentTreePosition[j] = treePosition;
+               if ((it = fTreePositionLookup[j].find(event)) != fTreePositionLookup[j].end()) {
+                  treePosition = it.second;
+                  fCurrentTreePosition[j] = treePosition;
+               } else {
+                  treePosition = -1;
+               }
             }
             if (treePosition >= 0 && treePosition < fTreeNEntries[j]) {
                found = true;
@@ -434,7 +434,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event)
                }
                tree->GetEntry(treePosition);
                UpdateVariableSize(j);
-               gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
+               gROME->SetCurrentEventNumber((event = fTreeInfo->GetEventNumber()));
                fTimeStamp = fTreeInfo->GetTimeStamp();
                if (fTreeInfo->GetRunNumber() != gROME->GetCurrentRunNumber()) {
                   // read this file again.
@@ -444,6 +444,10 @@ Bool_t ROMERomeDAQ::Event(Long64_t event)
                   this->SetEndOfRun();
                   return true;
                }
+            }
+            if (event > fMaxEventNumber) {
+               this->SetEndOfRun();
+               return true;
             }
             fCurrentTreePosition[j]++;
          }
