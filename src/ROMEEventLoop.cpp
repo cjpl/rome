@@ -1762,7 +1762,7 @@ TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const cha
 
    return new TFile(filename.Data(), opt.Data(), ftitle,
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
-                    ROOT::CompressionSettings(compressionAlgorithm, compressionLevel)
+                    ROOT::CompressionSettings(ROOT::ECompressionAlgorithm(compressionAlgorithm), compressionLevel)
 #else
                     compressionLevel
 #endif
