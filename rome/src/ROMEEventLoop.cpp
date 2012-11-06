@@ -28,6 +28,9 @@
 #else
 #   include <TDirectoryFile.h>
 #endif
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
+#   include <Compression.h>
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -1757,14 +1760,14 @@ TFile* ROMEEventLoop::CreateTFile(const char *fname, Option_t *option, const cha
       opt = "RECREATE";
    }
 
-   TFile *ret = new TFile(filename.Data(), opt.Data(), ftitle, compressionLevel);
+   return new TFile(filename.Data(), opt.Data(), ftitle,
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0))
-   if (ret) {
-      ret->SetCompressionAlgorithm(compressionAlgorithm);
-   }
+                    compressionLevel
+#else
+//                    ROOT::CompressionSettings(compressionAlgorithm, compressionLevel)
+                    ROOT::CompressionSettings(compressionAlgorithm, compressionLevel)
 #endif
-
-   return ret;
+                   );
 }
 
 //______________________________________________________________________________

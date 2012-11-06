@@ -11657,7 +11657,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
                                    branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),
                                    branchSplitLevel[i][j].Data());
 #else
-            buffer.AppendFormatted("         tree->Branch(\"%s\", \"TClonesArray\", gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionAlgorithm(ROOT::CompressionSettings(ROOT::ECompressionAlgorithm(romeTree->GetCompressionAlgorithm()), romeTree->GetCompressionLevel()));\n",
+            buffer.AppendFormatted("         tree->Branch(\"%s\", \"TClonesArray\", gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionSettings(ROOT::CompressionSettings(ROOT::ECompressionAlgorithm(romeTree->GetCompressionAlgorithm()), romeTree->GetCompressionLevel()));\n",
                                    branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),
                                    branchSplitLevel[i][j].Data());
 #endif
