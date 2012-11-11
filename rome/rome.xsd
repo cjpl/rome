@@ -116,6 +116,11 @@
 					<xs:documentation>Name of the executable. The executable will be named as  [Shortcut][ProgramName].exe. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ProgramName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Filename extension of the executable. The default is &quot;.exe&quot;. When it is &quot;auto&quot;, no extension is used for Unix-like systems, and &quot;.exe&quot; on Windows. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="ProgramDefinitionVersion" type="xs:integer" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Version number of the program definition (currently only for the task hierarchy). This number is used as the version number of [ProgramName]ConfigParameters folder which contains 'Active' flags of tasks and the folder can be saved in output files. If you use &lt;SaveConfig&gt; of trees, please increment this value when the task hierarchy is changed (adding task, deleting task, changing task name and changing execution order). If you use SVN, you can put '$Rev$' in this field. Please note that the maximum is 16383(0x3FFF) (optional)</xs:documentation>
