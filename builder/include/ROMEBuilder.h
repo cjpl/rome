@@ -521,6 +521,7 @@ protected:
    ROMEString   *mainCollaboration;
    ROMEString   *mainEmail;
    ROMEString    mainProgName;
+   ROMEString    mainProgNameExtension;
    ROMEString    mainDefinitionVersion;
    ROMEString    mainDescription;
    ROMEString    styleSheet;

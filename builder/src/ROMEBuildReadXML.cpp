@@ -612,6 +612,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    baseURL = "htmldoc/";
    shortCut = "";
    mainProgName = "";
+   mainProgNameExtension = ".exe";
    mainDescription = "";
 
    numOfMainAuthors = 0;
@@ -698,6 +699,17 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      if (type == 1 && !strcmp(name,"ProgramName")) {
                         xml->GetValue(mainProgName,mainProgName);
                         FormatText(mainProgName, kTRUE, " ");
+                     }
+                     if (type == 1 && !strcmp(name,"ProgramNameExtension")) {
+                        xml->GetValue(mainProgNameExtension,mainProgNameExtension);
+                        FormatText(mainProgNameExtension, kTRUE, " ");
+                        if (mainProgNameExtension == "auto") {
+#if defined( R__UNIX )
+                           mainProgNameExtension = "";
+#else
+                           mainProgNameExtension = ".exe";
+#endif
+                        }
                      }
                      if (type == 1 && !strcmp(name,"DictionaryType")) {
                         xml->GetValue(tmp,tmp);

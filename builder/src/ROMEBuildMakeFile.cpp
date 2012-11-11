@@ -2309,9 +2309,9 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" %s",objDirList.At(i).Data());
    }
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted(" %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted(" %s%s%s endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2), mainProgNameExtension.Data());
 #else
-   buffer.AppendFormatted(" pch %s%s.exe\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted(" pch %s%s%s\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2), mainProgNameExtension.Data());
    buffer.AppendFormatted("\t@$(RM) $(NTARGETS_FILE)\n");
 #endif
    buffer.AppendFormatted("\n\n");
@@ -2366,29 +2366,32 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("## Link statements\n");
 
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),
-                          mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+   buffer.AppendFormatted("%s%s%s: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),
+                          mainProgName.ToLower(tmp2),mainProgNameExtension.Data(),
+                          shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    buffer.AppendFormatted("\t@echo linking %s%s...\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("\t@cl /nologo /Fe%s%s%s $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data(),mainProgNameExtension.Data());
 #else
    ROMEString linker;
    ROMEString linkCommand;
    linker = "$(Q)$(CXXLD)";
    linkCommand = "$(Q)ln -sf";
    if (dynamicLink) {
-      buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) obj/lib%s%s%s\n",shortCut.ToLower(tmp),
-                             mainProgName.ToLower(tmp2),shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
-      buffer.AppendFormatted("\t$(call %sechoing, \"linking   %s%s.exe\")\n",shortCut.ToLower(tmp),
-                             shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3));
+      buffer.AppendFormatted("%s%s%s: $(dependfiles) $(objects) obj/lib%s%s%s\n",shortCut.ToLower(tmp),
+                             mainProgName.ToLower(tmp2),mainProgNameExtension.Data(),
+                             shortCut.Data(),mainProgName.Data(),kSharedObjectSuffix);
+      buffer.AppendFormatted("\t$(call %sechoing, \"linking   %s%s%s\")\n",shortCut.ToLower(tmp),
+                             shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),mainProgNameExtension.Data());
       buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o .$@ $(PWDST)/obj/lib%s%s%s $(objects) $(Libraries) && \\\n",
                              linker.Data(),shortCut.ToUpper(tmp),shortCut.Data(),mainProgName.Data(),
                              kSharedObjectSuffix);
       buffer.AppendFormatted("\tmv .$@ $@\n");
    } else {
-      buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),
-                             mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
-      buffer.AppendFormatted("\t$(call %sechoing, \"linking   %s%s.exe\")\n",shortCut.ToLower(tmp),
-                             shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3));
+      buffer.AppendFormatted("%s%s%s: $(dependfiles) $(objects) $(%s%sDep)\n",shortCut.ToLower(tmp),
+                             mainProgName.ToLower(tmp2),mainProgNameExtension.Data(),
+                             shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+      buffer.AppendFormatted("\t$(call %sechoing, \"linking   %s%s%s\")\n",shortCut.ToLower(tmp),
+                             shortCut.ToLower(tmp2),mainProgName.ToLower(tmp3),mainProgNameExtension.Data());
       buffer.AppendFormatted("\t%s $(%sLDFLAGS) $(LDFLAGS) -o .$@ $(objects) $(Libraries) && \\\n", linker.Data(),
                              shortCut.ToUpper(tmp));
       buffer.AppendFormatted("\tmv .$@ $@\n");

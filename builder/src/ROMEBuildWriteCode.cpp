@@ -13326,10 +13326,10 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    SetCapacity(cFile, &buffer);
 
    WriteHeader(buffer, numOfMainAuthors, mainAuthor, mainEmail, true);
-   macroDescription.AppendFormatted("This macro shows how to read output file from %s%s.exe.\n\n",
-                                    shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
+   macroDescription.AppendFormatted("This macro shows how to read output file from %s%s%s.\n\n",
+                                    shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), mainProgNameExtension.Data());
    macroDescription.AppendFormatted(" Usage\n");
-   macroDescription.AppendFormatted("   %% %s%s.exe -I;\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
+   macroDescription.AppendFormatted("   %% %s%s%s -I;\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), mainProgNameExtension.Data());
    macroDescription.AppendFormatted("   %s%s [0] .L src/generated/%sReadTrees.C\n", shortCut.ToLower(tmp),
                                     mainProgName.ToLower(tmp2), shortCut.Data());
    macroDescription.AppendFormatted("   %s%s [1] %sReadTrees(1, 0, 10)\n", shortCut.ToLower(tmp),
@@ -13700,7 +13700,7 @@ Bool_t ROMEBuilder::WriteDistillTreesC()
       macroDescription.AppendFormatted(" Usage\n");
       macroDescription.AppendFormatted("   Copy this macro somewhere.\n");
       macroDescription.AppendFormatted("   Edit \"EventSelection()\" and active flags of branches written below.\n");
-      macroDescription.AppendFormatted("   %% %s%s.exe -I\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
+      macroDescription.AppendFormatted("   %% %s%s%s -I\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), mainProgNameExtension.Data());
       macroDescription.AppendFormatted("   %s%s [0] .L src/generated/%sDistill%sTree.C\n", shortCut.ToLower(tmp),
                                        mainProgName.ToLower(tmp2), shortCut.Data(), treeName[iTree].Data());
       macroDescription.AppendFormatted("   %s%s [1] %sDistill%sTree(\"./\", \"./\",\n",
