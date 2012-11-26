@@ -399,7 +399,6 @@ Bool_t ROMERomeDAQ::Event(Long64_t event)
       TTree    *tree;
       bool      found = false;
       int       treePosition;
-      vector<Long64_t>::iterator lookUpIt;
 
       gROME->SetEventID(kTriggerEventID);
 
@@ -418,8 +417,8 @@ Bool_t ROMERomeDAQ::Event(Long64_t event)
                   return true;
                }
             } else {
-               if ((lookUpIt = find(fTreePositionLookup[j].begin(), fTreePositionLookup[j].end(), event)) != fTreePositionLookup[j].end()) {
-                  treePosition = (*lookUpIt);
+               if (event < static_cast<Long64_t>(fTreePositionLookup[j].size()) &&
+				   (treePosition = fTreePositionLookup[j][event]) != -1) {
                   fCurrentTreePosition[j] = treePosition;
                } else {
                   treePosition = -1;
