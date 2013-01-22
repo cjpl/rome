@@ -312,8 +312,10 @@ Bool_t ROMERomeDAQ::BeginOfRun()
          treePositionMap[j].clear();
          if (romeTree->isRead()) {
             if (!skipBuildPositionLookup[j]) {
+#if 0 /* this cause crash with ROOT v5.32.03 */
                Long64_t autoFlush = tree->GetAutoFlush(); 
                tree->SetAutoFlush(0); 
+#endif
                for (iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
                   tree->GetBranch("Info")->GetEntry(iEvent);
                   fTreePositionMap[j][pair<Long64_t, Long64_t>(fTreeInfo->GetRunNumber(), fTreeInfo->GetEventNumber())] =
@@ -325,7 +327,9 @@ Bool_t ROMERomeDAQ::BeginOfRun()
                      }
                   }
                }
+#if 0 /* this cause crash with ROOT v5.32.03 */
                tree->SetAutoFlush(autoFlush); 
+#endif
             } else {
                std::map<std::pair<Long64_t, Long64_t>, Long64_t>::iterator posmap;
                for (posmap = fTreePositionMap[j].begin();
