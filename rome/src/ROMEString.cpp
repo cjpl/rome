@@ -387,7 +387,7 @@ char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
    }
 
    va_list apcopy;
-   va_copy(apcopy, ap);
+   R__VA_COPY(apcopy, ap);
    int n = vsnprintf(slowBuffer, slowBufferSize, format, ap);
    // old vsnprintf's return -1 if string is truncated new ones return
    // total number of characters that would have been written
@@ -425,7 +425,7 @@ char* ROMEString::Format(const char *format, va_list ap)
    }
 
    va_list apcopy;
-   va_copy(apcopy, ap);
+   R__VA_COPY(apcopy, ap);
    int n = vsnprintf(buf, fld_size, format, ap);
    // old vsnprintf's return -1 if string is truncated new ones return
    // total number of characters that would have been written
