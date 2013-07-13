@@ -16,28 +16,26 @@
 class ROMEPath;
 class ROMEStr2DArray;
 
-const Int_t kNumberOfReadCache = 1000;
-
 class ROMESQLDataBase : public ROMEDataBase
 {
 protected:
-   ROMEString  fSelectFieldList;
-   ROMEString  fInsertFieldList;
-   ROMEString  fSetFieldList;
-   ROMEString  fFromPhrase;
-   ROMEString  fWherePhrase;
-   ROMEString  fAdInsertFields;
-   ROMEString  fAdInsertValues;
-   ROMESQL    *fSQL;
-   TString     fDBMSType;
-   ROMEString  fQueryCache[kNumberOfReadCache];
-   ROMEString  fDBPathCache[kNumberOfReadCache];
-   ROMEPath   *fPathCache[kNumberOfReadCache];
-   Int_t       fCurrentCache;
-   Long64_t    fLastRunNumber;
-   Long64_t    fLastEventNumber;
-   char        fLastRunNumberString[21];
-   char        fLastEventNumberString[21];
+   ROMEString              fSelectFieldList;
+   ROMEString              fInsertFieldList;
+   ROMEString              fSetFieldList;
+   ROMEString              fFromPhrase;
+   ROMEString              fWherePhrase;
+   ROMEString              fAdInsertFields;
+   ROMEString              fAdInsertValues;
+   ROMESQL                *fSQL;
+   TString                 fDBMSType;
+   std::vector<ROMEString> fQueryCache;
+   std::vector<ROMEString> fDBPathCache;
+   std::vector<ROMEPath*>  fPathCache;
+   Int_t                   fCurrentCache;
+   Long64_t                fLastRunNumber;
+   Long64_t                fLastEventNumber;
+   char                    fLastRunNumberString[21];
+   char                    fLastEventNumberString[21];
 
 private:
    ROMESQLDataBase(const ROMESQLDataBase &db); // not implemented

@@ -32,6 +32,7 @@ const char RSQLDB_STR[] = "RomeWasNotBuiltInADay";
 const int RSQLDB_STR_LEN = strlen(RSQLDB_STR);
 const char *const kRunNumberReplace = "R_UN_NUMBE_R";
 const char *const kEventNumberReplace = "E_VENT_NUMBE_R";
+const Int_t kNumberOfReadCache = 1000;
 
 ClassImp(ROMESQLDataBase)
 
@@ -41,6 +42,8 @@ inline Bool_t InRange(Int_t value, Int_t b1, Int_t b2) {
    return TMath::Min(b1, b2) <= value && value <= TMath::Max(b1, b2);
 }
 }
+
+using namespace std;
 
 //______________________________________________________________________________
 ROMESQLDataBase::ROMESQLDataBase()
@@ -54,14 +57,13 @@ ROMESQLDataBase::ROMESQLDataBase()
 , fAdInsertValues("")
 , fSQL(0)
 , fDBMSType("")
+, fQueryCache(kNumberOfReadCache, "")
+, fDBPathCache(kNumberOfReadCache, "")
+, fPathCache(kNumberOfReadCache, static_cast<ROMEPath*>(0))
 , fCurrentCache(0)
 , fLastRunNumber(0)
 , fLastEventNumber(0)
 {
-   Int_t i;
-   for (i = 0; i < kNumberOfReadCache; i++) {
-      fPathCache[i] = 0;
-   }
    sprintf(fLastRunNumberString, "0");
    sprintf(fLastEventNumberString, "0");
 }
@@ -69,9 +71,9 @@ ROMESQLDataBase::ROMESQLDataBase()
 //______________________________________________________________________________
 ROMESQLDataBase::~ROMESQLDataBase()
 {
-   Int_t i;
-   for (i = 0; i < kNumberOfReadCache; i++) {
-      SafeDelete(fPathCache[i]);
+   vector<ROMEPath*>::iterator it;
+   for (it = fPathCache.begin(); it != fPathCache.end(); ++it) {
+      SafeDelete(*it);
    }
    SafeDelete(fSQL);
 }

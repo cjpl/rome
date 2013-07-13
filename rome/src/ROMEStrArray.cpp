@@ -44,10 +44,6 @@ ROMEStrArray::~ROMEStrArray()
 //______________________________________________________________________________
 void ROMEStrArray::Delete(Option_t * /*option*/)
 {
-   const Int_t nStr = array->GetEntriesFast();
-   for (int i=0;i<nStr;i++) {
-      delete array->At(i);
-   }
    array->RemoveAll();
 }
 
