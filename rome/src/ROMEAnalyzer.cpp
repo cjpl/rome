@@ -114,7 +114,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app, Bool_t batch, Bool_t daemon, Bool_t no
 ,fBatchMode(batch)
 ,fDaemonMode(daemon)
 ,fQuitMode(batch || daemon)
-,fGraphicalConfigEdit(kTRUE)
+,fGraphicalConfigEdit(kFALSE)
 ,fPreserveConfig(kFALSE)
 ,fNoGraphics(batch || daemon || nographics)
 ,fSplashScreen(!nographics)
